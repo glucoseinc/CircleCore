@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import find_packages, setup
+
 setup(
     name='CircleCore',
     version='0.1',
