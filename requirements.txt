@@ -6,6 +6,7 @@
 #
 click==6.6
 configparser==3.5.0       # via flake8
+coverage==4.2
 enum34==1.1.6             # via flake8
 flake8-import-order==0.11
 flake8==3.0.4
