@@ -15,6 +15,6 @@ tornado_app = Application([
 # これだとパフォーマンスに悪影響が出るっぽいのでどうしようか
 
 
-def run_server():
+def run():
     tornado_app.listen(5000)
     IOLoop.current().start()
