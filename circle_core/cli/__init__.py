@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from circle_core.cli.device import cli_device
 from circle_core.models.config import Config
 
 import click
@@ -25,3 +26,6 @@ def cli_env(ctx):
     # type: (Any) -> None
     click.echo(ctx.obj['config_url'])
     click.echo(ctx.obj['uuid'])
+
+
+cli_main.add_command(cli_device, 'device')
