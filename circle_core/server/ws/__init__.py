@@ -1,3 +1,4 @@
+from circle_core.utils import logger
 from tornado.websocket import WebSocketHandler
 
 
@@ -9,18 +10,18 @@ class SensorHandler(WebSocketHandler):
   waiters = set()
 
   def open(self):
-    print('open:', self)  # TODO: Use logging
     SensorHandler.waiters.add(self)
     self.write_message('Greetings from Tornado!')
+    logger.debug('connection opened: %s', self)
 
   def on_message(self, message):
-    print('message "{}" is sent to {}'.format(message, self))
     for connection in SensorHandler.waiters:
       connection.write_message(message)
+    logger.debug('message "%s" is sent from %s', message, self)
 
   def on_close(self):
-    print('close:', self)
     SensorHandler.waiters.remove(self)
+    logger.debug('connection closed: %s', self)
 
   def check_origin(self, origin):
     # デフォルトでCORSチェックが有効になっている

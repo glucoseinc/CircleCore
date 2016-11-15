@@ -1,4 +1,4 @@
-from tornado.wsgi import WSGIContainer, WSGIAdapter
+from tornado.wsgi import WSGIContainer
 from tornado.web import Application, FallbackHandler
 from tornado.ioloop import IOLoop
 from circle_core.server.wui import create_app
