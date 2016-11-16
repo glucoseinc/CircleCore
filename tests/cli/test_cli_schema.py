@@ -17,6 +17,6 @@ class TestCliDevice(object):
     ])
     def test_device_list(self, main_params, expected_output_length):
         runner = CliRunner()
-        result = runner.invoke(cli_main, main_params + ['device', 'list'])
+        result = runner.invoke(cli_main, main_params + ['schema', 'list'])
         assert result.exit_code == 0
         len(result.output.split('\n')) == expected_output_length
