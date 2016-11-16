@@ -19,18 +19,15 @@ else:
 
 class Config(object):
     def __init__(self, schemas, devices):
-        # type: (list, list) -> None
         self.schemas = schemas
         self.devices = devices
 
     # TODO: schemaとconfigのstrを整形して返す
     def __str__(self):
-        # type: () -> str
         return 'config_string'
 
     @classmethod
     def parse(cls, url_string):
-        # type: (str) -> Config
         schemas = []
         devices = []
 

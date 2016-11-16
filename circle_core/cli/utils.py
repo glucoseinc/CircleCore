@@ -13,11 +13,9 @@ if PY2:
     from itertools import izip_longest as zip_longest
 else:
     from itertools import zip_longest
-    from typing import Any, Dict, List, Tuple  # noqa
 
 
 def output_listing_columns(data, header):
-    # type: (List[List[str]], List[str]) -> None
     if len(data) > 0:
         data.insert(0, header)
 
@@ -34,7 +32,6 @@ def output_listing_columns(data, header):
 
 
 def create_row_strings(rows):
-    # type: (List[List[str]]) -> Tuple[List[str], List[int]]
     def _len(string):
         # type: (str) -> int
         if PY2:
@@ -64,7 +61,6 @@ def create_row_strings(rows):
 
 
 def stringify_dict(dic):
-    # type: (Dict[str, Any]) -> str
     items = []
     for k, v in dic.items():
         items.append('{}:{}'.format(k, v))

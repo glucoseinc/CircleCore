@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from six import PY3
+
+
+if PY3:
+    from typing import Dict  # noqa
+
 
 class Device(object):
     def __init__(self, schema, display_name, **kwargs):
-        # type: (str, str, **str) -> None
         self.schema_uuid = schema
         self.display_name = display_name
         self.properties = {}  # type: Dict[str, str]
@@ -17,5 +22,4 @@ class Device(object):
 
     # TODO: 整形して返す
     def __str__(self):
-        # type: () -> str
         return 'device_string'

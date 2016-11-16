@@ -1,0 +1,6 @@
+# -*- coding: utf-8 -*-
+
+from click.core import Context
+
+def cli_main(ctx: Context, config_url: str, crcr_uuid: str) -> None: ...
+def cli_main_env(ctx: Context) -> None: ...
