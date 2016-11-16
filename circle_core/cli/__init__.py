@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from circle_core.cli.device import cli_device
-from circle_core.models.config import Config
-
+# community module
 import click
+
+# project module
+from .device import cli_device
+from ..models import Config
 
 
 @click.group()

@@ -1,11 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# system module
 from unicodedata import east_asian_width
 
-from circle_core.models.device import Device
+# community module
 import click
 from six import PY2
+
+# project module
+from ..models import Config, Device  # noqa
+
 
 if PY2:
     from itertools import izip_longest as zip_longest

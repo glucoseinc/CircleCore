@@ -1,18 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-try:
-    from urlparse import urlparse
-except ImportError:
-    from urllib.parse import urlparse
+# community module
+from six import PY2
 
-try:
-    import ConfigParser as configparser
-except ImportError:
-    import configparser
-
+# project module
 from .device import Device
 from .schema import Schema
+
+
+if PY2:
+    from urlparse import urlparse
+    import ConfigParser as configparser
+else:
+    from urllib.parse import urlparse
+    import configparser
 
 
 class Config(object):
