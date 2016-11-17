@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Config Model."""
+
 # community module
 from six import PY2
 
@@ -15,23 +17,37 @@ if PY2:
 else:
     from urllib.parse import urlparse
     import configparser
+    from typing import List  # noqa
 
 
 class Config(object):
+    """Configオブジェクト.
+
+    :param List[Schema] schemas: スキーマ
+    :param List[Device] devices: デバイス
+    """
+
     def __init__(self, schemas, devices):
+        """init.
+
+        :param List[Schema] schemas: スキーマ
+        :param List[Device] devices: デバイス
+        """
         self.schemas = schemas
         self.devices = devices
 
-    # TODO: schemaとconfigのstrを整形して返す
-    def __str__(self):
-        return 'config_string'
-
     @classmethod
-    def parse(cls, url_string):
+    def parse(cls, url_schema):
+        """URLスキームからConfigオブジェクトを生成する.
+
+        :param str url_schema: URLスキーム
+        :return: Configオブジェクト
+        :rtype: Config
+        """
         schemas = []
         devices = []
 
-        parsed_url = urlparse(url_string)
+        parsed_url = urlparse(url_schema)
         if parsed_url.scheme == 'file':
             ini_file_path = parsed_url.path
             parser = configparser.ConfigParser()

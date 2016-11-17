@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""CircleCore CLI."""
+
 from .cli_main import cli_main
 from .device import cli_device
 from .schema import cli_schema

@@ -1,9 +1,0 @@
-# -*- coding: utf-8 -*-
-
-from typing import List, Tuple
-from click.core import Context
-from ..models import Device
-
-def cli_device(ctx: Context) -> None: ...
-def device_list(ctx: Context) -> None: ...
-def _format_for_columns(devices: List[Device]) -> Tuple[List[List[str]], List[str]]: ...

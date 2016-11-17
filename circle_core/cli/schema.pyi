@@ -1,9 +1,0 @@
-# -*- coding: utf-8 -*-
-
-from typing import List, Tuple
-from click.core import Context
-from ..models import Schema
-
-def cli_schema(ctx: Context) -> None: ...
-def schema_list(ctx: Context) -> None: ...
-def _format_for_columns(schemas: List[Schema]) -> Tuple[List[List[str]], List[str]]: ...
