@@ -7,7 +7,7 @@ from six import PY3
 
 
 if PY3:
-    from typing import Dict  # noqa
+    from typing import Dict
 
 
 class Schema(object):

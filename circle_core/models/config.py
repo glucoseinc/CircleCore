@@ -17,7 +17,7 @@ if PY2:
 else:
     from urllib.parse import urlparse
     import configparser
-    from typing import List  # noqa
+    from typing import List
 
 
 class Config(object):

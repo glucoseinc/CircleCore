@@ -5,7 +5,7 @@
 
 # community module
 import click
-from click.core import Context  # noqa
+from click.core import Context
 
 # project module
 from ..models import Config

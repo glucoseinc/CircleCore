@@ -5,10 +5,16 @@
 
 # community module
 import click
+from click.core import Context
+from six import PY3
 
 # project module
-from ..models import Config, Schema  # noqa
+from ..models import Config, Schema
 from .utils import output_listing_columns, stringify_dict
+
+
+if PY3:
+    from typing import List, Tuple
 
 
 @click.group('schema')

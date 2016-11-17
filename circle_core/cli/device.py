@@ -5,16 +5,16 @@
 
 # community module
 import click
-from click.core import Context  # noqa
+from click.core import Context
 from six import PY3
 
 # project module
-from ..models import Config, Device  # noqa
+from ..models import Config, Device
 from .utils import output_listing_columns, stringify_dict
 
 
 if PY3:
-    from typing import List, Tuple  # noqa
+    from typing import List, Tuple
 
 
 @click.group('device')

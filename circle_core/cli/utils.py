@@ -15,7 +15,7 @@ if PY2:
     from itertools import izip_longest as zip_longest
 else:
     from itertools import zip_longest
-    from typing import Dict, List, Tuple  # noqa
+    from typing import Dict, List, Tuple
 
 
 def output_listing_columns(data, header):
