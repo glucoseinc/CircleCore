@@ -3,6 +3,7 @@
 
 """Device Model."""
 
+# community module
 from six import PY3
 
 

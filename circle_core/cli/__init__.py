@@ -3,6 +3,7 @@
 
 """CircleCore CLI."""
 
+# project module
 from .cli_main import cli_main
 from .device import cli_device
 from .schema import cli_schema
