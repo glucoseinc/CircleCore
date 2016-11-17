@@ -3,13 +3,17 @@
 
 """Config Model."""
 
+# system module
+import re
+
 # community module
 from six import PY2
+import redis
 
 # project module
 from .device import Device
 from .schema import Schema
-
+from ..controllers.redis_client import RedisClient
 
 if PY2:
     from urlparse import urlparse
@@ -17,7 +21,7 @@ if PY2:
 else:
     from urllib.parse import urlparse
     import configparser
-    from typing import List
+    from typing import Dict, List
 
 
 class Config(object):
@@ -44,23 +48,51 @@ class Config(object):
         :return: Configオブジェクト
         :rtype: Config
         """
-        schemas = []
-        devices = []
-
         parsed_url = urlparse(url_schema)
         if parsed_url.scheme == 'file':
-            ini_file_path = parsed_url.path
-            parser = configparser.ConfigParser()
-            parser.read(ini_file_path)
+            return Config._parse_ini(parsed_url.path)
+        elif parsed_url.scheme == 'redis':
+            return Config._parse_redis(url_schema)
 
-            schemas_dict = [dict(parser.items(section)) for section in parser.sections()
-                            if section.startswith('schema')]
-            for schema_dict in schemas_dict:
-                schemas.append(Schema(**schema_dict))
+        return Config([], [])
 
-            devices_dict = [dict(parser.items(section)) for section in parser.sections()
-                            if section.startswith('device')]
-            for device_dict in devices_dict:
-                devices.append(Device(**device_dict))
+    @classmethod
+    def _parse_ini(cls, ini_file_path):
+        """iniファイルからConfigオブジェクトを生成する.
+
+        :param str ini_file_path: iniファイルのパス
+        :return: Configオブジェクト
+        :rtype: Config
+        """
+        parser = configparser.ConfigParser()
+        parser.read(ini_file_path)
+
+        schema_dicts = [dict(parser.items(section)) for section in parser.sections()
+                        if re.match(r'^schema\d+', section)]
+        schemas = [Schema(**schema_dict) for schema_dict in schema_dicts]
+
+        device_dicts = [dict(parser.items(section)) for section in parser.sections()
+                        if re.match(r'^device\d+', section)]
+        devices = [Device(**device_dict) for device_dict in device_dicts]
+
+        return Config(schemas, devices)
+
+    @classmethod
+    def _parse_redis(cls, url_schema):
+        """redisからConfigオブジェクトを生成する.
+
+        :param str url_schema: URLスキーム
+        :return: Configオブジェクト
+        :rtype: Config
+        """
+        try:
+            redis_client = RedisClient.from_url(url_schema)
+            redis_client.ping()
+        except redis.ConnectionError:
+            # TODO: 適切な例外処理
+            return Config([], [])
+
+        schemas = Schema.init_all_items_from_redis(redis_client)
+        devices = Device.init_all_items_from_redis(redis_client)
 
         return Config(schemas, devices)

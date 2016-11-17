@@ -9,6 +9,7 @@ setup(
     packages=find_packages(exclude=['tests']),
     install_requires=[
         'click>=6',
+        'redis',
     ],
     entry_points={
         'console_scripts': [
