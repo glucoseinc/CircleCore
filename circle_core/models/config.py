@@ -7,13 +7,13 @@
 import re
 
 # community module
-from six import PY2
 import redis
+from six import PY2
 
 # project module
 from .device import Device
+from .redis_client import RedisClient
 from .schema import Schema
-from ..controllers.redis_client import RedisClient
 
 if PY2:
     from urlparse import urlparse
@@ -21,24 +21,56 @@ if PY2:
 else:
     from urllib.parse import urlparse
     import configparser
-    from typing import Dict, List
+    from typing import List
+
+
+class ConfigType(object):
+    """ConfigTypeオブジェクト.
+
+    :param int type: Configタイプ
+    """
+
+    (
+        nothing,
+        redis,
+        ini_file,
+    ) = range(3)
+
+    def __init__(self, config_type):
+        """init.
+
+        :param int config_type: Configタイプ
+        """
+        self.type = config_type
 
 
 class Config(object):
     """Configオブジェクト.
 
+    :param ConfigType _type: Configタイプ
     :param List[Schema] schemas: スキーマ
     :param List[Device] devices: デバイス
     """
 
-    def __init__(self, schemas, devices):
+    def __init__(self, config_type, schemas, devices):
         """init.
 
+        :param ConfigType config_type: Configタイプ
         :param List[Schema] schemas: スキーマ
         :param List[Device] devices: デバイス
         """
+        self._type = config_type
         self.schemas = schemas
         self.devices = devices
+
+    @property
+    def type(self):
+        """Configタイプ.
+
+        :return: Configタイプ
+        :rtype: int
+        """
+        return self._type.type
 
     @classmethod
     def parse(cls, url_schema):
@@ -54,7 +86,7 @@ class Config(object):
         elif parsed_url.scheme == 'redis':
             return Config._parse_redis(url_schema)
 
-        return Config([], [])
+        return Config(ConfigType(ConfigType.nothing), [], [])
 
     @classmethod
     def _parse_ini(cls, ini_file_path):
@@ -75,7 +107,7 @@ class Config(object):
                         if re.match(r'^device\d+', section)]
         devices = [Device(**device_dict) for device_dict in device_dicts]
 
-        return Config(schemas, devices)
+        return Config(ConfigType(ConfigType.ini_file), schemas, devices)
 
     @classmethod
     def _parse_redis(cls, url_schema):
@@ -90,9 +122,9 @@ class Config(object):
             redis_client.ping()
         except redis.ConnectionError:
             # TODO: 適切な例外処理
-            return Config([], [])
+            return Config(ConfigType(ConfigType.redis), [], [])
 
         schemas = Schema.init_all_items_from_redis(redis_client)
         devices = Device.init_all_items_from_redis(redis_client)
 
-        return Config(schemas, devices)
+        return Config(ConfigType(ConfigType.redis), schemas, devices)

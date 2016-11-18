@@ -14,6 +14,6 @@ class TestSchema(object):
         schema = Schema(uuid, display_name, **kwargs)
         assert schema.uuid == expected['uuid']
         assert schema.display_name == expected['display_name']
-        for k, v in schema.properties.items():
-            assert k in expected['properties']
-            assert v == expected['properties'][k]
+        for prop in schema.properties:
+            assert prop.name in expected['properties']
+            assert prop.type == expected['properties'][prop.name]

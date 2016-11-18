@@ -12,9 +12,9 @@ from click.core import Context
 from six import PY3
 
 # project module
-from .utils import output_listing_columns, stringify_dict
-from ..models import Config, Schema
-
+from .context import ContextObject
+from .utils import output_listing_columns
+from ..models import Schema
 
 if PY3:
     from typing import List, Tuple
@@ -37,7 +37,8 @@ def schema_list(ctx):
 
     :param Context ctx: Context
     """
-    config = ctx.obj['config']  # type: Config
+    context_object = ctx.obj  # type: ContextObject
+    config = context_object.config
     schemas = config.schemas
     if len(schemas):
         data, header = _format_for_columns(schemas)
@@ -54,27 +55,29 @@ def _format_for_columns(schemas):
     :rtype: Tuple[List[List[str]], List[str]]
     """
     header = ['UUID', 'DISPLAY_NAME', 'PROPERTIES']
-    data = [[schema.uuid, schema.display_name, stringify_dict(schema.properties)]
+    data = [[schema.uuid, schema.display_name, schema.stringified_properties]
             for schema in schemas]
     return data, header
 
 
 @cli_schema.command('add')
 @click.argument('display_name')
-@click.argument('key_and_types', nargs=-1)
+@click.argument('name_and_types', nargs=-1)
 @click.pass_context
-def schema_add(ctx, display_name, key_and_types):
+def schema_add(ctx, display_name, name_and_types):
     """スキーマを登録する.
 
     :param Context ctx: Context
     :param str display_name: 表示名
-    :param List[str] key_and_types: プロパティ
+    :param List[str] name_and_types: プロパティ
     """
     schema_uuid = str(uuid4())
     # TODO: 重複チェックするか？
 
     properties = {}
-    for key_and_type in key_and_types:
-        _key, _type = key_and_type.split(':')
-        properties[_key] = _type
+    for i, name_and_type in enumerate(name_and_types, start=1):
+        _name, _type = name_and_type.split(':')
+        properties['key{}'.format(i)] = _name
+        properties['type{}'.format(i)] = _type
     schema = Schema(schema_uuid, display_name, **properties)
+    click.echo(schema.stringified_properties)

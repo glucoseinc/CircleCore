@@ -3,14 +3,15 @@
 
 import os
 
-from circle_core.models.config import Config
+from circle_core.models.config import Config, ConfigType
 
 from tests import test_root
 
 
 class TestConfig(object):
     def test_init(self):
-        config = Config(schemas=[], devices=[])
+        config = Config(config_type=ConfigType(ConfigType.nothing), schemas=[], devices=[])
+        assert config.type == ConfigType.nothing
         assert config.schemas == []
         assert config.devices == []
 

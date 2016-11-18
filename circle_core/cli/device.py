@@ -9,9 +9,9 @@ from click.core import Context
 from six import PY3
 
 # project module
-from .utils import output_listing_columns, stringify_dict
-from ..models import Config, Device
-
+from .context import ContextObject
+from .utils import output_listing_columns
+from ..models import Device
 
 if PY3:
     from typing import List, Tuple
@@ -34,7 +34,8 @@ def device_list(ctx):
 
     :param Context ctx: Context
     """
-    config = ctx.obj['config']  # type: Config
+    context_object = ctx.obj  # type: ContextObject
+    config = context_object.config
     devices = config.devices
     if len(devices):
         data, header = _format_for_columns(devices)
@@ -51,6 +52,6 @@ def _format_for_columns(devices):
     :rtype: Tuple[List[List[str]], List[str]]
     """
     header = ['SCHEMA', 'DISPLAY_NAME', 'PROPERTIES']
-    data = [[device.schema_uuid, device.display_name, stringify_dict(device.properties)]
+    data = [[device.schema_uuid, device.display_name, device.stringified_properties]
             for device in devices]
     return data, header

@@ -10,12 +10,11 @@ from unicodedata import east_asian_width
 import click
 from six import PY2
 
-
 if PY2:
     from itertools import izip_longest as zip_longest
 else:
     from itertools import zip_longest
-    from typing import Dict, List, Tuple
+    from typing import List, Tuple
 
 
 def output_listing_columns(data, header):
@@ -85,17 +84,3 @@ def create_row_strings(rows):
         row_strings.append(row_string)
 
     return row_strings, sizes
-
-
-def stringify_dict(dic):
-    """辞書を文字列に変換する.
-
-    :param dic: 対象辞書
-    :type dic: Dict[str, Any]
-    :return: 変換後の文字列
-    :rtype: str
-    """
-    items = []
-    for k, v in dic.items():
-        items.append('{}:{}'.format(k, v))
-    return ', '.join(items)

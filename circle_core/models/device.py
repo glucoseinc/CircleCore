@@ -10,10 +10,27 @@ import re
 from six import PY3
 
 # project module
-from ..controllers.redis_client import RedisClient
+from .redis_client import RedisClient
 
 if PY3:
-    from typing import Dict, List, Optional
+    from typing import List, Optional
+
+
+class DeviceProperty(object):
+    """DevicePropertyオブジェクト.
+
+    :param str name: 属性名
+    :param str value: 属性値
+    """
+
+    def __init__(self, name, value):
+        """init.
+
+        :param str name: 属性名
+        :param str value: 属性値
+        """
+        self.name = name
+        self.value = value
 
 
 class Device(object):
@@ -21,8 +38,7 @@ class Device(object):
 
     :param str schema_uuid: Schema UUID
     :param str display_name: 表示名
-    :param properties: プロパティ
-    :type properties: Dict[str, str]
+    :param List[DeviceProperty] properties: プロパティ
     """
 
     def __init__(self, schema, display_name, **kwargs):
@@ -33,13 +49,13 @@ class Device(object):
         """
         self.schema_uuid = schema
         self.display_name = display_name
-        self.properties = {}
-        property_keys = [k for k in kwargs.keys() if k.startswith('property')]
-        for property_key in property_keys:
-            idx = property_key[8:]
+        self.properties = []
+        property_names = [k for k in kwargs.keys() if k.startswith('property')]
+        for property_name in property_names:
+            idx = property_name[8:]
             property_type = 'value' + idx
             if property_type in kwargs.keys():
-                self.properties[kwargs[property_key]] = kwargs[property_type]
+                self.properties.append(DeviceProperty(kwargs[property_name], kwargs[property_type]))
 
     @classmethod
     def init_from_redis(cls, redis_client, num):
@@ -73,3 +89,15 @@ class Device(object):
                 fields = redis_client.hgetall(key)
                 instances.append(Device(**fields))
         return instances
+
+    @property
+    def stringified_properties(self):
+        """プロパティを文字列化する.
+
+        :return: 文字列化プロパティ
+        :rtype: str
+        """
+        strings = []
+        for prop in self.properties:
+            strings.append('{}:{}'.format(prop.name, prop.value))
+        return ', '.join(strings)

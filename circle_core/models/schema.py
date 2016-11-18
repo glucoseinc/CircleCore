@@ -10,10 +10,27 @@ import re
 from six import PY3
 
 # project module
-from ..controllers.redis_client import RedisClient
+from .redis_client import RedisClient
 
 if PY3:
-    from typing import Dict, List, Optional, Set
+    from typing import List, Optional, Set
+
+
+class SchemaProperty(object):
+    """SchemaPropertyオブジェクト.
+
+    :param str name: 属性名
+    :param str type: タイプ
+    """
+
+    def __init__(self, name, property_type):
+        """init.
+
+        :param str name: キー
+        :param str property_type: タイプ
+        """
+        self.name = name
+        self.type = property_type
 
 
 class Schema(object):
@@ -21,8 +38,7 @@ class Schema(object):
 
     :param str uuid: Schema UUID
     :param str display_name: 表示名
-    :param properties: プロパティ
-    :type properties: Dict[str, str]
+    :param List[SchemaProperty] properties: プロパティ
     """
 
     def __init__(self, uuid, display_name, **kwargs):
@@ -33,13 +49,13 @@ class Schema(object):
         """
         self.uuid = uuid
         self.display_name = display_name
-        self.properties = {}
-        property_keys = [k for k in kwargs.keys() if k.startswith('key')]
-        for property_key in property_keys:
-            idx = property_key[3:]
+        self.properties = []
+        property_names = [k for k in kwargs.keys() if k.startswith('key')]
+        for property_name in property_names:
+            idx = property_name[3:]
             property_type = 'type' + idx
             if property_type in kwargs.keys():
-                self.properties[kwargs[property_key]] = kwargs[property_type]
+                self.properties.append(SchemaProperty(kwargs[property_name], kwargs[property_type]))
 
     # TODO: Redis関係は分離するか？
 
@@ -85,11 +101,9 @@ class Schema(object):
             'display_name': self.display_name,
             'uuid': self.uuid
         }
-        i = 1
-        for k, v in self.properties.items():
-            mapping['key{}'.format(i)] = k
-            mapping['type{}'.format(i)] = v
-            i += 1
+        for i, prop in enumerate(self.properties, start=1):
+            mapping['key{}'.format(i)] = prop.name
+            mapping['type{}'.format(i)] = prop.type
 
         # 登録されていない最小の数を取得する
         registered_nums = Schema.registered_nums_in_redis(redis_client)
@@ -102,12 +116,23 @@ class Schema(object):
 
     @classmethod
     def registered_nums_in_redis(cls, redis_client):
-        """
+        """Redisに登録済みのキー番号リストを取得する.
 
         :param RedisClient redis_client: Redisクライアント
-        :return:
+        :return: Redisに登録済みのキー番号リスト
         :rtype: Set[int]
         """
         keys = [key for key in redis_client.keys() if re.match(r'^schema\d+', key)]
         return set(int(key[6:]) for key in keys)
 
+    @property
+    def stringified_properties(self):
+        """プロパティを文字列化する.
+
+        :return: 文字列化プロパティ
+        :rtype: str
+        """
+        strings = []
+        for prop in self.properties:
+            strings.append('{}:{}'.format(prop.name, prop.type))
+        return ', '.join(strings)

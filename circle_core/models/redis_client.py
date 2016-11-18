@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Redisクライアント"""
-
-# system module
-import re
+"""Redisクライアント."""
 
 # community module
 from redis import Redis
@@ -12,7 +9,8 @@ from six import PY2
 
 
 class RedisClient(Redis):
-    """Redisクライアント"""
+    """Redisクライアント."""
+
     def parse_response(self, connection, command_name, **options):
         """Parses a response from the Redis server."""
         def decoded(word):

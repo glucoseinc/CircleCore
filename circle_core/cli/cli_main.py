@@ -8,7 +8,7 @@ import click
 from click.core import Context
 
 # project module
-from ..models import Config
+from .context import ContextObject
 
 
 @click.group()
@@ -19,14 +19,10 @@ def cli_main(ctx, config_url, crcr_uuid):
     """`crcr`の起点.
 
     :param Context ctx: Context
-    :param str config_url: URLスキーム
+    :param str config_url: ConfigのURLスキーム
     :param str crcr_uuid: CircleCore UUID
     """
-    ctx.obj = {
-        'config_url': config_url,
-        'config': Config.parse(config_url),
-        'uuid': crcr_uuid,
-    }
+    ctx.obj = ContextObject(config_url, crcr_uuid)
 
 
 @cli_main.command('env')
@@ -36,5 +32,5 @@ def cli_main_env(ctx):
 
     :param Context ctx: Context
     """
-    click.echo(ctx.obj['config_url'])
-    click.echo(ctx.obj['uuid'])
+    click.echo(ctx.obj.config_url)
+    click.echo(ctx.obj.uuid)

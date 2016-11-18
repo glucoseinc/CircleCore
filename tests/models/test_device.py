@@ -14,6 +14,6 @@ class TestDevice(object):
         device = Device(schema, display_name, **kwargs)
         assert device.schema_uuid == expected['schema']
         assert device.display_name == expected['display_name']
-        for k, v in device.properties.items():
-            assert k in expected['properties']
-            assert v == expected['properties'][k]
+        for prop in device.properties:
+            assert prop.name in expected['properties']
+            assert prop.value == expected['properties'][prop.name]
