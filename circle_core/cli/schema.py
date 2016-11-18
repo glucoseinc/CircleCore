@@ -15,6 +15,7 @@ from six import PY3
 from .context import ContextObject
 from .utils import output_listing_columns
 from ..models import Schema
+from ..models.config import ConfigType
 
 if PY3:
     from typing import List, Tuple
@@ -71,8 +72,15 @@ def schema_add(ctx, display_name, name_and_types):
     :param str display_name: 表示名
     :param List[str] name_and_types: プロパティ
     """
+    context_object = ctx.obj  # type: ContextObject
+    config = context_object.config
+
+    if config.type not in (ConfigType.redis,):
+        click.echo('{} には登録できません.'.format(config._type))
+        ctx.exit()
+
     schema_uuid = str(uuid4())
-    # TODO: 重複チェックするか？
+    # TODO: 重複チェックする
 
     properties = {}
     for i, name_and_type in enumerate(name_and_types, start=1):
@@ -80,4 +88,11 @@ def schema_add(ctx, display_name, name_and_types):
         properties['key{}'.format(i)] = _name
         properties['type{}'.format(i)] = _type
     schema = Schema(schema_uuid, display_name, **properties)
-    click.echo(schema.stringified_properties)
+
+    if config.type == ConfigType.redis:
+        redis_client = config.redis_client
+        if redis_client is None:
+            click.echo('Redisサーバに接続できません.')
+            ctx.exit()
+        schema.register_to_redis(redis_client)
+        click.echo('Added.')

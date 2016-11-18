@@ -21,7 +21,7 @@ if PY2:
 else:
     from urllib.parse import urlparse
     import configparser
-    from typing import List
+    from typing import List, Optional
 
 
 class ConfigType(object):
@@ -43,6 +43,20 @@ class ConfigType(object):
         """
         self.type = config_type
 
+    def __str__(self):
+        """str.
+
+        :return: str
+        :rtype: str
+        """
+        if self.type == ConfigType.nothing:
+            return 'Nothing'
+        if self.type == ConfigType.redis:
+            return 'Redis'
+        if self.type == ConfigType.ini_file:
+            return 'INI File'
+        return 'Nothing'
+
 
 class Config(object):
     """Configオブジェクト.
@@ -50,18 +64,21 @@ class Config(object):
     :param ConfigType _type: Configタイプ
     :param List[Schema] schemas: スキーマ
     :param List[Device] devices: デバイス
+    :param Optional[RedisClient] redis_client: Redisクライアント
     """
 
-    def __init__(self, config_type, schemas, devices):
+    def __init__(self, config_type, schemas, devices, redis_client=None):
         """init.
 
         :param ConfigType config_type: Configタイプ
         :param List[Schema] schemas: スキーマ
         :param List[Device] devices: デバイス
+        :param Optional[RedisClient] redis_client: Redisクライアント
         """
         self._type = config_type
         self.schemas = schemas
         self.devices = devices
+        self.redis_client = redis_client
 
     @property
     def type(self):
@@ -127,4 +144,4 @@ class Config(object):
         schemas = Schema.init_all_items_from_redis(redis_client)
         devices = Device.init_all_items_from_redis(redis_client)
 
-        return Config(ConfigType(ConfigType.redis), schemas, devices)
+        return Config(ConfigType(ConfigType.redis), schemas, devices, redis_client=redis_client)
