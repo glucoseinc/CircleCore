@@ -76,8 +76,8 @@ def schema_add(ctx, display_name, name_and_types):
     config = context_object.config
 
     if config.type not in (ConfigType.redis,):
-        click.echo('{} には登録できません.'.format(config._type))
-        ctx.exit()
+        click.echo('Cannot register to {}.'.format(config._type))
+        ctx.exit(code=-1)
 
     schema_uuid = str(uuid4())
     # TODO: 重複チェックする
@@ -92,7 +92,7 @@ def schema_add(ctx, display_name, name_and_types):
     if config.type == ConfigType.redis:
         redis_client = config.redis_client
         if redis_client is None:
-            click.echo('Redisサーバに接続できません.')
-            ctx.exit()
+            click.echo('Cannot connect to Redis server.')
+            ctx.exit(code=-1)
         schema.register_to_redis(redis_client)
         click.echo('Added.')
