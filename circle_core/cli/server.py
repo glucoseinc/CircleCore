@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """CLI Server."""
 import click
 from circle_core import server

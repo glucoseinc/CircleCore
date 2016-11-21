@@ -1,6 +1,7 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """CLI Worker."""
 import click
-from pathlib import Path
 from importlib import import_module
 
 

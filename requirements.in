@@ -6,3 +6,9 @@ pytest
 tcptest
 redis
 tox
+tornado
+flask
+nnpy
+pip-tools
+ptpython
+six

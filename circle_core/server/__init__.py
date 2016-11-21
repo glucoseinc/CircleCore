@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """WebSocketはTornado, HTTPはFlaskで捌く."""
 from tornado.wsgi import WSGIContainer
 from tornado.web import Application, FallbackHandler

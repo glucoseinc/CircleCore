@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """DBを弄るワーカー?."""
 from circle_core.helpers.topics import WriteDB, TOPIC_LENGTH
 from circle_core.helpers import logger

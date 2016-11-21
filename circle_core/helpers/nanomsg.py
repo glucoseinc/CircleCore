@@ -1,5 +1,8 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """nanomsgのラッパー."""
 from nnpy import AF_SP, SUB, SUB_SUBSCRIBE, PUB, Socket
+from six import add_metaclass
 __all__ = ['Receiver', 'Sender']
 
 
@@ -43,7 +46,8 @@ class Singleton(type):
         return cls.__instances[cls]
 
 
-class Sender(metaclass=Singleton):
+@add_metaclass(Singleton)
+class Sender:
     """送信. PubSubのPub.
 
     :param Socket __socket:
