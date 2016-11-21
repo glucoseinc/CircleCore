@@ -1,12 +1,7 @@
-TOPIC_LENGTH = 25
+TOPIC_LENGTH = 25  # Topic name must be shorter than this value
 
 
 class TopicBase:
-    def __metaclass__(name, *args):
-        if TOPIC_LENGTH < len(name):
-            raise NameError('topic name must be shorter than {} characters'.format(name))
-        return type(name, *args)
-
     @classmethod
     def justify(cls):
         return cls.__name__.ljust(TOPIC_LENGTH)

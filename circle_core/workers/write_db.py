@@ -7,4 +7,4 @@ def run():
     topic = WriteDB
     receiver = Receiver()
     for msg in receiver.incoming_messages(topic):
-        logger.debug('received a message "%s" in topic %s', msg[TOPIC_LENGTH:], topic)
+        logger.debug('received a message "%s" in topic %s', msg, topic)

@@ -35,7 +35,7 @@ class Sender(metaclass=Singleton):
         self.__socket.bind('ipc:///tmp/hoge.ipc')
         # 同じアドレスにbindできるのは一度に一つのSocketだけ
         # おそらくbindが完了するまでブロックされていない
-        # bindの直後にsendしても届かない
+        # bindの直後にsendしても届かなかった
 
     def __del__(self):
         self.__socket.close()
