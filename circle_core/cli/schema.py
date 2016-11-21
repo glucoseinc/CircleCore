@@ -94,6 +94,13 @@ def schema_add(ctx, display_name, name_and_types):
         if redis_client is None:
             click.echo('Cannot connect to Redis server.')
             ctx.exit(code=-1)
+
+        # 登録されていない最小の数を取得する
+        registered_nums = [schema.db_id for schema in config.schemas]
+        for num in range(1, len(registered_nums) + 2):
+            if num not in registered_nums:
+                break
+        schema.db_id = num
         schema.register_to_redis(redis_client)
         click.echo('Schema "{}" is added.'.format(schema.uuid))
 
@@ -116,8 +123,7 @@ def schema_remove(ctx, schema_uuid):
 
     if config.type == ConfigType.redis:
         redis_client = config.redis_client
-        schemas = [schema for schema in Schema.init_all_items_from_redis(redis_client)
-                   if schema.uuid == schema_uuid]
+        schemas = [schema for schema in config.schemas if schema.uuid == schema_uuid]
         if len(schemas) == 0:
             click.echo('Schema "{}" is not registered. Do nothing.'.format(schema_uuid))
             ctx.exit(code=-1)

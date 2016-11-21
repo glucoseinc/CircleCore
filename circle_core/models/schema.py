@@ -60,6 +60,18 @@ class Schema(object):
             if property_type in kwargs.keys():
                 self.properties.append(SchemaProperty(kwargs[property_name], kwargs[property_type]))
 
+    @property
+    def stringified_properties(self):
+        """プロパティを文字列化する.
+
+        :return: 文字列化プロパティ
+        :rtype: str
+        """
+        strings = []
+        for prop in self.properties:
+            strings.append('{}:{}'.format(prop.name, prop.type))
+        return ', '.join(strings)
+
     # TODO: Redis関係は分離するか？
 
     @classmethod
@@ -93,7 +105,8 @@ class Schema(object):
         for key in keys:
             if redis_client.type(key) == 'hash':
                 fields = redis_client.hgetall(key)  # type: Dict[str, Any]
-                fields['db_id'] = key
+                num = int(key[6:])
+                fields['db_id'] = num
                 instances.append(Schema(**fields))
         return instances
 
@@ -102,6 +115,10 @@ class Schema(object):
 
         :param RedisClient redis_client: Redisクライアント
         """
+        if self.db_id is None:
+            # TODO: 例外を投げる？
+            return
+
         mapping = {
             'display_name': self.display_name,
             'uuid': self.uuid
@@ -110,17 +127,8 @@ class Schema(object):
             mapping['key{}'.format(i)] = prop.name
             mapping['type{}'.format(i)] = prop.type
 
-        # TODO: self.db_idがある場合は上書きするか？
-        # 登録されていない最小の数を取得する
-        registered_nums = Schema.registered_nums_in_redis(redis_client)
-        for num in range(1, len(registered_nums) + 2):
-            if num not in registered_nums:
-                break
-        key = 'schema{}'.format(num)
-
+        key = 'schema{}'.format(self.db_id)
         redis_client.hmset(key, mapping)
-
-        self.db_id = num
 
     def unregister_from_redis(self, redis_client):
         """Redisから削除する.
@@ -131,27 +139,4 @@ class Schema(object):
             key = 'schema{}'.format(self.db_id)
             redis_client.delete(key)
 
-        self.db_id = None
-
-    @classmethod
-    def registered_nums_in_redis(cls, redis_client):
-        """Redisに登録済みのキー番号リストを取得する.
-
-        :param RedisClient redis_client: Redisクライアント
-        :return: Redisに登録済みのキー番号リスト
-        :rtype: Set[int]
-        """
-        keys = [key for key in redis_client.keys() if re.match(r'^schema\d+', key)]
-        return set(int(key[6:]) for key in keys)
-
-    @property
-    def stringified_properties(self):
-        """プロパティを文字列化する.
-
-        :return: 文字列化プロパティ
-        :rtype: str
-        """
-        strings = []
-        for prop in self.properties:
-            strings.append('{}:{}'.format(prop.name, prop.type))
-        return ', '.join(strings)
+            self.db_id = None
