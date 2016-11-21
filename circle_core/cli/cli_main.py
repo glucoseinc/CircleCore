@@ -22,6 +22,18 @@ def cli_main(ctx, config_url, crcr_uuid):
     :param str config_url: ConfigのURLスキーム
     :param str crcr_uuid: CircleCore UUID
     """
+    if config_url is None:
+        click.echo("""Config is not set.
+Please set config to argument `crcr --config URL_SCHEME ...`
+or set config to environment variable `export CRCR_CONFIG=URL_SCHEME`.""")
+        ctx.exit(code=-1)
+
+    if crcr_uuid is None:
+        click.echo("""Circle Core UUID is not set.
+Please set UUID to argument `crcr --uuid UUID ...`
+or set config to environment variable `export CRCR_UUID=UUID`.""")
+        ctx.exit(code=-1)
+
     ctx.obj = ContextObject(config_url, crcr_uuid)
 
 
