@@ -1,3 +1,4 @@
+"""WebSocketはTornado, HTTPはFlaskで捌く."""
 from tornado.wsgi import WSGIContainer
 from tornado.web import Application, FallbackHandler
 from tornado.ioloop import IOLoop
@@ -16,5 +17,9 @@ tornado_app = Application([
 
 
 def run():
+    """TornadoサーバーとFlaskサーバーを立てる.
+
+    clickから起動される.
+    """
     tornado_app.listen(5000)
     IOLoop.current().start()

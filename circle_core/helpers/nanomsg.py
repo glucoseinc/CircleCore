@@ -1,15 +1,29 @@
+"""nanomsgのラッパー."""
 from nnpy import AF_SP, SUB, SUB_SUBSCRIBE, PUB, Socket
+__all__ = ['Receiver', 'Sender']
 
 
 class Receiver:
+    """受信. PubSubのSub.
+
+    :param Socket __socket:
+    """
+
     def __init__(self):
+        """接続を開く."""
         self.__socket = Socket(AF_SP, SUB)
         self.__socket.connect('ipc:///tmp/hoge.ipc')
 
     def __del__(self):
+        """接続を閉じる."""
         self.__socket.close()
 
     def incoming_messages(self, topic):
+        """メッセージを受信次第それを返すジェネレータ.
+
+        :param TopicBase topic:
+        :return: 受信したメッセージ
+        """
         self.__socket.setsockopt(SUB, SUB_SUBSCRIBE, topic.justify())
         while True:
             # TODO: 接続切れたときの対応
@@ -30,7 +44,13 @@ class Singleton(type):
 
 
 class Sender(metaclass=Singleton):
+    """送信. PubSubのPub.
+
+    :param Socket __socket:
+    """
+
     def __init__(self):
+        """接続を開く."""
         self.__socket = Socket(AF_SP, PUB)
         self.__socket.bind('ipc:///tmp/hoge.ipc')
         # 同じアドレスにbindできるのは一度に一つのSocketだけ
@@ -38,7 +58,12 @@ class Sender(metaclass=Singleton):
         # bindの直後にsendしても届かなかった
 
     def __del__(self):
+        """接続を閉じる."""
         self.__socket.close()
 
     def send(self, msg):
+        """送信.
+
+        :param str msg:
+        """
         self.__socket.send(msg)

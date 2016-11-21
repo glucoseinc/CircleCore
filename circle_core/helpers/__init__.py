@@ -1,3 +1,4 @@
+"""標準出力へのlogger."""
 from sys import stdout
 from logging import getLogger, DEBUG, StreamHandler
 
