@@ -96,7 +96,7 @@ def schema_add(ctx, display_name, name_and_types):
             ctx.exit(code=-1)
 
         # 登録されていない最小の数を取得する
-        registered_nums = [schema.db_id for schema in config.schemas]
+        registered_nums = [_schema.db_id for _schema in config.schemas]
         for num in range(1, len(registered_nums) + 2):
             if num not in registered_nums:
                 break

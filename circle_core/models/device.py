@@ -38,24 +38,39 @@ class Device(object):
 
     :param str schema_uuid: Schema UUID
     :param str display_name: 表示名
+    :param Optional[int] db_id: DataBase上のID
     :param List[DeviceProperty] properties: プロパティ
     """
 
-    def __init__(self, schema, display_name, **kwargs):
+    def __init__(self, schema, display_name, db_id=None, **kwargs):
         """init.
 
         :param str schema: Schema UUID
         :param str display_name: 表示名
+        :param Optional[int] db_id: DataBase上のID
         """
         self.schema_uuid = schema
         self.display_name = display_name
+        self.db_id = db_id
         self.properties = []
-        property_names = [k for k in kwargs.keys() if k.startswith('property')]
+        property_names = sorted([k for k in kwargs.keys() if k.startswith('property')])
         for property_name in property_names:
             idx = property_name[8:]
             property_type = 'value' + idx
             if property_type in kwargs.keys():
                 self.properties.append(DeviceProperty(kwargs[property_name], kwargs[property_type]))
+
+    @property
+    def stringified_properties(self):
+        """プロパティを文字列化する.
+
+        :return: 文字列化プロパティ
+        :rtype: str
+        """
+        strings = []
+        for prop in self.properties:
+            strings.append('{}:{}'.format(prop.name, prop.value))
+        return ', '.join(strings)
 
     @classmethod
     def init_from_redis(cls, redis_client, num):
@@ -71,7 +86,8 @@ class Device(object):
             return None
         if redis_client.type(key) != 'hash':
             return None
-        fields = redis_client.hgetall(key)
+        fields = redis_client.hgetall(key)  # type: Dict[str, Any]
+        fields['db_id'] = num
         return Device(**fields)
 
     @classmethod
@@ -86,18 +102,28 @@ class Device(object):
         instances = []
         for key in keys:
             if redis_client.type(key) == 'hash':
-                fields = redis_client.hgetall(key)
+                fields = redis_client.hgetall(key)  # type: Dict[str, Any]
+                num = int(key[6:])
+                fields['db_id'] = num
                 instances.append(Device(**fields))
         return instances
 
-    @property
-    def stringified_properties(self):
-        """プロパティを文字列化する.
+    def register_to_redis(self, redis_client):
+        """Redisに登録する.
 
-        :return: 文字列化プロパティ
-        :rtype: str
+        :param RedisClient redis_client: Redisクライアント
         """
-        strings = []
-        for prop in self.properties:
-            strings.append('{}:{}'.format(prop.name, prop.value))
-        return ', '.join(strings)
+        if self.db_id is None:
+            # TODO: 例外を投げる？
+            return
+
+        mapping = {
+            'display_name': self.display_name,
+            'schema': self.schema_uuid,
+        }
+        for i, prop in enumerate(self.properties, start=1):
+            mapping['property{}'.format(i)] = prop.name
+            mapping['value{}'.format(i)] = prop.value
+
+        key = 'device{}'.format(self.db_id)
+        redis_client.hmset(key, mapping)

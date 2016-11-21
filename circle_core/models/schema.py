@@ -53,7 +53,7 @@ class Schema(object):
         self.display_name = display_name
         self.db_id = db_id
         self.properties = []
-        property_names = [k for k in kwargs.keys() if k.startswith('key')]
+        property_names = sorted([k for k in kwargs.keys() if k.startswith('key')])
         for property_name in property_names:
             idx = property_name[3:]
             property_type = 'type' + idx
@@ -121,7 +121,7 @@ class Schema(object):
 
         mapping = {
             'display_name': self.display_name,
-            'uuid': self.uuid
+            'uuid': self.uuid,
         }
         for i, prop in enumerate(self.properties, start=1):
             mapping['key{}'.format(i)] = prop.name
