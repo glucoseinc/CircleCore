@@ -1,26 +1,19 @@
 from circle_core.helpers import logger
 from circle_core.helpers.topics import WriteDB
+from circle_core.helpers.nanomsg import Sender
 from tornado.websocket import WebSocketHandler
-from nnpy import Socket, PUB, AF_SP
 
 
-# ここからworker達にnanomsgで命令を送る？
+# ここからworker達にnanomsgで命令を送る
 # コネクション毎にインスタンスが生成されている
 class SensorHandler(WebSocketHandler):
-    socket = None
-
     def open(self):
-        if self.socket is None:
-            # TODO: NanomsgSenderとか作る
-            self.socket = Socket(AF_SP, PUB)
-            self.socket.bind('ipc:///tmp/hoge.ipc')
-
+        self.__nanomsg = Sender()
         self.write_message('Greetings from Tornado!')
         logger.debug('connection opened: %s', self)
 
     def on_message(self, message):
-        global socket
-        self.socket.send(WriteDB.text(message))
+        self.__nanomsg.send(WriteDB.text(message))
         logger.debug('message "%s" is sent from %s', message, self)
 
     def on_close(self):
