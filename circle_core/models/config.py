@@ -82,12 +82,21 @@ class Config(object):
 
     @property
     def type(self):
-        """Configタイプ.
+        """Configタイプ(enum).
 
         :return: Configタイプ
         :rtype: int
         """
         return self._type.type
+
+    @property
+    def stringified_type(self):
+        """Configタイプ(str).
+
+        :return: Configタイプ
+        :rtype: str
+        """
+        return str(self._type)
 
     @classmethod
     def parse(cls, url_schema):

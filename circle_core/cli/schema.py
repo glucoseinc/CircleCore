@@ -76,7 +76,7 @@ def schema_add(ctx, display_name, name_and_types):
     config = context_object.config
 
     if config.type not in (ConfigType.redis,):
-        click.echo('Cannot register to {}.'.format(config._type))
+        click.echo('Cannot register to {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
     schema_uuid = str(uuid4())
@@ -111,7 +111,7 @@ def schema_remove(ctx, schema_uuid):
     config = context_object.config
 
     if config.type not in (ConfigType.redis,):
-        click.echo('Cannot remove to {}.'.format(config._type))
+        click.echo('Cannot remove to {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
     if config.type == ConfigType.redis:
