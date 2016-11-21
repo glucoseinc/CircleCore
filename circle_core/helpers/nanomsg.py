@@ -1,9 +1,7 @@
 from nnpy import AF_SP, SUB, SUB_SUBSCRIBE, Socket
-from pathlib import Path
-import circle_core
 
 
-class NanomsgReceiver:  # TODO: シングルトン？
+class Receiver:
     def __init__(self):
         self.__socket = Socket(AF_SP, SUB)
         self.__socket.connect('ipc:///tmp/hoge.ipc')
