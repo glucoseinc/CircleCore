@@ -13,7 +13,7 @@ from six import PY3
 from .redis_client import RedisClient
 
 if PY3:
-    from typing import List, Optional, Set
+    from typing import Any, Dict, List, Optional, Set
 
 
 class SchemaProperty(object):
@@ -38,17 +38,20 @@ class Schema(object):
 
     :param str uuid: Schema UUID
     :param str display_name: 表示名
+    :param Optional[int] db_id: DataBase上のID
     :param List[SchemaProperty] properties: プロパティ
     """
 
-    def __init__(self, uuid, display_name, **kwargs):
+    def __init__(self, uuid, display_name, db_id=None, **kwargs):
         """init.
 
         :param str uuid: Schema UUID
         :param str display_name: 表示名
+        :param Optional[int] db_id: DataBase上のID
         """
         self.uuid = uuid
         self.display_name = display_name
+        self.db_id = db_id
         self.properties = []
         property_names = [k for k in kwargs.keys() if k.startswith('key')]
         for property_name in property_names:
@@ -73,7 +76,8 @@ class Schema(object):
             return None
         if redis_client.type(key) != 'hash':
             return None
-        fields = redis_client.hgetall(key)
+        fields = redis_client.hgetall(key)  # type: Dict[str, Any]
+        fields['db_id'] = num
         return Schema(**fields)
 
     @classmethod
@@ -88,7 +92,8 @@ class Schema(object):
         instances = []
         for key in keys:
             if redis_client.type(key) == 'hash':
-                fields = redis_client.hgetall(key)
+                fields = redis_client.hgetall(key)  # type: Dict[str, Any]
+                fields['db_id'] = key
                 instances.append(Schema(**fields))
         return instances
 
@@ -105,6 +110,7 @@ class Schema(object):
             mapping['key{}'.format(i)] = prop.name
             mapping['type{}'.format(i)] = prop.type
 
+        # TODO: self.db_idがある場合は上書きするか？
         # 登録されていない最小の数を取得する
         registered_nums = Schema.registered_nums_in_redis(redis_client)
         for num in range(1, len(registered_nums) + 2):
@@ -113,6 +119,19 @@ class Schema(object):
         key = 'schema{}'.format(num)
 
         redis_client.hmset(key, mapping)
+
+        self.db_id = num
+
+    def unregister_from_redis(self, redis_client):
+        """Redisから削除する.
+
+        :param RedisClient redis_client: Redisクライアント
+        """
+        if self.db_id is not None:
+            key = 'schema{}'.format(self.db_id)
+            redis_client.delete(key)
+
+        self.db_id = None
 
     @classmethod
     def registered_nums_in_redis(cls, redis_client):

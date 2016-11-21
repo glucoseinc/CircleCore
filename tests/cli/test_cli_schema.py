@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import re
 
 from circle_core.cli import cli_main
 from click.testing import CliRunner
@@ -58,7 +59,10 @@ class TestCliSchema(object):
     @pytest.mark.usefixtures('flushall_redis_server')
     @pytest.mark.parametrize(('schema_add_params', 'expected'), [
         (['schema_name', 'key:int'],  # schema_add_params
-         {'exit_code': 0, 'output': 'Added.\n'}),  # expected
+         {'exit_code': 0,
+          'output_regexp': r'Schema '
+                           '"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"'  # uuid
+                           ' is added.\n'}),  # expected
     ])
     def test_schema_add_success(self, schema_add_params, expected, redis_server, flushall_redis_server):
         config = 'redis://localhost:{}/0'.format(redis_server.port)
@@ -67,4 +71,4 @@ class TestCliSchema(object):
         runner = CliRunner()
         result = runner.invoke(cli_main, main_params + ['schema', 'add'] + schema_add_params)
         assert result.exit_code == expected['exit_code']
-        assert result.output == expected['output']
+        assert re.match(expected['output_regexp'], result.output) is not None

@@ -95,4 +95,33 @@ def schema_add(ctx, display_name, name_and_types):
             click.echo('Cannot connect to Redis server.')
             ctx.exit(code=-1)
         schema.register_to_redis(redis_client)
-        click.echo('Added.')
+        click.echo('Schema "{}" is added.'.format(schema.uuid))
+
+
+@cli_schema.command('remove')
+@click.argument('schema_uuid')
+@click.pass_context
+def schema_remove(ctx, schema_uuid):
+    """スキーマを削除する.
+
+    :param Context ctx: Context
+    :param str schema_uuid: スキーマUUID
+    """
+    context_object = ctx.obj  # type: ContextObject
+    config = context_object.config
+
+    if config.type not in (ConfigType.redis,):
+        click.echo('Cannot remove to {}.'.format(config._type))
+        ctx.exit(code=-1)
+
+    if config.type == ConfigType.redis:
+        redis_client = config.redis_client
+        schemas = [schema for schema in Schema.init_all_items_from_redis(redis_client)
+                   if schema.uuid == schema_uuid]
+        if len(schemas) == 0:
+            click.echo('Schema "{}" is not registered. Do nothing.'.format(schema_uuid))
+            ctx.exit(code=-1)
+
+        schema = schemas[0]
+        schema.unregister_from_redis(redis_client)
+        click.echo('Schema "{}" is removed.'.format(schema_uuid))
