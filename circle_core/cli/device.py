@@ -15,7 +15,7 @@ from ..models import Device
 from ..models.config import ConfigType
 
 if PY3:
-    from typing import List, Tuple
+    from typing import List, Optional, Tuple
 
 
 @click.group('device')
@@ -56,6 +56,31 @@ def _format_for_columns(devices):
     data = [[device.schema_uuid, device.display_name, device.stringified_properties]
             for device in devices]
     return data, header
+
+
+@cli_device.command('detail')
+@click.argument('device_name')
+@click.pass_context
+def schema_detail(ctx, device_name):
+    """デバイスの詳細を表示する.
+
+    :param Context ctx: Context
+    :param str device_name: デバイス表示名
+    """
+    # TODO: 表示の整形を関数化
+    context_object = ctx.obj  # type: ContextObject
+    config = context_object.config
+
+    device = _get_matching_device(config.devices, device_name)
+    if device is None:
+        click.echo('Device "{}" is not registered.'.format(device_name))
+        ctx.exit(code=-1)
+    click.echo('DISPLAY_NAME : {}'.format(device.display_name))
+    click.echo('SCHEMA       : {}'.format(device.schema_uuid))
+    for i, prop in enumerate(device.properties):
+        click.echo('{}   : {}:{}'.format('PROPERTIES' if i == 0 else ' ' * len('PROPERTIES'), prop.name, prop.value))
+
+    # TODO: Schema情報を表示
 
 
 @cli_device.command('add')
@@ -136,12 +161,10 @@ def device_remove(ctx, device_name):
 
     if config.type == ConfigType.redis:
         redis_client = config.redis_client
-        devices = [device for device in config.devices if device.display_name == device_name]
-        if len(devices) == 0:
+        device = _get_matching_device(config.devices, device_name)
+        if device is None:
             click.echo('Device "{}" is not registered. Do nothing.'.format(device_name))
             ctx.exit(code=-1)
-
-        device = devices[0]
         device.unregister_from_redis(redis_client)
         click.echo('Device "{}" is removed.'.format(device_name))
 
@@ -168,13 +191,10 @@ def device_property(ctx, adding_properties_string, removing_property_names_strin
 
     if config.type == ConfigType.redis:
         redis_client = config.redis_client
-        devices = [device for device in config.devices if device.display_name == device_name]
-        if len(devices) == 0:
+        device = _get_matching_device(config.devices, device_name)
+        if device is None:
             click.echo('Device "{}" is not registered. Do nothing.'.format(device_name))
             ctx.exit(code=-1)
-
-        device = devices[0]
-
         if removing_property_names_string is not None:
             removing_property_names = set([key.strip() for key in removing_property_names_string.split(',')])
             current_property_names = set([prop.name for prop in device.properties])
@@ -198,3 +218,14 @@ def device_property(ctx, adding_properties_string, removing_property_names_strin
 
         device.update_in_redis(redis_client)
         click.echo('Device "{}" is updated.'.format(device_name))
+
+
+def _get_matching_device(devices, device_name):
+    """デバイス一覧から表示名がマッチするデバイスを取得する
+    :param List[Device] devices: 検索対象のデバイス一覧
+    :param str device_name: 取得するデバイスの表示名
+    :return: マッチしたデバイス
+    :rtype: Optional[Device]
+    """
+    devices = [device for device in devices if device.display_name == device_name]
+    return devices[0] if len(devices) != 0 else None

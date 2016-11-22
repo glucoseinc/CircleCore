@@ -70,6 +70,7 @@ def schema_detail(ctx, schema_uuid):
     :param Context ctx: Context
     :param str schema_uuid: スキーマUUID
     """
+    # TODO: 表示の整形を関数化
     context_object = ctx.obj  # type: ContextObject
     config = context_object.config
 
@@ -160,7 +161,7 @@ def schema_remove(ctx, schema_uuid):
 
 
 def _get_matching_schema(schemas, schema_uuid):
-    """スキーマ一覧からUUIDがマッチするスキーマを取得する
+    """スキーマ一覧からUUIDがマッチするスキーマを取得する.
     :param List[Schema] schemas: 検索対象のスキーマ一覧
     :param str schema_uuid: 取得するスキーマのUUID
     :return: マッチしたスキーマ
