@@ -18,7 +18,7 @@ from ..models import Schema
 from ..models.config import ConfigType
 
 if PY3:
-    from typing import List, Tuple
+    from typing import List, Optional, Tuple
 
 
 @click.group('schema')
@@ -96,14 +96,14 @@ def schema_detail(ctx, schema_uuid):
 
 
 @cli_schema.command('add')
-@click.argument('display_name')
+@click.option('display_name', '--name')
 @click.argument('name_and_types', nargs=-1)
 @click.pass_context
 def schema_add(ctx, display_name, name_and_types):
     """スキーマを登録する.
 
     :param Context ctx: Context
-    :param str display_name: 表示名
+    :param Optional[str] display_name: 表示名
     :param List[str] name_and_types: プロパティ
     """
     context_object = ctx.obj  # type: ContextObject

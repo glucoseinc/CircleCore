@@ -37,16 +37,16 @@ class Schema(object):
     """Schemaオブジェクト.
 
     :param str uuid: Schema UUID
-    :param str display_name: 表示名
+    :param Optional[str] display_name: 表示名
     :param Optional[int] db_id: DataBase上のID
     :param List[SchemaProperty] properties: プロパティ
     """
 
-    def __init__(self, uuid, display_name, db_id=None, **kwargs):
+    def __init__(self, uuid, display_name=None, db_id=None, **kwargs):
         """init.
 
         :param str uuid: Schema UUID
-        :param str display_name: 表示名
+        :param Optional[str] display_name: 表示名
         :param Optional[int] db_id: DataBase上のID
         """
         self.uuid = uuid
@@ -120,9 +120,10 @@ class Schema(object):
             return
 
         mapping = {
-            'display_name': self.display_name,
             'uuid': self.uuid,
         }
+        if self.display_name is not None:
+            mapping['display_name'] = self.display_name
         for i, prop in enumerate(self.properties, start=1):
             mapping['key{}'.format(i)] = prop.name
             mapping['type{}'.format(i)] = prop.type
