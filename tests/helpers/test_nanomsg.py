@@ -42,6 +42,12 @@ class TestReceiver:
         assert next(self.messages) == 'message two'
 
     @pytest.mark.timeout(1)
+    def test_multibyte(self):
+        return  # TODO
+        self.socket.send(TestTopic.text(u'メッセージその壱'))
+        assert next(self.messages) == u'メッセージその壱'
+
+    @pytest.mark.timeout(1)
     def test_close(self):
         return  # TODO
         self.socket.send(TestTopic.text('this message is sent to limbo'))
