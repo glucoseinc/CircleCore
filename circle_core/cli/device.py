@@ -71,7 +71,7 @@ def schema_detail(ctx, device_name):
     context_object = ctx.obj  # type: ContextObject
     config = context_object.config
 
-    device = _get_matching_device(config.devices, device_name)
+    device = config.matched_device(device_name)
     if device is None:
         click.echo('Device "{}" is not registered.'.format(device_name))
         ctx.exit(code=-1)
@@ -161,7 +161,7 @@ def device_remove(ctx, device_name):
 
     if config.type == ConfigType.redis:
         redis_client = config.redis_client
-        device = _get_matching_device(config.devices, device_name)
+        device = config.matched_device(device_name)
         if device is None:
             click.echo('Device "{}" is not registered. Do nothing.'.format(device_name))
             ctx.exit(code=-1)
@@ -191,7 +191,7 @@ def device_property(ctx, adding_properties_string, removing_property_names_strin
 
     if config.type == ConfigType.redis:
         redis_client = config.redis_client
-        device = _get_matching_device(config.devices, device_name)
+        device = config.matched_device(device_name)
         if device is None:
             click.echo('Device "{}" is not registered. Do nothing.'.format(device_name))
             ctx.exit(code=-1)
@@ -203,7 +203,7 @@ def device_property(ctx, adding_properties_string, removing_property_names_strin
                 click.echo('Argument "remove" is invalid : "{}" is not exist in "{}"\'s properties. Do nothing.'
                            .format(','.join(difference_property_names), device_name))
                 ctx.exit(code=-1)
-            device.remove_properties(removing_property_names)
+            device.remove_properties(list(removing_property_names))
 
         if adding_properties_string is not None:
             adding_properties = []
@@ -218,14 +218,3 @@ def device_property(ctx, adding_properties_string, removing_property_names_strin
 
         device.update_in_redis(redis_client)
         click.echo('Device "{}" is updated.'.format(device_name))
-
-
-def _get_matching_device(devices, device_name):
-    """デバイス一覧から表示名がマッチするデバイスを取得する
-    :param List[Device] devices: 検索対象のデバイス一覧
-    :param str device_name: 取得するデバイスの表示名
-    :return: マッチしたデバイス
-    :rtype: Optional[Device]
-    """
-    devices = [device for device in devices if device.display_name == device_name]
-    return devices[0] if len(devices) != 0 else None

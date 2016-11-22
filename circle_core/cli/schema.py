@@ -74,7 +74,7 @@ def schema_detail(ctx, schema_uuid):
     context_object = ctx.obj  # type: ContextObject
     config = context_object.config
 
-    schema = _get_matching_schema(config.schemas, schema_uuid)
+    schema = config.matched_schema(schema_uuid)
     if schema is None:
         click.echo('Schema "{}" is not registered.'.format(schema_uuid))
         ctx.exit(code=-1)
@@ -152,20 +152,9 @@ def schema_remove(ctx, schema_uuid):
 
     if config.type == ConfigType.redis:
         redis_client = config.redis_client
-        schema = _get_matching_schema(config.schemas, schema_uuid)
+        schema = config.matched_schema(schema_uuid)
         if schema is None:
             click.echo('Schema "{}" is not registered. Do nothing.'.format(schema_uuid))
             ctx.exit(code=-1)
         schema.unregister_from_redis(redis_client)
         click.echo('Schema "{}" is removed.'.format(schema_uuid))
-
-
-def _get_matching_schema(schemas, schema_uuid):
-    """スキーマ一覧からUUIDがマッチするスキーマを取得する.
-    :param List[Schema] schemas: 検索対象のスキーマ一覧
-    :param str schema_uuid: 取得するスキーマのUUID
-    :return: マッチしたスキーマ
-    :rtype: Optional[Schema]
-    """
-    schemas = [schema for schema in schemas if schema.uuid == schema_uuid]
-    return schemas[0] if len(schemas) != 0 else None

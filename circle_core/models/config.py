@@ -62,8 +62,8 @@ class Config(object):
     """Configオブジェクト.
 
     :param ConfigType _type: Configタイプ
-    :param List[Schema] schemas: スキーマ
-    :param List[Device] devices: デバイス
+    :param List[Schema] schemas: スキーマリスト
+    :param List[Device] devices: デバイスリスト
     :param Optional[RedisClient] redis_client: Redisクライアント
     """
 
@@ -71,8 +71,8 @@ class Config(object):
         """init.
 
         :param ConfigType config_type: Configタイプ
-        :param List[Schema] schemas: スキーマ
-        :param List[Device] devices: デバイス
+        :param List[Schema] schemas: スキーマリスト
+        :param List[Device] devices: デバイスリスト
         :param Optional[RedisClient] redis_client: Redisクライアント
         """
         self._type = config_type
@@ -97,6 +97,26 @@ class Config(object):
         :rtype: str
         """
         return str(self._type)
+
+    def matched_schema(self, schema_uuid):
+        """スキーマリストからUUIDがマッチするものを取得する.
+
+        :param str schema_uuid: 取得するスキーマのUUID
+        :return: マッチしたスキーマ
+        :rtype: Optional[Schema]
+        """
+        schemas = [schema for schema in self.schemas if schema.uuid == schema_uuid]
+        return schemas[0] if len(schemas) != 0 else None
+
+    def matched_device(self, device_name):
+        """デバイスリストから表示名がマッチするものを取得する.
+
+        :param str device_name: 取得するデバイスの表示名
+        :return: マッチしたスキーマ
+        :rtype: Optional[Device]
+        """
+        devices = [device for device in self.devices if device.display_name == device_name]
+        return devices[0] if len(devices) != 0 else None
 
     @classmethod
     def parse(cls, url_schema):
