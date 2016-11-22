@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from time import sleep
 from os.path import join
 from tempfile import mkdtemp
-from circle_core.helpers.nanomsg import Receiver, Sender, SOCKET_PATH
+
+from circle_core.helpers.nanomsg import Receiver, Sender
 from circle_core.helpers.topics import TopicBase
 from nnpy import AF_SP, PUB, Socket, SUB, SUB_SUBSCRIBE
 import pytest
@@ -47,3 +47,22 @@ class TestReceiver:
         self.socket.send(TestTopic.text('this message is sent to limbo'))
         del self.receiver
         assert next(self.messages, None) is None
+
+
+class TestSender():
+    @classmethod
+    def setup_class(cls):
+        cls.sender = Sender(SOCKET_PATH)
+        cls.socket = Socket(AF_SP, SUB)
+        cls.socket.connect(SOCKET_PATH)
+        cls.socket.setsockopt(SUB, SUB_SUBSCRIBE, '')
+
+    @classmethod
+    def teardown_class(cls):
+        del cls.sender
+        cls.socket.close()
+
+    @pytest.mark.timeout(1)
+    def test_simple(self):
+        self.sender.send('this message is belonging to no topic')
+        assert self.socket.recv().decode('utf-8') == 'this message is belonging to no topic'

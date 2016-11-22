@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """nanomsgのラッパー."""
-from circle_core.helpers.topics import TOPIC_LENGTH
 from time import sleep
+
 from nnpy import AF_SP, PUB, Socket, SUB, SUB_SUBSCRIBE
 from six import add_metaclass
+
+from circle_core.helpers.topics import TOPIC_LENGTH
 __all__ = ('Receiver', 'Sender')
 
 
@@ -48,7 +50,7 @@ class Singleton(type):
     # クラス名()で呼び出され、そのクラスのインスタンスを生成して返す
     def __call__(cls, *args, **kwargs):
         if cls not in cls.__instances:
-            cls.__instances[cls] = super().__call__(*args, **kwargs)
+            cls.__instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls.__instances[cls]
 
 
