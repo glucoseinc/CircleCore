@@ -3,10 +3,9 @@
 """nanomsgのラッパー."""
 from time import sleep
 
+from circle_core.helpers.topics import TOPIC_LENGTH
 from nnpy import AF_SP, PUB, Socket, SUB, SUB_SUBSCRIBE
 from six import add_metaclass
-
-from circle_core.helpers.topics import TOPIC_LENGTH
 __all__ = ('Receiver', 'Sender')
 
 
