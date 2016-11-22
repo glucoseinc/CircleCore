@@ -18,7 +18,7 @@ from ..models import Schema
 from ..models.config import ConfigType
 
 if PY3:
-    from typing import List, Tuple
+    from typing import List, Optional, Tuple
 
 
 @click.group('schema')
@@ -59,6 +59,34 @@ def _format_for_columns(schemas):
     data = [[schema.uuid, schema.display_name, schema.stringified_properties]
             for schema in schemas]
     return data, header
+
+
+@cli_schema.command('detail')
+@click.argument('schema_uuid')
+@click.pass_context
+def schema_detail(ctx, schema_uuid):
+    """スキーマの詳細を表示する.
+
+    :param Context ctx: Context
+    :param str schema_uuid: スキーマUUID
+    """
+    context_object = ctx.obj  # type: ContextObject
+    config = context_object.config
+
+    schema = _get_matching_schema(config.schemas, schema_uuid)
+    if schema is None:
+        click.echo('Schema "{}" is not registered.'.format(schema_uuid))
+        ctx.exit(code=-1)
+    click.echo('UUID         : {}'.format(schema.uuid))
+    click.echo('DISPLAY_NAME : {}'.format(schema.display_name))
+    for i, prop in enumerate(schema.properties):
+        click.echo('{}   : {}:{}'.format('PROPERTIES' if i == 0 else ' ' * len('PROPERTIES'), prop.name, prop.type))
+
+    devices = [device for device in config.devices if device.schema_uuid == schema_uuid]
+    if len(devices):
+        click.echo('Devices which use this schema : {}'.format(', '.join([device.display_name for device in devices])))
+    else:
+        click.echo('No devices are use this schema.')
 
 
 @cli_schema.command('add')
@@ -123,11 +151,20 @@ def schema_remove(ctx, schema_uuid):
 
     if config.type == ConfigType.redis:
         redis_client = config.redis_client
-        schemas = [schema for schema in config.schemas if schema.uuid == schema_uuid]
-        if len(schemas) == 0:
+        schema = _get_matching_schema(config.schemas, schema_uuid)
+        if schema is None:
             click.echo('Schema "{}" is not registered. Do nothing.'.format(schema_uuid))
             ctx.exit(code=-1)
-
-        schema = schemas[0]
         schema.unregister_from_redis(redis_client)
         click.echo('Schema "{}" is removed.'.format(schema_uuid))
+
+
+def _get_matching_schema(schemas, schema_uuid):
+    """スキーマ一覧からUUIDがマッチするスキーマを取得する
+    :param List[Schema] schemas: 検索対象のスキーマ一覧
+    :param str schema_uuid: 取得するスキーマのUUID
+    :return: マッチしたスキーマ
+    :rtype: Optional[Schema]
+    """
+    schemas = [schema for schema in schemas if schema.uuid == schema_uuid]
+    return schemas[0] if len(schemas) != 0 else None
