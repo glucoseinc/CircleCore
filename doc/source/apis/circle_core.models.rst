@@ -20,6 +20,14 @@ circle_core.models.device module
     :undoc-members:
     :show-inheritance:
 
+circle_core.models.redis_client module
+--------------------------------------
+
+.. automodule:: circle_core.models.redis_client
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 circle_core.models.schema module
 --------------------------------
 

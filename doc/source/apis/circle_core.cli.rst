@@ -12,6 +12,14 @@ circle_core.cli.cli_main module
     :undoc-members:
     :show-inheritance:
 
+circle_core.cli.context module
+------------------------------
+
+.. automodule:: circle_core.cli.context
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 circle_core.cli.device module
 -----------------------------
 
