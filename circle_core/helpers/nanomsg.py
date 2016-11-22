@@ -1,9 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """nanomsgのラッパー."""
+from circle_core.helpers.topics import TOPIC_LENGTH
+from time import sleep
 from nnpy import AF_SP, PUB, Socket, SUB, SUB_SUBSCRIBE
 from six import add_metaclass
 __all__ = ('Receiver', 'Sender')
+
+
+SOCKET_PATH = 'ipc:///tmp/hoge.ipc'  # TODO: CLIから指定
 
 
 class Receiver:
@@ -12,10 +17,10 @@ class Receiver:
     :param Socket __socket:
     """
 
-    def __init__(self):
+    def __init__(self, socket_path=SOCKET_PATH):
         """接続を開く."""
         self.__socket = Socket(AF_SP, SUB)
-        self.__socket.connect('ipc:///tmp/hoge.ipc')
+        self.__socket.connect(socket_path)
 
     def __del__(self):
         """接続を閉じる."""
@@ -29,8 +34,9 @@ class Receiver:
         """
         self.__socket.setsockopt(SUB, SUB_SUBSCRIBE, topic.justify())
         while True:
-            # TODO: 接続切れたときの対応
-            yield self.__socket.recv()
+            # TODO: 接続切れたときにStopIterationしたいが自分でheartbeatを実装したりしないといけないのかな
+            msg = self.__socket.recv()
+            yield msg.decode('utf-8')[TOPIC_LENGTH:]
 
 
 # http://stackoverflow.com/a/6798042
@@ -53,11 +59,15 @@ class Sender:
     :param Socket __socket:
     """
 
-    def __init__(self):
-        """接続を開く."""
+    def __init__(self, socket_path=SOCKET_PATH):
+        """接続を開く.
+
+        :param str socket_path: ipc://で始まる
+        """
         self.__socket = Socket(AF_SP, PUB)
-        self.__socket.bind('ipc:///tmp/hoge.ipc')
+        self.__socket.bind(socket_path)
         # 同じアドレスにbindできるのは一度に一つのSocketだけ
+        sleep(0.1)
         # おそらくbindが完了するまでブロックされていない
         # bindの直後にsendしても届かなかった
 

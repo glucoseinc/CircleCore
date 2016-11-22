@@ -8,7 +8,8 @@ redis
 tox
 tornado
 flask
-nnpy
 pip-tools
 ptpython
 six
+pytest-timeout
+-e git://github.com/nanomsg/nnpy.git#egg=nnpy  # PyPI version is not updated
