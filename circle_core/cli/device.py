@@ -70,9 +70,9 @@ def device_add(ctx, schema_name, group, properties_string, active, device_name):
 
     :param Context ctx: Context
     :param str schema_name: スキーマ表示名
-    :param group:
-    :param properties_string: プロパティ
-    :param active:
+    :param str group:
+    :param str properties_string: プロパティ
+    :param bool active:
     :param str device_name: デバイス表示名
     """
     context_object = ctx.obj  # type: ContextObject
@@ -100,6 +100,7 @@ def device_add(ctx, schema_name, group, properties_string, active, device_name):
         properties['value{}'.format(i)] = _value
 
     device = Device(schema.uuid, device_name, **properties)
+    # TODO: groupとactiveの扱いW
 
     if config.type == ConfigType.redis:
         redis_client = config.redis_client
@@ -115,3 +116,31 @@ def device_add(ctx, schema_name, group, properties_string, active, device_name):
         device.db_id = num
         device.register_to_redis(redis_client)
         click.echo('Device "{}" is added.'.format(device.display_name))
+
+
+@cli_device.command('remove')
+@click.argument('device_name')
+@click.pass_context
+def device_remove(ctx, device_name):
+    """デバイスを削除する.
+
+    :param Context ctx: Context
+    :param str device_name: デバイス表示名
+    """
+    context_object = ctx.obj  # type: ContextObject
+    config = context_object.config
+
+    if config.type not in (ConfigType.redis,):
+        click.echo('Cannot remove to {}.'.format(config.stringified_type))
+        ctx.exit(code=-1)
+
+    if config.type == ConfigType.redis:
+        redis_client = config.redis_client
+        devices = [device for device in config.devices if device.display_name == device_name]
+        if len(devices) == 0:
+            click.echo('Device "{}" is not registered. Do nothing.'.format(device_name))
+            ctx.exit(code=-1)
+
+        device = devices[0]
+        device.unregister_from_redis(redis_client)
+        click.echo('Device "{}" is removed.'.format(device_name))

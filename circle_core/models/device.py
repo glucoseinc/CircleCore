@@ -127,3 +127,14 @@ class Device(object):
 
         key = 'device{}'.format(self.db_id)
         redis_client.hmset(key, mapping)
+
+    def unregister_from_redis(self, redis_client):
+        """Redisから削除する.
+
+        :param RedisClient redis_client: Redisクライアント
+        """
+        if self.db_id is not None:
+            key = 'device{}'.format(self.db_id)
+            redis_client.delete(key)
+
+            self.db_id = None
