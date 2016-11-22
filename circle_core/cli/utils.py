@@ -38,6 +38,19 @@ def output_listing_columns(data, header):
         click.echo(row_string)
 
 
+def output_properties(data):
+    """プロパティリストを整形し表示する.
+
+    :param List[Tuple[str, str]] data: プロパティリスト
+    """
+    data = [[datum[0], ':', datum[1]] for datum in data]
+    row_strings, _ = create_row_strings(data)
+
+    # Display rows.
+    for row_string in row_strings:
+        click.echo(row_string)
+
+
 def create_row_strings(rows):
     """テーブルデータを表示用に整形する.
 

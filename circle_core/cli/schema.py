@@ -13,12 +13,12 @@ from six import PY3
 
 # project module
 from .context import ContextObject
-from .utils import output_listing_columns
+from .utils import output_listing_columns, output_properties
 from ..models import Schema
 from ..models.config import ConfigType
 
 if PY3:
-    from typing import List, Optional, Tuple
+    from typing import List, Tuple
 
 
 @click.group('schema')
@@ -70,7 +70,6 @@ def schema_detail(ctx, schema_uuid):
     :param Context ctx: Context
     :param str schema_uuid: スキーマUUID
     """
-    # TODO: 表示の整形を関数化
     context_object = ctx.obj  # type: ContextObject
     config = context_object.config
 
@@ -78,15 +77,21 @@ def schema_detail(ctx, schema_uuid):
     if schema is None:
         click.echo('Schema "{}" is not registered.'.format(schema_uuid))
         ctx.exit(code=-1)
-    click.echo('UUID         : {}'.format(schema.uuid))
-    click.echo('DISPLAY_NAME : {}'.format(schema.display_name))
+
+    data = [
+        ('UUID', schema.uuid),
+        ('DISPLAY_NAME', schema.display_name),
+    ]
     for i, prop in enumerate(schema.properties):
-        click.echo('{}   : {}:{}'.format('PROPERTIES' if i == 0 else ' ' * len('PROPERTIES'), prop.name, prop.type))
+        data.append(('PROPERTIES' if i == 0 else '', '{}:{}'.format(prop.name, prop.type)))
 
     devices = [device for device in config.devices if device.schema_uuid == schema_uuid]
     if len(devices):
-        click.echo('Devices which use this schema : {}'.format(', '.join([device.display_name for device in devices])))
+        for i, device in enumerate(devices):
+            data.append(('Devices' if i == 0 else '', device.display_name))
+        output_properties(data)
     else:
+        output_properties(data)
         click.echo('No devices are use this schema.')
 
 

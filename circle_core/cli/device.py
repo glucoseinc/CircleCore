@@ -10,12 +10,12 @@ from six import PY3
 
 # project module
 from .context import ContextObject
-from .utils import output_listing_columns
+from .utils import output_listing_columns, output_properties
 from ..models import Device
 from ..models.config import ConfigType
 
 if PY3:
-    from typing import List, Optional, Tuple
+    from typing import List, Tuple
 
 
 @click.group('device')
@@ -67,7 +67,6 @@ def schema_detail(ctx, device_name):
     :param Context ctx: Context
     :param str device_name: デバイス表示名
     """
-    # TODO: 表示の整形を関数化
     context_object = ctx.obj  # type: ContextObject
     config = context_object.config
 
@@ -75,10 +74,15 @@ def schema_detail(ctx, device_name):
     if device is None:
         click.echo('Device "{}" is not registered.'.format(device_name))
         ctx.exit(code=-1)
-    click.echo('DISPLAY_NAME : {}'.format(device.display_name))
-    click.echo('SCHEMA       : {}'.format(device.schema_uuid))
+
+    data = [
+        ('DISPLAY_NAME', device.display_name),
+        ('SCHEMA', device.schema_uuid),
+    ]
     for i, prop in enumerate(device.properties):
-        click.echo('{}   : {}:{}'.format('PROPERTIES' if i == 0 else ' ' * len('PROPERTIES'), prop.name, prop.value))
+        data.append(('PROPERTIES' if i == 0 else '', '{}:{}'.format(prop.name, prop.value)))
+
+    output_properties(data)
 
     # TODO: Schema情報を表示
 
