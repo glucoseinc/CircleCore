@@ -118,7 +118,7 @@ def schema_remove(ctx, schema_uuid):
     config = context_object.config
 
     if config.type not in (ConfigType.redis,):
-        click.echo('Cannot remove to {}.'.format(config.stringified_type))
+        click.echo('Cannot remove from {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
     if config.type == ConfigType.redis:

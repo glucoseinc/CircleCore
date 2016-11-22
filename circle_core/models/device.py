@@ -13,7 +13,7 @@ from six import PY3
 from .redis_client import RedisClient
 
 if PY3:
-    from typing import List, Optional
+    from typing import List, Optional, Tuple
 
 
 class DeviceProperty(object):
@@ -56,9 +56,9 @@ class Device(object):
         property_names = sorted([k for k in kwargs.keys() if k.startswith('property')])
         for property_name in property_names:
             idx = property_name[8:]
-            property_type = 'value' + idx
-            if property_type in kwargs.keys():
-                self.properties.append(DeviceProperty(kwargs[property_name], kwargs[property_type]))
+            property_value = 'value' + idx
+            if property_value in kwargs.keys():
+                self.properties.append(DeviceProperty(kwargs[property_name], kwargs[property_value]))
 
     @property
     def stringified_properties(self):
@@ -71,6 +71,26 @@ class Device(object):
         for prop in self.properties:
             strings.append('{}:{}'.format(prop.name, prop.value))
         return ', '.join(strings)
+
+    def append_properties(self, name_and_values):
+        """プロパティを追加する.
+
+        :param List[Tuple[str, str]] name_and_values: 属性名と属性値のタプルのリスト
+        """
+        for name, value in name_and_values:
+            for prop in self.properties:
+                if prop.name == name:
+                    prop.value = value
+                    break
+            else:
+                self.properties.append(DeviceProperty(name, value))
+
+    def remove_properties(self, names):
+        """プロパティを除去する.
+
+        :param List[str] names: 属性名リスト
+        """
+        self.properties = [prop for prop in self.properties if prop.name not in names]
 
     @classmethod
     def init_from_redis(cls, redis_client, num):
@@ -138,3 +158,18 @@ class Device(object):
             redis_client.delete(key)
 
             self.db_id = None
+
+    def update_in_redis(self, redis_client):
+        """Redis上のデータを更新する.
+
+        :param RedisClient redis_client: Redisクライアント
+        """
+        if self.db_id is None:
+            # TODO: 例外を投げる？
+            return
+
+        key = 'device{}'.format(self.db_id)
+        hkeys = [hkey for hkey in redis_client.hkeys(key)
+                 if hkey.startswith('property') or hkey.startswith('value')]
+        redis_client.hdel(key, *hkeys)
+        self.register_to_redis(redis_client)
