@@ -1,8 +1,29 @@
-note.md
-/.enter.zsh
-/.leave.zsh
-/.pyvenv
+### https://raw.github.com/github/gitignore/a8a9744a6f51864e184fb2441bac59af66bbc385/Global/osx.gitignore
 
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
 
 
 # Created by https://www.gitignore.io/api/python
@@ -101,31 +122,8 @@ ENV/
 
 # User definition
 tmp
-### https://raw.github.com/github/gitignore/a8a9744a6f51864e184fb2441bac59af66bbc385/Global/osx.gitignore
-
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# Icon must end with two \r
-Icon
-
-# Thumbnails
-._*
-
-# Files that might appear in the root of a volume
-.DocumentRevisions-V100
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-
-# Directories potentially created on remote AFP share
-.AppleDB
-.AppleDesktop
-Network Trash Folder
-Temporary Items
-.apdisk
-
-
+note.md
+.editorconfig
+/.enter.zsh
+/.leave.zsh
+/.pyvenv
