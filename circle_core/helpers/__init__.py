@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """標準出力へのlogger."""
+from logging import DEBUG, getLogger, StreamHandler
 from sys import stdout
-from logging import getLogger, DEBUG, StreamHandler
 
 
 logger = getLogger('circle_core')

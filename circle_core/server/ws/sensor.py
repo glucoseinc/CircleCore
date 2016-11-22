@@ -4,8 +4,8 @@
 
 
 from circle_core.helpers import logger
-from circle_core.helpers.topics import WriteDB
 from circle_core.helpers.nanomsg import Sender
+from circle_core.helpers.topics import WriteDB
 from tornado.websocket import WebSocketHandler
 
 

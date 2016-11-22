@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """nanomsgのラッパー."""
-from nnpy import AF_SP, SUB, SUB_SUBSCRIBE, PUB, Socket
+from nnpy import AF_SP, PUB, Socket, SUB, SUB_SUBSCRIBE
 from six import add_metaclass
-__all__ = ['Receiver', 'Sender']
+__all__ = ('Receiver', 'Sender')
 
 
 class Receiver:

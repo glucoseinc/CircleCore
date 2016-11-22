@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """CLI Worker."""
-import click
 from importlib import import_module
+
+import click
 
 
 @click.group('worker')
