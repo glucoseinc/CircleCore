@@ -36,19 +36,22 @@ class DeviceProperty(object):
 class Device(object):
     """Deviceオブジェクト.
 
-    :param str schema_uuid: Schema UUID
-    :param str display_name: 表示名
+    :param str uuid: Device UUID
+    :param Optional[str] display_name: 表示名
     :param Optional[int] db_id: DataBase上のID
+    :param str schema_uuid: Schema UUID
     :param List[DeviceProperty] properties: プロパティ
     """
 
-    def __init__(self, schema, display_name, db_id=None, **kwargs):
+    def __init__(self, uuid, schema, display_name=None, db_id=None, **kwargs):
         """init.
 
+        :param str uuid; Device UUID
         :param str schema: Schema UUID
-        :param str display_name: 表示名
+        :param Optional[str] display_name: 表示名
         :param Optional[int] db_id: DataBase上のID
         """
+        self.uuid = uuid
         self.schema_uuid = schema
         self.display_name = display_name
         self.db_id = db_id
@@ -91,6 +94,8 @@ class Device(object):
         :param List[str] names: 属性名リスト
         """
         self.properties = [prop for prop in self.properties if prop.name not in names]
+
+    # TODO: Redis関係は分離するか？
 
     @classmethod
     def init_from_redis(cls, redis_client, num):
@@ -138,9 +143,11 @@ class Device(object):
             return
 
         mapping = {
-            'display_name': self.display_name,
+            'uuid': self.uuid,
             'schema': self.schema_uuid,
         }
+        if self.display_name is not None:
+            mapping['display_name'] = self.display_name
         for i, prop in enumerate(self.properties, start=1):
             mapping['property{}'.format(i)] = prop.name
             mapping['value{}'.format(i)] = prop.value

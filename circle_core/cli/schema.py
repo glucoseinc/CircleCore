@@ -56,8 +56,10 @@ def _format_for_columns(schemas):
     :rtype: Tuple[List[List[str]], List[str]]
     """
     header = ['UUID', 'DISPLAY_NAME', 'PROPERTIES']
-    data = [[schema.uuid, schema.display_name, schema.stringified_properties]
-            for schema in schemas]
+    data = []
+    for schema in schemas:
+        display_name = schema.display_name if schema.display_name is not None else ''
+        data.append([schema.uuid, display_name, schema.stringified_properties])
     return data, header
 
 

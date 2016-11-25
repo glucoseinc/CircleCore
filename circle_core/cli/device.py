@@ -3,6 +3,9 @@
 
 """CLI Device."""
 
+# system module
+from uuid import uuid4
+
 # community module
 import click
 from click.core import Context
@@ -52,8 +55,8 @@ def _format_for_columns(devices):
     :return: data: 加工後のデバイスリスト, header: 見出し
     :rtype: Tuple[List[List[str]], List[str]]
     """
-    header = ['SCHEMA', 'DISPLAY_NAME', 'PROPERTIES']
-    data = [[device.schema_uuid, device.display_name, device.stringified_properties]
+    header = ['UUID', 'DISPLAY_NAME', 'SCHEMA', 'PROPERTIES']
+    data = [[device.uuid, device.display_name, device.schema_uuid, device.stringified_properties]
             for device in devices]
     return data, header
 
@@ -76,6 +79,7 @@ def schema_detail(ctx, device_name):
         ctx.exit(code=-1)
 
     data = [
+        ('UUID', device.uuid),
         ('DISPLAY_NAME', device.display_name),
         ('SCHEMA', device.schema_uuid),
     ]
@@ -111,6 +115,9 @@ def device_add(ctx, schema_name, group, properties_string, active, device_name):
         click.echo('Cannot register to {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
+    device_uuid = str(uuid4())
+    # TODO: 重複チェックする
+
     schemas = [schema for schema in config.schemas if schema.display_name == schema_name]
     if len(schemas) == 0:
         click.echo('Schema "{}" is not exist.'.format(schema_name))
@@ -128,7 +135,7 @@ def device_add(ctx, schema_name, group, properties_string, active, device_name):
         properties['property{}'.format(i)] = _property
         properties['value{}'.format(i)] = _value
 
-    device = Device(schema.uuid, device_name, **properties)
+    device = Device(device_uuid, schema.uuid, device_name, **properties)
     # TODO: groupとactiveの扱いW
 
     if isinstance(config, ConfigRedis):
