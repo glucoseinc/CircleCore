@@ -6,3 +6,11 @@ pytest
 tcptest
 redis
 tox
+tornado
+flask
+pip-tools
+ptpython
+six
+pytest-timeout
+websocket-client
+-e git://github.com/nanomsg/nnpy.git#egg=nnpy  # PyPI version is not updated
