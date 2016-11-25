@@ -58,7 +58,7 @@ def _format_for_columns(schemas):
     header = ['UUID', 'DISPLAY_NAME', 'PROPERTIES']
     data = []  # type: List[List[str]]
     for schema in schemas:
-        display_name = schema.display_name if schema.display_name is not None else ''
+        display_name = schema.display_name or ''
         data.append([schema.uuid, display_name, schema.stringified_properties])
     return data, header
 
@@ -82,7 +82,7 @@ def schema_detail(ctx, schema_uuid):
 
     data = [
         ('UUID', schema.uuid),
-        ('DISPLAY_NAME', schema.display_name),
+        ('DISPLAY_NAME', schema.display_name or ''),
     ]
     for i, prop in enumerate(schema.properties):
         data.append(('PROPERTIES' if i == 0 else '', '{}:{}'.format(prop.name, prop.type)))
@@ -90,7 +90,7 @@ def schema_detail(ctx, schema_uuid):
     devices = [device for device in config.devices if device.schema_uuid == schema_uuid]
     if len(devices):
         for i, device in enumerate(devices):
-            data.append(('Devices' if i == 0 else '', device.display_name))
+            data.append(('Devices' if i == 0 else '', device.uuid))
         output_properties(data)
     else:
         output_properties(data)

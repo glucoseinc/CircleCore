@@ -56,8 +56,10 @@ def _format_for_columns(devices):
     :rtype: Tuple[List[List[str]], List[str]]
     """
     header = ['UUID', 'DISPLAY_NAME', 'SCHEMA_UUID', 'PROPERTIES']
-    data = [[device.uuid, device.display_name, device.schema_uuid, device.stringified_properties]
-            for device in devices]
+    data = []  # type: List[List[str]]
+    for device in devices:
+        display_name = device.display_name or ''
+        data.append([device.uuid, display_name, device.schema_uuid, device.stringified_properties])
     return data, header
 
 
@@ -80,7 +82,7 @@ def schema_detail(ctx, device_uuid):
 
     data = [
         ('UUID', device.uuid),
-        ('DISPLAY_NAME', device.display_name),
+        ('DISPLAY_NAME', device.display_name or ''),
         ('SCHEMA_UUID', device.schema_uuid),
     ]
     for i, prop in enumerate(device.properties):
@@ -141,7 +143,7 @@ def device_add(ctx, display_name, schema_uuid, properties_string, active):
             ctx.exit(code=-1)
 
         device.register_to_redis(redis_client)
-        click.echo('Device "{}" is added.'.format(device.display_name))
+        click.echo('Device "{}" is added.'.format(device.uuid))
 
 
 @cli_device.command('remove')

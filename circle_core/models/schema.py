@@ -112,9 +112,8 @@ class Schema(object):
         """
         mapping = {
             'uuid': self.uuid,
+            'display_name': self.display_name,
         }
-        if self.display_name is not None:
-            mapping['display_name'] = self.display_name
         for i, prop in enumerate(self.properties, start=1):
             mapping['key{}'.format(i)] = prop.name
             mapping['type{}'.format(i)] = prop.type

@@ -42,15 +42,15 @@ class Device(object):
     :param List[DeviceProperty] properties: プロパティ
     """
 
-    def __init__(self, uuid, schema, display_name=None, **kwargs):
+    def __init__(self, uuid, schema_uuid, display_name=None, **kwargs):
         """init.
 
         :param str uuid; Device UUID
-        :param str schema: Schema UUID
+        :param str schema_uuid: Schema UUID
         :param Optional[str] display_name: 表示名
         """
         self.uuid = uuid
-        self.schema_uuid = schema
+        self.schema_uuid = schema_uuid
         self.display_name = display_name
         self.properties = []
         property_names = sorted([k for k in kwargs.keys() if k.startswith('property')])
@@ -135,10 +135,9 @@ class Device(object):
         """
         mapping = {
             'uuid': self.uuid,
-            'schema': self.schema_uuid,
+            'display_name': self.display_name,
+            'schema_uuid': self.schema_uuid,
         }
-        if self.display_name is not None:
-            mapping['display_name'] = self.display_name
         for i, prop in enumerate(self.properties, start=1):
             mapping['property{}'.format(i)] = prop.name
             mapping['value{}'.format(i)] = prop.value
