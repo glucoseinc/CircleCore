@@ -53,14 +53,14 @@ class Config(object):
         schemas = [schema for schema in self.schemas if schema.uuid == schema_uuid]
         return schemas[0] if len(schemas) != 0 else None
 
-    def matched_device(self, device_name):
+    def matched_device(self, device_uuid):
         """デバイスリストから表示名がマッチするものを取得する.
 
-        :param str device_name: 取得するデバイスの表示名
+        :param str device_uuid: 取得するデバイスのUUID
         :return: マッチしたスキーマ
         :rtype: Optional[Device]
         """
-        devices = [device for device in self.devices if device.display_name == device_name]
+        devices = [device for device in self.devices if device.uuid == device_uuid]
         return devices[0] if len(devices) != 0 else None
 
     @classmethod

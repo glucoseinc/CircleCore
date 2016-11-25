@@ -56,7 +56,7 @@ def _format_for_columns(schemas):
     :rtype: Tuple[List[List[str]], List[str]]
     """
     header = ['UUID', 'DISPLAY_NAME', 'PROPERTIES']
-    data = []
+    data = []  # type: List[List[str]]
     for schema in schemas:
         display_name = schema.display_name if schema.display_name is not None else ''
         data.append([schema.uuid, display_name, schema.stringified_properties])
@@ -120,7 +120,12 @@ def schema_add(ctx, display_name, name_and_types):
 
     properties = {}
     for i, name_and_type in enumerate(name_and_types, start=1):
-        _name, _type = name_and_type.split(':')
+        splitted = name_and_type.split(':')
+        if len(splitted) != 2:
+            click.echo('Argument is invalid : {}.'.format(name_and_type))
+            click.echo('Argument format must be "name:type"')
+            ctx.exit(code=-1)
+        _name, _type = splitted[0], splitted[1]
         properties['key{}'.format(i)] = _name
         properties['type{}'.format(i)] = _type
     schema = Schema(schema_uuid, display_name, **properties)

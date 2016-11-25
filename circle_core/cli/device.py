@@ -55,33 +55,33 @@ def _format_for_columns(devices):
     :return: data: 加工後のデバイスリスト, header: 見出し
     :rtype: Tuple[List[List[str]], List[str]]
     """
-    header = ['UUID', 'DISPLAY_NAME', 'SCHEMA', 'PROPERTIES']
+    header = ['UUID', 'DISPLAY_NAME', 'SCHEMA_UUID', 'PROPERTIES']
     data = [[device.uuid, device.display_name, device.schema_uuid, device.stringified_properties]
             for device in devices]
     return data, header
 
 
 @cli_device.command('detail')
-@click.argument('device_name')
+@click.argument('device_uuid')
 @click.pass_context
-def schema_detail(ctx, device_name):
+def schema_detail(ctx, device_uuid):
     """デバイスの詳細を表示する.
 
     :param Context ctx: Context
-    :param str device_name: デバイス表示名
+    :param str device_uuid: デバイスUUID
     """
     context_object = ctx.obj  # type: ContextObject
     config = context_object.config
 
-    device = config.matched_device(device_name)
+    device = config.matched_device(device_uuid)
     if device is None:
-        click.echo('Device "{}" is not registered.'.format(device_name))
+        click.echo('Device "{}" is not registered.'.format(device_uuid))
         ctx.exit(code=-1)
 
     data = [
         ('UUID', device.uuid),
         ('DISPLAY_NAME', device.display_name),
-        ('SCHEMA', device.schema_uuid),
+        ('SCHEMA_UUID', device.schema_uuid),
     ]
     for i, prop in enumerate(device.properties):
         data.append(('PROPERTIES' if i == 0 else '', '{}:{}'.format(prop.name, prop.value)))
@@ -92,21 +92,19 @@ def schema_detail(ctx, device_name):
 
 
 @cli_device.command('add')
-@click.option('schema_name', '--schema')
-@click.option('--group')
+@click.option('display_name', '--name')
+@click.option('schema_uuid', '--schema')
 @click.option('properties_string', '--property')
 @click.option('--active/--inactive')
-@click.argument('device_name')
 @click.pass_context
-def device_add(ctx, schema_name, group, properties_string, active, device_name):
+def device_add(ctx, display_name, schema_uuid, properties_string, active):
     """デバイスを登録する.
 
     :param Context ctx: Context
-    :param str schema_name: スキーマ表示名
-    :param str group:
+    :param str display_name: デバイス表示名
+    :param str schema_uuid: スキーマUUID
     :param str properties_string: プロパティ
     :param bool active:
-    :param str device_name: デバイス表示名
     """
     context_object = ctx.obj  # type: ContextObject
     config = context_object.config
@@ -118,12 +116,10 @@ def device_add(ctx, schema_name, group, properties_string, active, device_name):
     device_uuid = str(uuid4())
     # TODO: 重複チェックする
 
-    schemas = [schema for schema in config.schemas if schema.display_name == schema_name]
-    if len(schemas) == 0:
-        click.echo('Schema "{}" is not exist.'.format(schema_name))
+    schema = config.matched_schema(schema_uuid)
+    if schema is None:
+        click.echo('Schema "{}" is not exist.'.format(schema_uuid))
         ctx.exit(code=-1)
-
-    schema = sorted(schemas, key=lambda schema: schema.uuid)[0]
 
     properties = {}
     for i, string in enumerate(properties_string.split(','), start=1):
@@ -135,8 +131,8 @@ def device_add(ctx, schema_name, group, properties_string, active, device_name):
         properties['property{}'.format(i)] = _property
         properties['value{}'.format(i)] = _value
 
-    device = Device(device_uuid, schema.uuid, device_name, **properties)
-    # TODO: groupとactiveの扱いW
+    device = Device(device_uuid, schema.uuid, display_name, **properties)
+    # TODO: activeの扱い
 
     if isinstance(config, ConfigRedis):
         redis_client = config.redis_client
@@ -149,13 +145,13 @@ def device_add(ctx, schema_name, group, properties_string, active, device_name):
 
 
 @cli_device.command('remove')
-@click.argument('device_name')
+@click.argument('device_uuid')
 @click.pass_context
-def device_remove(ctx, device_name):
+def device_remove(ctx, device_uuid):
     """デバイスを削除する.
 
     :param Context ctx: Context
-    :param str device_name: デバイス表示名
+    :param str device_uuid: デバイスUUID
     """
     context_object = ctx.obj  # type: ContextObject
     config = context_object.config
@@ -166,26 +162,26 @@ def device_remove(ctx, device_name):
 
     if isinstance(config, ConfigRedis):
         redis_client = config.redis_client
-        device = config.matched_device(device_name)
+        device = config.matched_device(device_uuid)
         if device is None:
-            click.echo('Device "{}" is not registered. Do nothing.'.format(device_name))
+            click.echo('Device "{}" is not registered. Do nothing.'.format(device_uuid))
             ctx.exit(code=-1)
         device.unregister_from_redis(redis_client)
-        click.echo('Device "{}" is removed.'.format(device_name))
+        click.echo('Device "{}" is removed.'.format(device_uuid))
 
 
 @cli_device.command('property')
 @click.option('adding_properties_string', '--add')
 @click.option('removing_property_names_string', '--remove')
-@click.argument('device_name')
+@click.argument('device_uuid')
 @click.pass_context
-def device_property(ctx, adding_properties_string, removing_property_names_string, device_name):
+def device_property(ctx, adding_properties_string, removing_property_names_string, device_uuid):
     """デバイスのプロパティを更新する.
 
     :param Context ctx: Context
     :param str adding_properties_string: 追加プロパティ
     :param str removing_property_names_string: 削除プロパティ
-    :param str device_name: デバイス表示名
+    :param str device_uuid: デバイスUUID
     """
     context_object = ctx.obj  # type: ContextObject
     config = context_object.config
@@ -196,17 +192,17 @@ def device_property(ctx, adding_properties_string, removing_property_names_strin
 
     if isinstance(config, ConfigRedis):
         redis_client = config.redis_client
-        device = config.matched_device(device_name)
+        device = config.matched_device(device_uuid)
         if device is None:
-            click.echo('Device "{}" is not registered. Do nothing.'.format(device_name))
+            click.echo('Device "{}" is not registered. Do nothing.'.format(device_uuid))
             ctx.exit(code=-1)
         if removing_property_names_string is not None:
             removing_property_names = set([key.strip() for key in removing_property_names_string.split(',')])
             current_property_names = set([prop.name for prop in device.properties])
             if not removing_property_names.issubset(current_property_names):
                 difference_property_names = removing_property_names.difference(current_property_names)
-                click.echo('Argument "remove" is invalid : "{}" is not exist in "{}"\'s properties. Do nothing.'
-                           .format(','.join(difference_property_names), device_name))
+                click.echo('Argument "remove" is invalid : "{}" is not exist in properties. Do nothing.'
+                           .format(','.join(difference_property_names)))
                 ctx.exit(code=-1)
             device.remove_properties(list(removing_property_names))
 
@@ -222,4 +218,4 @@ def device_property(ctx, adding_properties_string, removing_property_names_strin
             device.append_properties(adding_properties)
 
         device.update_in_redis(redis_client)
-        click.echo('Device "{}" is updated.'.format(device_name))
+        click.echo('Device "{}" is updated.'.format(device_uuid))
