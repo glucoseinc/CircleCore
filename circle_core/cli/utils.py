@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """CLI Utilities."""
@@ -32,6 +31,19 @@ def output_listing_columns(data, header):
     if len(data) > 0:
         separator = ' '.join(['-' * size for size in sizes])
         row_strings.insert(1, separator)
+
+    # Display rows.
+    for row_string in row_strings:
+        click.echo(row_string)
+
+
+def output_properties(data):
+    """プロパティリストを整形し表示する.
+
+    :param List[Tuple[str, str]] data: プロパティリスト
+    """
+    data = [[datum[0], ':', datum[1]] for datum in data]
+    row_strings, _ = create_row_strings(data)
 
     # Display rows.
     for row_string in row_strings:
