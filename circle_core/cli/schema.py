@@ -123,7 +123,7 @@ def schema_add(ctx, display_name, name_and_types):
         splitted = name_and_type.split(':')
         if len(splitted) != 2:
             click.echo('Argument is invalid : {}.'.format(name_and_type))
-            click.echo('Argument format must be "name:type"')
+            click.echo('Argument format must be "name:type".')
             ctx.exit(code=-1)
         _name, _type = splitted[0], splitted[1]
         properties['key{}'.format(i)] = _name
@@ -132,10 +132,6 @@ def schema_add(ctx, display_name, name_and_types):
 
     if isinstance(config, ConfigRedis):
         redis_client = config.redis_client
-        if redis_client is None:
-            click.echo('Cannot connect to Redis server.')
-            ctx.exit(code=-1)
-
         schema.register_to_redis(redis_client)
         click.echo('Schema "{}" is added.'.format(schema.uuid))
 

@@ -120,14 +120,15 @@ def device_add(ctx, display_name, schema_uuid, properties_string, active):
 
     schema = config.matched_schema(schema_uuid)
     if schema is None:
-        click.echo('Schema "{}" is not exist.'.format(schema_uuid))
+        click.echo('Schema "{}" is not exist. Do nothing.'.format(schema_uuid))
         ctx.exit(code=-1)
 
     properties = {}
     for i, string in enumerate(properties_string.split(','), start=1):
         splitted = [val.strip() for val in string.split(':')]
         if len(splitted) != 2:
-            click.echo('Argument "property" is invalid : {}.'.format(string))
+            click.echo('Argument "property" is invalid : {}. Do nothing.'.format(string))
+            click.echo('Argument "property" format must be "name1:type1,name2:type2...".')
             ctx.exit(code=-1)
         _property, _value = splitted[0], splitted[1]
         properties['property{}'.format(i)] = _property
@@ -138,10 +139,6 @@ def device_add(ctx, display_name, schema_uuid, properties_string, active):
 
     if isinstance(config, ConfigRedis):
         redis_client = config.redis_client
-        if redis_client is None:
-            click.echo('Cannot connect to Redis server.')
-            ctx.exit(code=-1)
-
         device.register_to_redis(redis_client)
         click.echo('Device "{}" is added.'.format(device.uuid))
 
@@ -213,7 +210,8 @@ def device_property(ctx, adding_properties_string, removing_property_names_strin
             for i, string in enumerate(adding_properties_string.split(','), start=1):
                 splitted = [val.strip() for val in string.split(':')]
                 if len(splitted) != 2:
-                    click.echo('Argument "add" is invalid : {}.'.format(string))
+                    click.echo('Argument "add" is invalid : {}. Do nothing.'.format(string))
+                    click.echo('Argument "add" format must be "name1:type1,name2:type2...".')
                     ctx.exit(code=-1)
                 name, value = splitted[0], splitted[1]
                 adding_properties.append((name, value))
