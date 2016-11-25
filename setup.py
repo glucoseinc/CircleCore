@@ -13,6 +13,7 @@ setup(
         'nnpy',
         'redis',
         'six',
+        'sqlalchemy>=1.1.4',
         'tornado',
         'websocket-client',
     ],
