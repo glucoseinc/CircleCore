@@ -24,79 +24,24 @@ else:
     from typing import List, Optional
 
 
-class ConfigType(object):
-    """ConfigTypeオブジェクト.
-
-    :param int type: Configタイプ
-    """
-
-    (
-        nothing,
-        redis,
-        ini_file,
-    ) = range(3)
-
-    def __init__(self, config_type):
-        """init.
-
-        :param int config_type: Configタイプ
-        """
-        self.type = config_type
-
-    def __str__(self):
-        """str.
-
-        :return: str
-        :rtype: str
-        """
-        if self.type == ConfigType.nothing:
-            return 'Nothing'
-        if self.type == ConfigType.redis:
-            return 'Redis'
-        if self.type == ConfigType.ini_file:
-            return 'INI File'
-        return 'Nothing'
-
-
 class Config(object):
     """Configオブジェクト.
 
-    :param ConfigType _type: Configタイプ
+    :param str stringified_type: Configタイプ(str)
     :param List[Schema] schemas: スキーマリスト
     :param List[Device] devices: デバイスリスト
-    :param Optional[RedisClient] redis_client: Redisクライアント
     """
 
-    def __init__(self, config_type, schemas, devices, redis_client=None):
+    stringified_type = 'nothing'
+
+    def __init__(self, schemas, devices):
         """init.
 
-        :param ConfigType config_type: Configタイプ
         :param List[Schema] schemas: スキーマリスト
         :param List[Device] devices: デバイスリスト
-        :param Optional[RedisClient] redis_client: Redisクライアント
         """
-        self._type = config_type
         self.schemas = schemas
         self.devices = devices
-        self.redis_client = redis_client
-
-    @property
-    def type(self):
-        """Configタイプ(enum).
-
-        :return: Configタイプ
-        :rtype: int
-        """
-        return self._type.type
-
-    @property
-    def stringified_type(self):
-        """Configタイプ(str).
-
-        :return: Configタイプ
-        :rtype: str
-        """
-        return str(self._type)
 
     def matched_schema(self, schema_uuid):
         """スキーマリストからUUIDがマッチするものを取得する.
@@ -119,29 +64,38 @@ class Config(object):
         return devices[0] if len(devices) != 0 else None
 
     @classmethod
-    def parse(cls, url_schema):
+    def parse(cls, url_scheme):
         """URLスキームからConfigオブジェクトを生成する.
 
-        :param str url_schema: URLスキーム
+        :param str url_scheme: URLスキーム
         :return: Configオブジェクト
         :rtype: Config
         """
-        parsed_url = urlparse(url_schema)
+        parsed_url = urlparse(url_scheme)
         if parsed_url.scheme == 'file':
-            return Config._parse_ini(parsed_url.path)
+            return ConfigIniFile.parse_url_scheme(url_scheme)
         elif parsed_url.scheme == 'redis':
-            return Config._parse_redis(url_schema)
+            return ConfigRedis.parse_url_scheme(url_scheme)
 
-        return Config(ConfigType(ConfigType.nothing), [], [])
+        return Config([], [])
+
+
+class ConfigIniFile(Config):
+    """ConfigIniFileオブジェクト.
+
+    """
+
+    stringified_type = 'INI File'
 
     @classmethod
-    def _parse_ini(cls, ini_file_path):
+    def parse_url_scheme(cls, url_scheme):
         """iniファイルからConfigオブジェクトを生成する.
 
-        :param str ini_file_path: iniファイルのパス
-        :return: Configオブジェクト
-        :rtype: Config
+        :param str url_scheme: URLスキーム
+        :return: ConfigIniFileオブジェクト
+        :rtype: ConfigIniFile
         """
+        ini_file_path = urlparse(url_scheme).path
         parser = configparser.ConfigParser()
         parser.read(ini_file_path)
 
@@ -153,24 +107,43 @@ class Config(object):
                         if re.match(r'^device\d+', section)]
         devices = [Device(**device_dict) for device_dict in device_dicts]
 
-        return Config(ConfigType(ConfigType.ini_file), schemas, devices)
+        return ConfigIniFile(schemas, devices)
+
+
+class ConfigRedis(Config):
+    """ConfigRedisオブジェクト.
+
+    :param RedisClient redis_client: Redisクライアント
+    """
+
+    stringified_type = 'Redis'
+
+    def __init__(self, schemas, devices, redis_client):
+        """init.
+
+        :param List[Schema] schemas: スキーマリスト
+        :param List[Device] devices: デバイスリスト
+        :param RedisClient redis_client: Redisクライアント
+        """
+        super(ConfigRedis, self).__init__(schemas, devices)
+        self.redis_client = redis_client
 
     @classmethod
-    def _parse_redis(cls, url_schema):
-        """redisからConfigオブジェクトを生成する.
+    def parse_url_scheme(cls, url_scheme):
+        """RedisからConfigオブジェクトを生成する.
 
-        :param str url_schema: URLスキーム
-        :return: Configオブジェクト
-        :rtype: Config
+        :param str url_scheme: URLスキーム
+        :return: ConfigRedisオブジェクト
+        :rtype: ConfigRedis
         """
         try:
-            redis_client = RedisClient.from_url(url_schema)
+            redis_client = RedisClient.from_url(url_scheme)
             redis_client.ping()
         except redis.ConnectionError:
             # TODO: 適切な例外処理
-            return Config(ConfigType(ConfigType.redis), [], [])
+            return ConfigRedis([], [], None)
 
         schemas = Schema.init_all_items_from_redis(redis_client)
         devices = Device.init_all_items_from_redis(redis_client)
 
-        return Config(ConfigType(ConfigType.redis), schemas, devices, redis_client=redis_client)
+        return ConfigRedis(schemas, devices, redis_client)

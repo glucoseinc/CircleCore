@@ -12,7 +12,7 @@ from six import PY3
 from .context import ContextObject
 from .utils import output_listing_columns, output_properties
 from ..models import Device
-from ..models.config import ConfigType
+from ..models.config import ConfigRedis
 
 if PY3:
     from typing import List, Tuple
@@ -107,7 +107,7 @@ def device_add(ctx, schema_name, group, properties_string, active, device_name):
     context_object = ctx.obj  # type: ContextObject
     config = context_object.config
 
-    if config.type not in (ConfigType.redis,):
+    if not isinstance(config, (ConfigRedis,)):
         click.echo('Cannot register to {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
@@ -131,7 +131,7 @@ def device_add(ctx, schema_name, group, properties_string, active, device_name):
     device = Device(schema.uuid, device_name, **properties)
     # TODO: groupとactiveの扱いW
 
-    if config.type == ConfigType.redis:
+    if isinstance(config, ConfigRedis):
         redis_client = config.redis_client
         if redis_client is None:
             click.echo('Cannot connect to Redis server.')
@@ -159,11 +159,11 @@ def device_remove(ctx, device_name):
     context_object = ctx.obj  # type: ContextObject
     config = context_object.config
 
-    if config.type not in (ConfigType.redis,):
+    if not isinstance(config, (ConfigRedis,)):
         click.echo('Cannot remove from {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
-    if config.type == ConfigType.redis:
+    if isinstance(config, ConfigRedis):
         redis_client = config.redis_client
         device = config.matched_device(device_name)
         if device is None:
@@ -189,11 +189,11 @@ def device_property(ctx, adding_properties_string, removing_property_names_strin
     context_object = ctx.obj  # type: ContextObject
     config = context_object.config
 
-    if config.type not in (ConfigType.redis,):
+    if not isinstance(config, (ConfigRedis,)):
         click.echo('Cannot edit {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
-    if config.type == ConfigType.redis:
+    if isinstance(config, ConfigRedis):
         redis_client = config.redis_client
         device = config.matched_device(device_name)
         if device is None:

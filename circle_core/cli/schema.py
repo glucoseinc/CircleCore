@@ -15,7 +15,7 @@ from six import PY3
 from .context import ContextObject
 from .utils import output_listing_columns, output_properties
 from ..models import Schema
-from ..models.config import ConfigType
+from ..models.config import ConfigRedis
 
 if PY3:
     from typing import List, Optional, Tuple
@@ -109,7 +109,7 @@ def schema_add(ctx, display_name, name_and_types):
     context_object = ctx.obj  # type: ContextObject
     config = context_object.config
 
-    if config.type not in (ConfigType.redis,):
+    if not isinstance(config, (ConfigRedis,)):
         click.echo('Cannot register to {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
@@ -123,7 +123,7 @@ def schema_add(ctx, display_name, name_and_types):
         properties['type{}'.format(i)] = _type
     schema = Schema(schema_uuid, display_name, **properties)
 
-    if config.type == ConfigType.redis:
+    if isinstance(config, ConfigRedis):
         redis_client = config.redis_client
         if redis_client is None:
             click.echo('Cannot connect to Redis server.')
@@ -151,11 +151,11 @@ def schema_remove(ctx, schema_uuid):
     context_object = ctx.obj  # type: ContextObject
     config = context_object.config
 
-    if config.type not in (ConfigType.redis,):
+    if not isinstance(config, (ConfigRedis,)):
         click.echo('Cannot remove from {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
-    if config.type == ConfigType.redis:
+    if isinstance(config, ConfigRedis):
         redis_client = config.redis_client
         schema = config.matched_schema(schema_uuid)
         if schema is None:

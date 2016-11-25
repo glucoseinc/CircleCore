@@ -42,11 +42,11 @@ class TestCliSchema(object):
 
     @pytest.mark.parametrize(('main_params', 'schema_add_params', 'expected'), [
         (['--config', 'file://{}'.format(os.path.join(test_root, 'config.ini'))],  # main_params
-         ['schema_name', 'key:int'],  # schema_add_params
+         ['--name', 'schema_name', 'key:int'],  # schema_add_params
          {'exit_code': -1, 'output': 'Cannot register to INI File.\n'}),  # expected
 
         (['--config', 'redis://localhost:65535/16'],  # main_params
-         ['schema_name', 'key:int'],  # schema_add_params
+         ['--name', 'schema_name', 'key:int'],  # schema_add_params
          {'exit_code': -1, 'output': 'Cannot connect to Redis server.\n'}),  # expected
 
     ])
@@ -58,7 +58,7 @@ class TestCliSchema(object):
 
     @pytest.mark.usefixtures('flushall_redis_server')
     @pytest.mark.parametrize(('schema_add_params', 'expected'), [
-        (['schema_name', 'key:int'],  # schema_add_params
+        (['--name', 'schema_name', 'key:int'],  # schema_add_params
          {'exit_code': 0,
           'output_regexp': r'Schema '
                            '"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"'  # uuid
