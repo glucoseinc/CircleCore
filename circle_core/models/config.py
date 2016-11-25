@@ -24,6 +24,10 @@ else:
     from typing import List, Optional
 
 
+class ConfigError(Exception):
+    pass
+
+
 class Config(object):
     """Configオブジェクト.
 
@@ -77,7 +81,7 @@ class Config(object):
         elif parsed_url.scheme == 'redis':
             return ConfigRedis.parse_url_scheme(url_scheme)
 
-        return Config([], [])
+        raise ConfigError('No matching URL scheme.')
 
 
 class ConfigIniFile(Config):
@@ -141,8 +145,7 @@ class ConfigRedis(Config):
             redis_client = RedisClient.from_url(url_scheme)
             redis_client.ping()
         except redis.ConnectionError:
-            # TODO: 適切な例外処理
-            return ConfigRedis([], [], None)
+            raise ConfigError('Cannot connect to Redis server.')
 
         schemas = Schema.init_all_items_from_redis(redis_client)
         devices = Device.init_all_items_from_redis(redis_client)
