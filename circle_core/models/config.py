@@ -99,12 +99,13 @@ class ConfigIniFile(Config):
         parser = configparser.ConfigParser()
         parser.read(ini_file_path)
 
+        # TODO: UUIDのマッチ部分
         schema_dicts = [dict(parser.items(section)) for section in parser.sections()
-                        if re.match(r'^schema\d+', section)]
+                        if re.match(r'^schema_[0-9a-fA-F-]+', section)]
         schemas = [Schema(**schema_dict) for schema_dict in schema_dicts]
 
         device_dicts = [dict(parser.items(section)) for section in parser.sections()
-                        if re.match(r'^device\d+', section)]
+                        if re.match(r'^device_[0-9a-fA-F-]+', section)]
         devices = [Device(**device_dict) for device_dict in device_dicts]
 
         return ConfigIniFile(schemas, devices)

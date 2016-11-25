@@ -13,7 +13,7 @@ from six import PY3
 from .redis_client import RedisClient
 
 if PY3:
-    from typing import Any, Dict, List, Optional, Set
+    from typing import Any, Dict, List, Optional
 
 
 class SchemaProperty(object):
@@ -38,20 +38,17 @@ class Schema(object):
 
     :param str uuid: Schema UUID
     :param Optional[str] display_name: 表示名
-    :param Optional[int] db_id: DataBase上のID
     :param List[SchemaProperty] properties: プロパティ
     """
 
-    def __init__(self, uuid, display_name=None, db_id=None, **kwargs):
+    def __init__(self, uuid, display_name=None, **kwargs):
         """init.
 
         :param str uuid: Schema UUID
         :param Optional[str] display_name: 表示名
-        :param Optional[int] db_id: DataBase上のID
         """
         self.uuid = uuid
         self.display_name = display_name
-        self.db_id = db_id
         self.properties = []
         property_names = sorted([k for k in kwargs.keys() if k.startswith('key')])
         for property_name in property_names:
@@ -75,21 +72,20 @@ class Schema(object):
     # TODO: Redis関係は分離するか？
 
     @classmethod
-    def init_from_redis(cls, redis_client, num):
+    def init_from_redis(cls, redis_client, uuid):
         """Redisからインスタンス化する.
 
         :param RedisClient redis_client: Redisクライアント
-        :param int num: キーナンバー
+        :param str uuid: Schema UUID
         :return: Schemaオブジェクト
         :rtype: Optional[Schema]
         """
-        key = 'schema{}'.format(num)
+        key = 'schema_{}'.format(uuid)
         if key not in redis_client.keys():
             return None
         if redis_client.type(key) != 'hash':
             return None
         fields = redis_client.hgetall(key)  # type: Dict[str, Any]
-        fields['db_id'] = num
         return Schema(**fields)
 
     @classmethod
@@ -100,13 +96,12 @@ class Schema(object):
         :return: 全てのSchemaオブジェクト
         :rtype: List[Schema]
         """
-        keys = [key for key in redis_client.keys() if re.match(r'^schema\d+', key)]
+        # TODO: UUIDのマッチ部分
+        keys = [key for key in redis_client.keys() if re.match(r'^schema_[0-9a-fA-F-]+', key)]
         instances = []
         for key in keys:
             if redis_client.type(key) == 'hash':
                 fields = redis_client.hgetall(key)  # type: Dict[str, Any]
-                num = int(key[6:])
-                fields['db_id'] = num
                 instances.append(Schema(**fields))
         return instances
 
@@ -115,10 +110,6 @@ class Schema(object):
 
         :param RedisClient redis_client: Redisクライアント
         """
-        if self.db_id is None:
-            # TODO: 例外を投げる？
-            return
-
         mapping = {
             'uuid': self.uuid,
         }
@@ -128,7 +119,7 @@ class Schema(object):
             mapping['key{}'.format(i)] = prop.name
             mapping['type{}'.format(i)] = prop.type
 
-        key = 'schema{}'.format(self.db_id)
+        key = 'schema_{}'.format(self.uuid)
         redis_client.hmset(key, mapping)
 
     def unregister_from_redis(self, redis_client):
@@ -136,8 +127,5 @@ class Schema(object):
 
         :param RedisClient redis_client: Redisクライアント
         """
-        if self.db_id is not None:
-            key = 'schema{}'.format(self.db_id)
-            redis_client.delete(key)
-
-            self.db_id = None
+        key = 'schema_{}'.format(self.uuid)
+        redis_client.delete(key)

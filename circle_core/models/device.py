@@ -13,7 +13,7 @@ from six import PY3
 from .redis_client import RedisClient
 
 if PY3:
-    from typing import List, Optional, Tuple
+    from typing import Any, Dict, List, Optional, Tuple
 
 
 class DeviceProperty(object):
@@ -38,23 +38,20 @@ class Device(object):
 
     :param str uuid: Device UUID
     :param Optional[str] display_name: 表示名
-    :param Optional[int] db_id: DataBase上のID
     :param str schema_uuid: Schema UUID
     :param List[DeviceProperty] properties: プロパティ
     """
 
-    def __init__(self, uuid, schema, display_name=None, db_id=None, **kwargs):
+    def __init__(self, uuid, schema, display_name=None, **kwargs):
         """init.
 
         :param str uuid; Device UUID
         :param str schema: Schema UUID
         :param Optional[str] display_name: 表示名
-        :param Optional[int] db_id: DataBase上のID
         """
         self.uuid = uuid
         self.schema_uuid = schema
         self.display_name = display_name
-        self.db_id = db_id
         self.properties = []
         property_names = sorted([k for k in kwargs.keys() if k.startswith('property')])
         for property_name in property_names:
@@ -98,21 +95,20 @@ class Device(object):
     # TODO: Redis関係は分離するか？
 
     @classmethod
-    def init_from_redis(cls, redis_client, num):
+    def init_from_redis(cls, redis_client, uuid):
         """Redisからインスタンス化する.
 
         :param RedisClient redis_client: Redisクライアント
-        :param int num: キーナンバー
+        :param str uuid: Device UUID
         :return: Deviceオブジェクト
         :rtype: Optional[Device]
         """
-        key = 'device{}'.format(num)
+        key = 'device_{}'.format(uuid)
         if key not in redis_client.keys():
             return None
         if redis_client.type(key) != 'hash':
             return None
         fields = redis_client.hgetall(key)  # type: Dict[str, Any]
-        fields['db_id'] = num
         return Device(**fields)
 
     @classmethod
@@ -123,13 +119,12 @@ class Device(object):
         :return: 全てのDeviceオブジェクト
         :rtype: List[Device]
         """
-        keys = [key for key in redis_client.keys() if re.match(r'^device\d+', key)]
+        # TODO: UUIDのマッチ部分
+        keys = [key for key in redis_client.keys() if re.match(r'^device_[0-9a-fA-F-]+', key)]
         instances = []
         for key in keys:
             if redis_client.type(key) == 'hash':
                 fields = redis_client.hgetall(key)  # type: Dict[str, Any]
-                num = int(key[6:])
-                fields['db_id'] = num
                 instances.append(Device(**fields))
         return instances
 
@@ -138,10 +133,6 @@ class Device(object):
 
         :param RedisClient redis_client: Redisクライアント
         """
-        if self.db_id is None:
-            # TODO: 例外を投げる？
-            return
-
         mapping = {
             'uuid': self.uuid,
             'schema': self.schema_uuid,
@@ -152,7 +143,7 @@ class Device(object):
             mapping['property{}'.format(i)] = prop.name
             mapping['value{}'.format(i)] = prop.value
 
-        key = 'device{}'.format(self.db_id)
+        key = 'device_{}'.format(self.uuid)
         redis_client.hmset(key, mapping)
 
     def unregister_from_redis(self, redis_client):
@@ -160,22 +151,15 @@ class Device(object):
 
         :param RedisClient redis_client: Redisクライアント
         """
-        if self.db_id is not None:
-            key = 'device{}'.format(self.db_id)
-            redis_client.delete(key)
-
-            self.db_id = None
+        key = 'device_{}'.format(self.uuid)
+        redis_client.delete(key)
 
     def update_in_redis(self, redis_client):
         """Redis上のデータを更新する.
 
         :param RedisClient redis_client: Redisクライアント
         """
-        if self.db_id is None:
-            # TODO: 例外を投げる？
-            return
-
-        key = 'device{}'.format(self.db_id)
+        key = 'device_{}'.format(self.uuid)
         hkeys = [hkey for hkey in redis_client.hkeys(key)
                  if hkey.startswith('property') or hkey.startswith('value')]
         redis_client.hdel(key, *hkeys)

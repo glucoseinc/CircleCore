@@ -144,12 +144,6 @@ def device_add(ctx, schema_name, group, properties_string, active, device_name):
             click.echo('Cannot connect to Redis server.')
             ctx.exit(code=-1)
 
-        # 登録されていない最小の数を取得する
-        registered_nums = [_device.db_id for _device in config.devices]
-        for num in range(1, len(registered_nums) + 2):
-            if num not in registered_nums:
-                break
-        device.db_id = num
         device.register_to_redis(redis_client)
         click.echo('Device "{}" is added.'.format(device.display_name))
 
