@@ -122,8 +122,3 @@ ENV/
 
 # User definition
 tmp
-note.md
-.editorconfig
-/.enter.zsh
-/.leave.zsh
-/.pyvenv

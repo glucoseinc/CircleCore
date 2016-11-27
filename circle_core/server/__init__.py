@@ -18,10 +18,10 @@ tornado_app = Application([
 # これだとパフォーマンスに悪影響が出るっぽいのでどうしようか
 
 
-def run():
+def run(port=5000):
     """TornadoサーバーとFlaskサーバーを立てる.
 
     clickから起動される.
     """
-    tornado_app.listen(5000)
+    tornado_app.listen(port)
     IOLoop.current().start()

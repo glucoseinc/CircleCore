@@ -12,7 +12,8 @@ def cli_server():
 
 
 @cli_server.command()
-def run():
+@click.option('--port', type=click.INT, default=5000)
+def run(port):
     """サーバーの起動."""
     click.echo('Tornado and Flask are running')
-    server.run()
+    server.run(port)
