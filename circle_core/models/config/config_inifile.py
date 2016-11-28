@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# system module
-import re
-
 # community module
 from six import PY2
 
@@ -59,11 +56,9 @@ class ConfigIniFile(Config):
 
     def _instantiate_all_schemas(self):
         self.schemas = []
-        # TODO: UUIDのマッチ部分
         parser = configparser.ConfigParser()
         parser.read(self.ini_file_path)
-        schema_dicts = [dict(parser.items(section)) for section in parser.sections()
-                        if re.match(r'^schema_[0-9a-fA-F-]+', section)]
+        schema_dicts = [dict(parser.items(section)) for section in parser.sections() if Schema.is_key_matched(section)]
         self.schemas = [Schema(**schema_dict) for schema_dict in schema_dicts]
 
     def register_schema(self, schema):
@@ -74,11 +69,9 @@ class ConfigIniFile(Config):
 
     def _instantiate_all_devices(self):
         self.devices = []
-        # TODO: UUIDのマッチ部分
         parser = configparser.ConfigParser()
         parser.read(self.ini_file_path)
-        device_dicts = [dict(parser.items(section)) for section in parser.sections()
-                        if re.match(r'^device_[0-9a-fA-F-]+', section)]
+        device_dicts = [dict(parser.items(section)) for section in parser.sections() if Device.is_key_matched(section)]
         self.devices = [Device(**device_dict) for device_dict in device_dicts]
 
     def register_device(self, device):

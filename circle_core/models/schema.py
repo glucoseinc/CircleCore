@@ -2,6 +2,9 @@
 
 """Schema Model."""
 
+# system module
+import re
+
 # community module
 from six import PY3
 
@@ -61,3 +64,8 @@ class Schema(object):
         for prop in self.properties:
             strings.append('{}:{}'.format(prop.name, prop.type))
         return ', '.join(strings)
+
+    @classmethod
+    def is_key_matched(cls, key):
+        pattern = r'^schema_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+        return re.match(pattern, key) is not None

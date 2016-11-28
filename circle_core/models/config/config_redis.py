@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# system module
-import re
-
 # community module
 import redis
 from six import PY3
@@ -62,8 +59,7 @@ class ConfigRedis(Config):
 
     def _instantiate_all_schemas(self):
         self.schemas = []
-        # TODO: UUIDのマッチ部分
-        keys = [key for key in self.redis_client.keys() if re.match(r'^schema_[0-9a-fA-F-]+', key)]
+        keys = [key for key in self.redis_client.keys() if Schema.is_key_matched(key)]
         for key in keys:
             if self.redis_client.type(key) == 'hash':
                 fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]
@@ -87,7 +83,7 @@ class ConfigRedis(Config):
 
     def _instantiate_all_devices(self):
         self.devices = []
-        keys = [key for key in self.redis_client.keys() if re.match(r'^device_[0-9a-fA-F-]+', key)]
+        keys = [key for key in self.redis_client.keys() if Device.is_key_matched(key)]
         for key in keys:
             if self.redis_client.type(key) == 'hash':
                 fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]

@@ -2,6 +2,9 @@
 
 """Device Model."""
 
+# system module
+import re
+
 # community module
 from six import PY3
 
@@ -84,3 +87,8 @@ class Device(object):
         :param List[str] names: 属性名リスト
         """
         self.properties = [prop for prop in self.properties if prop.name not in names]
+
+    @classmethod
+    def is_key_matched(cls, key):
+        pattern = r'^device_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+        return re.match(pattern, key) is not None
