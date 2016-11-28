@@ -103,12 +103,10 @@ class ConfigRedis(Config):
             mapping['key{}'.format(i)] = prop.name
             mapping['type{}'.format(i)] = prop.type
 
-        key = 'schema_{}'.format(schema.uuid)
-        self.redis_client.hmset(key, mapping)
+        self.redis_client.hmset(schema.storage_key, mapping)
 
     def unregister_schema(self, schema):
-        key = 'schema_{}'.format(schema.uuid)
-        self.redis_client.delete(key)
+        self.redis_client.delete(schema.storage_key)
 
     def register_device(self, device):
         mapping = {
@@ -120,16 +118,13 @@ class ConfigRedis(Config):
             mapping['property{}'.format(i)] = prop.name
             mapping['value{}'.format(i)] = prop.value
 
-        key = 'device_{}'.format(device.uuid)
-        self.redis_client.hmset(key, mapping)
+        self.redis_client.hmset(device.storage_key, mapping)
 
     def unregister_device(self, device):
-        key = 'device_{}'.format(device.uuid)
-        self.redis_client.delete(key)
+        self.redis_client.delete(device.storage_key)
 
     def update_device(self, device):
-        key = 'device_{}'.format(device.uuid)
-        hkeys = [hkey for hkey in self.redis_client.hkeys(key)
+        hkeys = [hkey for hkey in self.redis_client.hkeys(device.storage_key)
                  if hkey.startswith('property') or hkey.startswith('value')]
-        self.redis_client.hdel(key, *hkeys)
+        self.redis_client.hdel(device.storage_key, *hkeys)
         self.register_device(device)

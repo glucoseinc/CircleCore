@@ -65,7 +65,22 @@ class Schema(object):
             strings.append('{}:{}'.format(prop.name, prop.type))
         return ', '.join(strings)
 
+    @property
+    def storage_key(self):
+        """ストレージキー.
+
+        :return: ストレージキー
+        :rtype: str
+        """
+        return 'schema_{}'.format(self.uuid)
+
     @classmethod
     def is_key_matched(cls, key):
+        """指定のキーがストレージキーの形式にマッチしているか.
+
+        :param str key:
+        :return: マッチしているか
+        :rtype: bool
+        """
         pattern = r'^schema_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
         return re.match(pattern, key) is not None

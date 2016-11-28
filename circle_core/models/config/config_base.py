@@ -33,30 +33,6 @@ class Config(object):
         """
         pass
 
-    def matched_schema(self, schema_uuid):
-        """スキーマリストからUUIDがマッチするものを取得する.
-
-        :param str schema_uuid: 取得するスキーマのUUID
-        :return: マッチしたスキーマ
-        :rtype: Optional[Schema]
-        """
-        for schema in self.schemas:
-            if schema.uuid == schema_uuid:
-                return schema
-        return None
-
-    def matched_device(self, device_uuid):
-        """デバイスリストから表示名がマッチするものを取得する.
-
-        :param str device_uuid: 取得するデバイスのUUID
-        :return: マッチしたスキーマ
-        :rtype: Optional[Device]
-        """
-        for device in self.devices:
-            if device.uuid == device_uuid:
-                return device
-        return None
-
     @abstractproperty
     def readable(self):
         """Configが読み込み可能か.
@@ -92,6 +68,30 @@ class Config(object):
         :rtype: List[Device]
         """
         raise NotImplementedError
+
+    def matched_schema(self, schema_uuid):
+        """スキーマリストからUUIDがマッチするものを取得する.
+
+        :param str schema_uuid: 取得するスキーマのUUID
+        :return: マッチしたスキーマ
+        :rtype: Optional[Schema]
+        """
+        for schema in self.schemas:
+            if schema.uuid == schema_uuid:
+                return schema
+        return None
+
+    def matched_device(self, device_uuid):
+        """デバイスリストから表示名がマッチするものを取得する.
+
+        :param str device_uuid: 取得するデバイスのUUID
+        :return: マッチしたスキーマ
+        :rtype: Optional[Device]
+        """
+        for device in self.devices:
+            if device.uuid == device_uuid:
+                return device
+        return None
 
     @abstractmethod
     def register_schema(self, schema):
