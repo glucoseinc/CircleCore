@@ -2,7 +2,6 @@
 
 """CircleCore CLI."""
 
-import click
 # project module
 from .cli_main import cli_main
 from .device import cli_device

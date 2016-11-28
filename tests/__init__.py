@@ -7,7 +7,8 @@ import redis
 import tcptest.redis
 
 test_root = os.path.dirname(os.path.abspath(__file__))
-url_scheme_ini_file = 'file://{}'.format(os.path.join(test_root, 'config.ini'))
+ini_file_path = os.path.join(test_root, 'config.ini')
+url_scheme_ini_file = 'file://{}'.format(ini_file_path)
 
 
 @pytest.fixture(autouse=True, scope='session')

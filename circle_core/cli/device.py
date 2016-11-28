@@ -14,7 +14,6 @@ from six import PY3
 from .context import ContextObject
 from .utils import output_listing_columns, output_properties
 from ..models import Device
-from ..models.config import ConfigRedis
 
 if PY3:
     from typing import List, Tuple
@@ -136,10 +135,8 @@ def device_add(ctx, display_name, schema_uuid, properties_string, active):
     device = Device(device_uuid, schema.uuid, display_name, **properties)
     # TODO: activeの扱い
 
-    if isinstance(config, ConfigRedis):
-        redis_client = config.redis_client
-        device.register_to_redis(redis_client)
-        click.echo('Device "{}" is added.'.format(device.uuid))
+    config.register_device(device)
+    click.echo('Device "{}" is added.'.format(device.uuid))
 
 
 @cli_device.command('remove')
@@ -158,14 +155,12 @@ def device_remove(ctx, device_uuid):
         click.echo('Cannot remove from {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
-    if isinstance(config, ConfigRedis):
-        redis_client = config.redis_client
-        device = config.matched_device(device_uuid)
-        if device is None:
-            click.echo('Device "{}" is not registered. Do nothing.'.format(device_uuid))
-            ctx.exit(code=-1)
-        device.unregister_from_redis(redis_client)
-        click.echo('Device "{}" is removed.'.format(device_uuid))
+    device = config.matched_device(device_uuid)
+    if device is None:
+        click.echo('Device "{}" is not registered. Do nothing.'.format(device_uuid))
+        ctx.exit(code=-1)
+    config.unregister_device(device)
+    click.echo('Device "{}" is removed.'.format(device_uuid))
 
 
 @cli_device.command('property')
@@ -188,33 +183,31 @@ def device_property(ctx, adding_properties_string, removing_property_names_strin
         click.echo('Cannot edit {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
-    if isinstance(config, ConfigRedis):
-        redis_client = config.redis_client
-        device = config.matched_device(device_uuid)
-        if device is None:
-            click.echo('Device "{}" is not registered. Do nothing.'.format(device_uuid))
+    device = config.matched_device(device_uuid)
+    if device is None:
+        click.echo('Device "{}" is not registered. Do nothing.'.format(device_uuid))
+        ctx.exit(code=-1)
+    if removing_property_names_string is not None:
+        removing_property_names = set([key.strip() for key in removing_property_names_string.split(',')])
+        current_property_names = set([prop.name for prop in device.properties])
+        if not removing_property_names.issubset(current_property_names):
+            difference_property_names = removing_property_names.difference(current_property_names)
+            click.echo('Argument "remove" is invalid : "{}" is not exist in properties. Do nothing.'
+                       .format(','.join(difference_property_names)))
             ctx.exit(code=-1)
-        if removing_property_names_string is not None:
-            removing_property_names = set([key.strip() for key in removing_property_names_string.split(',')])
-            current_property_names = set([prop.name for prop in device.properties])
-            if not removing_property_names.issubset(current_property_names):
-                difference_property_names = removing_property_names.difference(current_property_names)
-                click.echo('Argument "remove" is invalid : "{}" is not exist in properties. Do nothing.'
-                           .format(','.join(difference_property_names)))
+        device.remove_properties(list(removing_property_names))
+
+    if adding_properties_string is not None:
+        adding_properties = []
+        for i, string in enumerate(adding_properties_string.split(','), start=1):
+            splitted = [val.strip() for val in string.split(':')]
+            if len(splitted) != 2:
+                click.echo('Argument "add" is invalid : {}. Do nothing.'.format(string))
+                click.echo('Argument "add" format must be "name1:type1,name2:type2...".')
                 ctx.exit(code=-1)
-            device.remove_properties(list(removing_property_names))
+            name, value = splitted[0], splitted[1]
+            adding_properties.append((name, value))
+        device.append_properties(adding_properties)
 
-        if adding_properties_string is not None:
-            adding_properties = []
-            for i, string in enumerate(adding_properties_string.split(','), start=1):
-                splitted = [val.strip() for val in string.split(':')]
-                if len(splitted) != 2:
-                    click.echo('Argument "add" is invalid : {}. Do nothing.'.format(string))
-                    click.echo('Argument "add" format must be "name1:type1,name2:type2...".')
-                    ctx.exit(code=-1)
-                name, value = splitted[0], splitted[1]
-                adding_properties.append((name, value))
-            device.append_properties(adding_properties)
-
-        device.update_in_redis(redis_client)
-        click.echo('Device "{}" is updated.'.format(device_uuid))
+    config.update_device(device)
+    click.echo('Device "{}" is updated.'.format(device_uuid))

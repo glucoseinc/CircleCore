@@ -14,7 +14,6 @@ from six import PY3
 from .context import ContextObject
 from .utils import output_listing_columns, output_properties
 from ..models import Schema
-from ..models.config import ConfigRedis
 
 if PY3:
     from typing import List, Optional, Tuple
@@ -129,10 +128,8 @@ def schema_add(ctx, display_name, name_and_types):
         properties['type{}'.format(i)] = _type
     schema = Schema(schema_uuid, display_name, **properties)
 
-    if isinstance(config, ConfigRedis):
-        redis_client = config.redis_client
-        schema.register_to_redis(redis_client)
-        click.echo('Schema "{}" is added.'.format(schema.uuid))
+    config.register_schema(schema)
+    click.echo('Schema "{}" is added.'.format(schema.uuid))
 
 
 @cli_schema.command('remove')
@@ -151,11 +148,9 @@ def schema_remove(ctx, schema_uuid):
         click.echo('Cannot remove from {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
-    if isinstance(config, ConfigRedis):
-        redis_client = config.redis_client
-        schema = config.matched_schema(schema_uuid)
-        if schema is None:
-            click.echo('Schema "{}" is not registered. Do nothing.'.format(schema_uuid))
-            ctx.exit(code=-1)
-        schema.unregister_from_redis(redis_client)
-        click.echo('Schema "{}" is removed.'.format(schema_uuid))
+    schema = config.matched_schema(schema_uuid)
+    if schema is None:
+        click.echo('Schema "{}" is not registered. Do nothing.'.format(schema_uuid))
+        ctx.exit(code=-1)
+    config.unregister_schema(schema)
+    click.echo('Schema "{}" is removed.'.format(schema_uuid))
