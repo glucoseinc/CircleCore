@@ -2,9 +2,6 @@
 
 """CLI Schema."""
 
-# system module
-from uuid import uuid4
-
 # community module
 import click
 from click.core import Context
@@ -12,7 +9,7 @@ from six import PY3
 
 # project module
 from .context import ContextObject
-from .utils import output_listing_columns, output_properties
+from .utils import generate_uuid, output_listing_columns, output_properties
 from ..models import Schema
 
 if PY3:
@@ -113,8 +110,7 @@ def schema_add(ctx, display_name, name_and_types):
         click.echo('Cannot register to {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
-    schema_uuid = str(uuid4())
-    # TODO: 重複チェックする
+    schema_uuid = generate_uuid(existing=[schema.uuid for schema in config.schemas])
 
     properties = {}
     for i, name_and_type in enumerate(name_and_types, start=1):
