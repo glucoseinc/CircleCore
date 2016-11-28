@@ -52,12 +52,6 @@ class ConfigRedis(Config):
 
     @classmethod
     def parse_url_scheme(cls, url_scheme):
-        """RedisからConfigオブジェクトを生成する.
-
-        :param str url_scheme: URLスキーム
-        :return: ConfigRedisオブジェクト
-        :rtype: ConfigRedis
-        """
         try:
             redis_client = RedisClient.from_url(url_scheme)
             redis_client.ping()

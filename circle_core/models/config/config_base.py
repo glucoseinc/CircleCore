@@ -33,6 +33,17 @@ class Config(object):
         """
         pass
 
+    @classmethod
+    @abstractmethod
+    def parse_url_scheme(cls, url_scheme):
+        """URLスキームからConfigオブジェクトを生成する.
+
+        :param str url_scheme: URLスキーム
+        :return: Configオブジェクト
+        :rtype: Config
+        """
+        raise NotImplementedError
+
     @abstractproperty
     def readable(self):
         """Configが読み込み可能か.

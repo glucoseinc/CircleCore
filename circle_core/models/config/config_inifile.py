@@ -34,12 +34,6 @@ class ConfigIniFile(Config):
 
     @classmethod
     def parse_url_scheme(cls, url_scheme):
-        """iniファイルからConfigオブジェクトを生成する.
-
-        :param str url_scheme: URLスキーム
-        :return: ConfigIniFileオブジェクト
-        :rtype: ConfigIniFile
-        """
         ini_file_path = urlparse(url_scheme).path
         return ConfigIniFile(ini_file_path)
 
