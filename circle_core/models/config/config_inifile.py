@@ -32,8 +32,8 @@ class ConfigIniFile(Config):
         super(ConfigIniFile, self).__init__()
         self.ini_file_path = ini_file_path
 
-        self._instantiate_all_schemas()
-        self._instantiate_all_devices()
+        self.instantiate_all_schemas()
+        self.instantiate_all_devices()
 
     @classmethod
     def parse_url_scheme(cls, url_scheme):
@@ -54,7 +54,7 @@ class ConfigIniFile(Config):
     def writable(self):
         return False
 
-    def _instantiate_all_schemas(self):
+    def instantiate_all_schemas(self):
         self.schemas = []
         parser = configparser.ConfigParser()
         parser.read(self.ini_file_path)
@@ -67,7 +67,7 @@ class ConfigIniFile(Config):
     def unregister_schema(self, schema):
         raise ConfigError('Cannot unregister schema because read only storage.')
 
-    def _instantiate_all_devices(self):
+    def instantiate_all_devices(self):
         self.devices = []
         parser = configparser.ConfigParser()
         parser.read(self.ini_file_path)

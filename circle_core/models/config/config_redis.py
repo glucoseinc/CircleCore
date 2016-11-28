@@ -50,8 +50,8 @@ class ConfigRedis(Config):
         super(ConfigRedis, self).__init__()
         self.redis_client = redis_client
 
-        self._instantiate_all_schemas()
-        self._instantiate_all_devices()
+        self.instantiate_all_schemas()
+        self.instantiate_all_devices()
 
     @classmethod
     def parse_url_scheme(cls, url_scheme):
@@ -77,7 +77,7 @@ class ConfigRedis(Config):
     def writable(self):
         return True
 
-    def _instantiate_all_schemas(self):
+    def instantiate_all_schemas(self):
         self.schemas = []
         keys = [key for key in self.redis_client.keys() if Schema.is_key_matched(key)]
         for key in keys:
@@ -101,7 +101,7 @@ class ConfigRedis(Config):
         key = 'schema_{}'.format(schema.uuid)
         self.redis_client.delete(key)
 
-    def _instantiate_all_devices(self):
+    def instantiate_all_devices(self):
         self.devices = []
         keys = [key for key in self.redis_client.keys() if Device.is_key_matched(key)]
         for key in keys:

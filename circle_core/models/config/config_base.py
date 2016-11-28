@@ -72,7 +72,7 @@ class Config(object):
         raise NotImplementedError
 
     @abstractmethod
-    def _instantiate_all_schemas(self):
+    def instantiate_all_schemas(self):
         """全てのSchemaオブジェクトをインスタンス化する.
 
         """
@@ -95,7 +95,7 @@ class Config(object):
         raise NotImplementedError
 
     @abstractmethod
-    def _instantiate_all_devices(self):
+    def instantiate_all_devices(self):
         """全てのDeviceオブジェクトをインスタンス化する.
 
         """
