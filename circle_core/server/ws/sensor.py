@@ -29,8 +29,8 @@ class SensorHandler(WebSocketHandler):
 
         :param unicode message:
         """
-        self.__sender.send(WriteDB.encode_text(message))
-        logger.debug('message "%s" is sent from %s', message, self)
+        self.__sender.send(WriteDB.with_json(message))
+        logger.debug('message %r is sent from %s', message, self)
 
     def on_close(self):
         """センサーとの接続が切れた際に呼ばれる."""

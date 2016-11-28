@@ -29,5 +29,6 @@ class TestSensorHandler:
 
     @pytest.mark.timeout(1)
     def test_simple(self):
-        self.ws.send('hoge')
-        assert next(self.messages) == 'hoge'  # 本来は各ワーカーへの指示が飛ぶことになると思うが今はとりあえず
+        self.ws.send(u'{"hoge": "piyo"}')
+        assert next(self.messages) == {u'hoge': u'piyo'}
+        # 本来は各ワーカーへの指示が飛ぶことになると思うが今はとりあえず

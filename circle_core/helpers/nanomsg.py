@@ -36,8 +36,8 @@ class Receiver:
         self.__socket.setsockopt(SUB, SUB_SUBSCRIBE, topic.justify())
         while True:
             # TODO: 接続切れたときにStopIterationしたいが自分でheartbeatを実装したりしないといけないのかな
-            msg = self.__socket.recv()
-            yield topic.decode_text(msg.decode('utf-8'))
+            msg = self.__socket.recv().decode('utf-8')
+            yield topic.decode_json(msg)
 
 
 # http://stackoverflow.com/a/6798042

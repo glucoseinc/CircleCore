@@ -29,21 +29,21 @@ class TestReceiver:
         del cls.receiver
 
     @pytest.mark.timeout(1)
-    def test_simple(self):
-        self.socket.send(TestTopic.encode_text(u'this is test message'))
-        assert next(self.messages) == u'this is test message'
+    def test_json(self):
+        self.socket.send(TestTopic.encode_json({u'body': u"I'm in body"}))
+        assert next(self.messages) == {u'body': u"I'm in body"}
+
+    @pytest.mark.timeout(1)
+    def test_multibyte_json(self):
+        self.socket.send(TestTopic.encode_json({u'鍵': u'値'}).encode('utf-8'))
+        assert next(self.messages) == {u'鍵': u'値'}
 
     @pytest.mark.timeout(1)
     def test_blocking(self):  # Receiver側で受け取ったメッセージの処理が終わらない内に次のメッセージが来た場合
-        self.socket.send(TestTopic.encode_text(u'message one').encode('utf-8'))
-        self.socket.send(TestTopic.encode_text(u'message two').encode('utf-8'))
-        assert next(self.messages) == u'message one'
-        assert next(self.messages) == u'message two'
-
-    @pytest.mark.timeout(1)
-    def test_multibyte(self):
-        self.socket.send(TestTopic.encode_text(u'メッセージその壱').encode('utf-8'))
-        assert next(self.messages) == u'メッセージその壱'
+        self.socket.send(TestTopic.encode_json({u'count': 1}))
+        self.socket.send(TestTopic.encode_json({u'count': 2}))
+        assert next(self.messages) == {u'count': 1}
+        assert next(self.messages) == {u'count': 2}
 
     @pytest.mark.timeout(1)
     def test_close(self):
@@ -67,8 +67,8 @@ class TestSender():
         cls.socket.close()
 
     @pytest.mark.timeout(1)
-    def test_simple(self):
-        self.sender.send('this message is belonging to no topic')
+    def test_text(self):
+        self.sender.send(u'this message is belonging to no topic')
         assert self.socket.recv().decode('utf-8') == 'this message is belonging to no topic'
 
     @pytest.mark.timeout(1)

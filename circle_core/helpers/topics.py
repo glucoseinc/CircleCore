@@ -20,24 +20,35 @@ class TopicBase:
         return cls.__name__.ljust(TOPIC_LENGTH)
 
     @classmethod
-    def encode_text(cls, msg):
+    def with_json(cls, data):
         """Topic名と引数を繋げて返す.
 
         特定のTopicに向けてメッセージを送る際に有用
 
-        :param unicode msg: 送りたいメッセージ
+        :param unicode data: 送りたいJSON
         :return unicode:
         """
-        return cls.justify() + msg
+        return cls.justify() + data
 
     @classmethod
-    def decode_text(cls, msg):
-        """nanomsgで送られてきたメッセージからトピック名を取り除いて返す.
+    def encode_json(cls, data):
+        """Topic名と引数を繋げて返す.
 
-        :param unicode msg:
+        特定のTopicに向けてメッセージを送る際に有用
+
+        :param dict data: JSONにして送りたいデータ
         :return unicode:
         """
-        return re.sub('^' + cls.justify(), '', msg)
+        return cls.justify() + json.dumps(data, ensure_ascii=False)
+
+    @classmethod
+    def decode_json(cls, data):
+        """nanomsgで送られてきたJSONからトピック名を取り除いて返す.
+
+        :param unicode data:
+        :return dict:
+        """
+        return json.loads(re.sub('^' + cls.justify(), '', data))
 
 
 class WriteDB(TopicBase):
