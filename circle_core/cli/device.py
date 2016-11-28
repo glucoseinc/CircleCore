@@ -110,7 +110,7 @@ def device_add(ctx, display_name, schema_uuid, properties_string, active):
     context_object = ctx.obj  # type: ContextObject
     config = context_object.config
 
-    if not isinstance(config, (ConfigRedis,)):
+    if not config.writable:
         click.echo('Cannot register to {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
@@ -154,7 +154,7 @@ def device_remove(ctx, device_uuid):
     context_object = ctx.obj  # type: ContextObject
     config = context_object.config
 
-    if not isinstance(config, (ConfigRedis,)):
+    if not config.writable:
         click.echo('Cannot remove from {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
@@ -184,7 +184,7 @@ def device_property(ctx, adding_properties_string, removing_property_names_strin
     context_object = ctx.obj  # type: ContextObject
     config = context_object.config
 
-    if not isinstance(config, (ConfigRedis,)):
+    if not config.writable:
         click.echo('Cannot edit {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 

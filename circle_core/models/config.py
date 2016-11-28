@@ -66,6 +66,24 @@ class Config(object):
         devices = [device for device in self.devices if device.uuid == device_uuid]
         return devices[0] if len(devices) != 0 else None
 
+    @property
+    def readable(self):
+        """Configが読み込み可能か.
+
+        :return: Configが読み込み可能か
+        :rtype: bool
+        """
+        return False
+
+    @property
+    def writable(self):
+        """Configが書き込み可能か.
+
+        :return: Configが書き込み可能か
+        :rtype: bool
+        """
+        return False
+
     @classmethod
     def parse(cls, url_scheme):
         """URLスキームからConfigオブジェクトを生成する.
@@ -113,6 +131,15 @@ class ConfigIniFile(Config):
 
         return ConfigIniFile(schemas, devices)
 
+    @property
+    def readable(self):
+        """Configが書き込み可能か.
+
+        :return: Configが書き込み可能か
+        :rtype: bool
+        """
+        return True
+
 
 class ConfigRedis(Config):
     """ConfigRedisオブジェクト.
@@ -150,3 +177,21 @@ class ConfigRedis(Config):
         devices = Device.init_all_items_from_redis(redis_client)
 
         return ConfigRedis(schemas, devices, redis_client)
+
+    @property
+    def readable(self):
+        """Configが書き込み可能か.
+
+        :return: Configが書き込み可能か
+        :rtype: bool
+        """
+        return True
+
+    @property
+    def writable(self):
+        """Configが書き込み可能か.
+
+        :return: Configが書き込み可能か
+        :rtype: bool
+        """
+        return True

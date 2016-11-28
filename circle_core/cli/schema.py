@@ -110,7 +110,7 @@ def schema_add(ctx, display_name, name_and_types):
     context_object = ctx.obj  # type: ContextObject
     config = context_object.config
 
-    if not isinstance(config, (ConfigRedis,)):
+    if not config.writable:
         click.echo('Cannot register to {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
@@ -147,7 +147,7 @@ def schema_remove(ctx, schema_uuid):
     context_object = ctx.obj  # type: ContextObject
     config = context_object.config
 
-    if not isinstance(config, (ConfigRedis,)):
+    if not config.writable:
         click.echo('Cannot remove from {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
