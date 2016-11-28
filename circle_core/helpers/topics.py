@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """nanomsgでPubSubする際のTopic(部屋名)を表すクラス群."""
+import json
+import re
+
 
 TOPIC_LENGTH = 25  # Topic name must be shorter than this value
 
@@ -17,26 +20,24 @@ class TopicBase:
         return cls.__name__.ljust(TOPIC_LENGTH)
 
     @classmethod
-    def text(cls, msg):
+    def encode_text(cls, msg):
         """Topic名と引数を繋げて返す.
 
         特定のTopicに向けてメッセージを送る際に有用
 
-        :param str msg: 送りたいメッセージ
-        :return str:
+        :param unicode msg: 送りたいメッセージ
+        :return unicode:
         """
         return cls.justify() + msg
 
     @classmethod
-    def json(cls, data):
-        """Topic名と引数を繋げて返す.
+    def decode_text(cls, msg):
+        """nanomsgで送られてきたメッセージからトピック名を取り除いて返す.
 
-        特定のTopicに向けてメッセージを送る際に有用
-
-        :param dict data: JSONにして送りたいデータ
-        :return str:
+        :param unicode msg:
+        :return unicode:
         """
-        raise NotImplementedError
+        return re.sub('^' + cls.justify(), '', msg)
 
 
 class WriteDB(TopicBase):

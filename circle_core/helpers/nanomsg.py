@@ -31,13 +31,13 @@ class Receiver:
         """メッセージを受信次第それを返すジェネレータ.
 
         :param TopicBase topic:
-        :return: 受信したメッセージ
+        :return unicode: 受信したメッセージ
         """
         self.__socket.setsockopt(SUB, SUB_SUBSCRIBE, topic.justify())
         while True:
             # TODO: 接続切れたときにStopIterationしたいが自分でheartbeatを実装したりしないといけないのかな
             msg = self.__socket.recv()
-            yield msg.decode('utf-8')[TOPIC_LENGTH:]
+            yield topic.decode_text(msg.decode('utf-8'))
 
 
 # http://stackoverflow.com/a/6798042
@@ -79,6 +79,7 @@ class Sender:
     def send(self, msg):
         """送信.
 
-        :param str msg:
+        :param unicode msg:
         """
-        self.__socket.send(msg)
+        # nnpy.Socket.sendにunicodeを渡すとasciiでencodeしようとして例外を吐く
+        self.__socket.send(msg.encode('utf-8'))
