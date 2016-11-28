@@ -26,11 +26,10 @@ def index():
 @app.route('/schema/list')
 def schema_list():
     """スキーマリスト."""
-    context  = {}
+    context = {}
 
     config = app.my_config
     if config is not None:
-        config.instantiate_all_schemas()
         context['schemas'] = config.schemas
     return render_template('schema_list.html', **context)
 

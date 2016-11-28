@@ -50,9 +50,6 @@ class ConfigRedis(Config):
         super(ConfigRedis, self).__init__()
         self.redis_client = redis_client
 
-        self.instantiate_all_schemas()
-        self.instantiate_all_devices()
-
     @classmethod
     def parse_url_scheme(cls, url_scheme):
         """RedisからConfigオブジェクトを生成する.
@@ -77,13 +74,25 @@ class ConfigRedis(Config):
     def writable(self):
         return True
 
-    def instantiate_all_schemas(self):
-        self.schemas = []
+    @property
+    def schemas(self):
+        schemas = []
         keys = [key for key in self.redis_client.keys() if Schema.is_key_matched(key)]
         for key in keys:
             if self.redis_client.type(key) == 'hash':
                 fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]
-                self.schemas.append(Schema(**fields))
+                schemas.append(Schema(**fields))
+        return schemas
+
+    @property
+    def devices(self):
+        devices = []
+        keys = [key for key in self.redis_client.keys() if Device.is_key_matched(key)]
+        for key in keys:
+            if self.redis_client.type(key) == 'hash':
+                fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]
+                devices.append(Device(**fields))
+        return devices
 
     def register_schema(self, schema):
         mapping = {
@@ -100,14 +109,6 @@ class ConfigRedis(Config):
     def unregister_schema(self, schema):
         key = 'schema_{}'.format(schema.uuid)
         self.redis_client.delete(key)
-
-    def instantiate_all_devices(self):
-        self.devices = []
-        keys = [key for key in self.redis_client.keys() if Device.is_key_matched(key)]
-        for key in keys:
-            if self.redis_client.type(key) == 'hash':
-                fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]
-                self.devices.append(Device(**fields))
 
     def register_device(self, device):
         mapping = {

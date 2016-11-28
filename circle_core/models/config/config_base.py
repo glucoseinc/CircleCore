@@ -6,6 +6,9 @@ from abc import ABCMeta, abstractmethod, abstractproperty
 # community module
 from six import PY3
 
+# project module
+from ..device import Device
+from ..schema import Schema
 
 if PY3:
     from typing import List, Optional
@@ -19,8 +22,6 @@ class Config(object):
     """Configオブジェクト.
 
     :param str stringified_type: Configタイプ(str)
-    :param List[Schema] schemas: スキーマリスト
-    :param List[Device] devices: デバイスリスト
     """
 
     __metaclass__ = ABCMeta
@@ -30,8 +31,7 @@ class Config(object):
         """init.
 
         """
-        self.schemas = []
-        self.devices = []
+        pass
 
     def matched_schema(self, schema_uuid):
         """スキーマリストからUUIDがマッチするものを取得する.
@@ -40,8 +40,10 @@ class Config(object):
         :return: マッチしたスキーマ
         :rtype: Optional[Schema]
         """
-        schemas = [schema for schema in self.schemas if schema.uuid == schema_uuid]
-        return schemas[0] if len(schemas) != 0 else None
+        for schema in self.schemas:
+            if schema.uuid == schema_uuid:
+                return schema
+        return None
 
     def matched_device(self, device_uuid):
         """デバイスリストから表示名がマッチするものを取得する.
@@ -50,8 +52,10 @@ class Config(object):
         :return: マッチしたスキーマ
         :rtype: Optional[Device]
         """
-        devices = [device for device in self.devices if device.uuid == device_uuid]
-        return devices[0] if len(devices) != 0 else None
+        for device in self.devices:
+            if device.uuid == device_uuid:
+                return device
+        return None
 
     @abstractproperty
     def readable(self):
@@ -71,10 +75,21 @@ class Config(object):
         """
         raise NotImplementedError
 
-    @abstractmethod
-    def instantiate_all_schemas(self):
-        """全てのSchemaオブジェクトをインスタンス化する.
+    @abstractproperty
+    def schemas(self):
+        """全てのSchemaオブジェクト.
 
+        :return: Schemaオブジェクトリスト
+        :rtype: List[Schema]
+        """
+        raise NotImplementedError
+
+    @abstractproperty
+    def devices(self):
+        """全てのDeviceオブジェクト.
+
+        :return: Deviceオブジェクトリスト
+        :rtype: List[Device]
         """
         raise NotImplementedError
 
@@ -91,13 +106,6 @@ class Config(object):
         """Schemaオブジェクトをストレージから削除する.
 
         :param Schema schema: Schemaオブジェクト
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def instantiate_all_devices(self):
-        """全てのDeviceオブジェクトをインスタンス化する.
-
         """
         raise NotImplementedError
 
