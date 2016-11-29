@@ -80,7 +80,7 @@ class Config(object):
         """
         raise NotImplementedError
 
-    def matched_schema(self, schema_uuid):
+    def find_schema(self, schema_uuid):
         """スキーマリストからUUIDがマッチするものを取得する.
 
         :param str schema_uuid: 取得するスキーマのUUID
@@ -92,7 +92,7 @@ class Config(object):
                 return schema
         return None
 
-    def matched_device(self, device_uuid):
+    def find_device(self, device_uuid):
         """デバイスリストから表示名がマッチするものを取得する.
 
         :param str device_uuid: 取得するデバイスのUUID

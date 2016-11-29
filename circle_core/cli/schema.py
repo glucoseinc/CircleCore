@@ -70,7 +70,7 @@ def schema_detail(ctx, schema_uuid):
     context_object = ctx.obj  # type: ContextObject
     config = context_object.config
 
-    schema = config.matched_schema(schema_uuid)
+    schema = config.find_schema(schema_uuid)
     if schema is None:
         click.echo('Schema "{}" is not registered.'.format(schema_uuid))
         ctx.exit(code=-1)
@@ -144,7 +144,7 @@ def schema_remove(ctx, schema_uuid):
         click.echo('Cannot remove from {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
-    schema = config.matched_schema(schema_uuid)
+    schema = config.find_schema(schema_uuid)
     if schema is None:
         click.echo('Schema "{}" is not registered. Do nothing.'.format(schema_uuid))
         ctx.exit(code=-1)

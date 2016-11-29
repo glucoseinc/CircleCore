@@ -70,7 +70,7 @@ def device_detail(ctx, device_uuid):
     context_object = ctx.obj  # type: ContextObject
     config = context_object.config
 
-    device = config.matched_device(device_uuid)
+    device = config.find_device(device_uuid)
     if device is None:
         click.echo('Device "{}" is not registered.'.format(device_uuid))
         ctx.exit(code=-1)
@@ -112,7 +112,7 @@ def device_add(ctx, display_name, schema_uuid, properties_string, active):
 
     device_uuid = generate_uuid(existing=[device.uuid for device in config.devices])
 
-    schema = config.matched_schema(schema_uuid)
+    schema = config.find_schema(schema_uuid)
     if schema is None:
         click.echo('Schema "{}" is not exist. Do nothing.'.format(schema_uuid))
         ctx.exit(code=-1)
@@ -151,7 +151,7 @@ def device_remove(ctx, device_uuid):
         click.echo('Cannot remove from {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
-    device = config.matched_device(device_uuid)
+    device = config.find_device(device_uuid)
     if device is None:
         click.echo('Device "{}" is not registered. Do nothing.'.format(device_uuid))
         ctx.exit(code=-1)
@@ -179,7 +179,7 @@ def device_property(ctx, adding_properties_string, removing_property_names_strin
         click.echo('Cannot edit {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
-    device = config.matched_device(device_uuid)
+    device = config.find_device(device_uuid)
     if device is None:
         click.echo('Device "{}" is not registered. Do nothing.'.format(device_uuid))
         ctx.exit(code=-1)
