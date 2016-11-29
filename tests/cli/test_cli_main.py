@@ -5,7 +5,6 @@ from click.testing import CliRunner
 import pytest
 
 from circle_core.cli import cli_main
-from tests import remove_environ
 
 
 class TestCliMain(object):
