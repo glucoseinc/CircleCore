@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Schema List</title>
+</head>
+<body>
+<table>
+  <tr><th>UUID</th><th>DISPLAY_NAME</th><th>PROPERTIES</th></tr>
+  {% for schema in schemas %}
+  <tr><td>{{ schema.uuid }}</td><td>{{ schema.display_name or '' }}</td><td>{{ schema.stringified_properties }}</td></tr>
+  {% endfor %}
+</table>
+</body>
+</html>

@@ -32,17 +32,8 @@ class ConfigIniFile(Config):
         super(ConfigIniFile, self).__init__()
         self.ini_file_path = ini_file_path
 
-        self._instantiate_all_schemas()
-        self._instantiate_all_devices()
-
     @classmethod
     def parse_url_scheme(cls, url_scheme):
-        """iniファイルからConfigオブジェクトを生成する.
-
-        :param str url_scheme: URLスキーム
-        :return: ConfigIniFileオブジェクト
-        :rtype: ConfigIniFile
-        """
         ini_file_path = urlparse(url_scheme).path
         return ConfigIniFile(ini_file_path)
 
@@ -54,25 +45,25 @@ class ConfigIniFile(Config):
     def writable(self):
         return False
 
-    def _instantiate_all_schemas(self):
-        self.schemas = []
+    @property
+    def schemas(self):
         parser = configparser.ConfigParser()
         parser.read(self.ini_file_path)
         schema_dicts = [dict(parser.items(section)) for section in parser.sections() if Schema.is_key_matched(section)]
-        self.schemas = [Schema(**schema_dict) for schema_dict in schema_dicts]
+        return [Schema(**schema_dict) for schema_dict in schema_dicts]
+
+    @property
+    def devices(self):
+        parser = configparser.ConfigParser()
+        parser.read(self.ini_file_path)
+        device_dicts = [dict(parser.items(section)) for section in parser.sections() if Device.is_key_matched(section)]
+        return [Device(**device_dict) for device_dict in device_dicts]
 
     def register_schema(self, schema):
         raise ConfigError('Cannot register schema because read only storage.')
 
     def unregister_schema(self, schema):
         raise ConfigError('Cannot unregister schema because read only storage.')
-
-    def _instantiate_all_devices(self):
-        self.devices = []
-        parser = configparser.ConfigParser()
-        parser.read(self.ini_file_path)
-        device_dicts = [dict(parser.items(section)) for section in parser.sections() if Device.is_key_matched(section)]
-        self.devices = [Device(**device_dict) for device_dict in device_dicts]
 
     def register_device(self, device):
         raise ConfigError('Cannot register device because read only storage.')

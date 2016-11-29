@@ -50,17 +50,8 @@ class ConfigRedis(Config):
         super(ConfigRedis, self).__init__()
         self.redis_client = redis_client
 
-        self._instantiate_all_schemas()
-        self._instantiate_all_devices()
-
     @classmethod
     def parse_url_scheme(cls, url_scheme):
-        """RedisからConfigオブジェクトを生成する.
-
-        :param str url_scheme: URLスキーム
-        :return: ConfigRedisオブジェクト
-        :rtype: ConfigRedis
-        """
         try:
             redis_client = RedisClient.from_url(url_scheme)
             redis_client.ping()
@@ -77,13 +68,25 @@ class ConfigRedis(Config):
     def writable(self):
         return True
 
-    def _instantiate_all_schemas(self):
-        self.schemas = []
+    @property
+    def schemas(self):
+        schemas = []
         keys = [key for key in self.redis_client.keys() if Schema.is_key_matched(key)]
         for key in keys:
             if self.redis_client.type(key) == 'hash':
                 fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]
-                self.schemas.append(Schema(**fields))
+                schemas.append(Schema(**fields))
+        return schemas
+
+    @property
+    def devices(self):
+        devices = []
+        keys = [key for key in self.redis_client.keys() if Device.is_key_matched(key)]
+        for key in keys:
+            if self.redis_client.type(key) == 'hash':
+                fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]
+                devices.append(Device(**fields))
+        return devices
 
     def register_schema(self, schema):
         mapping = {
@@ -94,20 +97,10 @@ class ConfigRedis(Config):
             mapping['key{}'.format(i)] = prop.name
             mapping['type{}'.format(i)] = prop.type
 
-        key = 'schema_{}'.format(schema.uuid)
-        self.redis_client.hmset(key, mapping)
+        self.redis_client.hmset(schema.storage_key, mapping)
 
     def unregister_schema(self, schema):
-        key = 'schema_{}'.format(schema.uuid)
-        self.redis_client.delete(key)
-
-    def _instantiate_all_devices(self):
-        self.devices = []
-        keys = [key for key in self.redis_client.keys() if Device.is_key_matched(key)]
-        for key in keys:
-            if self.redis_client.type(key) == 'hash':
-                fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]
-                self.devices.append(Device(**fields))
+        self.redis_client.delete(schema.storage_key)
 
     def register_device(self, device):
         mapping = {
@@ -119,16 +112,13 @@ class ConfigRedis(Config):
             mapping['property{}'.format(i)] = prop.name
             mapping['value{}'.format(i)] = prop.value
 
-        key = 'device_{}'.format(device.uuid)
-        self.redis_client.hmset(key, mapping)
+        self.redis_client.hmset(device.storage_key, mapping)
 
     def unregister_device(self, device):
-        key = 'device_{}'.format(device.uuid)
-        self.redis_client.delete(key)
+        self.redis_client.delete(device.storage_key)
 
     def update_device(self, device):
-        key = 'device_{}'.format(device.uuid)
-        hkeys = [hkey for hkey in self.redis_client.hkeys(key)
+        hkeys = [hkey for hkey in self.redis_client.hkeys(device.storage_key)
                  if hkey.startswith('property') or hkey.startswith('value')]
-        self.redis_client.hdel(key, *hkeys)
+        self.redis_client.hdel(device.storage_key, *hkeys)
         self.register_device(device)

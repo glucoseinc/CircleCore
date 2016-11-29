@@ -2,9 +2,6 @@
 
 """CLI Device."""
 
-# system module
-from uuid import uuid4
-
 # community module
 import click
 from click.core import Context
@@ -12,7 +9,7 @@ from six import PY3
 
 # project module
 from .context import ContextObject
-from .utils import output_listing_columns, output_properties
+from .utils import generate_uuid, output_listing_columns, output_properties
 from ..models import Device
 
 if PY3:
@@ -64,7 +61,7 @@ def _format_for_columns(devices):
 @cli_device.command('detail')
 @click.argument('device_uuid')
 @click.pass_context
-def schema_detail(ctx, device_uuid):
+def device_detail(ctx, device_uuid):
     """デバイスの詳細を表示する.
 
     :param Context ctx: Context
@@ -113,8 +110,7 @@ def device_add(ctx, display_name, schema_uuid, properties_string, active):
         click.echo('Cannot register to {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
-    device_uuid = str(uuid4())
-    # TODO: 重複チェックする
+    device_uuid = generate_uuid(existing=[device.uuid for device in config.devices])
 
     schema = config.matched_schema(schema_uuid)
     if schema is None:

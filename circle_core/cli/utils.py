@@ -4,6 +4,7 @@
 
 # system module
 from unicodedata import east_asian_width
+from uuid import uuid4
 
 # community module
 import click
@@ -55,7 +56,7 @@ def create_row_strings(rows):
 
     :param List[List[str]] rows: テーブルデータ
     :return: row_strings: 表示用に整形したテーブルデータ, sizes: 各カラムの文字列長
-    :rtype: Tuple[List[str], int]
+    :rtype: Tuple[List[str], List[int]]
     """
     def _len(string):
         """文字列長を計算する.
@@ -96,3 +97,16 @@ def create_row_strings(rows):
         row_strings.append(row_string)
 
     return row_strings, sizes
+
+
+def generate_uuid(existing=[]):
+    """UUIDを生成する.
+
+    :param List[str] existing: 使用中のUUIDリスト
+    :return: UUID
+    :rtype: str
+    """
+    generated = str(uuid4())
+    while generated in existing:
+        generated = str(uuid4())
+    return generated

@@ -68,6 +68,15 @@ class Device(object):
             strings.append('{}:{}'.format(prop.name, prop.value))
         return ', '.join(strings)
 
+    @property
+    def storage_key(self):
+        """ストレージキー.
+
+        :return: ストレージキー
+        :rtype: str
+        """
+        return 'device_{}'.format(self.uuid)
+
     def append_properties(self, name_and_values):
         """プロパティを追加する.
 
@@ -90,5 +99,11 @@ class Device(object):
 
     @classmethod
     def is_key_matched(cls, key):
+        """指定のキーがストレージキーの形式にマッチしているか.
+
+        :param str key:
+        :return: マッチしているか
+        :rtype: bool
+        """
         pattern = r'^device_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
         return re.match(pattern, key) is not None

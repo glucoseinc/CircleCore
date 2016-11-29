@@ -8,20 +8,19 @@ from tornado.web import Application, FallbackHandler
 from tornado.wsgi import WSGIContainer
 
 
-# meinheldとか使う場合はこのファイルに追記していくことになるのかな
-flask_app = create_app()
-tornado_app = Application([
-    (r'/ws/?', SensorHandler),
-    (r'.*', FallbackHandler, {'fallback': WSGIContainer(flask_app)})
-])
-# FIXME: See warning http://www.tornadoweb.org/en/stable/wsgi.html#tornado.wsgi.WSGIContainer
-# これだとパフォーマンスに悪影響が出るっぽいのでどうしようか
-
-
-def run(port=5000):
+def run(port=5000, config=None):
     """TornadoサーバーとFlaskサーバーを立てる.
 
     clickから起動される.
     """
+    # meinheldとか使う場合はこのファイルに追記していくことになるのかな
+    flask_app = create_app(config)
+    tornado_app = Application([
+        (r'/ws/?', SensorHandler),
+        (r'.*', FallbackHandler, {'fallback': WSGIContainer(flask_app)})
+    ])
+    # FIXME: See warning http://www.tornadoweb.org/en/stable/wsgi.html#tornado.wsgi.WSGIContainer
+    # これだとパフォーマンスに悪影響が出るっぽいのでどうしようか
+
     tornado_app.listen(port)
     IOLoop.current().start()

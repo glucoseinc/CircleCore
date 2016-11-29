@@ -1,21 +1,34 @@
 # -*- coding: utf-8 -*-
 
-from circle_core.models.config import ConfigError, ConfigIniFile, parse_url_scheme
+import os
+
+from circle_core.models.config import Config, ConfigError, ConfigIniFile, ConfigRedis, parse_url_scheme
 import pytest
+from six import PY2
 
 from tests import ini_file_path, url_scheme_ini_file
 
 
 class TestConfig(object):
     def test_init(self):
-        config = ConfigIniFile(ini_file_path)
-        assert len(config.schemas) == 2
-        assert len(config.devices) == 1
+        if PY2:
+            with pytest.raises(TypeError):
+                Config()
+        else:
+            config = Config()
+            assert isinstance(config, Config)
 
     def test_parse(self):
-        config = parse_url_scheme(url_scheme_ini_file)
-        assert len(config.schemas) == 2
-        assert len(config.devices) == 1
-
         with pytest.raises(ConfigError):
             parse_url_scheme('mysql://user:password@server:3306/circle_core')
+
+        assert isinstance(parse_url_scheme(url_scheme_ini_file), ConfigIniFile)
+        url_scheme_redis = os.environ['CRCR_CONFIG']
+        assert isinstance(parse_url_scheme(url_scheme_redis), ConfigRedis)
+
+
+class TestConfigIniFile(object):
+    def test_property(self):
+        config = ConfigIniFile(ini_file_path)
+        assert config.readable is True
+        assert config.writable is False
