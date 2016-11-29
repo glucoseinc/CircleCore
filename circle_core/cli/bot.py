@@ -14,11 +14,35 @@ def cli_bot():
 
 
 @cli_bot.command()
-@click.option('addr', '--ws-addr', type=click.STRING, envvar='CRCR_WSADDR', default='ws://localhost:5000/ws')
-def run(addr):
-    """botの起動."""
+@click.option('receive_from', '--from', type=click.STRING, default='ws://api.coi.bodic.org/websocket')
+@click.option('send_to', '--to', type=click.STRING, default='ws://localhost:5000/ws')
+def echo(receive_from, send_to):
+    """--fromから--toへメッセージをたらい回し.
+
+    :param str receive_from:
+    :param str send_to:
+    """
     websocket.enableTrace(True)
-    ws = websocket.create_connection(addr)
+    receiver = websocket.create_connection(receive_from)
+    sender = websocket.create_connection(send_to)
+
+    i = 0
+    while True:
+        i += 1
+        msg = receiver.recv()
+        sender.send(msg)
+        click.echo('I sent a message {} times'.format(i))
+
+
+@cli_bot.command()
+@click.option('send_to', '--to', type=click.STRING, default='ws://localhost:5000/ws')
+def dummy(send_to):
+    """ダミーのデータを投げる.
+
+    :param str send_to:
+    """
+    websocket.enableTrace(True)
+    ws = websocket.create_connection(send_to)
     i = 0
     while True:
         i += 1
