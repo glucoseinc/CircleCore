@@ -9,7 +9,15 @@ setup(
     packages=find_packages(exclude=['tests']),
     install_requires=[
         'click>=6',
+        'flask',
+        'nnpy',
         'redis',
+        'six',
+        'tornado',
+        'websocket-client',
+    ],
+    dependency_linsk=[
+        'git://github.com/nanomsg/nnpy.git#egg=nnpy'
     ],
     entry_points={
         'console_scripts': [

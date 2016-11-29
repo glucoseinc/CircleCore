@@ -1,16 +1,9 @@
-click
+# For development
 coverage
 flake8
 flake8-import-order
-pytest
-tcptest
-redis
-tox
-tornado
-flask
 pip-tools
-ptpython
-six
+pytest
 pytest-timeout
-websocket-client
--e git://github.com/nanomsg/nnpy.git#egg=nnpy  # PyPI version is not updated
+tcptest
+tox
