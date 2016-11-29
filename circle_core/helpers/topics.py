@@ -51,7 +51,7 @@ class TopicBase(object):
         return json.loads(re.sub('^' + cls.justify(), '', data))
 
 
-class WriteDB(TopicBase):
-    """DBを扱うワーカーがsubscribeするTopic?."""
+class JustLogging(TopicBase):
+    """特に意味のないTopic."""
 
     pass

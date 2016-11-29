@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from circle_core.helpers.nanomsg import Receiver
-from circle_core.helpers.topics import WriteDB
+from circle_core.helpers.topics import JustLogging
 import pytest
 import tcptest
 from websocket import create_connection
@@ -18,7 +18,7 @@ class TestSensorHandler(object):
         cls.server = CircleCoreTestServer()
         cls.server.start()
         cls.receiver = Receiver()
-        cls.messages = cls.receiver.incoming_messages(WriteDB)
+        cls.messages = cls.receiver.incoming_messages(JustLogging)
         cls.ws = create_connection('ws://127.0.0.1:{}/ws'.format(cls.server.port))
 
     @classmethod

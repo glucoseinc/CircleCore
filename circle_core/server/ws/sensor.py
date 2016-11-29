@@ -5,7 +5,7 @@
 
 from circle_core.helpers import logger
 from circle_core.helpers.nanomsg import Sender
-from circle_core.helpers.topics import WriteDB
+from circle_core.helpers.topics import JustLogging
 from tornado.websocket import WebSocketHandler
 
 
@@ -29,7 +29,7 @@ class SensorHandler(WebSocketHandler):
 
         :param unicode message:
         """
-        self.__sender.send(WriteDB.with_json(message))
+        self.__sender.send(JustLogging.with_json(message))
         logger.debug('message %r is sent from %s', message, self)
 
     def on_close(self):
