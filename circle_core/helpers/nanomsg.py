@@ -3,16 +3,23 @@
 """nanomsgのラッパー."""
 from time import sleep
 
+from circle_core.helpers import logger
 from circle_core.helpers.topics import TOPIC_LENGTH
 from nnpy import AF_SP, PUB, Socket, SUB, SUB_SUBSCRIBE
-from six import add_metaclass
+from six import add_metaclass, PY3
+
+if PY3:
+    from json.decoder import JSONDecodeError
+else:
+    JSONDecodeError = ValueError
+
 __all__ = ('Receiver', 'Sender')
 
 
 SOCKET_PATH = 'ipc:///tmp/hoge.ipc'  # TODO: CLIから指定
 
 
-class Receiver:
+class Receiver(object):
     """受信. PubSubのSub.
 
     :param Socket __socket:
@@ -31,13 +38,16 @@ class Receiver:
         """メッセージを受信次第それを返すジェネレータ.
 
         :param TopicBase topic:
-        :return: 受信したメッセージ
+        :return unicode: 受信したメッセージ
         """
         self.__socket.setsockopt(SUB, SUB_SUBSCRIBE, topic.justify())
         while True:
             # TODO: 接続切れたときにStopIterationしたいが自分でheartbeatを実装したりしないといけないのかな
-            msg = self.__socket.recv()
-            yield msg.decode('utf-8')[TOPIC_LENGTH:]
+            msg = self.__socket.recv().decode('utf-8')
+            try:
+                yield topic.decode_json(msg)
+            except JSONDecodeError:
+                logger.warning('Received an non-JSON message. Ignore it.')
 
 
 # http://stackoverflow.com/a/6798042
@@ -54,7 +64,7 @@ class Singleton(type):
 
 
 @add_metaclass(Singleton)
-class Sender:
+class Sender(object):
     """送信. PubSubのPub.
 
     :param Socket __socket:
@@ -79,6 +89,7 @@ class Sender:
     def send(self, msg):
         """送信.
 
-        :param str msg:
+        :param unicode msg:
         """
-        self.__socket.send(msg)
+        # nnpy.Socket.sendにunicodeを渡すとasciiでencodeしようとして例外を吐く
+        self.__socket.send(msg.encode('utf-8'))

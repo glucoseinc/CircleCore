@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """nanomsgでPubSubする際のTopic(部屋名)を表すクラス群."""
+import json
+import re
+
 
 TOPIC_LENGTH = 25  # Topic name must be shorter than this value
 
 
-class TopicBase:
+class TopicBase(object):
     """全てのTopicの基底クラス."""
 
     @classmethod
@@ -17,29 +20,38 @@ class TopicBase:
         return cls.__name__.ljust(TOPIC_LENGTH)
 
     @classmethod
-    def text(cls, msg):
+    def with_json(cls, data):
         """Topic名と引数を繋げて返す.
 
         特定のTopicに向けてメッセージを送る際に有用
 
-        :param str msg: 送りたいメッセージ
-        :return str:
+        :param unicode data: 送りたいJSON
+        :return unicode:
         """
-        return cls.justify() + msg
+        return cls.justify() + data
 
     @classmethod
-    def json(cls, data):
+    def encode_json(cls, data):
         """Topic名と引数を繋げて返す.
 
         特定のTopicに向けてメッセージを送る際に有用
 
         :param dict data: JSONにして送りたいデータ
-        :return str:
+        :return unicode:
         """
-        raise NotImplementedError
+        return cls.justify() + json.dumps(data, ensure_ascii=False)
+
+    @classmethod
+    def decode_json(cls, data):
+        """nanomsgで送られてきたJSONからトピック名を取り除いて返す.
+
+        :param unicode data:
+        :return dict:
+        """
+        return json.loads(re.sub('^' + cls.justify(), '', data))
 
 
-class WriteDB(TopicBase):
-    """DBを扱うワーカーがsubscribeするTopic?."""
+class JustLogging(TopicBase):
+    """特に意味のないTopic."""
 
     pass
