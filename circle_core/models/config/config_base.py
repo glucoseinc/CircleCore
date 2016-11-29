@@ -2,6 +2,7 @@
 
 # system module
 from abc import ABCMeta, abstractmethod, abstractproperty
+from uuid import UUID
 
 # community module
 from six import PY3
@@ -87,6 +88,9 @@ class Config(object):
         :return: マッチしたスキーマ
         :rtype: Optional[Schema]
         """
+        if not isinstance(schema_uuid, UUID):
+            schema_uuid = UUID(schema_uuid)
+
         for schema in self.schemas:
             if schema.uuid == schema_uuid:
                 return schema
@@ -99,6 +103,9 @@ class Config(object):
         :return: マッチしたスキーマ
         :rtype: Optional[Device]
         """
+        if not isinstance(device_uuid, UUID):
+            device_uuid = UUID(device_uuid)
+
         for device in self.devices:
             if device.uuid == device_uuid:
                 return device

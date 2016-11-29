@@ -4,6 +4,7 @@
 
 # system module
 import re
+from uuid import UUID
 
 # community module
 from six import PY3
@@ -45,6 +46,11 @@ class Device(object):
         :param str schema_uuid: Schema UUID
         :param Optional[str] display_name: 表示名
         """
+        if not isinstance(uuid, UUID):
+            uuid = UUID(uuid)
+        if not isinstance(schema_uuid, UUID):
+            schema_uuid = UUID(schema_uuid)
+
         self.uuid = uuid
         self.schema_uuid = schema_uuid
         self.display_name = display_name

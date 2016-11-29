@@ -2,6 +2,8 @@
 
 """CLI Schema."""
 
+from uuid import UUID
+
 # community module
 import click
 from click.core import Context
@@ -54,12 +56,12 @@ def _format_for_columns(schemas):
     data = []  # type: List[List[str]]
     for schema in schemas:
         display_name = schema.display_name or ''
-        data.append([schema.uuid, display_name, schema.stringified_properties])
+        data.append([str(schema.uuid), display_name, schema.stringified_properties])
     return data, header
 
 
 @cli_schema.command('detail')
-@click.argument('schema_uuid')
+@click.argument('schema_uuid', type=UUID)
 @click.pass_context
 def schema_detail(ctx, schema_uuid):
     """スキーマの詳細を表示する.
@@ -76,7 +78,7 @@ def schema_detail(ctx, schema_uuid):
         ctx.exit(code=-1)
 
     data = [
-        ('UUID', schema.uuid),
+        ('UUID', str(schema.uuid)),
         ('DISPLAY_NAME', schema.display_name or ''),
     ]
     for i, prop in enumerate(schema.properties):
@@ -85,7 +87,7 @@ def schema_detail(ctx, schema_uuid):
     devices = [device for device in config.devices if device.schema_uuid == schema_uuid]
     if len(devices):
         for i, device in enumerate(devices):
-            data.append(('Devices' if i == 0 else '', device.uuid))
+            data.append(('Devices' if i == 0 else '', str(device.uuid)))
         output_properties(data)
     else:
         output_properties(data)
@@ -129,7 +131,7 @@ def schema_add(ctx, display_name, name_and_types):
 
 
 @cli_schema.command('remove')
-@click.argument('schema_uuid')
+@click.argument('schema_uuid', type=UUID)
 @click.pass_context
 def schema_remove(ctx, schema_uuid):
     """スキーマを削除する.

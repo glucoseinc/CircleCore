@@ -4,6 +4,7 @@
 
 # system module
 import re
+from uuid import UUID
 
 # community module
 from six import PY3
@@ -43,6 +44,9 @@ class Schema(object):
         :param str uuid: Schema UUID
         :param Optional[str] display_name: 表示名
         """
+        if not isinstance(uuid, UUID):
+            uuid = UUID(uuid)
+
         self.uuid = uuid
         self.display_name = display_name
         self.properties = []

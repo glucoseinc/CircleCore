@@ -3,6 +3,7 @@
 """CLI Main."""
 
 from multiprocessing import Process
+from uuid import UUID
 
 # community module
 import click
@@ -17,7 +18,7 @@ from .context import ContextObject, ContextObjectError
 
 @click.group()
 @click.option('config_url', '--config', envvar='CRCR_CONFIG')
-@click.option('crcr_uuid', '--uuid', envvar='CRCR_UUID')
+@click.option('crcr_uuid', '--uuid', envvar='CRCR_UUID', type=UUID)
 @click.pass_context
 def cli_main(ctx, config_url, crcr_uuid):
     """`crcr`の起点.
