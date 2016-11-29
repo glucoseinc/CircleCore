@@ -2,7 +2,6 @@
 import os
 
 import pytest
-from six import PY2
 
 from circle_core.models.config import Config, ConfigError, ConfigIniFile, ConfigRedis, parse_url_scheme
 from tests import ini_file_path, url_scheme_ini_file
@@ -10,12 +9,8 @@ from tests import ini_file_path, url_scheme_ini_file
 
 class TestConfig(object):
     def test_init(self):
-        if PY2:
-            with pytest.raises(TypeError):
-                Config()
-        else:
-            config = Config()
-            assert isinstance(config, Config)
+        with pytest.raises(TypeError):
+            Config()
 
     def test_parse(self):
         with pytest.raises(ConfigError):

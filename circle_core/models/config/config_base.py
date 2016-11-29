@@ -5,7 +5,7 @@ from abc import ABCMeta, abstractmethod, abstractproperty
 from uuid import UUID
 
 # community module
-from six import PY3
+from six import add_metaclass, PY3
 
 # project module
 from ..device import Device
@@ -19,13 +19,13 @@ class ConfigError(Exception):
     pass
 
 
+@add_metaclass(ABCMeta)
 class Config(object):
     """Configオブジェクト.
 
     :param str stringified_type: Configタイプ(str)
     """
 
-    __metaclass__ = ABCMeta
     stringified_type = 'nothing'
 
     def __init__(self):
