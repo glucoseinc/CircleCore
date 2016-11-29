@@ -15,7 +15,7 @@ class TestTopic(TopicBase):
     pass
 
 
-class TestReceiver:
+class TestReceiver(object):
     @classmethod
     def setup_class(cls):
         cls.socket = Socket(AF_SP, PUB)
@@ -53,7 +53,7 @@ class TestReceiver:
         assert next(self.messages, None) is None
 
 
-class TestSender():
+class TestSender(object):
     @classmethod
     def setup_class(cls):
         cls.sender = Sender(SOCKET_PATH)

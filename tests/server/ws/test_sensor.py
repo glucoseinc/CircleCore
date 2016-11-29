@@ -12,7 +12,7 @@ class CircleCoreTestServer(tcptest.TestServer):
         return 'crcr', 'server', 'run', '--port', str(self.port)
 
 
-class TestSensorHandler:
+class TestSensorHandler(object):
     @classmethod
     def setup_class(cls):
         cls.server = CircleCoreTestServer()

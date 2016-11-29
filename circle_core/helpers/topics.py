@@ -8,7 +8,7 @@ import re
 TOPIC_LENGTH = 25  # Topic name must be shorter than this value
 
 
-class TopicBase:
+class TopicBase(object):
     """全てのTopicの基底クラス."""
 
     @classmethod

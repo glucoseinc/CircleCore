@@ -19,7 +19,7 @@ __all__ = ('Receiver', 'Sender')
 SOCKET_PATH = 'ipc:///tmp/hoge.ipc'  # TODO: CLIから指定
 
 
-class Receiver:
+class Receiver(object):
     """受信. PubSubのSub.
 
     :param Socket __socket:
@@ -64,7 +64,7 @@ class Singleton(type):
 
 
 @add_metaclass(Singleton)
-class Sender:
+class Sender(object):
     """送信. PubSubのPub.
 
     :param Socket __socket:
