@@ -3,9 +3,16 @@
 """nanomsgのラッパー."""
 from time import sleep
 
+from circle_core.helpers import logger
 from circle_core.helpers.topics import TOPIC_LENGTH
 from nnpy import AF_SP, PUB, Socket, SUB, SUB_SUBSCRIBE
-from six import add_metaclass
+from six import add_metaclass, PY3
+
+if PY3:
+    from json.decoder import JSONDecodeError
+else:
+    JSONDecodeError = ValueError
+
 __all__ = ('Receiver', 'Sender')
 
 
@@ -37,7 +44,10 @@ class Receiver:
         while True:
             # TODO: 接続切れたときにStopIterationしたいが自分でheartbeatを実装したりしないといけないのかな
             msg = self.__socket.recv().decode('utf-8')
-            yield topic.decode_json(msg)
+            try:
+                yield topic.decode_json(msg)
+            except JSONDecodeError:
+                logger.warning('Received an non-JSON message. Ignore it.')
 
 
 # http://stackoverflow.com/a/6798042
