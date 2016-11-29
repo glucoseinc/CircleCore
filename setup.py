@@ -16,8 +16,8 @@ setup(
         'tornado',
         'websocket-client',
     ],
-    dependency_linsk=[
-        'git://github.com/nanomsg/nnpy.git#egg=nnpy'
+    dependency_links=[
+        'https://github.com/nanomsg/nnpy.git#egg=nnpy',
     ],
     entry_points={
         'console_scripts': [
