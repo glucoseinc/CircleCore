@@ -2,8 +2,9 @@
 """workers. invoked by `crcr worker run <module_name>`."""
 from importlib import import_module
 
-from circle_core.helpers import logger
 from click import get_current_context
+
+from circle_core.helpers import logger
 
 
 def get_worker(worker_name):

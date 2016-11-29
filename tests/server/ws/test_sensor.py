@@ -2,11 +2,12 @@
 from multiprocessing import Process
 from time import sleep
 
+import pytest
+from websocket import create_connection
+
 from circle_core.helpers.nanomsg import Receiver
 from circle_core.helpers.topics import JustLogging
 from circle_core.server import ws
-import pytest
-from websocket import create_connection
 
 
 class TestSensorHandler(object):

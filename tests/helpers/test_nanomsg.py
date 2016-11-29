@@ -2,10 +2,11 @@
 from os.path import join
 from tempfile import mkdtemp
 
-from circle_core.helpers.nanomsg import get_ipc_socket_path, Receiver, Sender  # TODO: flake8-import-orderの設定
-from circle_core.helpers.topics import TopicBase
 from nnpy import AF_SP, PUB, Socket, SUB, SUB_SUBSCRIBE
 import pytest
+
+from circle_core.helpers.nanomsg import get_ipc_socket_path, Receiver, Sender  # TODO: flake8-import-orderの設定
+from circle_core.helpers.topics import TopicBase
 
 
 class TestTopic(TopicBase):

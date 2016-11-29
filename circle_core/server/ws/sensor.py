@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """TornadoでWebSocketサーバーを立てる."""
-
+from tornado.websocket import WebSocketHandler
 
 from circle_core.helpers import logger
 from circle_core.helpers.nanomsg import Sender
 from circle_core.helpers.topics import JustLogging
-from tornado.websocket import WebSocketHandler
 
 
 class SensorHandler(WebSocketHandler):

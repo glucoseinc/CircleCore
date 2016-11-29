@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-
 import re
 
-from circle_core.cli import cli_main
 from click.testing import CliRunner
 import pytest
 
+from circle_core.cli import cli_main
 from tests import flushall_redis_server, redis_server, url_scheme_ini_file
 
 

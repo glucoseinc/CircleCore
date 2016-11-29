@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+import pytest
 
 from circle_core.models.schema import Schema
-import pytest
 
 
 class TestSchema(object):

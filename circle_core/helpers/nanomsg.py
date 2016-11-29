@@ -3,11 +3,12 @@
 """nanomsgのラッパー."""
 from time import sleep
 
-from circle_core.helpers import logger
-from circle_core.helpers.topics import TOPIC_LENGTH
 from click import get_current_context
 from nnpy import AF_SP, PUB, Socket, SUB, SUB_SUBSCRIBE
 from six import add_metaclass, PY3
+
+from circle_core.helpers import logger
+from circle_core.helpers.topics import TOPIC_LENGTH
 
 if PY3:
     from json.decoder import JSONDecodeError

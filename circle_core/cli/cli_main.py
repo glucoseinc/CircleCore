@@ -5,13 +5,13 @@
 from multiprocessing import Process
 
 # community module
-from circle_core import server
-from circle_core.server import ws, wui
-from circle_core.workers import get_worker
 import click
 from click.core import Context
 
 # project module
+from circle_core import server
+from circle_core.server import ws, wui
+from circle_core.workers import get_worker
 from .context import ContextObject, ContextObjectError
 
 

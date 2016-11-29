@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+import pytest
 
 from circle_core.models.device import Device
-import pytest
 
 
 class TestDevice(object):

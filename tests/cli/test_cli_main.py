@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-
 import os
 
-from circle_core.cli import cli_main
 from click.testing import CliRunner
 import pytest
 
+from circle_core.cli import cli_main
 from tests import remove_environ
 
 
