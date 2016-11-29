@@ -17,6 +17,7 @@ class ContextObject(object):
     :param str config_url: ConfigのURLスキーム
     :param Config config: Configオブジェクト
     :param str uuid: CircleCore UUID
+    :param ipc_socket str: プロセス間通信に使うソケットファイルへのパス
     """
 
     def __init__(self, config_url, crcr_uuid):

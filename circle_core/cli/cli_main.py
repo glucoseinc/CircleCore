@@ -60,10 +60,13 @@ def cli_main_env(ctx):
 @click.option('--ws-port', type=click.INT, envvar='CRCR_WSPORT', default=5000)
 @click.option('--ws-path', type=click.STRING, envvar='CRCR_WSPATH', default='/ws/?')
 @click.option('--wui-port', type=click.INT, envvar='CRCR_WUIPORT', default=5000)
+@click.option('--ipc-socket', type=click.Path(resolve_path=True), envvar='CRCR_IPCSOCK', default='/tmp/circlecore.ipc')
 @click.option('workers', '--worker', type=click.STRING, envvar='CRCR_WORKERS', multiple=True)
 @click.pass_obj
-def cli_main_run(obj, ws_port, ws_path, wui_port, workers):
+def cli_main_run(obj, ws_port, ws_path, wui_port, ipc_socket, workers):
     """CircleCoreの起動."""
+    obj.ipc_socket = 'ipc://' + ipc_socket
+
     procs = [Process(target=get_worker(worker).run) for worker in workers]
     if ws_port == wui_port:
         procs.append(Process(target=server.run, args=[wui_port, obj.config]))

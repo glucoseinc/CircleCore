@@ -2,13 +2,10 @@
 from os.path import join
 from tempfile import mkdtemp
 
-from circle_core.helpers.nanomsg import Receiver, Sender  # TODO: flake8-import-orderの設定
+from circle_core.helpers.nanomsg import get_ipc_socket_path, Receiver, Sender  # TODO: flake8-import-orderの設定
 from circle_core.helpers.topics import TopicBase
 from nnpy import AF_SP, PUB, Socket, SUB, SUB_SUBSCRIBE
 import pytest
-
-
-SOCKET_PATH = 'ipc://' + join(mkdtemp(), 'socket.ipc')
 
 
 class TestTopic(TopicBase):
@@ -19,8 +16,8 @@ class TestReceiver(object):
     @classmethod
     def setup_class(cls):
         cls.socket = Socket(AF_SP, PUB)
-        cls.socket.bind(SOCKET_PATH)
-        cls.receiver = Receiver(SOCKET_PATH)
+        cls.socket.bind(get_ipc_socket_path())
+        cls.receiver = Receiver()
         cls.messages = cls.receiver.incoming_messages(TestTopic)
 
     @classmethod
@@ -56,9 +53,9 @@ class TestReceiver(object):
 class TestSender(object):
     @classmethod
     def setup_class(cls):
-        cls.sender = Sender(SOCKET_PATH)
+        cls.sender = Sender()
         cls.socket = Socket(AF_SP, SUB)
-        cls.socket.connect(SOCKET_PATH)
+        cls.socket.connect(get_ipc_socket_path())
         cls.socket.setsockopt(SUB, SUB_SUBSCRIBE, '')
 
     @classmethod

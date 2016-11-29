@@ -5,6 +5,7 @@ from time import sleep
 
 from circle_core.helpers import logger
 from circle_core.helpers.topics import TOPIC_LENGTH
+from click import get_current_context
 from nnpy import AF_SP, PUB, Socket, SUB, SUB_SUBSCRIBE
 from six import add_metaclass, PY3
 
@@ -13,10 +14,14 @@ if PY3:
 else:
     JSONDecodeError = ValueError
 
-__all__ = ('Receiver', 'Sender')
+__all__ = ('Receiver', 'Sender', 'get_ipc_socket_path')
 
 
-SOCKET_PATH = 'ipc:///tmp/hoge.ipc'  # TODO: CLIから指定
+def get_ipc_socket_path():
+    try:
+        return get_current_context().obj.ipc_socket
+    except RuntimeError:
+        return 'ipc:///tmp/circlecore.ipc'  # testing
 
 
 class Receiver(object):
@@ -25,10 +30,10 @@ class Receiver(object):
     :param Socket __socket:
     """
 
-    def __init__(self, socket_path=SOCKET_PATH):
+    def __init__(self):
         """接続を開く."""
         self.__socket = Socket(AF_SP, SUB)
-        self.__socket.connect(socket_path)
+        self.__socket.connect(get_ipc_socket_path())
 
     def __del__(self):
         """接続を閉じる."""
@@ -70,13 +75,10 @@ class Sender(object):
     :param Socket __socket:
     """
 
-    def __init__(self, socket_path=SOCKET_PATH):
-        """接続を開く.
-
-        :param str socket_path: ipc://で始まる
-        """
+    def __init__(self):
+        """接続を開く."""
         self.__socket = Socket(AF_SP, PUB)
-        self.__socket.bind(socket_path)
+        self.__socket.bind(get_ipc_socket_path())
         # 同じアドレスにbindできるのは一度に一つのSocketだけ
         sleep(0.1)
         # おそらくbindが完了するまでブロックされていない
