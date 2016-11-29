@@ -4,8 +4,6 @@ from importlib import import_module
 
 from click import get_current_context
 
-from circle_core.helpers import logger
-
 
 def get_worker(worker_name):
     """ワーカーを返す.

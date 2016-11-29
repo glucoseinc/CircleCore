@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 """nanomsgのラッパー."""
 from time import sleep
+from logging import getLogger
 
 from click import get_current_context
 from nnpy import AF_SP, PUB, Socket, SUB, SUB_SUBSCRIBE
 from six import add_metaclass, PY3
 
-from circle_core.helpers import logger
 from circle_core.helpers.topics import TOPIC_LENGTH
 
 if PY3:
@@ -16,6 +16,7 @@ else:
     JSONDecodeError = ValueError
 
 __all__ = ('Receiver', 'Sender', 'get_ipc_socket_path')
+logger = getLogger(__name__)
 
 
 def get_ipc_socket_path():
