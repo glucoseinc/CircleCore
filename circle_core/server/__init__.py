@@ -19,8 +19,8 @@ def run(port=5000, config=None):
         (r'/ws/?', SensorHandler),
         (r'.*', FallbackHandler, {'fallback': WSGIContainer(flask_app)})
     ])
-    # FIXME: See warning http://www.tornadoweb.org/en/stable/wsgi.html#tornado.wsgi.WSGIContainer
-    # これだとパフォーマンスに悪影響が出るっぽいのでどうしようか
+    # パフォーマンスの問題があるので別々のサーバーとして立てることも可能にする
+    # http://www.tornadoweb.org/en/stable/wsgi.html#tornado.wsgi.WSGIContainer
 
     tornado_app.listen(port)
     IOLoop.current().start()
