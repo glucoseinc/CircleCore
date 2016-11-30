@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-
 import os
 
-from circle_core.models.config import Config, ConfigError, ConfigIniFile, ConfigRedis, parse_url_scheme
 import pytest
 from six import PY2
 
+from circle_core.models.config import Config, ConfigError, ConfigIniFile, ConfigRedis, parse_url_scheme
 from tests import ini_file_path, url_scheme_ini_file
 
 

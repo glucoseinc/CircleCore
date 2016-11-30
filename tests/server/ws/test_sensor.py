@@ -1,31 +1,31 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from circle_core.helpers.nanomsg import Receiver
-from circle_core.helpers.topics import JustLogging
+from multiprocessing import Process
+from time import sleep
+
 import pytest
-import tcptest
 from websocket import create_connection
 
-
-class CircleCoreTestServer(tcptest.TestServer):
-    def build_command(self):
-        return 'crcr', 'server', 'run', '--port', str(self.port)
+from circle_core.helpers.nanomsg import Receiver
+from circle_core.helpers.topics import JustLogging
+from circle_core.server import ws
 
 
 class TestSensorHandler(object):
     @classmethod
     def setup_class(cls):
-        cls.server = CircleCoreTestServer()
-        cls.server.start()
         cls.receiver = Receiver()
         cls.messages = cls.receiver.incoming_messages(JustLogging)
-        cls.ws = create_connection('ws://127.0.0.1:{}/ws'.format(cls.server.port))
+        cls.server = Process(target=ws.run, args=['/', 5000])
+        cls.server.daemon = True
+        cls.server.start()
+        sleep(0.1)
+        cls.ws = create_connection('ws://localhost:5000/')
 
     @classmethod
     def teardown_class(cls):
-        cls.ws.close()
         del cls.receiver
-        cls.server.stop()
+        cls.ws.close()
+        cls.server.terminate()
 
     @pytest.mark.timeout(1)
     def test_simple(self):
