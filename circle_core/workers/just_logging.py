@@ -14,7 +14,7 @@ logger = getLogger(__name__)
 
 def run():
     """clickから起動される."""
-    topic = JustLogging
+    topic = JustLogging()
     receiver = Receiver()
-    for msg in receiver.incoming_messages(topic):
+    for _, msg in receiver.incoming_messages(topic.topic):
         logger.debug('received a message %r in topic %s', msg, topic)

@@ -14,11 +14,14 @@ def run(port=5000, config=None):
     clickから起動される.
     """
     # meinheldとか使う場合はこのファイルに追記していくことになるのかな
+    print('start combined server')
     flask_app = create_app(config)
     tornado_app = Application([
-        (r'/ws/?', SensorHandler),
+        (r'/ws/(?P<device_uuid>[0-9A-Fa-f-]+)', SensorHandler),
         (r'.*', FallbackHandler, {'fallback': WSGIContainer(flask_app)})
-    ])
+    ],
+        cr_config=config
+    )
     # パフォーマンスの問題があるので別々のサーバーとして立てることも可能にする
     # http://www.tornadoweb.org/en/stable/wsgi.html#tornado.wsgi.WSGIContainer
 

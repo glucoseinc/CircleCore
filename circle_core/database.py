@@ -70,19 +70,18 @@ class Database(object):
             schema = [sc for sc in schemas if sc.uuid == device.schema_uuid][0]
 
             # make table name
-            table_name = 'device_{}'.format(
-                base58.b58encode(device.uuid.bytes)
-            )
+            table_name = self.make_table_name_for_device(device)
 
             # define columns
             columns = [
-                sa.Column(
-                    '_created_at', mysql.TIMESTAMP(6), primary_key=True,
-                    server_default=sa.text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')),
+                sa.Column('_created_at', mysql.TIMESTAMP(fsp=6), nullable=False),
+                sa.Column('_counter', sa.Integer(), nullable=False, default=0),
             ]
             for prop in schema.properties:
                 columns.append(make_sqlcolumn_from_datatype(prop.name, prop.type))
-
+            columns.append(
+                sa.PrimaryKeyConstraint('_created_at', '_counter')
+            )
             sa.Table(table_name, self._metadata, *columns, **TABLE_OPTIONS)
             self._tablename_to_device_map[table_name] = (device, schema)
 
@@ -114,6 +113,10 @@ class Database(object):
         if diff.error_tables:
             raise MigrationError
 
+        if diff.is_ok():
+            logger.info('no need to migrate db')
+            return
+
         logger.info('start migration')
         with self._engine.begin() as conn:
             for table in diff.new_tables:
@@ -128,6 +131,16 @@ class Database(object):
         # poolの中のconnectionが古いTable情報をキャッシュしちゃってる？とかで怪しい挙動になるので、全部破棄する
         self._engine.dispose()
 
+    def make_table_name_for_device(self, device):
+        return 'device_{}'.format(
+            base58.b58encode(device.uuid.bytes)
+        )
+
+    def find_table_for_device(self, device):
+        table_name = self.make_table_name_for_device(device)
+        return self._metadata.tables[table_name]
+        # return self._device_to_table_map[device.uuid]
+
 
 class DiffResult(object):
     """
@@ -141,6 +154,9 @@ class DiffResult(object):
         self.new_tables = []
         self.alter_tables = []
         self.error_tables = []
+
+    def is_ok(self):
+        return all([not self.new_tables, not self.alter_tables, not self.error_tables])
 
 
 class DatabaseDiff(SchemaVisitor):
@@ -213,11 +229,14 @@ class DatabaseDiff(SchemaVisitor):
                 else:
                     col_db = db_table.c[col_me.key]
 
-                    col_me_str = str(CreateColumn(col_me))
-                    col_db_str = str(CreateColumn(col_db))
+                    # 本当はdialectつけて比較すべきだと思うのだけど、autoloadでそこまで読み込まないらしく、必ず差が出てしまう
+                    # col_me_str = str(CreateColumn(col_me).compile(dialect=self.dialect))
+                    # col_db_str = str(CreateColumn(col_db).compile(dialect=self.dialect))
+                    col_me_str = str(CreateColumn(col_me).compile())
+                    col_db_str = str(CreateColumn(col_db).compile())
 
                     if col_me_str != col_db_str:
-                        logger.info('    col `%s` ... different %s <> %s', col_me.key, col_me_str, col_db_str)
+                        logger.info('    col `%s` ... different %r <> %r', col_me.key, col_me_str, col_db_str)
                         diff = True
                     else:
                         logger.info('    col `%s` ok', col_me.key)

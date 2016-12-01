@@ -14,6 +14,8 @@ def get_worker(worker_name):
     try:
         worker = import_module('circle_core.workers.' + worker_name)
     except ImportError:
+        import traceback
+        traceback.print_exc()
         get_current_context().fail('worker %r is not found' % worker_name)
     else:
         return worker
