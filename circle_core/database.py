@@ -54,7 +54,7 @@ class Database(object):
     def _register_meta_table(self):
         self.table_meta = sa.Table(
             META_TABLE_NAME, self._metadata,
-            sa.Column('key', sa.String(255), primary_key=True),
+            sa.Column('key', mysql.VARCHAR(255, charset='ascii', collation='ascii_bin'), primary_key=True),
             sa.Column('value', sa.Text()),
             **TABLE_OPTIONS
         )
