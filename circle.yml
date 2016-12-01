@@ -11,6 +11,7 @@ machine:
 dependencies:
   cache_directories:
     - ~/nanomsg-1.0.0
+    - ~/.tox
 
   pre:
     - |
