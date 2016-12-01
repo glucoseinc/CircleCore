@@ -1,3 +1,27 @@
 machine:
+  environment:
+    LD_LIBRARY_PATH: /usr/local/lib/x86_64-linux-gnu/
   post:
     - pyenv global 2.7.12 3.5.2
+
+dependencies:
+  cache_directories:
+    - ~/nanomsg-1.0.0
+
+  pre:
+    - |
+      if [ ! -d /usr/local/include/nanomsg ]; then
+        cd ~
+        wget https://github.com/nanomsg/nanomsg/archive/1.0.0.tar.gz
+        tar zxvf 1.0.0.tar.gz
+        cd nanomsg-1.0.0
+        if [ -d build ]; then
+          rm -rdf build
+        fi
+        mkdir build && cd build
+        cmake ..
+        cmake --build .
+        ctest -C Debug .
+        sudo cmake --build . --target install
+        sudo ldconfig
+      fi

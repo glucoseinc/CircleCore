@@ -1,14 +1,15 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""nanomsgのラッパー."""
-from time import sleep
-from logging import getLogger
 
+"""nanomsgのラッパー."""
+
+# system module
+from logging import getLogger
+from time import sleep
+
+# community module
 from click import get_current_context
 from nnpy import AF_SP, PUB, Socket, SUB, SUB_SUBSCRIBE
 from six import add_metaclass, PY3
-
-from circle_core.helpers.topics import TOPIC_LENGTH
 
 if PY3:
     from json.decoder import JSONDecodeError

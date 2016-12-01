@@ -17,7 +17,7 @@ setup(
         'websocket-client',
     ],
     dependency_links=[
-        'https://github.com/nanomsg/nnpy.git#egg=nnpy',
+        'git+https://github.com/nanomsg/nnpy.git#egg=nnpy',
     ],
     entry_points={
         'console_scripts': [
