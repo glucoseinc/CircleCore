@@ -1,5 +1,4 @@
 # For development
--e .
 -e git://github.com/nanomsg/nnpy.git#egg=nnpy  # PyPI version is not updated
 coverage
 flake8

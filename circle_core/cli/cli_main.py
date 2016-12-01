@@ -2,6 +2,8 @@
 
 """CLI Main."""
 
+from __future__ import absolute_import
+
 from multiprocessing import Process
 from uuid import UUID
 
@@ -14,6 +16,7 @@ from circle_core import server
 from circle_core.server import ws, wui
 from circle_core.workers import get_worker
 from .context import ContextObject, ContextObjectError
+from ..database import Database
 
 
 @click.group()
@@ -86,3 +89,32 @@ def cli_main_run(obj, ws_port, ws_path, wui_port, ipc_socket, workers):
         pass
 
     raise RuntimeError()
+
+
+@cli_main.command('migrate')
+@click.pass_context
+@click.option('--dry-run', '-n', is_flag=True)
+@click.option('database_url', '--database', envvar='CRCR_DATABASE')
+def cli_main_migrate(ctx, dry_run, database_url):
+    """DBを最新スキーマの状態にあわせる
+
+    :param Context ctx: Context
+    :param bool dry_run: 実行しなければTrue
+    :param str database_url: データベースのURL
+    """
+    if database_url is None:
+        click.echo("""Database url is not set.
+Please set config to argument `crcr --database DB_URL ...`
+or set config to environment variable `export CRCR_DATABASE=DB_URL`.""")
+        ctx.exit(code=-1)
+
+    core_config = ctx.obj.config
+
+    db = Database(database_url)
+    db.register_schemas_and_devices(core_config.schemas, core_config.devices)
+
+    # check meta tablse
+    if dry_run:
+        db.check_tables()
+    else:
+        db.migrate()
