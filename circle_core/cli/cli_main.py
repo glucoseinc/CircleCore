@@ -84,4 +84,4 @@ def cli_main_run(obj, ws_port, ws_path, wui_port, ipc_socket, workers):
     while all(proc.is_alive() for proc in procs):
         pass
 
-    raise ChildProcessError()
+    raise RuntimeError()
