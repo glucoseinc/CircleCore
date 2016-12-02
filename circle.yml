@@ -1,3 +1,8 @@
+general:
+  artifacts:
+    - "htmlcov"
+    - doc/build/html
+
 machine:
   environment:
     LD_LIBRARY_PATH: /usr/local/lib/x86_64-linux-gnu/
@@ -7,10 +12,11 @@ machine:
 dependencies:
   cache_directories:
     - ~/nanomsg-1.0.0
+    - ~/.tox
 
   pre:
     - |
-      if [ ! -d /usr/local/include/nanomsg ]; then
+      if [ ! -d ~/nanomsg-1.0.0 ]; then
         cd ~
         wget https://github.com/nanomsg/nanomsg/archive/1.0.0.tar.gz
         tar zxvf 1.0.0.tar.gz
@@ -21,6 +27,10 @@ dependencies:
         mkdir build && cd build
         cmake ..
         cmake --build .
+      fi
+    - |
+      if [ ! -d /usr/local/include/nanomsg ]; then
+        cd ~/nanomsg-1.0.0/build
         ctest -C Debug .
         sudo cmake --build . --target install
         sudo ldconfig

@@ -1,6 +1,6 @@
 [![CircleCI](https://circleci.com/gh/glucoseinc/CircleCore.svg?style=svg&circle-token=13e263f3101ee208b64500d73c5f3741a8c8aa97)](https://circleci.com/gh/glucoseinc/CircleCore)
 
-# Circle Core
+# CircleCore
 ## Requirements
 - Python2.7 or Python3.5
 - nanomsg
@@ -22,26 +22,26 @@ $ . .env/3.5/bin/activate
 (3.5) $
 ```
 
-### Install Circle Core
+### Install CircleCore
 ```bash
-$ pip install -e .
+$ pip install -e git://github.com/nanomsg/nnpy.git#egg=nnpy
+$ pip install http://cdn.mysql.com//Downloads/Connector-Python/mysql-connector-python-2.2.1.tar.gz
+$ pip install '.[test,redis,mysql]'
 ```
 
-### For development
-```bash
-$ pip install pip-tools
-$ pip-sync requirements2.txt  # for Python2. If you use Python3, "$ pip-sync requirements3.txt"
-$ pip install -e .
-```
+If you want to install CircleCore as development, use `-e` option
 
-#### Update requirements.txt
-- When editted `requirements.in`, execute the following.
-```bash
-(2.7) $ pip-compile -o requirements2.txt  # for Python2.
-(3.5) $ pip-compile -o requirements3.txt  # for Python3.
-```
 
 ## Usage
 ```bash
 $ crcr --config redis://localhost:6379/0 --uuid ... server run
 ```
+
+
+### Build document
+
+```bash
+$ tox -e sphinx
+```
+
+see doc/README.md
