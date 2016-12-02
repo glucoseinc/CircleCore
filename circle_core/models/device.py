@@ -10,7 +10,7 @@ from uuid import UUID
 from six import PY3
 
 if PY3:
-    from typing import List, Optional, Tuple
+    from typing import List, Optional, Tuple, Union
 
 
 class DeviceProperty(object):
@@ -33,7 +33,7 @@ class DeviceProperty(object):
 class Device(object):
     """Deviceオブジェクト.
 
-    :param str uuid: Device UUID
+    :param UUID uuid: Device UUID
     :param Optional[str] display_name: 表示名
     :param str schema_uuid: Schema UUID
     :param List[DeviceProperty] properties: プロパティ
@@ -42,8 +42,8 @@ class Device(object):
     def __init__(self, uuid, schema_uuid, display_name=None, **kwargs):
         """init.
 
-        :param str uuid; Device UUID
-        :param str schema_uuid: Schema UUID
+        :param Union[str, UUID] uuid; Device UUID
+        :param Union[str, UUID] schema_uuid: Schema UUID
         :param Optional[str] display_name: 表示名
         """
         if not isinstance(uuid, UUID):

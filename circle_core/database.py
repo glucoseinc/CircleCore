@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+"""circle_coreのDBとの接続を取り仕切る"""
+
 from __future__ import absolute_import
 
 from collections import namedtuple
@@ -6,6 +9,7 @@ import itertools
 import logging
 
 import base58
+from six import PY3
 import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 from sqlalchemy.engine import reflection
@@ -15,6 +19,10 @@ import sqlalchemy.sql.ddl
 
 from circle_core.exceptions import MigrationError
 from .constants import CRDataType
+
+# community module
+if PY3:
+    from typing import List
 
 
 META_TABLE_NAME = 'meta'
@@ -27,7 +35,15 @@ logger = logging.getLogger('crcr.database')
 
 
 class Database(object):
+    """CricleCoreでのセンサデータ書き込み先DBを管理するクラス"""
+
     def __init__(self, database_url):
+        """
+        @constructor
+
+        :param str database_url: SQLAlchemy的DBのURL
+
+        """
         self._engine = sa.create_engine(database_url)
         self._session = sessionmaker(bind=self._engine)
 
@@ -44,6 +60,12 @@ class Database(object):
         )
 
     def register_schemas_and_devices(self, schemas, devices):
+        """
+        望むべきスキーマとデバイスを登録する
+
+        :param List[Schema] schemas: スキーマのリスト
+        :param List[Devices] devices: デバイスのリスト
+        """
         for device in devices:
             schema = [sc for sc in schemas if sc.uuid == device.schema_uuid][0]
 
@@ -66,7 +88,12 @@ class Database(object):
 
     def check_tables(self):
         """
+        DBをスキーマ、デバイスの設定に合わせて変更する必要がある化を調査する
+        check_table結果にエラーがあれば、MigrationError例外が起こる
+
         see: https://github.com/openstack/sqlalchemy-migrate/blob/master/migrate/versioning/schemadiff.py
+
+        :return DiffResult: 検証結果
         """
         logger.info('start checking database')
         diff_result = DiffResult()
@@ -79,6 +106,10 @@ class Database(object):
         return diff_result
 
     def migrate(self):
+        """
+        DBをスキーマ、デバイスの設定に合わせて変更する
+        check_table結果にエラーがあれば、MigrationError例外が起こる
+        """
         diff = self.check_tables()
         if diff.error_tables:
             raise MigrationError
@@ -99,6 +130,13 @@ class Database(object):
 
 
 class DiffResult(object):
+    """
+    DB比較結果
+
+    :param List[sa.Table] new_table: 新規に作る必要のあるTable
+    :param List[sa.Table] alter_table: AlterするTable
+    :param List[sa.Table] error_table: エラーがあって変更できないTable
+    """
     def __init__(self):
         self.new_tables = []
         self.alter_tables = []
@@ -106,9 +144,24 @@ class DiffResult(object):
 
 
 class DatabaseDiff(SchemaVisitor):
+    """
+    スキーマのDBと、現実のDBの比較をして結果を返す
+
+    :param Any dialect: dialect
+    :param Any connection: connection
+    :param DiffResult diff_result: 結果格納用のTable
+    :param sa.MetaData db_metadata: 結果格納用のTable
+    """
     __visit_name__ = 'database_diff'
 
     def __init__(self, dialect, connection, diff_result, *args, **kwargs):
+        """
+        consturctor
+
+        :param Any dialect: dialect
+        :param Any connection: connection
+        :param DiffResult diff_result: 結果格納用のTable
+        """
         super(DatabaseDiff, self).__init__()
         self.dialect = dialect
         self.connection = connection
@@ -183,6 +236,13 @@ class DatabaseDiff(SchemaVisitor):
 
 
 def make_sqlcolumn_from_datatype(name, datatype):
+    """schemaの型に応じて、SQLAlchemyのColumnを返す
+
+    :param str name: カラム名
+    :param CRDataType datatype: データ型
+    :return sa.Column: カラム
+    """
+
     assert not name.startswith('_')
     datatype = CRDataType.from_text(datatype)
 
@@ -193,6 +253,6 @@ def make_sqlcolumn_from_datatype(name, datatype):
     elif datatype == CRDataType.TEXT:
         coltype = sa.Text()
     else:
-        assert 0, 'not implmented yet'
+        assert 0, 'not implemented yet'
 
     return sa.Column(name, coltype)
