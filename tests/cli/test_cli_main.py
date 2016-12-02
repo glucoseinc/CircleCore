@@ -40,8 +40,10 @@ class TestCliMain(object):
         assert result.output == '\n'.join(expected['output']) + '\n'
 
     @pytest.mark.parametrize(('main_param_uuid', 'expected'), [
-        (['--uuid', '12121212-3434-5656-7878-909090909090'],  # main_param_uuid
-         {'output_uuid': '12121212-3434-5656-7878-909090909090'}),  # expected
+        (['--uuid', '12121212-3434-5656-7878-909090909090',
+          '--log-file', '/tmp/log.ltsv'],  # main_param_uuid
+         {'output_uuid': '12121212-3434-5656-7878-909090909090',
+          'output_log_file_path': '/tmp/log.ltsv'}),  # expected
     ])
     def test_main_env_success(self, main_param_uuid, expected):
         # from circle_core.cli import cli_entry
@@ -51,7 +53,9 @@ class TestCliMain(object):
         runner = CliRunner()
         result = runner.invoke(cli_entry, main_params + ['env'])
         assert result.exit_code == 0
-        assert result.output == '\n'.join([config, expected['output_uuid']]) + '\n'
+        assert result.output == '\n'.join([config,
+                                           expected['output_uuid'],
+                                           expected['output_log_file_path']]) + '\n'
 
     def test_main_migrate_failure(self, monkeypatch):
         """`--database`オプションなしでmigrateを呼んだらエラーにする"""

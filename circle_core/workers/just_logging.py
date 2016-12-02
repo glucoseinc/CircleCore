@@ -3,13 +3,14 @@
 """JustLoggingに流れているメッセージを標準出力に出す."""
 
 # system module
-from logging import getLogger
+import logging
 
 # project module
+from circle_core.logger import get_stream_legger
 from ..helpers.nanomsg import Receiver
 from ..helpers.topics import JustLogging
 
-logger = getLogger(__name__)
+logger = get_stream_legger(__name__)
 
 
 def run():

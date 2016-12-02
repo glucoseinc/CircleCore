@@ -5,6 +5,7 @@
 - Python2.7 or Python3.5
 - nanomsg
     - https://github.com/nanomsg/nanomsg
+- MySQL
 
 ## Installation
 ### Setup virtualenv
@@ -29,19 +30,30 @@ $ pip install http://cdn.mysql.com//Downloads/Connector-Python/mysql-connector-p
 $ pip install '.[test,redis,mysql]'
 ```
 
-If you want to install CircleCore as development, use `-e` option
+If you want to install CircleCore as development, use `-e` option.
 
 
 ## Usage
+### Set environment variable
 ```bash
-$ crcr --config redis://localhost:6379/0 --uuid ... server run
+$ export CRCR_CONFIG=redis://localhost:6379/0
+$ export CRCR_UUID=...
+$ export CRCR_DATABASE=mysql+mysqlconnector://root@localhost/crcr
 ```
 
+or grant arguments at command excution.
+```bash
+$ crcr --config redis://localhost:6379/0 --uuid ... subcommand
+```
+
+### Run server
+```bash
+$ crcr server run
+```
 
 ### Build document
-
 ```bash
 $ tox -e sphinx
 ```
 
-see doc/README.md
+see doc/README.md .

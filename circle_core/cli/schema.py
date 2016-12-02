@@ -127,6 +127,7 @@ def schema_add(ctx, display_name, name_and_types):
     schema = Schema(schema_uuid, display_name, **properties)
 
     config.register_schema(schema)
+    context_object.log_info('schema add', uuid=schema.uuid)
     click.echo('Schema "{}" is added.'.format(schema.uuid))
 
 
@@ -151,4 +152,5 @@ def schema_remove(ctx, schema_uuid):
         click.echo('Schema "{}" is not registered. Do nothing.'.format(schema_uuid))
         ctx.exit(code=-1)
     config.unregister_schema(schema)
+    context_object.log_info('schema remove', uuid=schema_uuid)
     click.echo('Schema "{}" is removed.'.format(schema_uuid))

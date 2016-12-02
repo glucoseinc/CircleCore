@@ -17,10 +17,11 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.schema import CreateColumn, SchemaVisitor
 import sqlalchemy.sql.ddl
 
+# project module
 from circle_core.exceptions import MigrationError
+from circle_core.logger import get_stream_legger
 from .constants import CRDataType
 
-# community module
 if PY3:
     from typing import List
 
@@ -31,7 +32,7 @@ TABLE_OPTIONS = {
     'mysql_charset': 'utf8mb4',
 }
 # TODO temporary
-logger = logging.getLogger('crcr.database')
+logger = get_stream_legger('crcr.database')
 
 
 class Database(object):

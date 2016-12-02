@@ -1,0 +1,5 @@
+time:2016-12-02T17:17:55+0900	user_id:0	operation:device update	details:uuid=e201d6c8-7a56-4264-90eb-cc2eb689f6fc
+time:2016-12-02T17:17:55+0900	user_id:0	operation:schema add	details:uuid=3338a4e7-4e8e-480f-b6fd-9d9e5855ed2e
+time:2016-12-02T17:17:55+0900	user_id:0	operation:schema add	details:uuid=07619f49-d226-431e-b6b0-690e9983b032
+time:2016-12-02T17:17:56+0900	user_id:0	operation:schema remove	details:uuid=07619f49-d226-431e-b6b0-690e9983b032
+time:2016-12-02T17:28:09+0900	user_id:0	operation:log write test
