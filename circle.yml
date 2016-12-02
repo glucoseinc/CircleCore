@@ -1,6 +1,7 @@
 general:
   artifacts:
     - "htmlcov"
+    - doc/build/html
 
 machine:
   environment:

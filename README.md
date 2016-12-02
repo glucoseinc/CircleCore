@@ -36,3 +36,12 @@ If you want to install CircleCore as development, use `-e` option
 ```bash
 $ crcr --config redis://localhost:6379/0 --uuid ... server run
 ```
+
+
+### Build document
+
+```bash
+$ tox -e sphinx
+```
+
+see doc/README.md
