@@ -8,7 +8,7 @@ from time import sleep
 
 # community module
 from click import get_current_context
-from nnpy import AF_SP, PUB, Socket, SUB, SUB_SUBSCRIBE
+import nnpy
 from six import add_metaclass, PY3
 
 if PY3:
@@ -35,12 +35,19 @@ class Receiver(object):
 
     def __init__(self):
         """接続を開く."""
-        self.__socket = Socket(AF_SP, SUB)
+        self.__socket = nnpy.Socket(nnpy.AF_SP, nnpy.SUB)
         self.__socket.connect(get_ipc_socket_path())
 
     def __del__(self):
         """接続を閉じる."""
         self.__socket.close()
+
+    def set_timeout(self, timeout):
+        """タイムアウトを設定する
+
+        :param int timeout: タイムアウト millisecond
+        """
+        self.__socket.setsockopt(nnpy.SOL_SOCKET, nnpy.RCVTIMEO, timeout)
 
     def incoming_messages(self, topic):
         """メッセージを受信次第それを返すジェネレータ.
@@ -48,10 +55,16 @@ class Receiver(object):
         :param TopicBase topic:
         :return unicode: 受信したメッセージ
         """
-        self.__socket.setsockopt(SUB, SUB_SUBSCRIBE, topic.justify())
+        self.__socket.setsockopt(nnpy.SUB, nnpy.SUB_SUBSCRIBE, topic.topic)
         while True:
             # TODO: 接続切れたときにStopIterationしたいが自分でheartbeatを実装したりしないといけないのかな
-            msg = self.__socket.recv().decode('utf-8')
+            try:
+                msg = self.__socket.recv().decode('utf-8')
+            except nnpy.NNError as error:
+                if error.error_no == nnpy.ETIMEDOUT:
+                    break
+                raise
+
             try:
                 yield topic.decode_json(msg)
             except JSONDecodeError:
@@ -65,7 +78,7 @@ class Singleton(type):
     # インスタンスに()が付いたときに呼び出されるのが__call__
     # メタクラスのインスタンスはクラス
     # クラス名()で呼び出され、そのクラスのインスタンスを生成して返す
-    def __call__(cls, *args, **kwargs):
+    def __call__(cls, *args, **kwargs):  # noqa
         if cls not in cls.__instances:
             cls.__instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls.__instances[cls]
@@ -80,10 +93,10 @@ class Sender(object):
 
     def __init__(self):
         """接続を開く."""
-        self.__socket = Socket(AF_SP, PUB)
+        self.__socket = nnpy.Socket(nnpy.AF_SP, nnpy.PUB)
         self.__socket.bind(get_ipc_socket_path())
         # 同じアドレスにbindできるのは一度に一つのSocketだけ
-        sleep(0.1)
+        sleep(0.5)
         # おそらくbindが完了するまでブロックされていない
         # bindの直後にsendしても届かなかった
 

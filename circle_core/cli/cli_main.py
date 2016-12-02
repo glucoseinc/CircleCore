@@ -2,9 +2,10 @@
 
 """CLI Main."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 from multiprocessing import Process
+import sys
 from uuid import UUID
 
 # community module
@@ -66,12 +67,15 @@ def cli_main_env(ctx):
 @click.option('--wui-port', type=click.INT, envvar='CRCR_WUIPORT', default=5000)
 @click.option('--ipc-socket', type=click.Path(resolve_path=True), envvar='CRCR_IPCSOCK', default='/tmp/circlecore.ipc')
 @click.option('workers', '--worker', type=click.STRING, envvar='CRCR_WORKERS', multiple=True)
+@click.option('database_url', '--database', envvar='CRCR_DATABASE')
 @click.pass_obj
-def cli_main_run(obj, ws_port, ws_path, wui_port, ipc_socket, workers):
+def cli_main_run(obj, ws_port, ws_path, wui_port, ipc_socket, workers, database_url):
     """CircleCoreの起動."""
     obj.ipc_socket = 'ipc://' + ipc_socket
+    core_config = obj.config
+    core_config.database_url = database_url  # とりあえず...
 
-    procs = [Process(target=get_worker(worker).run) for worker in workers]
+    procs = [Process(target=get_worker(worker).run, args=(core_config,)) for worker in workers]
     if ws_port == wui_port:
         procs.append(Process(target=server.run, args=[wui_port, obj.config]))
     else:
@@ -80,6 +84,12 @@ def cli_main_run(obj, ws_port, ws_path, wui_port, ipc_socket, workers):
             Process(target=ws.run, args=[ws_path, ws_port]),
             Process(target=app.run, kwargs={'port': wui_port})
         ]
+
+    print(
+        'Websocket : ws://{host}:{port}{path}'.format(path=ws_path, port=ws_port, host='127.0.0.1'),
+        file=sys.stderr)
+    print('WebUI : http://127.0.0.1:{port}{path}'.format(path='/', port=ws_port), file=sys.stderr)
+    print('IPC : {}'.format(obj.ipc_socket), file=sys.stderr)
 
     for proc in procs:
         proc.daemon = True

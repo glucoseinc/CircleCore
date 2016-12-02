@@ -31,7 +31,7 @@ def echo(receive_from, send_to):
         i += 1
         msg = receiver.recv()
         sender.send(msg)
-        click.echo('I sent a message {} times'.format(i))
+        # click.echo('I sent a message {} times'.format(i))
 
 
 @cli_bot.command()
