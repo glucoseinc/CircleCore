@@ -2,6 +2,7 @@
 
 # system module
 from abc import ABCMeta, abstractmethod, abstractproperty
+from uuid import UUID
 
 # community module
 from six import PY3
@@ -80,25 +81,31 @@ class Config(object):
         """
         raise NotImplementedError
 
-    def matched_schema(self, schema_uuid):
+    def find_schema(self, schema_uuid):
         """スキーマリストからUUIDがマッチするものを取得する.
 
         :param str schema_uuid: 取得するスキーマのUUID
         :return: マッチしたスキーマ
         :rtype: Optional[Schema]
         """
+        if not isinstance(schema_uuid, UUID):
+            schema_uuid = UUID(schema_uuid)
+
         for schema in self.schemas:
             if schema.uuid == schema_uuid:
                 return schema
         return None
 
-    def matched_device(self, device_uuid):
+    def find_device(self, device_uuid):
         """デバイスリストから表示名がマッチするものを取得する.
 
         :param str device_uuid: 取得するデバイスのUUID
         :return: マッチしたスキーマ
         :rtype: Optional[Device]
         """
+        if not isinstance(device_uuid, UUID):
+            device_uuid = UUID(device_uuid)
+
         for device in self.devices:
             if device.uuid == device_uuid:
                 return device

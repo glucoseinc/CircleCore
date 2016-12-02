@@ -4,12 +4,13 @@
 
 # system module
 import re
+from uuid import UUID
 
 # community module
 from six import PY3
 
 if PY3:
-    from typing import List, Optional
+    from typing import List, Optional, Union
 
 
 class SchemaProperty(object):
@@ -32,7 +33,7 @@ class SchemaProperty(object):
 class Schema(object):
     """Schemaオブジェクト.
 
-    :param str uuid: Schema UUID
+    :param UUID uuid: Schema UUID
     :param Optional[str] display_name: 表示名
     :param List[SchemaProperty] properties: プロパティ
     """
@@ -40,9 +41,12 @@ class Schema(object):
     def __init__(self, uuid, display_name=None, **kwargs):
         """init.
 
-        :param str uuid: Schema UUID
+        :param Union[str, UUID] uuid: Schema UUID
         :param Optional[str] display_name: 表示名
         """
+        if not isinstance(uuid, UUID):
+            uuid = UUID(uuid)
+
         self.uuid = uuid
         self.display_name = display_name
         self.properties = []

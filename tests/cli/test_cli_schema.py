@@ -5,8 +5,8 @@ import re
 from click.testing import CliRunner
 import pytest
 
-from circle_core.cli import cli_main
-from tests import flushall_redis_server, redis_server, url_scheme_ini_file
+from circle_core.cli import cli_entry
+from tests import url_scheme_ini_file
 
 
 class TestCliSchema(object):
@@ -20,7 +20,7 @@ class TestCliSchema(object):
     ])
     def test_schema_list(self, main_params, expected_output_length):
         runner = CliRunner()
-        result = runner.invoke(cli_main, main_params + ['schema', 'list'])
+        result = runner.invoke(cli_entry, main_params + ['schema', 'list'])
         assert result.exit_code == 0
         assert len(result.output.split('\n')) == expected_output_length
 
@@ -42,7 +42,7 @@ class TestCliSchema(object):
     ])
     def test_schema_detail(self, main_params, schema_detail_params, expected_exit_code, expected_output_length):
         runner = CliRunner()
-        result = runner.invoke(cli_main, main_params + ['schema', 'detail'] + schema_detail_params)
+        result = runner.invoke(cli_entry, main_params + ['schema', 'detail'] + schema_detail_params)
         assert result.exit_code == expected_exit_code
         assert len(result.output.split('\n')) == expected_output_length
 
@@ -65,7 +65,7 @@ class TestCliSchema(object):
     ])
     def test_schema_add_failure(self, main_params, schema_add_params, expected_exit_code, expected_output):
         runner = CliRunner()
-        result = runner.invoke(cli_main, main_params + ['schema', 'add'] + schema_add_params)
+        result = runner.invoke(cli_entry, main_params + ['schema', 'add'] + schema_add_params)
         assert result.exit_code == expected_exit_code
         assert result.output == expected_output
 
@@ -79,7 +79,7 @@ class TestCliSchema(object):
     ])
     def test_schema_add_success(self, schema_add_params, expected_exit_code, expected_output_regexp):
         runner = CliRunner()
-        result = runner.invoke(cli_main, ['schema', 'add'] + schema_add_params)
+        result = runner.invoke(cli_entry, ['schema', 'add'] + schema_add_params)
         assert result.exit_code == expected_exit_code
         assert re.match(expected_output_regexp, result.output) is not None
 
@@ -97,7 +97,7 @@ class TestCliSchema(object):
     ])
     def test_schema_remove_failure(self, main_params, schema_remove_params, expected_exit_code, expected_output):
         runner = CliRunner()
-        result = runner.invoke(cli_main, main_params + ['schema', 'remove'] + schema_remove_params)
+        result = runner.invoke(cli_entry, main_params + ['schema', 'remove'] + schema_remove_params)
         assert result.exit_code == expected_exit_code
         assert result.output == expected_output
 
@@ -105,10 +105,10 @@ class TestCliSchema(object):
     def test_schema_remove_success(self):
         # setup
         runner = CliRunner()
-        result = runner.invoke(cli_main, ['schema', 'add', 'key:int'])
+        result = runner.invoke(cli_entry, ['schema', 'add', 'key:int'])
         uuid = result.output.split()[1][1:-1]  # Schema "{uuid}" is added.\n
 
         # test
-        result = runner.invoke(cli_main, ['schema', 'remove', uuid])
+        result = runner.invoke(cli_entry, ['schema', 'remove', uuid])
         assert result.exit_code == 0
         assert result.output == 'Schema "{}" is removed.\n'.format(uuid)

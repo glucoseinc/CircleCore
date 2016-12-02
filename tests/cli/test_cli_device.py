@@ -4,8 +4,8 @@ import re
 from click.testing import CliRunner
 import pytest
 
-from circle_core.cli import cli_main
-from tests import flushall_redis_server, redis_server, url_scheme_ini_file
+from circle_core.cli import cli_entry
+from tests import url_scheme_ini_file
 
 
 class TestCliDevice(object):
@@ -19,7 +19,7 @@ class TestCliDevice(object):
     ])
     def test_device_list(self, main_params, expected_output_length):
         runner = CliRunner()
-        result = runner.invoke(cli_main, main_params + ['device', 'list'])
+        result = runner.invoke(cli_entry, main_params + ['device', 'list'])
         assert result.exit_code == 0
         len(result.output.split('\n')) == expected_output_length
 
@@ -36,7 +36,7 @@ class TestCliDevice(object):
     ])
     def test_device_detail(self, main_params, device_detail_params, expected_exit_code, expected_output_length):
         runner = CliRunner()
-        result = runner.invoke(cli_main, main_params + ['device', 'detail'] + device_detail_params)
+        result = runner.invoke(cli_entry, main_params + ['device', 'detail'] + device_detail_params)
         assert result.exit_code == expected_exit_code
         assert len(result.output.split('\n')) == expected_output_length
 
@@ -58,7 +58,7 @@ class TestCliDevice(object):
     ])
     def test_device_add_failure(self, main_params, device_add_params, expected_exit_code, expected_output):
         runner = CliRunner()
-        result = runner.invoke(cli_main, main_params + ['device', 'add'] + device_add_params)
+        result = runner.invoke(cli_entry, main_params + ['device', 'add'] + device_add_params)
         assert result.exit_code == expected_exit_code
         assert result.output == expected_output
 
@@ -66,7 +66,7 @@ class TestCliDevice(object):
     def test_device_add_failure_invalid_argument(self):
         # setup
         runner = CliRunner()
-        result = runner.invoke(cli_main, ['schema', 'add', 'key:int'])
+        result = runner.invoke(cli_entry, ['schema', 'add', 'key:int'])
         schema_uuid = result.output.split()[1][1:-1]  # Schema "{uuid}" is added.\n
 
         # test
@@ -75,7 +75,7 @@ class TestCliDevice(object):
                              '--property', 'name=new_device,group=k_dai']
         expected_output = 'Argument "property" is invalid : name=new_device. Do nothing.\n' \
                           'Argument "property" format must be "name1:type1,name2:type2...".\n'
-        result = runner.invoke(cli_main, ['device', 'add'] + device_add_params)
+        result = runner.invoke(cli_entry, ['device', 'add'] + device_add_params)
         assert result.exit_code == -1
         assert result.output == expected_output
 
@@ -83,7 +83,7 @@ class TestCliDevice(object):
     def test_device_add_success(self):
         # setup
         runner = CliRunner()
-        result = runner.invoke(cli_main, ['schema', 'add', 'key:int'])
+        result = runner.invoke(cli_entry, ['schema', 'add', 'key:int'])
         schema_uuid = result.output.split()[1][1:-1]  # Schema "{uuid}" is added.\n
 
         # test
@@ -93,7 +93,7 @@ class TestCliDevice(object):
         expected_output_regexp = r'Device ' \
                                  r'"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"' \
                                  r' is added.\n'
-        result = runner.invoke(cli_main, ['device', 'add'] + device_add_params)
+        result = runner.invoke(cli_entry, ['device', 'add'] + device_add_params)
         assert result.exit_code == 0
         assert re.match(expected_output_regexp, result.output) is not None
 
@@ -111,7 +111,7 @@ class TestCliDevice(object):
     ])
     def test_device_remove_failure(self, main_params, device_remove_params, expected_exit_code, expected_output):
         runner = CliRunner()
-        result = runner.invoke(cli_main, main_params + ['device', 'remove'] + device_remove_params)
+        result = runner.invoke(cli_entry, main_params + ['device', 'remove'] + device_remove_params)
         assert result.exit_code == expected_exit_code
         assert result.output == expected_output
 
@@ -119,17 +119,17 @@ class TestCliDevice(object):
     def test_device_remove_success(self):
         # setup
         runner = CliRunner()
-        result = runner.invoke(cli_main, ['schema', 'add', 'key:int'])
+        result = runner.invoke(cli_entry, ['schema', 'add', 'key:int'])
         schema_uuid = result.output.split()[1][1:-1]  # Schema "{uuid}" is added.\n
 
         device_add_params = ['--name', 'device_name',
                              '--schema', schema_uuid,
                              '--property', 'name:new_device,group:k_dai']
-        result = runner.invoke(cli_main, ['device', 'add'] + device_add_params)
+        result = runner.invoke(cli_entry, ['device', 'add'] + device_add_params)
         device_uuid = result.output.split()[1][1:-1]  # Device "{uuid}" is added.\n
 
         # test
-        result = runner.invoke(cli_main, ['device', 'remove', device_uuid])
+        result = runner.invoke(cli_entry, ['device', 'remove', device_uuid])
         assert result.exit_code == 0
         assert result.output == 'Device "{}" is removed.\n'.format(device_uuid)
 
@@ -149,7 +149,7 @@ class TestCliDevice(object):
     ])
     def test_device_property_failure(self, main_params, device_property_params, expected_exit_code, expected_output):
         runner = CliRunner()
-        result = runner.invoke(cli_main, main_params + ['device', 'property'] + device_property_params)
+        result = runner.invoke(cli_entry, main_params + ['device', 'property'] + device_property_params)
         assert result.exit_code == expected_exit_code
         assert result.output == expected_output
 
@@ -170,18 +170,18 @@ class TestCliDevice(object):
                                                       expected_output):
         # setup
         runner = CliRunner()
-        result = runner.invoke(cli_main, ['schema', 'add', 'key:int'])
+        result = runner.invoke(cli_entry, ['schema', 'add', 'key:int'])
         schema_uuid = result.output.split()[1][1:-1]  # Schema "{uuid}" is added.\n
 
         device_add_params = ['--name', 'device_name',
                              '--schema', schema_uuid,
                              '--property', 'name:new_device,group:k_dai']
-        result = runner.invoke(cli_main, ['device', 'add'] + device_add_params)
+        result = runner.invoke(cli_entry, ['device', 'add'] + device_add_params)
         device_uuid = result.output.split()[1][1:-1]  # Device "{uuid}" is added.\n
 
         # test
         device_property_params = device_property_params_without_uuid + [device_uuid]
-        result = runner.invoke(cli_main, ['device', 'property'] + device_property_params)
+        result = runner.invoke(cli_entry, ['device', 'property'] + device_property_params)
         assert result.exit_code == expected_exit_code
         assert result.output == expected_output
 
@@ -189,25 +189,25 @@ class TestCliDevice(object):
     def test_device_property_success(self):
         # setup
         runner = CliRunner()
-        result = runner.invoke(cli_main, ['schema', 'add', 'key:int'])
+        result = runner.invoke(cli_entry, ['schema', 'add', 'key:int'])
         schema_uuid = result.output.split()[1][1:-1]  # Schema "{uuid}" is added.\n
 
         device_add_params = ['--name', 'device_name',
                              '--schema', schema_uuid,
                              '--property', 'name:new_device,group:k_dai']
-        result = runner.invoke(cli_main, ['device', 'add'] + device_add_params)
+        result = runner.invoke(cli_entry, ['device', 'add'] + device_add_params)
         device_uuid = result.output.split()[1][1:-1]  # Device "{uuid}" is added.\n
 
         # test
         device_property_params = ['--add', 'position:south,start_at:20111211',
                                   '--remove', 'group',
                                   device_uuid]
-        result = runner.invoke(cli_main, ['device', 'property'] + device_property_params)
+        result = runner.invoke(cli_entry, ['device', 'property'] + device_property_params)
         assert result.exit_code == 0
         assert result.output == 'Device "{}" is updated.\n'.format(device_uuid)
 
         device_property_params = ['--add', 'position:east',
                                   device_uuid]
-        result = runner.invoke(cli_main, ['device', 'property'] + device_property_params)
+        result = runner.invoke(cli_entry, ['device', 'property'] + device_property_params)
         assert result.exit_code == 0
         assert result.output == 'Device "{}" is updated.\n'.format(device_uuid)

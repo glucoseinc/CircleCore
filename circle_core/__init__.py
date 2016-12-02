@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-
 """CircleCore."""
 
 # system module
-from logging import basicConfig, DEBUG
+from logging import basicConfig, DEBUG, Formatter, StreamHandler
 import sys
 
 

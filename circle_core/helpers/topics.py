@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """nanomsgでPubSubする際のTopic(部屋名)を表すクラス群."""
 import json

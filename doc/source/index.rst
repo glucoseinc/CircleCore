@@ -8,6 +8,8 @@ Welcome to CircleCore's documentation!
 
 Contents:
 
+:doc:`apis/modules`
+
 .. toctree::
    :maxdepth: 2
 

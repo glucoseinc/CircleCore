@@ -2,6 +2,8 @@
 
 """CLI Device."""
 
+from uuid import UUID
+
 # community module
 import click
 from click.core import Context
@@ -54,12 +56,12 @@ def _format_for_columns(devices):
     data = []  # type: List[List[str]]
     for device in devices:
         display_name = device.display_name or ''
-        data.append([device.uuid, display_name, device.schema_uuid, device.stringified_properties])
+        data.append([str(device.uuid), display_name, str(device.schema_uuid), device.stringified_properties])
     return data, header
 
 
 @cli_device.command('detail')
-@click.argument('device_uuid')
+@click.argument('device_uuid', type=UUID)
 @click.pass_context
 def device_detail(ctx, device_uuid):
     """デバイスの詳細を表示する.
@@ -70,15 +72,15 @@ def device_detail(ctx, device_uuid):
     context_object = ctx.obj  # type: ContextObject
     config = context_object.config
 
-    device = config.matched_device(device_uuid)
+    device = config.find_device(device_uuid)
     if device is None:
         click.echo('Device "{}" is not registered.'.format(device_uuid))
         ctx.exit(code=-1)
 
     data = [
-        ('UUID', device.uuid),
+        ('UUID', str(device.uuid)),
         ('DISPLAY_NAME', device.display_name or ''),
-        ('SCHEMA_UUID', device.schema_uuid),
+        ('SCHEMA_UUID', str(device.schema_uuid)),
     ]
     for i, prop in enumerate(device.properties):
         data.append(('PROPERTIES' if i == 0 else '', '{}:{}'.format(prop.name, prop.value)))
@@ -90,7 +92,7 @@ def device_detail(ctx, device_uuid):
 
 @cli_device.command('add')
 @click.option('display_name', '--name')
-@click.option('schema_uuid', '--schema')
+@click.option('schema_uuid', '--schema', type=UUID)
 @click.option('properties_string', '--property')
 @click.option('--active/--inactive')
 @click.pass_context
@@ -112,7 +114,7 @@ def device_add(ctx, display_name, schema_uuid, properties_string, active):
 
     device_uuid = generate_uuid(existing=[device.uuid for device in config.devices])
 
-    schema = config.matched_schema(schema_uuid)
+    schema = config.find_schema(schema_uuid)
     if schema is None:
         click.echo('Schema "{}" is not exist. Do nothing.'.format(schema_uuid))
         ctx.exit(code=-1)
@@ -136,7 +138,7 @@ def device_add(ctx, display_name, schema_uuid, properties_string, active):
 
 
 @cli_device.command('remove')
-@click.argument('device_uuid')
+@click.argument('device_uuid', type=UUID)
 @click.pass_context
 def device_remove(ctx, device_uuid):
     """デバイスを削除する.
@@ -151,7 +153,7 @@ def device_remove(ctx, device_uuid):
         click.echo('Cannot remove from {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
-    device = config.matched_device(device_uuid)
+    device = config.find_device(device_uuid)
     if device is None:
         click.echo('Device "{}" is not registered. Do nothing.'.format(device_uuid))
         ctx.exit(code=-1)
@@ -162,7 +164,7 @@ def device_remove(ctx, device_uuid):
 @cli_device.command('property')
 @click.option('adding_properties_string', '--add')
 @click.option('removing_property_names_string', '--remove')
-@click.argument('device_uuid')
+@click.argument('device_uuid', type=UUID)
 @click.pass_context
 def device_property(ctx, adding_properties_string, removing_property_names_string, device_uuid):
     """デバイスのプロパティを更新する.
@@ -179,7 +181,7 @@ def device_property(ctx, adding_properties_string, removing_property_names_strin
         click.echo('Cannot edit {}.'.format(config.stringified_type))
         ctx.exit(code=-1)
 
-    device = config.matched_device(device_uuid)
+    device = config.find_device(device_uuid)
     if device is None:
         click.echo('Device "{}" is not registered. Do nothing.'.format(device_uuid))
         ctx.exit(code=-1)

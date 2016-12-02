@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/glucoseinc/CircleCore.svg?style=svg&circle-token=13e263f3101ee208b64500d73c5f3741a8c8aa97)](https://circleci.com/gh/glucoseinc/CircleCore)
+
 # Circle Core
 ## Requirements
 - Python2.7 or Python3.5

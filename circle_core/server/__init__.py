@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """WebSocketはTornado, HTTPはFlaskで捌く."""
 from tornado.ioloop import IOLoop

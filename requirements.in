@@ -1,4 +1,5 @@
 # For development
+-e git://github.com/nanomsg/nnpy.git#egg=nnpy  # PyPI version is not updated
 coverage
 flake8
 flake8-import-order
