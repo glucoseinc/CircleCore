@@ -14,7 +14,7 @@ def redis_server(request):
     server = tcptest.redis.Server()
     server.start()
 
-    os.environ['CRCR_CONFIG'] = 'redis://localhost:{}/0'.format(server.port)
+    os.environ['CRCR_METADATA'] = 'redis://localhost:{}/0'.format(server.port)
     os.environ['CRCR_UUID'] = '00000000-1111-2222-3333-444444444444'
     os.environ['CRCR_LOG_FILE_PATH'] = '/tmp/test_log.ltsv'
 
@@ -32,12 +32,12 @@ def flushall_redis_server(redis_server):
 
 @pytest.fixture()
 def remove_environ(request):
-    crcr_config = os.environ.pop('CRCR_CONFIG')
+    crcr_metadata = os.environ.pop('CRCR_METADATA')
     crcr_uuid = os.environ.pop('CRCR_UUID')
     crcr_log_file_path = os.environ.pop('CRCR_LOG_FILE_PATH')
 
     def at_exit():
-        os.environ['CRCR_CONFIG'] = crcr_config
+        os.environ['CRCR_METADATA'] = crcr_metadata
         os.environ['CRCR_UUID'] = crcr_uuid
         os.environ['CRCR_LOG_FILE_PATH'] = crcr_log_file_path
 

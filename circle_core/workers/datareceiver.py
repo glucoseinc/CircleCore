@@ -14,6 +14,7 @@ from ..database import Database
 from ..exceptions import DatabaseMismatchError, DeviceNotFoundError, SchemaNotFoundError
 from ..helpers.nanomsg import Receiver
 from ..helpers.topics import SensorDataTopic
+from ..models import Metadata
 
 if PY3:
     from typing import Any, Dict
@@ -22,27 +23,27 @@ if PY3:
 logger = get_stream_legger(__name__)
 
 
-def run(config):
+def run(metadata):
     """clickから起動される.
 
     とりあえず現時点ではパケット毎にcommitする
     将来的には時間 or パケット数でcommitするようにしたい
     """
     # TODO: Temoprary
-    config.data_receiver_cycle_time = 10 * 1000
-    config.data_receiver_cycle_count = 10
+    metadata.data_receiver_cycle_time = 10 * 1000
+    metadata.data_receiver_cycle_count = 10
 
     topic = SensorDataTopic()
     receiver = Receiver()
-    receiver.set_timeout(config.data_receiver_cycle_time)
+    receiver.set_timeout(metadata.data_receiver_cycle_time)
 
-    db = Database(config.database_url)
-    db.register_schemas_and_devices(config.schemas, config.devices)
+    db = Database(metadata.database_url)
+    db.register_schemas_and_devices(metadata.schemas, metadata.devices)
 
     if not db.check_tables().is_ok:
         raise
 
-    app = CRCRApp(config)
+    app = CRCRApp(metadata)
     conn = db._engine.connect()
 
     trans = conn.begin()
@@ -76,7 +77,7 @@ def run(config):
                     pass
 
                 last_commit_count += len(payload)
-                if last_commit_count >= config.data_receiver_cycle_count:
+                if last_commit_count >= metadata.data_receiver_cycle_count:
                     break
         except:
             trans.rollback()
@@ -95,17 +96,17 @@ def run(config):
 
 class CRCRApp(object):
     """
-    CircleCoreの情報をやりとりするクラス。config直接さわるのはアレなので。
+    CircleCoreの情報をやりとりするクラス。metadata直接さわるのはアレなので。
 
     とりあえずここに殴り書きしたけど、ちゃんと纏める
     """
-    def __init__(self, config):
+    def __init__(self, metadata):
         """
         @constructor
 
-        :param circle_core.models.config.config_base.Config config: config
+        :param Metadata metadata: metadata
         """
-        self.__config = config
+        self.__metadata = metadata
         self.__devices_cache = {}
         self.__schemas_cache = {}
 
@@ -119,14 +120,14 @@ class CRCRApp(object):
 
         assert isinstance(device_uuid, UUID)
         if device_uuid not in self.__devices_cache:
-            device = self.__config.find_device(device_uuid)
+            device = self.__metadata.find_device(device_uuid)
             self.__devices_cache[device_uuid] = device
         device = self.__devices_cache[device_uuid]
         if not device:
             DeviceNotFoundError
 
         if device.schema_uuid not in self.__schemas_cache:
-            schema = self.__config.find_schema(device.schema_uuid)
+            schema = self.__metadata.find_schema(device.schema_uuid)
             self.__schemas_cache[device.schema_uuid] = schema
         schema = self.__schemas_cache[device.schema_uuid]
         if not schema:

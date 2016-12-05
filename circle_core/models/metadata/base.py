@@ -15,15 +15,15 @@ if PY3:
     from typing import List, Optional
 
 
-class ConfigError(Exception):
+class MetadataError(Exception):
     pass
 
 
 @add_metaclass(ABCMeta)
-class Config(object):
-    """Configオブジェクト.
+class MetadataBase(object):
+    """Metadataオブジェクト.
 
-    :param str stringified_type: Configタイプ(str)
+    :param str stringified_type: Metadataタイプ(str)
     """
 
     stringified_type = 'nothing'
@@ -37,28 +37,28 @@ class Config(object):
     @classmethod
     @abstractmethod
     def parse_url_scheme(cls, url_scheme):
-        """URLスキームからConfigオブジェクトを生成する.
+        """URLスキームからMetadataオブジェクトを生成する.
 
         :param str url_scheme: URLスキーム
-        :return: Configオブジェクト
-        :rtype: Config
+        :return: Metadataオブジェクト
+        :rtype: MetadataBase
         """
         raise NotImplementedError
 
     @abstractproperty
     def readable(self):
-        """Configが読み込み可能か.
+        """Metadataが読み込み可能か.
 
-        :return: Configが読み込み可能か
+        :return: Metadataが読み込み可能か
         :rtype: bool
         """
         raise NotImplementedError
 
     @abstractproperty
     def writable(self):
-        """Configが書き込み可能か.
+        """Metadataが書き込み可能か.
 
-        :return: Configが書き込み可能か
+        :return: Metadataが書き込み可能か
         :rtype: bool
         """
         raise NotImplementedError

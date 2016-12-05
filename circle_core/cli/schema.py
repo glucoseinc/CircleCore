@@ -36,8 +36,8 @@ def schema_list(ctx):
     :param Context ctx: Context
     """
     context_object = ctx.obj  # type: ContextObject
-    config = context_object.config
-    schemas = config.schemas
+    metadata = context_object.metadata
+    schemas = metadata.schemas
     if len(schemas):
         data, header = _format_for_columns(schemas)
         output_listing_columns(data, header)
@@ -70,9 +70,9 @@ def schema_detail(ctx, schema_uuid):
     :param str schema_uuid: スキーマUUID
     """
     context_object = ctx.obj  # type: ContextObject
-    config = context_object.config
+    metadata = context_object.metadata
 
-    schema = config.find_schema(schema_uuid)
+    schema = metadata.find_schema(schema_uuid)
     if schema is None:
         click.echo('Schema "{}" is not registered.'.format(schema_uuid))
         ctx.exit(code=-1)
@@ -84,7 +84,7 @@ def schema_detail(ctx, schema_uuid):
     for i, prop in enumerate(schema.properties):
         data.append(('PROPERTIES' if i == 0 else '', '{}:{}'.format(prop.name, prop.type)))
 
-    devices = [device for device in config.devices if device.schema_uuid == schema_uuid]
+    devices = [device for device in metadata.devices if device.schema_uuid == schema_uuid]
     if len(devices):
         for i, device in enumerate(devices):
             data.append(('Devices' if i == 0 else '', str(device.uuid)))
@@ -106,13 +106,13 @@ def schema_add(ctx, display_name, name_and_types):
     :param List[str] name_and_types: プロパティ
     """
     context_object = ctx.obj  # type: ContextObject
-    config = context_object.config
+    metadata = context_object.metadata
 
-    if not config.writable:
-        click.echo('Cannot register to {}.'.format(config.stringified_type))
+    if not metadata.writable:
+        click.echo('Cannot register to {}.'.format(metadata.stringified_type))
         ctx.exit(code=-1)
 
-    schema_uuid = generate_uuid(existing=[schema.uuid for schema in config.schemas])
+    schema_uuid = generate_uuid(existing=[schema.uuid for schema in metadata.schemas])
 
     properties = {}
     for i, name_and_type in enumerate(name_and_types, start=1):
@@ -126,7 +126,7 @@ def schema_add(ctx, display_name, name_and_types):
         properties['type{}'.format(i)] = _type
     schema = Schema(schema_uuid, display_name, **properties)
 
-    config.register_schema(schema)
+    metadata.register_schema(schema)
     context_object.log_info('schema add', uuid=schema.uuid)
     click.echo('Schema "{}" is added.'.format(schema.uuid))
 
@@ -141,16 +141,16 @@ def schema_remove(ctx, schema_uuid):
     :param str schema_uuid: スキーマUUID
     """
     context_object = ctx.obj  # type: ContextObject
-    config = context_object.config
+    metadata = context_object.metadata
 
-    if not config.writable:
-        click.echo('Cannot remove from {}.'.format(config.stringified_type))
+    if not metadata.writable:
+        click.echo('Cannot remove from {}.'.format(metadata.stringified_type))
         ctx.exit(code=-1)
 
-    schema = config.find_schema(schema_uuid)
+    schema = metadata.find_schema(schema_uuid)
     if schema is None:
         click.echo('Schema "{}" is not registered. Do nothing.'.format(schema_uuid))
         ctx.exit(code=-1)
-    config.unregister_schema(schema)
+    metadata.unregister_schema(schema)
     context_object.log_info('schema remove', uuid=schema_uuid)
     click.echo('Schema "{}" is removed.'.format(schema_uuid))

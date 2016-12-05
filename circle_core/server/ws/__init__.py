@@ -6,11 +6,11 @@ from tornado.web import Application
 from circle_core.server.ws.sensor import SensorHandler
 
 
-def run(config, path, port):
+def run(metadata, path, port):
     """Tornadoサーバーを立てる.
 
     :param str path:
     :param int part:
     """
-    Application([(path, SensorHandler)], cr_config=config).listen(port)
+    Application([(path, SensorHandler)], cr_metadata=metadata).listen(port)
     IOLoop.current().start()

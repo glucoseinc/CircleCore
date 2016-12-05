@@ -36,8 +36,8 @@ def device_list(ctx):
     :param Context ctx: Context
     """
     context_object = ctx.obj  # type: ContextObject
-    config = context_object.config
-    devices = config.devices
+    metadata = context_object.metadata
+    devices = metadata.devices
     if len(devices):
         data, header = _format_for_columns(devices)
         output_listing_columns(data, header)
@@ -70,9 +70,9 @@ def device_detail(ctx, device_uuid):
     :param str device_uuid: デバイスUUID
     """
     context_object = ctx.obj  # type: ContextObject
-    config = context_object.config
+    metadata = context_object.metadata
 
-    device = config.find_device(device_uuid)
+    device = metadata.find_device(device_uuid)
     if device is None:
         click.echo('Device "{}" is not registered.'.format(device_uuid))
         ctx.exit(code=-1)
@@ -106,15 +106,15 @@ def device_add(ctx, display_name, schema_uuid, properties_string, active):
     :param bool active:
     """
     context_object = ctx.obj  # type: ContextObject
-    config = context_object.config
+    metadata = context_object.metadata
 
-    if not config.writable:
-        click.echo('Cannot register to {}.'.format(config.stringified_type))
+    if not metadata.writable:
+        click.echo('Cannot register to {}.'.format(metadata.stringified_type))
         ctx.exit(code=-1)
 
-    device_uuid = generate_uuid(existing=[device.uuid for device in config.devices])
+    device_uuid = generate_uuid(existing=[device.uuid for device in metadata.devices])
 
-    schema = config.find_schema(schema_uuid)
+    schema = metadata.find_schema(schema_uuid)
     if schema is None:
         click.echo('Schema "{}" is not exist. Do nothing.'.format(schema_uuid))
         ctx.exit(code=-1)
@@ -133,7 +133,7 @@ def device_add(ctx, display_name, schema_uuid, properties_string, active):
     device = Device(device_uuid, schema.uuid, display_name, **properties)
     # TODO: activeの扱い
 
-    config.register_device(device)
+    metadata.register_device(device)
     context_object.log_info('device add', uuid=device.uuid)
     click.echo('Device "{}" is added.'.format(device.uuid))
 
@@ -148,17 +148,17 @@ def device_remove(ctx, device_uuid):
     :param str device_uuid: デバイスUUID
     """
     context_object = ctx.obj  # type: ContextObject
-    config = context_object.config
+    metadata = context_object.metadata
 
-    if not config.writable:
-        click.echo('Cannot remove from {}.'.format(config.stringified_type))
+    if not metadata.writable:
+        click.echo('Cannot remove from {}.'.format(metadata.stringified_type))
         ctx.exit(code=-1)
 
-    device = config.find_device(device_uuid)
+    device = metadata.find_device(device_uuid)
     if device is None:
         click.echo('Device "{}" is not registered. Do nothing.'.format(device_uuid))
         ctx.exit(code=-1)
-    config.unregister_device(device)
+    metadata.unregister_device(device)
     context_object.log_info('device remove', uuid=device_uuid)
     click.echo('Device "{}" is removed.'.format(device_uuid))
 
@@ -177,13 +177,13 @@ def device_property(ctx, adding_properties_string, removing_property_names_strin
     :param str device_uuid: デバイスUUID
     """
     context_object = ctx.obj  # type: ContextObject
-    config = context_object.config
+    metadata = context_object.metadata
 
-    if not config.writable:
-        click.echo('Cannot edit {}.'.format(config.stringified_type))
+    if not metadata.writable:
+        click.echo('Cannot edit {}.'.format(metadata.stringified_type))
         ctx.exit(code=-1)
 
-    device = config.find_device(device_uuid)
+    device = metadata.find_device(device_uuid)
     if device is None:
         click.echo('Device "{}" is not registered. Do nothing.'.format(device_uuid))
         ctx.exit(code=-1)
@@ -209,6 +209,6 @@ def device_property(ctx, adding_properties_string, removing_property_names_strin
             adding_properties.append((name, value))
         device.append_properties(adding_properties)
 
-    config.update_device(device)
+    metadata.update_device(device)
     context_object.log_info('device update', uuid=device_uuid)
     click.echo('Device "{}" is updated.'.format(device_uuid))

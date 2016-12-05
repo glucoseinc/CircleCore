@@ -24,8 +24,8 @@ class SensorHandler(WebSocketHandler):
         """センサーとの接続が開いた際に呼ばれる."""
         # Senderはシングルトンだが今のところインスタンス生成の直後にsendできないので予め作っておく
 
-        # TODO: cr_config周りは作り直す
-        device = self.application.settings['cr_config'].find_device(device_uuid)
+        # TODO: cr_metadata周りは作り直す
+        device = self.application.settings['cr_metadata'].find_device(device_uuid)
         if not device:
             raise DeviceNotFoundError('device {} not found'.format(device_uuid))
 

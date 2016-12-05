@@ -6,7 +6,7 @@ Subpackages
 
 .. toctree::
 
-    circle_core.models.config
+    circle_core.models.metadata
 
 Submodules
 ----------

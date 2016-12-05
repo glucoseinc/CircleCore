@@ -4,7 +4,7 @@
 from six import PY2
 
 # project module
-from .config_base import Config, ConfigError
+from .base import MetadataBase, MetadataError
 from ..device import Device
 from ..schema import Schema
 
@@ -16,8 +16,8 @@ else:
     import configparser
 
 
-class ConfigIniFile(Config):
-    """ConfigIniFileオブジェクト.
+class MetadataIniFile(MetadataBase):
+    """MetadataIniFileオブジェクト.
 
     :param str ini_file_path: INIファイルパス
     """
@@ -29,13 +29,13 @@ class ConfigIniFile(Config):
 
         :param str ini_file_path: INIファイルパス
         """
-        super(ConfigIniFile, self).__init__()
+        super(MetadataIniFile, self).__init__()
         self.ini_file_path = ini_file_path
 
     @classmethod
     def parse_url_scheme(cls, url_scheme):
         ini_file_path = urlparse(url_scheme).path
-        return ConfigIniFile(ini_file_path)
+        return MetadataIniFile(ini_file_path)
 
     @property
     def readable(self):
@@ -60,16 +60,16 @@ class ConfigIniFile(Config):
         return [Device(**device_dict) for device_dict in device_dicts]
 
     def register_schema(self, schema):
-        raise ConfigError('Cannot register schema because read only storage.')
+        raise MetadataError('Cannot register schema because read only storage.')
 
     def unregister_schema(self, schema):
-        raise ConfigError('Cannot unregister schema because read only storage.')
+        raise MetadataError('Cannot unregister schema because read only storage.')
 
     def register_device(self, device):
-        raise ConfigError('Cannot register device because read only storage.')
+        raise MetadataError('Cannot register device because read only storage.')
 
     def unregister_device(self, device):
-        raise ConfigError('Cannot unregister device because read only storage.')
+        raise MetadataError('Cannot unregister device because read only storage.')
 
     def update_device(self, device):
-        raise ConfigError('Cannot update device because read only storage.')
+        raise MetadataError('Cannot update device because read only storage.')

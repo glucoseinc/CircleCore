@@ -3,6 +3,6 @@
 """CircleCore Models."""
 
 # project module
-from .config import Config, ConfigError
 from .device import Device
+from .metadata import Metadata, MetadataError
 from .schema import Schema

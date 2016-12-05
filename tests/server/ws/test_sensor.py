@@ -18,7 +18,7 @@ class TestSensorHandler(object):
             def __init__(self, uuid):
                 self.uuid = uuid
 
-        class DummyConfig(object):
+        class DummyMetadata(object):
             def find_device(self, device_uuid, *args, **kwargs):
                 from uuid import UUID
                 return DummyDevice(UUID(device_uuid))
@@ -26,7 +26,7 @@ class TestSensorHandler(object):
         cls.receiver = Receiver()
         cls.receiver.set_timeout(5000)
         cls.messages = cls.receiver.incoming_messages(JustLogging())
-        cls.server = Process(target=ws.run, args=[DummyConfig(), '/(?P<device_uuid>[0-9A-Fa-f-]+)', 5000])
+        cls.server = Process(target=ws.run, args=[DummyMetadata(), '/(?P<device_uuid>[0-9A-Fa-f-]+)', 5000])
         cls.server.daemon = True
         cls.server.start()
         sleep(0.1)

@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
+# system module
+from __future__ import absolute_import
+
 # community module
 from redis import ConnectionError, Redis
 from six import PY3
 
 # project module
-from .config_base import Config, ConfigError
+from .base import MetadataBase, MetadataError
 from ..device import Device
 from ..schema import Schema
 
@@ -34,8 +37,8 @@ class RedisClient(Redis):
         return response
 
 
-class ConfigRedis(Config):
-    """ConfigRedisオブジェクト.
+class MetadataRedis(MetadataBase):
+    """MetadataRedisオブジェクト.
 
     :param RedisClient redis_client: Redisクライアント
     """
@@ -47,7 +50,7 @@ class ConfigRedis(Config):
 
         :param RedisClient redis_client: Redisクライアント
         """
-        super(ConfigRedis, self).__init__()
+        super(MetadataRedis, self).__init__()
         self.redis_client = redis_client
 
     @classmethod
@@ -56,9 +59,9 @@ class ConfigRedis(Config):
             redis_client = RedisClient.from_url(url_scheme)
             redis_client.ping()
         except ConnectionError:
-            raise ConfigError('Cannot connect to Redis server.')
+            raise MetadataError('Cannot connect to Redis server.')
 
-        return ConfigRedis(redis_client)
+        return MetadataRedis(redis_client)
 
     @property
     def readable(self):
