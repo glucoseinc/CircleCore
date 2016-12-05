@@ -10,9 +10,9 @@ from ..helpers.topics import JustLogging
 logger = get_stream_logger(__name__)
 
 
-def run():
+def run(config):
     """clickから起動される."""
     topic = JustLogging()
     receiver = Receiver()
-    for _, msg in receiver.incoming_messages(topic.topic):
+    for msg in receiver.incoming_messages(topic):
         logger.debug('received a message %r in topic %s', msg, topic)
