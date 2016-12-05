@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """JustLoggingに流れているメッセージを標準出力に出す."""
 
 # project module

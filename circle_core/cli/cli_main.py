@@ -4,8 +4,11 @@
 
 from __future__ import absolute_import, print_function
 
+from itertools import cycle
 from multiprocessing import Process
+from signal import SIGINT, signal, SIGTERM
 import sys
+from time import time
 from uuid import UUID
 
 # community module
@@ -72,37 +75,45 @@ def cli_main_env(ctx):
 @click.option('--ipc-socket', type=click.Path(resolve_path=True), envvar='CRCR_IPCSOCK', default='/tmp/circlecore.ipc')
 @click.option('workers', '--worker', type=click.STRING, envvar='CRCR_WORKERS', multiple=True)
 @click.option('database_url', '--database', envvar='CRCR_DATABASE')
-@click.pass_obj
-def cli_main_run(obj, ws_port, ws_path, wui_port, ipc_socket, workers, database_url):
+@click.pass_context
+def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, workers, database_url):
     """CircleCoreの起動."""
-    obj.ipc_socket = 'ipc://' + ipc_socket
-    metadata = obj.metadata
+    ctx.obj.ipc_socket = 'ipc://' + ipc_socket
+    metadata = ctx.obj.metadata
     metadata.database_url = database_url  # とりあえず...
 
-    procs = [Process(target=get_worker(worker).run, args=(metadata,)) for worker in workers]
+    procs = [RestartableProcess(target=get_worker(worker).run, args=[metadata]) for worker in workers]
     if ws_port == wui_port:
-        procs.append(Process(target=server.run, args=[wui_port, obj.metadata]))
+        procs.append(RestartableProcess(target=server.run, args=[wui_port, metadata]))
     else:
-        app = wui.create_app(obj.metadata)
         procs += [
-            Process(target=ws.run, args=[ws_path, ws_port]),
-            Process(target=app.run, kwargs={'port': wui_port})
+            RestartableProcess(target=ws.run, args=[ws_path, ws_port]),
+            RestartableProcess(target=wui.create_app(metadata).run, kwargs={'port': wui_port})
         ]
 
     print(
         'Websocket : ws://{host}:{port}{path}'.format(path=ws_path, port=ws_port, host='127.0.0.1'),
         file=sys.stderr)
     print('WebUI : http://127.0.0.1:{port}{path}'.format(path='/', port=ws_port), file=sys.stderr)
-    print('IPC : {}'.format(obj.ipc_socket), file=sys.stderr)
+    print('IPC : {}'.format(ctx.obj.ipc_socket), file=sys.stderr)
+
+    def kill_children_too(*args):
+        for proc in procs:
+            proc.terminate()  # 子プロセスのSIGTERMハンドラに終了時の処理を書く
+        ctx.abort()
+    signal(SIGTERM, kill_children_too)
+    signal(SIGINT, kill_children_too)
 
     for proc in procs:
-        proc.daemon = True
         proc.start()
 
-    while all(proc.is_alive() for proc in procs):
-        pass
-
-    raise RuntimeError()
+    for proc in cycle(procs):
+        if not proc.is_alive():
+            click.echo('PID {} has died. Restarting...'.format(proc.pid))
+            try:
+                proc.start()
+            except RuntimeError:
+                kill_children_too()
 
 
 @cli_main.command('migrate')
@@ -110,7 +121,7 @@ def cli_main_run(obj, ws_port, ws_path, wui_port, ipc_socket, workers, database_
 @click.option('--dry-run', '-n', is_flag=True)
 @click.option('database_url', '--database', envvar='CRCR_DATABASE')
 def cli_main_migrate(ctx, dry_run, database_url):
-    """DBを最新スキーマの状態にあわせる
+    """DBを最新スキーマの状態にあわせる.
 
     :param Context ctx: Context
     :param bool dry_run: 実行しなければTrue
@@ -132,3 +143,33 @@ def cli_main_migrate(ctx, dry_run, database_url):
         db.check_tables()
     else:
         db.migrate()
+
+
+class RestartableProcess:
+    """RestartableProcess.
+
+    :param list args:
+    :param dict kwargs:
+    :param int startedTime:
+    :param Process process:
+    """
+
+    def __init__(self, *args, **kwargs):
+        """constructor."""
+        self.args = args
+        self.kwargs = kwargs
+        self.startedTime = 0
+
+    def __getattr__(self, attr):
+        """delegation."""
+        return getattr(self.process, attr)
+
+    def start(self):
+        """start."""
+        if 10 > time() - self.startedTime:
+            raise RuntimeError('Restarted process has died immediately')
+
+        self.process = Process(*self.args, **self.kwargs)
+        self.process.daemon = True
+        self.process.start()
+        self.startedTime = time()
