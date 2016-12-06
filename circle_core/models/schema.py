@@ -38,11 +38,12 @@ class Schema(object):
     :param List[SchemaProperty] properties: プロパティ
     """
 
-    def __init__(self, uuid, display_name=None, **kwargs):
+    def __init__(self, uuid, display_name=None, properties=None):
         """init.
 
         :param Union[str, UUID] uuid: Schema UUID
         :param Optional[str] display_name: 表示名
+        :param Optional[str] properties: プロパティ
         """
         if not isinstance(uuid, UUID):
             uuid = UUID(uuid)
@@ -50,12 +51,11 @@ class Schema(object):
         self.uuid = uuid
         self.display_name = display_name
         self.properties = []
-        property_names = sorted([k for k in kwargs.keys() if k.startswith('key')])
-        for property_name in property_names:
-            idx = property_name[3:]
-            property_type = 'type' + idx
-            if property_type in kwargs.keys():
-                self.properties.append(SchemaProperty(kwargs[property_name], kwargs[property_type]))
+        if properties is not None:
+            name_and_types = properties.split(',')
+            for name_and_type in name_and_types:
+                _name, _type = name_and_type.split(':', 1)
+                self.properties.append(SchemaProperty(_name.strip(), _type.strip()))
 
     @property
     def stringified_properties(self):
@@ -67,7 +67,7 @@ class Schema(object):
         strings = []
         for prop in self.properties:
             strings.append('{}:{}'.format(prop.name, prop.type))
-        return ', '.join(strings)
+        return ','.join(strings)
 
     @property
     def storage_key(self):

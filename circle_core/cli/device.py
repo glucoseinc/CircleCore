@@ -93,16 +93,16 @@ def device_detail(ctx, device_uuid):
 @cli_device.command('add')
 @click.option('display_name', '--name')
 @click.option('schema_uuid', '--schema', type=UUID)
-@click.option('properties_string', '--property')
+@click.option('properties', '--property')
 @click.option('--active/--inactive')
 @click.pass_context
-def device_add(ctx, display_name, schema_uuid, properties_string, active):
+def device_add(ctx, display_name, schema_uuid, properties, active):
     """デバイスを登録する.
 
     :param Context ctx: Context
     :param str display_name: デバイス表示名
     :param str schema_uuid: スキーマUUID
-    :param str properties_string: プロパティ
+    :param str properties: プロパティ
     :param bool active:
     """
     context_object = ctx.obj  # type: ContextObject
@@ -119,18 +119,14 @@ def device_add(ctx, display_name, schema_uuid, properties_string, active):
         click.echo('Schema "{}" is not exist. Do nothing.'.format(schema_uuid))
         ctx.exit(code=-1)
 
-    properties = {}
-    for i, string in enumerate(properties_string.split(','), start=1):
-        splitted = [val.strip() for val in string.split(':')]
+    for prop in properties.split(','):
+        splitted = [val.strip() for val in prop.split(':')]
         if len(splitted) != 2:
-            click.echo('Argument "property" is invalid : {}. Do nothing.'.format(string))
+            click.echo('Argument "property" is invalid : {}. Do nothing.'.format(prop))
             click.echo('Argument "property" format must be "name1:type1,name2:type2...".')
             ctx.exit(code=-1)
-        _property, _value = splitted[0], splitted[1]
-        properties['property{}'.format(i)] = _property
-        properties['value{}'.format(i)] = _value
 
-    device = Device(device_uuid, schema.uuid, display_name, **properties)
+    device = Device(device_uuid, schema.uuid, display_name, properties)
     # TODO: activeの扱い
 
     metadata.register_device(device)

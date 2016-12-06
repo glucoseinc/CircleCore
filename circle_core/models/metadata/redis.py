@@ -95,10 +95,8 @@ class MetadataRedis(MetadataBase):
         mapping = {
             'uuid': schema.uuid,
             'display_name': schema.display_name,
+            'properties': schema.stringified_properties
         }
-        for i, prop in enumerate(schema.properties, start=1):
-            mapping['key{}'.format(i)] = prop.name
-            mapping['type{}'.format(i)] = prop.type
 
         self.redis_client.hmset(schema.storage_key, mapping)
 
@@ -110,10 +108,8 @@ class MetadataRedis(MetadataBase):
             'uuid': device.uuid,
             'display_name': device.display_name,
             'schema_uuid': device.schema_uuid,
+            'properties': device.stringified_properties
         }
-        for i, prop in enumerate(device.properties, start=1):
-            mapping['property{}'.format(i)] = prop.name
-            mapping['value{}'.format(i)] = prop.value
 
         self.redis_client.hmset(device.storage_key, mapping)
 
@@ -121,7 +117,4 @@ class MetadataRedis(MetadataBase):
         self.redis_client.delete(device.storage_key)
 
     def update_device(self, device):
-        hkeys = [hkey for hkey in self.redis_client.hkeys(device.storage_key)
-                 if hkey.startswith('property') or hkey.startswith('value')]
-        self.redis_client.hdel(device.storage_key, *hkeys)
         self.register_device(device)

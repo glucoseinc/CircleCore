@@ -114,17 +114,15 @@ def schema_add(ctx, display_name, name_and_types):
 
     schema_uuid = generate_uuid(existing=[schema.uuid for schema in metadata.schemas])
 
-    properties = {}
-    for i, name_and_type in enumerate(name_and_types, start=1):
+    for name_and_type in name_and_types:
         splitted = name_and_type.split(':')
         if len(splitted) != 2:
             click.echo('Argument is invalid : {}.'.format(name_and_type))
             click.echo('Argument format must be "name:type".')
             ctx.exit(code=-1)
-        _name, _type = splitted[0], splitted[1]
-        properties['key{}'.format(i)] = _name
-        properties['type{}'.format(i)] = _type
-    schema = Schema(schema_uuid, display_name, **properties)
+    properties = ','.join(name_and_types)
+
+    schema = Schema(schema_uuid, display_name, properties)
 
     metadata.register_schema(schema)
     context_object.log_info('schema add', uuid=schema.uuid)

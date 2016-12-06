@@ -39,12 +39,13 @@ class Device(object):
     :param List[DeviceProperty] properties: プロパティ
     """
 
-    def __init__(self, uuid, schema_uuid, display_name=None, **kwargs):
+    def __init__(self, uuid, schema_uuid, display_name=None, properties=None):
         """init.
 
         :param Union[str, UUID] uuid; Device UUID
         :param Union[str, UUID] schema_uuid: Schema UUID
         :param Optional[str] display_name: 表示名
+        :param Optional[str] properties: プロパティ
         """
         if not isinstance(uuid, UUID):
             uuid = UUID(uuid)
@@ -55,12 +56,11 @@ class Device(object):
         self.schema_uuid = schema_uuid
         self.display_name = display_name
         self.properties = []
-        property_names = sorted([k for k in kwargs.keys() if k.startswith('property')])
-        for property_name in property_names:
-            idx = property_name[8:]
-            property_value = 'value' + idx
-            if property_value in kwargs.keys():
-                self.properties.append(DeviceProperty(kwargs[property_name], kwargs[property_value]))
+        if properties is not None:
+            name_and_values = properties.split(',')
+            for name_and_value in name_and_values:
+                _name, _value = name_and_value.split(':', 1)
+                self.properties.append(DeviceProperty(_name, _value))
 
     @property
     def stringified_properties(self):
@@ -72,7 +72,7 @@ class Device(object):
         strings = []
         for prop in self.properties:
             strings.append('{}:{}'.format(prop.name, prop.value))
-        return ', '.join(strings)
+        return ','.join(strings)
 
     @property
     def storage_key(self):

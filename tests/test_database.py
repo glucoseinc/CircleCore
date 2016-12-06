@@ -13,9 +13,7 @@ TEST_DEVICE_UUID_1 = 'C7641AA8-32A7-47B8-8CCE-81C433081F59'
 test_schemas = [
     Schema(
         TEST_SCHEMA_UUID, 'test schema',
-        key1='test_int', type1='int',
-        key2='test_float', type2='float',
-        key3='test_text', type3='text',
+        properties='test_int:int,test_float:float,test_text:text',
     )
 ]
 test_devices = [
