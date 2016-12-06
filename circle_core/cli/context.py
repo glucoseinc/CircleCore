@@ -7,11 +7,11 @@ from six import PY3
 
 # project module
 from circle_core.logger import LTSVLogger
-from ..models import Metadata, MetadataError
-from ..models.metadata import parse_url_scheme
+from ..models import MetadataError
+from ..models.metadata import MetadataIniFile, MetadataRedis, parse_url_scheme
 
 if PY3:
-    from typing import Optional
+    from typing import Optional, Union
 
 
 class ContextObjectError(Exception):
@@ -22,7 +22,7 @@ class ContextObject(object):
     """CLI Contextオブジェクト.
 
     :param str metadata_url: MetadataのURLスキーム
-    :param Metadata metadata: Metadataオブジェクト
+    :param Union[MetadataIniFile, MetadataRedis] metadata: Metadataオブジェクト
     :param str uuid: CircleCore UUID
     :param Optional[str] log_file_path: ログファイルのパス
     :param LTSVLogger _logger: Logger

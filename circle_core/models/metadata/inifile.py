@@ -4,7 +4,7 @@
 from six import PY2
 
 # project module
-from .base import MetadataBase, MetadataError
+from .base import MetadataReader
 from ..device import Device
 from ..schema import Schema
 
@@ -16,7 +16,7 @@ else:
     import configparser
 
 
-class MetadataIniFile(MetadataBase):
+class MetadataIniFile(MetadataReader):
     """MetadataIniFileオブジェクト.
 
     :param str ini_file_path: INIファイルパス
@@ -38,14 +38,6 @@ class MetadataIniFile(MetadataBase):
         return MetadataIniFile(ini_file_path)
 
     @property
-    def readable(self):
-        return True
-
-    @property
-    def writable(self):
-        return False
-
-    @property
     def schemas(self):
         parser = configparser.ConfigParser()
         parser.read(self.ini_file_path)
@@ -58,18 +50,3 @@ class MetadataIniFile(MetadataBase):
         parser.read(self.ini_file_path)
         device_dicts = [dict(parser.items(section)) for section in parser.sections() if Device.is_key_matched(section)]
         return [Device(**device_dict) for device_dict in device_dicts]
-
-    def register_schema(self, schema):
-        raise MetadataError('Cannot register schema because read only storage.')
-
-    def unregister_schema(self, schema):
-        raise MetadataError('Cannot unregister schema because read only storage.')
-
-    def register_device(self, device):
-        raise MetadataError('Cannot register device because read only storage.')
-
-    def unregister_device(self, device):
-        raise MetadataError('Cannot unregister device because read only storage.')
-
-    def update_device(self, device):
-        raise MetadataError('Cannot update device because read only storage.')

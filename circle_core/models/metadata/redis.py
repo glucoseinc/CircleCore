@@ -8,7 +8,7 @@ from redis import ConnectionError, Redis
 from six import PY3
 
 # project module
-from .base import MetadataBase, MetadataError
+from .base import MetadataError, MetadataReader, MetadataWriter
 from ..device import Device
 from ..schema import Schema
 
@@ -37,7 +37,7 @@ class RedisClient(Redis):
         return response
 
 
-class MetadataRedis(MetadataBase):
+class MetadataRedis(MetadataReader, MetadataWriter):
     """MetadataRedisオブジェクト.
 
     :param RedisClient redis_client: Redisクライアント
@@ -62,14 +62,6 @@ class MetadataRedis(MetadataBase):
             raise MetadataError('Cannot connect to Redis server.')
 
         return MetadataRedis(redis_client)
-
-    @property
-    def readable(self):
-        return True
-
-    @property
-    def writable(self):
-        return True
 
     @property
     def schemas(self):

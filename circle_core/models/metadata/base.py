@@ -8,6 +8,7 @@ from uuid import UUID
 from six import add_metaclass, PY3
 
 # project module
+from circle_core import abstractclassmethod
 from ..device import Device
 from ..schema import Schema
 
@@ -34,8 +35,7 @@ class MetadataBase(object):
         """
         pass
 
-    @classmethod
-    @abstractmethod
+    @abstractclassmethod
     def parse_url_scheme(cls, url_scheme):
         """URLスキームからMetadataオブジェクトを生成する.
 
@@ -45,23 +45,31 @@ class MetadataBase(object):
         """
         raise NotImplementedError
 
-    @abstractproperty
+    @property
     def readable(self):
         """Metadataが読み込み可能か.
 
         :return: Metadataが読み込み可能か
         :rtype: bool
         """
-        raise NotImplementedError
+        return False
 
-    @abstractproperty
+    @property
     def writable(self):
         """Metadataが書き込み可能か.
 
         :return: Metadataが書き込み可能か
         :rtype: bool
         """
-        raise NotImplementedError
+        return False
+
+
+@add_metaclass(ABCMeta)
+class MetadataReader(MetadataBase):
+
+    @property
+    def readable(self):
+        return True
 
     @abstractproperty
     def schemas(self):
@@ -110,6 +118,13 @@ class MetadataBase(object):
             if device.uuid == device_uuid:
                 return device
         return None
+
+
+@add_metaclass(ABCMeta)
+class MetadataWriter(MetadataBase):
+    @property
+    def writable(self):
+        return True
 
     @abstractmethod
     def register_schema(self, schema):
