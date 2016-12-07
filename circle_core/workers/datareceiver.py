@@ -2,25 +2,24 @@
 """センサデータを受け取って保存する"""
 
 # system module
-import logging
 import time
 from uuid import UUID
 
 from six import PY3
 
 # project module
-from circle_core.logger import get_stream_legger
+from circle_core.logger import get_stream_logger
 from ..database import Database
-from ..exceptions import DatabaseMismatchError, ModuleNotFoundError, SchemaNotFoundError
+from ..exceptions import ModuleNotFoundError, SchemaNotFoundError
 from ..helpers.nanomsg import Receiver
 from ..helpers.topics import SensorDataTopic
-from ..models import Metadata
+from ..models.metadata import MetadataIniFile, MetadataRedis
 
 if PY3:
-    from typing import Any, Dict
+    from typing import Tuple, Union
 
 
-logger = get_stream_legger(__name__)
+logger = get_stream_logger(__name__)
 
 
 def run(metadata):
@@ -29,7 +28,7 @@ def run(metadata):
     とりあえず現時点ではパケット毎にcommitする
     将来的には時間 or パケット数でcommitするようにしたい
     """
-    # TODO: Temoprary
+    # TODO: Temporary
     metadata.data_receiver_cycle_time = 10 * 1000
     metadata.data_receiver_cycle_count = 10
 
@@ -41,7 +40,8 @@ def run(metadata):
     db.register_schemas_and_modules(metadata.schemas, metadata.modules)
 
     if not db.check_tables().is_ok:
-        raise
+        # TODO: 例外処理
+        raise Exception
 
     app = CRCRApp(metadata)
     conn = db._engine.connect()
@@ -104,7 +104,7 @@ class CRCRApp(object):
         """
         @constructor
 
-        :param Metadata metadata: metadata
+        :param Union[MetadataIniFile, MetadataRedis] metadata: metadata
         """
         self.__metadata = metadata
         self.__modules_cache = {}
@@ -115,7 +115,8 @@ class CRCRApp(object):
         moduleのUUIDからmoduleとそのschemaを返す
 
         :param UUID module_uuid: moduleのUUID
-        :return Tuple[Module, Schema]: moduleとschema
+        :return: moduleとschema
+        :rtype: Tuple[Module, Schema]
         """
 
         assert isinstance(module_uuid, UUID)
@@ -124,7 +125,7 @@ class CRCRApp(object):
             self.__modules_cache[module_uuid] = module
         module = self.__modules_cache[module_uuid]
         if not module:
-            ModuleNotFoundError
+            raise ModuleNotFoundError
 
         if module.schema_uuid not in self.__schemas_cache:
             schema = self.__metadata.find_schema(module.schema_uuid)

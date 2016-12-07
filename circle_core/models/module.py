@@ -42,7 +42,7 @@ class Module(object):
     def __init__(self, uuid, schema_uuid, display_name=None, properties=None):
         """init.
 
-        :param Union[str, UUID] uuid; Module UUID
+        :param Union[str, UUID] uuid: Module UUID
         :param Union[str, UUID] schema_uuid: Schema UUID
         :param Optional[str] display_name: 表示名
         :param Optional[str] properties: プロパティ

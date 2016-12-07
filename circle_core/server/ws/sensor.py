@@ -1,23 +1,20 @@
 # -*- coding: utf-8 -*-
 """TornadoでWebSocketサーバーを立てる."""
-import logging
 
 from tornado.websocket import WebSocketHandler
 
 from circle_core.exceptions import ModuleNotFoundError
 from circle_core.helpers.nanomsg import Sender
 from circle_core.helpers.topics import SensorDataTopic
-from circle_core.logger import get_stream_legger
+from circle_core.logger import get_stream_logger
 
-logger = get_stream_legger(__name__)
+logger = get_stream_logger(__name__)
 
 
 class SensorHandler(WebSocketHandler):
     """ここからワーカー達にnanomsg経由で命令を送る.
 
     接続毎にインスタンスが生成されている
-
-    :param Sender __nanomsg:
     """
 
     def open(self, module_uuid):

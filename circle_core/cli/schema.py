@@ -19,12 +19,8 @@ if PY3:
 
 
 @click.group('schema')
-@click.pass_context
-def cli_schema(ctx):
-    """`crcr schema`の起点.
-
-    :param Context ctx: Context
-    """
+def cli_schema():
+    """`crcr schema`の起点."""
     pass
 
 

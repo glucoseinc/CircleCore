@@ -19,12 +19,8 @@ if PY3:
 
 
 @click.group('module')
-@click.pass_context
-def cli_module(ctx):
-    """`crcr module`の起点.
-
-    :param Context ctx: Context
-    """
+def cli_module():
+    """`crcr module`の起点."""
     pass
 
 

@@ -12,7 +12,7 @@ from six import PY2, PY3
 from six.moves import zip_longest
 
 if PY3:
-    from typing import List, Tuple
+    from typing import List, Optional, Tuple
 
 
 def output_listing_columns(data, header):
@@ -97,14 +97,15 @@ def create_row_strings(rows):
     return row_strings, sizes
 
 
-def generate_uuid(existing=[]):
+def generate_uuid(existing=None):
     """UUIDを生成する.
 
-    :param List[str] existing: 使用中のUUIDリスト
+    :param Optional[List[str]] existing: 使用中のUUIDリスト
     :return: UUID
     :rtype: str
     """
     generated = str(uuid4())
-    while generated in existing:
-        generated = str(uuid4())
+    if existing is not None:
+        while generated in existing:
+            generated = str(uuid4())
     return generated

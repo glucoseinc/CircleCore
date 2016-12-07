@@ -127,7 +127,7 @@ def cli_main_migrate(ctx, dry_run, database_url):
     db = Database(database_url)
     db.register_schemas_and_modules(metadata.schemas, metadata.modules)
 
-    # check meta tablse
+    # check meta tables
     if dry_run:
         db.check_tables()
     else:

@@ -45,7 +45,7 @@ def remove_environ(request):
 
 
 @pytest.fixture()
-def clear_log(request):
+def clear_log():
     crcr_log_file_path = os.environ.get('CRCR_LOG_FILE_PATH')
     if crcr_log_file_path is not None:
         if os.path.exists(crcr_log_file_path):

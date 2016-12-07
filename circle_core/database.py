@@ -4,22 +4,17 @@
 
 from __future__ import absolute_import
 
-from collections import namedtuple
-import itertools
-import logging
-
 import base58
 from six import PY3
 import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
-from sqlalchemy.engine import reflection
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.schema import CreateColumn, SchemaVisitor
 import sqlalchemy.sql.ddl
 
 # project module
 from circle_core.exceptions import MigrationError
-from circle_core.logger import get_stream_legger
+from circle_core.logger import get_stream_logger
 from .constants import CRDataType
 
 if PY3:
@@ -32,11 +27,11 @@ TABLE_OPTIONS = {
     'mysql_charset': 'utf8mb4',
 }
 # TODO temporary
-logger = get_stream_legger('crcr.database')
+logger = get_stream_logger('crcr.database')
 
 
 class Database(object):
-    """CricleCoreでのセンサデータ書き込み先DBを管理するクラス"""
+    """CircleCoreでのセンサデータ書き込み先DBを管理するクラス"""
 
     def __init__(self, database_url):
         """
@@ -147,9 +142,9 @@ class DiffResult(object):
     """
     DB比較結果
 
-    :param List[sa.Table] new_table: 新規に作る必要のあるTable
-    :param List[sa.Table] alter_table: AlterするTable
-    :param List[sa.Table] error_table: エラーがあって変更できないTable
+    :param List[sa.Table] new_tables: 新規に作る必要のあるTable
+    :param List[sa.Table] alter_tables: AlterするTable
+    :param List[sa.Table] error_tables: エラーがあって変更できないTable
     """
     def __init__(self):
         self.new_tables = []
@@ -173,7 +168,7 @@ class DatabaseDiff(SchemaVisitor):
 
     def __init__(self, dialect, connection, diff_result, *args, **kwargs):
         """
-        consturctor
+        constructor
 
         :param Any dialect: dialect
         :param Any connection: connection

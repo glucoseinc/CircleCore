@@ -23,7 +23,7 @@ class TopicBase(object):
 
         特定のTopicに向けてメッセージを送る際に有用
 
-        :param unicode data: 送りたいJSON
+        :param unicode jsondata: 送りたいJSON
         :return unicode:
         """
         return self.topic + jsondata

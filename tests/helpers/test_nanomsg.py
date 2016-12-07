@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-from os.path import join
-from tempfile import mkdtemp
-
 from nnpy import AF_SP, PUB, Socket, SUB, SUB_SUBSCRIBE
 import pytest
 
