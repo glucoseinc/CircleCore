@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 
 # community module
-from six import PY2
+from six.moves.urllib.parse import urlparse
 
 # project module
 from .base import MetadataBase as Metadata, MetadataError
 from .inifile import MetadataIniFile
 from .redis import MetadataRedis
-
-if PY2:
-    from urlparse import urlparse
-else:
-    from urllib.parse import urlparse
 
 
 def parse_url_scheme(url_scheme):

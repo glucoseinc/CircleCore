@@ -4,19 +4,13 @@
 import os
 
 # community module
-from six import PY2
+from six.moves import configparser
+from six.moves.urllib.parse import urlparse
 
 # project module
 from .base import MetadataError, MetadataReader
 from ..module import Module
 from ..schema import Schema
-
-if PY2:
-    from urlparse import urlparse
-    import ConfigParser as configparser
-else:
-    from urllib.parse import urlparse
-    import configparser
 
 
 class MetadataIniFile(MetadataReader):

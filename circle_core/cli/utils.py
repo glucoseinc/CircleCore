@@ -8,12 +8,10 @@ from uuid import uuid4
 
 # community module
 import click
-from six import PY2
+from six import PY2, PY3
+from six.moves import zip_longest
 
-if PY2:
-    from itertools import izip_longest as zip_longest
-else:
-    from itertools import zip_longest
+if PY3:
     from typing import List, Tuple
 
 
