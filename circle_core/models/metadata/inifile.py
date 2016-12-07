@@ -11,6 +11,7 @@ from six.moves.urllib.parse import urlparse
 from .base import MetadataError, MetadataReader
 from ..module import Module
 from ..schema import Schema
+from ..user import User
 
 
 class MetadataIniFile(MetadataReader):
@@ -50,3 +51,11 @@ class MetadataIniFile(MetadataReader):
         parser.read(self.ini_file_path)
         module_dicts = [dict(parser.items(section)) for section in parser.sections() if Module.is_key_matched(section)]
         return [Module(**module_dict) for module_dict in module_dicts]
+
+    @property
+    def users(self):
+        parser = configparser.ConfigParser()
+        parser.read(self.ini_file_path)
+        user_dicts = [dict(parser.items(section)) for section in parser.sections()
+                      if User.is_key_matched(section)]
+        return [User(**user_dict) for user_dict in user_dicts]

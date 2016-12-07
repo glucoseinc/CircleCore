@@ -12,33 +12,33 @@ class TestCliModule(object):
     @pytest.mark.usefixtures('flushall_redis_server')
     @pytest.mark.parametrize(('main_params', 'expected_output_length'), [
         (['--metadata', url_scheme_ini_file],  # main_params
-         1 + 1 + 1 + 1),  # expected_output_length
+         1 + 1 + 1),  # expected_output_length
 
         ([],  # main_params
-         1 + 1),  # expected_output_length
+         1),  # expected_output_length
     ])
     def test_module_list(self, main_params, expected_output_length):
         runner = CliRunner()
         result = runner.invoke(cli_entry, main_params + ['module', 'list'])
         assert result.exit_code == 0
-        len(result.output.split('\n')) == expected_output_length
+        len(result.output.splitlines()) == expected_output_length
 
     @pytest.mark.parametrize(('main_params', 'module_detail_params', 'expected_exit_code', 'expected_output_length'), [
         (['--metadata', url_scheme_ini_file],  # main_params
          ['838c8a6d-4946-4715-ae4b-39d0d64884fb'],  # schema_detail_params 温度センサデバイス1
          0,  # expected_exit_code
-         1 + 1 + 1 + 2 + 1),  # expected_output_length
+         1 + 1 + 1 + 2),  # expected_output_length
 
         (['--metadata', url_scheme_ini_file],  # main_params
          ['00000000-0000-0000-0000-000000000000'],  # schema_detail_params 登録なし
          -1,  # expected_exit_code
-         1 + 1),  # expected_output_length
+         1),  # expected_output_length
     ])
     def test_module_detail(self, main_params, module_detail_params, expected_exit_code, expected_output_length):
         runner = CliRunner()
         result = runner.invoke(cli_entry, main_params + ['module', 'detail'] + module_detail_params)
         assert result.exit_code == expected_exit_code
-        assert len(result.output.split('\n')) == expected_output_length
+        assert len(result.output.splitlines()) == expected_output_length
 
     @pytest.mark.usefixtures('flushall_redis_server')
     @pytest.mark.parametrize(('main_params', 'module_add_params', 'expected_exit_code', 'expected_output'), [

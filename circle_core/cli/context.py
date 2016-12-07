@@ -2,6 +2,9 @@
 
 """CLI Contextオブジェクト."""
 
+# system module
+from uuid import UUID
+
 # community module
 from six import PY3
 
@@ -23,7 +26,7 @@ class ContextObject(object):
 
     :param str metadata_url: MetadataのURLスキーム
     :param Union[MetadataIniFile, MetadataRedis] metadata: Metadataオブジェクト
-    :param str uuid: CircleCore UUID
+    :param UUID uuid: CircleCore UUID
     :param Optional[str] log_file_path: ログファイルのパス
     :param LTSVLogger _logger: Logger
     """
@@ -32,7 +35,7 @@ class ContextObject(object):
         """init.
 
         :param str metadata_url: MetadataのURLスキーム
-        :param str crcr_uuid: CircleCore UUID
+        :param UUID crcr_uuid: CircleCore UUID
         :param Optional[str] log_file_path: ログファイルのパス
         """
         self.metadata_url = metadata_url

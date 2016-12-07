@@ -2,6 +2,7 @@
 
 """CLI Module."""
 
+# system module
 from uuid import UUID
 
 # community module
@@ -63,7 +64,7 @@ def module_detail(ctx, module_uuid):
     """モジュールの詳細を表示する.
 
     :param Context ctx: Context
-    :param str module_uuid: モジュールUUID
+    :param UUID module_uuid: モジュールUUID
     """
     context_object = ctx.obj  # type: ContextObject
     metadata = context_object.metadata
@@ -97,7 +98,7 @@ def module_add(ctx, display_name, schema_uuid, properties, active):
 
     :param Context ctx: Context
     :param str display_name: モジュール表示名
-    :param str schema_uuid: スキーマUUID
+    :param UUID schema_uuid: スキーマUUID
     :param str properties: プロパティ
     :param bool active:
     """
@@ -137,7 +138,7 @@ def module_remove(ctx, module_uuid):
     """モジュールを削除する.
 
     :param Context ctx: Context
-    :param str module_uuid: モジュールUUID
+    :param UUID module_uuid: モジュールUUID
     """
     context_object = ctx.obj  # type: ContextObject
     metadata = context_object.metadata
@@ -166,7 +167,7 @@ def module_property(ctx, adding_properties_string, removing_property_names_strin
     :param Context ctx: Context
     :param str adding_properties_string: 追加プロパティ
     :param str removing_property_names_string: 削除プロパティ
-    :param str module_uuid: モジュールUUID
+    :param UUID module_uuid: モジュールUUID
     """
     context_object = ctx.obj  # type: ContextObject
     metadata = context_object.metadata

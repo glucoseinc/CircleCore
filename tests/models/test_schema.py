@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from circle_core.models.schema import Schema
+from circle_core.models import Schema
 
 
 TEST_UUID = '550e8400-e29b-41d4-a716-446655440000'

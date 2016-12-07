@@ -4,7 +4,7 @@
 
 # system module
 from unicodedata import east_asian_width
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 # community module
 import click
@@ -100,12 +100,12 @@ def create_row_strings(rows):
 def generate_uuid(existing=None):
     """UUIDを生成する.
 
-    :param Optional[List[str]] existing: 使用中のUUIDリスト
+    :param Optional[List[UUID]] existing: 使用中のUUIDリスト
     :return: UUID
-    :rtype: str
+    :rtype: UUID
     """
-    generated = str(uuid4())
+    generated = uuid4()
     if existing is not None:
-        while generated in existing:
-            generated = str(uuid4())
+        while str(generated) in [str(e) for e in existing]:
+            generated = uuid4()
     return generated
