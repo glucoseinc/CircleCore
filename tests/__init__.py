@@ -3,6 +3,8 @@
 import os
 
 test_root = os.path.dirname(os.path.abspath(__file__))
-ini_file_path = os.path.join(test_root, 'metadata.ini')
-log_ltsv_path = os.path.join(test_root, 'log.ltsv')
+ini_file_name = 'metadata.ini'
+ini_file_path = os.path.join(test_root, ini_file_name)
+log_ltsv_name = 'log.ltsv'
+log_ltsv_path = os.path.join(test_root, log_ltsv_name)
 url_scheme_ini_file = 'file://{}'.format(ini_file_path)

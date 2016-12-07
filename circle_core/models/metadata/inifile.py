@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
+# system module
+import os
+
 # community module
 from six import PY2
 
 # project module
-from .base import MetadataReader
+from .base import MetadataError, MetadataReader
 from ..module import Module
 from ..schema import Schema
 
@@ -35,6 +38,9 @@ class MetadataIniFile(MetadataReader):
     @classmethod
     def parse_url_scheme(cls, url_scheme):
         ini_file_path = urlparse(url_scheme).path
+        if not os.path.exists(ini_file_path):
+            raise MetadataError('INI file "{}" not found.'.format(ini_file_path))
+
         return MetadataIniFile(ini_file_path)
 
     @property
