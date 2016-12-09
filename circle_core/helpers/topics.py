@@ -59,22 +59,22 @@ class SensorDataTopic(TopicBase):
     """センサデータの送受信Topic
     送受信わけるべきでは?"""
 
-    topic_prefix = 'device:'
+    topic_prefix = 'module:'
 
-    def __init__(self, device=None):
-        self.device = device
+    def __init__(self, module=None):
+        self.module = module
 
     @classmethod
-    def topic_for_device(cls, device):
+    def topic_for_module(cls, module):
         return '{}{}'.format(
             cls.topic_prefix,
-            base58.b58encode(device.uuid.bytes)
+            base58.b58encode(module.uuid.bytes)
         ).ljust(TOPIC_LENGTH)
 
     @cached_property
     def topic(self):
-        if self.device:
-            return self.topic_for_device(self.device)
+        if self.module:
+            return self.topic_for_module(self.module)
         else:
             return self.topic_prefix
 
@@ -85,6 +85,6 @@ class SensorDataTopic(TopicBase):
         :return dict:
         """
         topic, jsondata = data[:TOPIC_LENGTH], data[TOPIC_LENGTH:]
-        device_uuid = UUID(bytes=base58.b58decode(topic[len(self.topic_prefix):].rstrip()))
+        module_uuid = UUID(bytes=base58.b58decode(topic[len(self.topic_prefix):].rstrip()))
 
-        return device_uuid, json.loads(jsondata)
+        return module_uuid, json.loads(jsondata)

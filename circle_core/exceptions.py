@@ -17,8 +17,8 @@ class MigrationError(CircleCoreException):
     pass
 
 
-class DeviceNotFoundError(CircleCoreException):
-    """Deviceが見つからない時の例外"""
+class ModuleNotFoundError(CircleCoreException):
+    """Moduleが見つからない時の例外"""
     pass
 
 

@@ -5,7 +5,7 @@ from six import PY2
 
 # project module
 from .base import MetadataReader
-from ..device import Device
+from ..module import Module
 from ..schema import Schema
 
 if PY2:
@@ -45,8 +45,8 @@ class MetadataIniFile(MetadataReader):
         return [Schema(**schema_dict) for schema_dict in schema_dicts]
 
     @property
-    def devices(self):
+    def modules(self):
         parser = configparser.ConfigParser()
         parser.read(self.ini_file_path)
-        device_dicts = [dict(parser.items(section)) for section in parser.sections() if Device.is_key_matched(section)]
-        return [Device(**device_dict) for device_dict in device_dicts]
+        module_dicts = [dict(parser.items(section)) for section in parser.sections() if Module.is_key_matched(section)]
+        return [Module(**module_dict) for module_dict in module_dicts]

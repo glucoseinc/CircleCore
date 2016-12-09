@@ -9,7 +9,7 @@ from six import add_metaclass, PY3
 
 # project module
 from circle_core import abstractclassmethod
-from ..device import Device
+from ..module import Module
 from ..schema import Schema
 
 if PY3:
@@ -81,11 +81,11 @@ class MetadataReader(MetadataBase):
         raise NotImplementedError
 
     @abstractproperty
-    def devices(self):
-        """全てのDeviceオブジェクト.
+    def modules(self):
+        """全てのModuleオブジェクト.
 
-        :return: Deviceオブジェクトリスト
-        :rtype: List[Device]
+        :return: Moduleオブジェクトリスト
+        :rtype: List[Module]
         """
         raise NotImplementedError
 
@@ -104,19 +104,19 @@ class MetadataReader(MetadataBase):
                 return schema
         return None
 
-    def find_device(self, device_uuid):
-        """デバイスリストから表示名がマッチするものを取得する.
+    def find_module(self, module_uuid):
+        """モジュールリストから表示名がマッチするものを取得する.
 
-        :param str device_uuid: 取得するデバイスのUUID
+        :param str module_uuid: 取得するモジュールのUUID
         :return: マッチしたスキーマ
-        :rtype: Optional[Device]
+        :rtype: Optional[Module]
         """
-        if not isinstance(device_uuid, UUID):
-            device_uuid = UUID(device_uuid)
+        if not isinstance(module_uuid, UUID):
+            module_uuid = UUID(module_uuid)
 
-        for device in self.devices:
-            if device.uuid == device_uuid:
-                return device
+        for module in self.modules:
+            if module.uuid == module_uuid:
+                return module
         return None
 
 
@@ -143,25 +143,25 @@ class MetadataWriter(MetadataBase):
         raise NotImplementedError
 
     @abstractmethod
-    def register_device(self, device):
-        """Deviceオブジェクトをストレージに登録する.
+    def register_module(self, module):
+        """Moduleオブジェクトをストレージに登録する.
 
-        :param Device device: Deviceオブジェクト
+        :param Module module: Moduleオブジェクト
         """
         raise NotImplementedError
 
     @abstractmethod
-    def unregister_device(self, device):
-        """Deviceオブジェクトをストレージから削除する.
+    def unregister_module(self, module):
+        """Moduleオブジェクトをストレージから削除する.
 
-        :param Device device: Deviceオブジェクト
+        :param Module module: Moduleオブジェクト
         """
         raise NotImplementedError
 
     @abstractmethod
-    def update_device(self, device):
-        """ストレージ上のDeviceオブジェクトを更新する.
+    def update_module(self, module):
+        """ストレージ上のModuleオブジェクトを更新する.
 
-        :param Device device: Deviceオブジェクト
+        :param Module module: Moduleオブジェクト
         """
         raise NotImplementedError

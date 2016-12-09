@@ -49,7 +49,7 @@ class Database(object):
         self._session = sessionmaker(bind=self._engine)
 
         self._metadata = sa.MetaData()
-        self._tablename_to_device_map = {}
+        self._tablename_to_module_map = {}
         self._register_meta_table()
 
     def _register_meta_table(self):
@@ -60,18 +60,18 @@ class Database(object):
             **TABLE_OPTIONS
         )
 
-    def register_schemas_and_devices(self, schemas, devices):
+    def register_schemas_and_modules(self, schemas, modules):
         """
-        望むべきスキーマとデバイスを登録する
+        望むべきスキーマとモジュールを登録する
 
         :param List[Schema] schemas: スキーマのリスト
-        :param List[Devices] devices: デバイスのリスト
+        :param List[Module] modules: モジュールのリスト
         """
-        for device in devices:
-            schema = [sc for sc in schemas if sc.uuid == device.schema_uuid][0]
+        for module in modules:
+            schema = [sc for sc in schemas if sc.uuid == module.schema_uuid][0]
 
             # make table name
-            table_name = self.make_table_name_for_device(device)
+            table_name = self.make_table_name_for_module(module)
 
             # define columns
             columns = [
@@ -84,11 +84,11 @@ class Database(object):
                 sa.PrimaryKeyConstraint('_created_at', '_counter')
             )
             sa.Table(table_name, self._metadata, *columns, **TABLE_OPTIONS)
-            self._tablename_to_device_map[table_name] = (device, schema)
+            self._tablename_to_module_map[table_name] = (module, schema)
 
     def check_tables(self):
         """
-        DBをスキーマ、デバイスの設定に合わせて変更する必要がある化を調査する
+        DBをスキーマ、モジュールの設定に合わせて変更する必要がある化を調査する
         check_table結果にエラーがあれば、MigrationError例外が起こる
 
         see: https://github.com/openstack/sqlalchemy-migrate/blob/master/migrate/versioning/schemadiff.py
@@ -107,7 +107,7 @@ class Database(object):
 
     def migrate(self):
         """
-        DBをスキーマ、デバイスの設定に合わせて変更する
+        DBをスキーマ、モジュールの設定に合わせて変更する
         check_table結果にエラーがあれば、MigrationError例外が起こる
         """
         diff = self.check_tables()
@@ -132,15 +132,15 @@ class Database(object):
         # poolの中のconnectionが古いTable情報をキャッシュしちゃってる？とかで怪しい挙動になるので、全部破棄する
         self._engine.dispose()
 
-    def make_table_name_for_device(self, device):
-        return 'device_{}'.format(
-            base58.b58encode(device.uuid.bytes)
+    def make_table_name_for_module(self, module):
+        return 'module_{}'.format(
+            base58.b58encode(module.uuid.bytes)
         )
 
-    def find_table_for_device(self, device):
-        table_name = self.make_table_name_for_device(device)
+    def find_table_for_module(self, module):
+        table_name = self.make_table_name_for_module(module)
         return self._metadata.tables[table_name]
-        # return self._device_to_table_map[device.uuid]
+        # return self._module_to_table_map[module.uuid]
 
 
 class DiffResult(object):

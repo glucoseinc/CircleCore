@@ -9,7 +9,7 @@ from six import PY3
 
 # project module
 from .base import MetadataError, MetadataReader, MetadataWriter
-from ..device import Device
+from ..module import Module
 from ..schema import Schema
 
 if PY3:
@@ -74,14 +74,14 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         return schemas
 
     @property
-    def devices(self):
-        devices = []
-        keys = [key for key in self.redis_client.keys() if Device.is_key_matched(key)]
+    def modules(self):
+        modules = []
+        keys = [key for key in self.redis_client.keys() if Module.is_key_matched(key)]
         for key in keys:
             if self.redis_client.type(key) == 'hash':
                 fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]
-                devices.append(Device(**fields))
-        return devices
+                modules.append(Module(**fields))
+        return modules
 
     def register_schema(self, schema):
         mapping = {
@@ -95,18 +95,18 @@ class MetadataRedis(MetadataReader, MetadataWriter):
     def unregister_schema(self, schema):
         self.redis_client.delete(schema.storage_key)
 
-    def register_device(self, device):
+    def register_module(self, module):
         mapping = {
-            'uuid': device.uuid,
-            'display_name': device.display_name,
-            'schema_uuid': device.schema_uuid,
-            'properties': device.stringified_properties
+            'uuid': module.uuid,
+            'display_name': module.display_name,
+            'schema_uuid': module.schema_uuid,
+            'properties': module.stringified_properties
         }
 
-        self.redis_client.hmset(device.storage_key, mapping)
+        self.redis_client.hmset(module.storage_key, mapping)
 
-    def unregister_device(self, device):
-        self.redis_client.delete(device.storage_key)
+    def unregister_module(self, module):
+        self.redis_client.delete(module.storage_key)
 
-    def update_device(self, device):
-        self.register_device(device)
+    def update_module(self, module):
+        self.register_module(module)

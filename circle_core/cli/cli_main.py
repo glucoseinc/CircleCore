@@ -125,7 +125,7 @@ def cli_main_migrate(ctx, dry_run, database_url):
     metadata = ctx.obj.metadata
 
     db = Database(database_url)
-    db.register_schemas_and_devices(metadata.schemas, metadata.devices)
+    db.register_schemas_and_modules(metadata.schemas, metadata.modules)
 
     # check meta tablse
     if dry_run:

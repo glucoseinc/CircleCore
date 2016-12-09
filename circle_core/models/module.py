@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Device Model."""
+"""Module Model."""
 
 # system module
 import re
@@ -13,8 +13,8 @@ if PY3:
     from typing import List, Optional, Tuple, Union
 
 
-class DeviceProperty(object):
-    """DevicePropertyオブジェクト.
+class ModuleProperty(object):
+    """ModulePropertyオブジェクト.
 
     :param str name: 属性名
     :param str value: 属性値
@@ -30,19 +30,19 @@ class DeviceProperty(object):
         self.value = value
 
 
-class Device(object):
-    """Deviceオブジェクト.
+class Module(object):
+    """Moduleオブジェクト.
 
-    :param UUID uuid: Device UUID
+    :param UUID uuid: Module UUID
     :param Optional[str] display_name: 表示名
     :param str schema_uuid: Schema UUID
-    :param List[DeviceProperty] properties: プロパティ
+    :param List[ModuleProperty] properties: プロパティ
     """
 
     def __init__(self, uuid, schema_uuid, display_name=None, properties=None):
         """init.
 
-        :param Union[str, UUID] uuid; Device UUID
+        :param Union[str, UUID] uuid; Module UUID
         :param Union[str, UUID] schema_uuid: Schema UUID
         :param Optional[str] display_name: 表示名
         :param Optional[str] properties: プロパティ
@@ -60,7 +60,7 @@ class Device(object):
             name_and_values = properties.split(',')
             for name_and_value in name_and_values:
                 _name, _value = name_and_value.split(':', 1)
-                self.properties.append(DeviceProperty(_name, _value))
+                self.properties.append(ModuleProperty(_name, _value))
 
     @property
     def stringified_properties(self):
@@ -81,7 +81,7 @@ class Device(object):
         :return: ストレージキー
         :rtype: str
         """
-        return 'device_{}'.format(self.uuid)
+        return 'module_{}'.format(self.uuid)
 
     def append_properties(self, name_and_values):
         """プロパティを追加する.
@@ -94,7 +94,7 @@ class Device(object):
                     prop.value = value
                     break
             else:
-                self.properties.append(DeviceProperty(name, value))
+                self.properties.append(ModuleProperty(name, value))
 
     def remove_properties(self, names):
         """プロパティを除去する.
@@ -111,5 +111,5 @@ class Device(object):
         :return: マッチしているか
         :rtype: bool
         """
-        pattern = r'^device_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+        pattern = r'^module_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
         return re.match(pattern, key) is not None

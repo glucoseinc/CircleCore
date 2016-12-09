@@ -11,10 +11,10 @@ Subpackages
 Submodules
 ----------
 
-circle_core.models.device module
+circle_core.models.module module
 --------------------------------
 
-.. automodule:: circle_core.models.device
+.. automodule:: circle_core.models.module
     :members:
     :undoc-members:
     :show-inheritance:

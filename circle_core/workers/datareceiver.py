@@ -11,7 +11,7 @@ from six import PY3
 # project module
 from circle_core.logger import get_stream_legger
 from ..database import Database
-from ..exceptions import DatabaseMismatchError, DeviceNotFoundError, SchemaNotFoundError
+from ..exceptions import DatabaseMismatchError, ModuleNotFoundError, SchemaNotFoundError
 from ..helpers.nanomsg import Receiver
 from ..helpers.topics import SensorDataTopic
 from ..models import Metadata
@@ -38,7 +38,7 @@ def run(metadata):
     receiver.set_timeout(metadata.data_receiver_cycle_time)
 
     db = Database(metadata.database_url)
-    db.register_schemas_and_devices(metadata.schemas, metadata.devices)
+    db.register_schemas_and_modules(metadata.schemas, metadata.modules)
 
     if not db.check_tables().is_ok:
         raise
@@ -54,14 +54,14 @@ def run(metadata):
 
     while True:
         try:
-            for device_uuid, payload in receiver.incoming_messages(topic):
+            for module_uuid, payload in receiver.incoming_messages(topic):
                 if not isinstance(payload, list):
                     payload = [payload]
-                logger.debug('received a sensor data for %s : %r', device_uuid, payload)
+                logger.debug('received a sensor data for %s : %r', module_uuid, payload)
 
                 try:
-                    device, schema = app.find_device_and_schema(device_uuid)
-                    table = db.find_table_for_device(device)
+                    module, schema = app.find_module_and_schema(module_uuid)
+                    table = db.find_table_for_module(module)
 
                     now = time.time()
                     if time_before != now:
@@ -107,30 +107,30 @@ class CRCRApp(object):
         :param Metadata metadata: metadata
         """
         self.__metadata = metadata
-        self.__devices_cache = {}
+        self.__modules_cache = {}
         self.__schemas_cache = {}
 
-    def find_device_and_schema(self, device_uuid):
+    def find_module_and_schema(self, module_uuid):
         """
-        deviceのUUIDからdeviceとそのschemaを返す
+        moduleのUUIDからmoduleとそのschemaを返す
 
-        :param UUID device_uuid: deviceのUUID
-        :return Tuple[Device, Schema]: deviceとschema
+        :param UUID module_uuid: moduleのUUID
+        :return Tuple[Module, Schema]: moduleとschema
         """
 
-        assert isinstance(device_uuid, UUID)
-        if device_uuid not in self.__devices_cache:
-            device = self.__metadata.find_device(device_uuid)
-            self.__devices_cache[device_uuid] = device
-        device = self.__devices_cache[device_uuid]
-        if not device:
-            DeviceNotFoundError
+        assert isinstance(module_uuid, UUID)
+        if module_uuid not in self.__modules_cache:
+            module = self.__metadata.find_module(module_uuid)
+            self.__modules_cache[module_uuid] = module
+        module = self.__modules_cache[module_uuid]
+        if not module:
+            ModuleNotFoundError
 
-        if device.schema_uuid not in self.__schemas_cache:
-            schema = self.__metadata.find_schema(device.schema_uuid)
-            self.__schemas_cache[device.schema_uuid] = schema
-        schema = self.__schemas_cache[device.schema_uuid]
+        if module.schema_uuid not in self.__schemas_cache:
+            schema = self.__metadata.find_schema(module.schema_uuid)
+            self.__schemas_cache[module.schema_uuid] = schema
+        schema = self.__schemas_cache[module.schema_uuid]
         if not schema:
             raise SchemaNotFoundError
 
-        return device, schema
+        return module, schema

@@ -84,14 +84,14 @@ def schema_detail(ctx, schema_uuid):
     for i, prop in enumerate(schema.properties):
         data.append(('PROPERTIES' if i == 0 else '', '{}:{}'.format(prop.name, prop.type)))
 
-    devices = [device for device in metadata.devices if device.schema_uuid == schema_uuid]
-    if len(devices):
-        for i, device in enumerate(devices):
-            data.append(('Devices' if i == 0 else '', str(device.uuid)))
+    modules = [module for module in metadata.modules if module.schema_uuid == schema_uuid]
+    if len(modules):
+        for i, module in enumerate(modules):
+            data.append(('Modules' if i == 0 else '', str(module.uuid)))
         output_properties(data)
     else:
         output_properties(data)
-        click.echo('No devices are use this schema.')
+        click.echo('No modules are use this schema.')
 
 
 @cli_schema.command('add')

@@ -14,19 +14,19 @@ from circle_core.server import ws
 class TestSensorHandler(object):
     @classmethod
     def setup_class(cls):
-        class DummyDevice(object):
+        class DummyModule(object):
             def __init__(self, uuid):
                 self.uuid = uuid
 
         class DummyMetadata(object):
-            def find_device(self, device_uuid, *args, **kwargs):
+            def find_module(self, module_uuid, *args, **kwargs):
                 from uuid import UUID
-                return DummyDevice(UUID(device_uuid))
+                return DummyModule(UUID(module_uuid))
 
         cls.receiver = Receiver()
         cls.receiver.set_timeout(5000)
         cls.messages = cls.receiver.incoming_messages(JustLogging())
-        cls.server = Process(target=ws.run, args=[DummyMetadata(), '/(?P<device_uuid>[0-9A-Fa-f-]+)', 5000])
+        cls.server = Process(target=ws.run, args=[DummyMetadata(), '/(?P<module_uuid>[0-9A-Fa-f-]+)', 5000])
         cls.server.daemon = True
         cls.server.start()
         sleep(0.1)
