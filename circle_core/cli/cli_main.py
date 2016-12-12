@@ -21,32 +21,32 @@ from ..database import Database
 
 
 @click.group()
-@click.option('config_url', '--config', envvar='CRCR_CONFIG')
+@click.option('metadata_url', '--metadata', envvar='CRCR_METADATA')
 @click.option('crcr_uuid', '--uuid', envvar='CRCR_UUID', type=UUID)
 @click.option('log_file_path', '--log-file', envvar='CRCR_LOG_FILE_PATH', default='var/log.ltsv')
 @click.pass_context
-def cli_main(ctx, config_url, crcr_uuid, log_file_path):
+def cli_main(ctx, metadata_url, crcr_uuid, log_file_path):
     """`crcr`の起点.
 
     :param Context ctx: Context
-    :param str config_url: ConfigのURLスキーム
+    :param str metadata_url: MetadataのURLスキーム
     :param str crcr_uuid: CircleCore UUID
     :param str log_file_path: ログファイルのパス
     """
-    if config_url is None:
-        click.echo('Config is not set.')
-        click.echo('Please set config to argument `crcr --config URL_SCHEME ...`')
-        click.echo('or set config to environment variable `export CRCR_CONFIG=URL_SCHEME`.')
+    if metadata_url is None:
+        click.echo('Metadata is not set.')
+        click.echo('Please set metadata to argument `crcr --metadata URL_SCHEME ...`')
+        click.echo('or set to environment variable `export CRCR_METADATA=URL_SCHEME`.')
         ctx.exit(code=-1)
 
     if crcr_uuid is None:
         click.echo('Circle Core UUID is not set.')
         click.echo('Please set UUID to argument `crcr --uuid UUID ...`')
-        click.echo('or set config to environment variable `export CRCR_UUID=UUID`.')
+        click.echo('or set to environment variable `export CRCR_UUID=UUID`.')
         ctx.exit(code=-1)
 
     try:
-        ctx.obj = ContextObject(config_url, crcr_uuid, log_file_path)
+        ctx.obj = ContextObject(metadata_url, crcr_uuid, log_file_path)
     except ContextObjectError as e:
         click.echo(e)
         ctx.exit(code=-1)
@@ -60,7 +60,7 @@ def cli_main_env(ctx):
     :param Context ctx: Context
     """
     context_object = ctx.obj  # type: ContextObject
-    click.echo(context_object.config_url)
+    click.echo(context_object.metadata_url)
     click.echo(context_object.uuid)
     click.echo(context_object.log_file_path)
 
@@ -76,14 +76,14 @@ def cli_main_env(ctx):
 def cli_main_run(obj, ws_port, ws_path, wui_port, ipc_socket, workers, database_url):
     """CircleCoreの起動."""
     obj.ipc_socket = 'ipc://' + ipc_socket
-    core_config = obj.config
-    core_config.database_url = database_url  # とりあえず...
+    metadata = obj.metadata
+    metadata.database_url = database_url  # とりあえず...
 
-    procs = [Process(target=get_worker(worker).run, args=(core_config,)) for worker in workers]
+    procs = [Process(target=get_worker(worker).run, args=(metadata,)) for worker in workers]
     if ws_port == wui_port:
-        procs.append(Process(target=server.run, args=[wui_port, obj.config]))
+        procs.append(Process(target=server.run, args=[wui_port, obj.metadata]))
     else:
-        app = wui.create_app(obj.config)
+        app = wui.create_app(obj.metadata)
         procs += [
             Process(target=ws.run, args=[ws_path, ws_port]),
             Process(target=app.run, kwargs={'port': wui_port})
@@ -117,17 +117,17 @@ def cli_main_migrate(ctx, dry_run, database_url):
     :param str database_url: データベースのURL
     """
     if database_url is None:
-        click.echo("""Database url is not set.
-Please set config to argument `crcr --database DB_URL ...`
-or set config to environment variable `export CRCR_DATABASE=DB_URL`.""")
+        click.echo('Database url is not set.')
+        click.echo('Please set Database url to argument `crcr migrate --database DB_URL ...`')
+        click.echo('or set to environment variable `export CRCR_DATABASE=DB_URL`.')
         ctx.exit(code=-1)
 
-    core_config = ctx.obj.config
+    metadata = ctx.obj.metadata
 
     db = Database(database_url)
-    db.register_schemas_and_devices(core_config.schemas, core_config.devices)
+    db.register_schemas_and_modules(metadata.schemas, metadata.modules)
 
-    # check meta tablse
+    # check meta tables
     if dry_run:
         db.check_tables()
     else:

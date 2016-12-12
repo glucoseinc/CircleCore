@@ -7,11 +7,11 @@ from six import PY3
 
 # project module
 from circle_core.logger import LTSVLogger
-from ..models import Config, ConfigError
-from ..models.config import parse_url_scheme
+from ..models import MetadataError
+from ..models.metadata import MetadataIniFile, MetadataRedis, parse_url_scheme
 
 if PY3:
-    from typing import Optional
+    from typing import Optional, Union
 
 
 class ContextObjectError(Exception):
@@ -21,25 +21,25 @@ class ContextObjectError(Exception):
 class ContextObject(object):
     """CLI Contextオブジェクト.
 
-    :param str config_url: ConfigのURLスキーム
-    :param Config config: Configオブジェクト
+    :param str metadata_url: MetadataのURLスキーム
+    :param Union[MetadataIniFile, MetadataRedis] metadata: Metadataオブジェクト
     :param str uuid: CircleCore UUID
     :param Optional[str] log_file_path: ログファイルのパス
     :param LTSVLogger _logger: Logger
     """
 
-    def __init__(self, config_url, crcr_uuid, log_file_path):
+    def __init__(self, metadata_url, crcr_uuid, log_file_path):
         """init.
 
-        :param str config_url: ConfigのURLスキーム
+        :param str metadata_url: MetadataのURLスキーム
         :param str crcr_uuid: CircleCore UUID
         :param Optional[str] log_file_path: ログファイルのパス
         """
-        self.config_url = config_url
+        self.metadata_url = metadata_url
         try:
-            self.config = parse_url_scheme(config_url)
-        except ConfigError as e:
-            raise ContextObjectError('Invalid config url / {} : {}'.format(e, config_url))
+            self.metadata = parse_url_scheme(metadata_url)
+        except MetadataError as e:
+            raise ContextObjectError('Invalid metadata url / {} : {}'.format(e, metadata_url))
         self.uuid = crcr_uuid
         self.log_file_path = log_file_path
         self._logger = LTSVLogger(name='cli_logger', log_file_path=log_file_path)

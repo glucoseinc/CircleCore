@@ -2,47 +2,48 @@
 """センサデータを受け取って保存する"""
 
 # system module
-import logging
 import time
 from uuid import UUID
 
 from six import PY3
 
 # project module
-from circle_core.logger import get_stream_legger
+from circle_core.logger import get_stream_logger
 from ..database import Database
-from ..exceptions import DatabaseMismatchError, DeviceNotFoundError, SchemaNotFoundError
+from ..exceptions import ModuleNotFoundError, SchemaNotFoundError
 from ..helpers.nanomsg import Receiver
 from ..helpers.topics import SensorDataTopic
+from ..models.metadata import MetadataIniFile, MetadataRedis
 
 if PY3:
-    from typing import Any, Dict
+    from typing import Tuple, Union
 
 
-logger = get_stream_legger(__name__)
+logger = get_stream_logger(__name__)
 
 
-def run(config):
+def run(metadata):
     """clickから起動される.
 
     とりあえず現時点ではパケット毎にcommitする
     将来的には時間 or パケット数でcommitするようにしたい
     """
-    # TODO: Temoprary
-    config.data_receiver_cycle_time = 10 * 1000
-    config.data_receiver_cycle_count = 10
+    # TODO: Temporary
+    metadata.data_receiver_cycle_time = 10 * 1000
+    metadata.data_receiver_cycle_count = 10
 
     topic = SensorDataTopic()
     receiver = Receiver()
-    receiver.set_timeout(config.data_receiver_cycle_time)
+    receiver.set_timeout(metadata.data_receiver_cycle_time)
 
-    db = Database(config.database_url)
-    db.register_schemas_and_devices(config.schemas, config.devices)
+    db = Database(metadata.database_url)
+    db.register_schemas_and_modules(metadata.schemas, metadata.modules)
 
     if not db.check_tables().is_ok:
-        raise
+        # TODO: 例外処理
+        raise Exception
 
-    app = CRCRApp(config)
+    app = CRCRApp(metadata)
     conn = db._engine.connect()
 
     trans = conn.begin()
@@ -53,14 +54,14 @@ def run(config):
 
     while True:
         try:
-            for device_uuid, payload in receiver.incoming_messages(topic):
+            for module_uuid, payload in receiver.incoming_messages(topic):
                 if not isinstance(payload, list):
                     payload = [payload]
-                logger.debug('received a sensor data for %s : %r', device_uuid, payload)
+                logger.debug('received a sensor data for %s : %r', module_uuid, payload)
 
                 try:
-                    device, schema = app.find_device_and_schema(device_uuid)
-                    table = db.find_table_for_device(device)
+                    module, schema = app.find_module_and_schema(module_uuid)
+                    table = db.find_table_for_module(module)
 
                     now = time.time()
                     if time_before != now:
@@ -76,7 +77,7 @@ def run(config):
                     pass
 
                 last_commit_count += len(payload)
-                if last_commit_count >= config.data_receiver_cycle_count:
+                if last_commit_count >= metadata.data_receiver_cycle_count:
                     break
         except:
             trans.rollback()
@@ -95,41 +96,42 @@ def run(config):
 
 class CRCRApp(object):
     """
-    CircleCoreの情報をやりとりするクラス。config直接さわるのはアレなので。
+    CircleCoreの情報をやりとりするクラス。metadata直接さわるのはアレなので。
 
     とりあえずここに殴り書きしたけど、ちゃんと纏める
     """
-    def __init__(self, config):
+    def __init__(self, metadata):
         """
         @constructor
 
-        :param circle_core.models.config.config_base.Config config: config
+        :param Union[MetadataIniFile, MetadataRedis] metadata: metadata
         """
-        self.__config = config
-        self.__devices_cache = {}
+        self.__metadata = metadata
+        self.__modules_cache = {}
         self.__schemas_cache = {}
 
-    def find_device_and_schema(self, device_uuid):
+    def find_module_and_schema(self, module_uuid):
         """
-        deviceのUUIDからdeviceとそのschemaを返す
+        moduleのUUIDからmoduleとそのschemaを返す
 
-        :param UUID device_uuid: deviceのUUID
-        :return Tuple[Device, Schema]: deviceとschema
+        :param UUID module_uuid: moduleのUUID
+        :return: moduleとschema
+        :rtype: Tuple[Module, Schema]
         """
 
-        assert isinstance(device_uuid, UUID)
-        if device_uuid not in self.__devices_cache:
-            device = self.__config.find_device(device_uuid)
-            self.__devices_cache[device_uuid] = device
-        device = self.__devices_cache[device_uuid]
-        if not device:
-            DeviceNotFoundError
+        assert isinstance(module_uuid, UUID)
+        if module_uuid not in self.__modules_cache:
+            module = self.__metadata.find_module(module_uuid)
+            self.__modules_cache[module_uuid] = module
+        module = self.__modules_cache[module_uuid]
+        if not module:
+            raise ModuleNotFoundError
 
-        if device.schema_uuid not in self.__schemas_cache:
-            schema = self.__config.find_schema(device.schema_uuid)
-            self.__schemas_cache[device.schema_uuid] = schema
-        schema = self.__schemas_cache[device.schema_uuid]
+        if module.schema_uuid not in self.__schemas_cache:
+            schema = self.__metadata.find_schema(module.schema_uuid)
+            self.__schemas_cache[module.schema_uuid] = schema
+        schema = self.__schemas_cache[module.schema_uuid]
         if not schema:
             raise SchemaNotFoundError
 
-        return device, schema
+        return module, schema

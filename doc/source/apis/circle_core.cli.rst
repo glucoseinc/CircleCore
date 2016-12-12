@@ -28,10 +28,10 @@ circle_core.cli.context module
     :undoc-members:
     :show-inheritance:
 
-circle_core.cli.device module
+circle_core.cli.module module
 -----------------------------
 
-.. automodule:: circle_core.cli.device
+.. automodule:: circle_core.cli.module
     :members:
     :undoc-members:
     :show-inheritance:

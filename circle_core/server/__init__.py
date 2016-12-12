@@ -8,19 +8,19 @@ from circle_core.server.ws.sensor import SensorHandler
 from circle_core.server.wui import create_app
 
 
-def run(port=5000, config=None):
+def run(port=5000, metadata=None):
     """TornadoサーバーとFlaskサーバーを立てる.
 
     clickから起動される.
     """
     # meinheldとか使う場合はこのファイルに追記していくことになるのかな
     print('start combined server')
-    flask_app = create_app(config)
+    flask_app = create_app(metadata)
     tornado_app = Application([
-        (r'/ws/(?P<device_uuid>[0-9A-Fa-f-]+)', SensorHandler),
+        (r'/ws/(?P<module_uuid>[0-9A-Fa-f-]+)', SensorHandler),
         (r'.*', FallbackHandler, {'fallback': WSGIContainer(flask_app)})
     ],
-        cr_config=config
+        cr_metadata=metadata
     )
     # パフォーマンスの問題があるので別々のサーバーとして立てることも可能にする
     # http://www.tornadoweb.org/en/stable/wsgi.html#tornado.wsgi.WSGIContainer

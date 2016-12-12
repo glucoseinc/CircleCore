@@ -8,22 +8,23 @@ from uuid import UUID
 from six import add_metaclass, PY3
 
 # project module
-from ..device import Device
+from circle_core import abstractclassmethod
+from ..module import Module
 from ..schema import Schema
 
 if PY3:
     from typing import List, Optional
 
 
-class ConfigError(Exception):
+class MetadataError(Exception):
     pass
 
 
 @add_metaclass(ABCMeta)
-class Config(object):
-    """Configオブジェクト.
+class MetadataBase(object):
+    """Metadataオブジェクト.
 
-    :param str stringified_type: Configタイプ(str)
+    :param str stringified_type: Metadataタイプ(str)
     """
 
     stringified_type = 'nothing'
@@ -34,34 +35,41 @@ class Config(object):
         """
         pass
 
-    @classmethod
-    @abstractmethod
+    @abstractclassmethod
     def parse_url_scheme(cls, url_scheme):
-        """URLスキームからConfigオブジェクトを生成する.
+        """URLスキームからMetadataオブジェクトを生成する.
 
         :param str url_scheme: URLスキーム
-        :return: Configオブジェクト
-        :rtype: Config
+        :return: Metadataオブジェクト
+        :rtype: MetadataBase
         """
         raise NotImplementedError
 
-    @abstractproperty
+    @property
     def readable(self):
-        """Configが読み込み可能か.
+        """Metadataが読み込み可能か.
 
-        :return: Configが読み込み可能か
+        :return: Metadataが読み込み可能か
         :rtype: bool
         """
-        raise NotImplementedError
+        return False
 
-    @abstractproperty
+    @property
     def writable(self):
-        """Configが書き込み可能か.
+        """Metadataが書き込み可能か.
 
-        :return: Configが書き込み可能か
+        :return: Metadataが書き込み可能か
         :rtype: bool
         """
-        raise NotImplementedError
+        return False
+
+
+@add_metaclass(ABCMeta)
+class MetadataReader(MetadataBase):
+
+    @property
+    def readable(self):
+        return True
 
     @abstractproperty
     def schemas(self):
@@ -73,11 +81,11 @@ class Config(object):
         raise NotImplementedError
 
     @abstractproperty
-    def devices(self):
-        """全てのDeviceオブジェクト.
+    def modules(self):
+        """全てのModuleオブジェクト.
 
-        :return: Deviceオブジェクトリスト
-        :rtype: List[Device]
+        :return: Moduleオブジェクトリスト
+        :rtype: List[Module]
         """
         raise NotImplementedError
 
@@ -96,20 +104,27 @@ class Config(object):
                 return schema
         return None
 
-    def find_device(self, device_uuid):
-        """デバイスリストから表示名がマッチするものを取得する.
+    def find_module(self, module_uuid):
+        """モジュールリストから表示名がマッチするものを取得する.
 
-        :param str device_uuid: 取得するデバイスのUUID
+        :param str module_uuid: 取得するモジュールのUUID
         :return: マッチしたスキーマ
-        :rtype: Optional[Device]
+        :rtype: Optional[Module]
         """
-        if not isinstance(device_uuid, UUID):
-            device_uuid = UUID(device_uuid)
+        if not isinstance(module_uuid, UUID):
+            module_uuid = UUID(module_uuid)
 
-        for device in self.devices:
-            if device.uuid == device_uuid:
-                return device
+        for module in self.modules:
+            if module.uuid == module_uuid:
+                return module
         return None
+
+
+@add_metaclass(ABCMeta)
+class MetadataWriter(MetadataBase):
+    @property
+    def writable(self):
+        return True
 
     @abstractmethod
     def register_schema(self, schema):
@@ -128,25 +143,25 @@ class Config(object):
         raise NotImplementedError
 
     @abstractmethod
-    def register_device(self, device):
-        """Deviceオブジェクトをストレージに登録する.
+    def register_module(self, module):
+        """Moduleオブジェクトをストレージに登録する.
 
-        :param Device device: Deviceオブジェクト
+        :param Module module: Moduleオブジェクト
         """
         raise NotImplementedError
 
     @abstractmethod
-    def unregister_device(self, device):
-        """Deviceオブジェクトをストレージから削除する.
+    def unregister_module(self, module):
+        """Moduleオブジェクトをストレージから削除する.
 
-        :param Device device: Deviceオブジェクト
+        :param Module module: Moduleオブジェクト
         """
         raise NotImplementedError
 
     @abstractmethod
-    def update_device(self, device):
-        """ストレージ上のDeviceオブジェクトを更新する.
+    def update_module(self, module):
+        """ストレージ上のModuleオブジェクトを更新する.
 
-        :param Device device: Deviceオブジェクト
+        :param Module module: Moduleオブジェクト
         """
         raise NotImplementedError

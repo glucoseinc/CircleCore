@@ -14,22 +14,22 @@ class TestCliMain(object):
         (
             [],  # main_params
             {'exit_code': -1,
-             'output': ['Config is not set.',
-                        'Please set config to argument `crcr --config URL_SCHEME ...`',
-                        'or set config to environment variable `export CRCR_CONFIG=URL_SCHEME`.']},  # expected
+             'output': ['Metadata is not set.',
+                        'Please set metadata to argument `crcr --metadata URL_SCHEME ...`',
+                        'or set to environment variable `export CRCR_METADATA=URL_SCHEME`.']},  # expected
         ),
         (
-            ['--config', 'redis://localhost:6379/1'],  # main_params
+            ['--metadata', 'redis://localhost:6379/1'],  # main_params
             {'exit_code': -1,
              'output': ['Circle Core UUID is not set.',
                         'Please set UUID to argument `crcr --uuid UUID ...`',
-                        'or set config to environment variable `export CRCR_UUID=UUID`.']},  # expected
+                        'or set to environment variable `export CRCR_UUID=UUID`.']},  # expected
         ),
         (
-            ['--config', 'redis://localhost:65535/16',
+            ['--metadata', 'redis://localhost:65535/16',
              '--uuid', '12121212-3434-5656-7878-909090909090'],  # main_params
             {'exit_code': -1,
-             'output': ['Invalid config url / '
+             'output': ['Invalid metadata url / '
                         'Cannot connect to Redis server. : redis://localhost:65535/16']},  # expected
         ),
     ])
@@ -48,19 +48,19 @@ class TestCliMain(object):
     def test_main_env_success(self, main_param_uuid, expected):
         # from circle_core.cli import cli_entry
 
-        config = os.environ['CRCR_CONFIG']
-        main_params = ['--config', config] + main_param_uuid
+        metadata = os.environ['CRCR_METADATA']
+        main_params = ['--metadata', metadata] + main_param_uuid
         runner = CliRunner()
         result = runner.invoke(cli_entry, main_params + ['env'])
         assert result.exit_code == 0
-        assert result.output == '\n'.join([config,
+        assert result.output == '\n'.join([metadata,
                                            expected['output_uuid'],
                                            expected['output_log_file_path']]) + '\n'
 
     def test_main_migrate_failure(self, monkeypatch):
         """`--database`オプションなしでmigrateを呼んだらエラーにする"""
         default_args = [
-            '--config', 'file:///{}/tests/config.ini'.format(os.getcwd()),
+            '--metadata', 'file:///{}/tests/metadata.ini'.format(os.getcwd()),
             '--uuid', '12121212-3434-5656-7878-909090909090',
             'migrate'
         ]
@@ -89,7 +89,7 @@ class TestCliMain(object):
 
         # dry-runなし
         default_args = [
-            '--config', 'file:///{}/tests/config.ini'.format(os.getcwd()),
+            '--metadata', 'file:///{}/tests/metadata.ini'.format(os.getcwd()),
             '--uuid', '12121212-3434-5656-7878-909090909090',
             'migrate', '--database={}'.format(test_db_url)
         ]

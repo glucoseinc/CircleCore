@@ -36,14 +36,14 @@ If you want to install CircleCore as development, use `-e` option.
 ## Usage
 ### Set environment variable
 ```bash
-$ export CRCR_CONFIG=redis://localhost:6379/0
+$ export CRCR_METADATA=redis://localhost:6379/0
 $ export CRCR_UUID=...
 $ export CRCR_DATABASE=mysql+mysqlconnector://root@localhost/crcr
 ```
 
 or grant arguments at command excution.
 ```bash
-$ crcr --config redis://localhost:6379/0 --uuid ... subcommand
+$ crcr --metadata redis://localhost:6379/0 --uuid ... subcommand
 ```
 
 ### Run server

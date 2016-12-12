@@ -44,7 +44,7 @@ class LTSVLogger(object):
 
 
 # TODO: temporary
-def get_stream_legger(name=None, level=logging.DEBUG):
+def get_stream_logger(name=None, level=logging.DEBUG):
     logger = logging.getLogger(name)
     logger.setLevel(level)
     logger.addHandler(logging.StreamHandler())

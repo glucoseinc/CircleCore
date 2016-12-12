@@ -12,7 +12,7 @@ from tests import url_scheme_ini_file
 class TestCliSchema(object):
     @pytest.mark.usefixtures('flushall_redis_server')
     @pytest.mark.parametrize(('main_params', 'expected_output_length'), [
-        (['--config', url_scheme_ini_file],  # main_params
+        (['--metadata', url_scheme_ini_file],  # main_params
          1 + 1 + 2 + 1),  # expected_output_length
 
         ([],  # main_params
@@ -25,17 +25,17 @@ class TestCliSchema(object):
         assert len(result.output.split('\n')) == expected_output_length
 
     @pytest.mark.parametrize(('main_params', 'schema_detail_params', 'expected_exit_code', 'expected_output_length'), [
-        (['--config', url_scheme_ini_file],  # main_params
+        (['--metadata', url_scheme_ini_file],  # main_params
          ['32218d0b-ad2a-4316-843b-4217fc2deb0b'],  # schema_detail_params 温度センサ
          0,  # expected_exit_code
          1 + 1 + 5 + 1 + 1),  # expected_output_length
 
-        (['--config', url_scheme_ini_file],  # main_params
+        (['--metadata', url_scheme_ini_file],  # main_params
          ['00000000-0000-0000-0000-000000000000'],  # schema_detail_params 登録なし
          -1,  # expected_exit_code
          1 + 1),  # expected_output_length
 
-        (['--config', url_scheme_ini_file],  # main_params
+        (['--metadata', url_scheme_ini_file],  # main_params
          ['7c6b4c74-43f2-493d-9d33-8e460047fccd'],  # schema_detail_params 湿度センサ
          0,  # expected_exit_code
          1 + 1 + 5 + 1 + 1),  # expected_output_length
@@ -48,15 +48,15 @@ class TestCliSchema(object):
 
     @pytest.mark.usefixtures('flushall_redis_server')
     @pytest.mark.parametrize(('main_params', 'schema_add_params', 'expected_exit_code', 'expected_output'), [
-        (['--config', url_scheme_ini_file],  # main_params
+        (['--metadata', url_scheme_ini_file],  # main_params
          ['--name', 'schema_name', 'key:int'],  # schema_add_params
          -1,  # expected_exit_code
          'Cannot register to INI File.\n'),  # expected_output
 
-        (['--config', 'redis://localhost:65535/16'],  # main_params
+        (['--metadata', 'redis://localhost:65535/16'],  # main_params
          ['--name', 'schema_name', 'key:int'],  # schema_add_params
          -1,  # expected_exit_code
-         'Invalid config url / Cannot connect to Redis server. : redis://localhost:65535/16\n'),  # expected_output
+         'Invalid metadata url / Cannot connect to Redis server. : redis://localhost:65535/16\n'),  # expected_output
 
         ([],  # main_params
          ['--name', 'schema_name', 'key_int'],  # schema_add_params
@@ -85,7 +85,7 @@ class TestCliSchema(object):
 
     @pytest.mark.usefixtures('flushall_redis_server')
     @pytest.mark.parametrize(('main_params', 'schema_remove_params', 'expected_exit_code', 'expected_output'), [
-        (['--config', url_scheme_ini_file],  # main_params
+        (['--metadata', url_scheme_ini_file],  # main_params
          ['32218d0b-ad2a-4316-843b-4217fc2deb0b'],  # schema_remove_params
          -1,  # expected_exit_code
          'Cannot remove from INI File.\n'),  # expected_output

@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
+# system module
+from __future__ import absolute_import
+
 # community module
 from redis import ConnectionError, Redis
 from six import PY3
 
 # project module
-from .config_base import Config, ConfigError
-from ..device import Device
+from .base import MetadataError, MetadataReader, MetadataWriter
+from ..module import Module
 from ..schema import Schema
 
 if PY3:
@@ -34,8 +37,8 @@ class RedisClient(Redis):
         return response
 
 
-class ConfigRedis(Config):
-    """ConfigRedisオブジェクト.
+class MetadataRedis(MetadataReader, MetadataWriter):
+    """MetadataRedisオブジェクト.
 
     :param RedisClient redis_client: Redisクライアント
     """
@@ -47,7 +50,7 @@ class ConfigRedis(Config):
 
         :param RedisClient redis_client: Redisクライアント
         """
-        super(ConfigRedis, self).__init__()
+        super(MetadataRedis, self).__init__()
         self.redis_client = redis_client
 
     @classmethod
@@ -56,17 +59,9 @@ class ConfigRedis(Config):
             redis_client = RedisClient.from_url(url_scheme)
             redis_client.ping()
         except ConnectionError:
-            raise ConfigError('Cannot connect to Redis server.')
+            raise MetadataError('Cannot connect to Redis server.')
 
-        return ConfigRedis(redis_client)
-
-    @property
-    def readable(self):
-        return True
-
-    @property
-    def writable(self):
-        return True
+        return MetadataRedis(redis_client)
 
     @property
     def schemas(self):
@@ -79,46 +74,39 @@ class ConfigRedis(Config):
         return schemas
 
     @property
-    def devices(self):
-        devices = []
-        keys = [key for key in self.redis_client.keys() if Device.is_key_matched(key)]
+    def modules(self):
+        modules = []
+        keys = [key for key in self.redis_client.keys() if Module.is_key_matched(key)]
         for key in keys:
             if self.redis_client.type(key) == 'hash':
                 fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]
-                devices.append(Device(**fields))
-        return devices
+                modules.append(Module(**fields))
+        return modules
 
     def register_schema(self, schema):
         mapping = {
             'uuid': schema.uuid,
             'display_name': schema.display_name,
+            'properties': schema.stringified_properties
         }
-        for i, prop in enumerate(schema.properties, start=1):
-            mapping['key{}'.format(i)] = prop.name
-            mapping['type{}'.format(i)] = prop.type
 
         self.redis_client.hmset(schema.storage_key, mapping)
 
     def unregister_schema(self, schema):
         self.redis_client.delete(schema.storage_key)
 
-    def register_device(self, device):
+    def register_module(self, module):
         mapping = {
-            'uuid': device.uuid,
-            'display_name': device.display_name,
-            'schema_uuid': device.schema_uuid,
+            'uuid': module.uuid,
+            'display_name': module.display_name,
+            'schema_uuid': module.schema_uuid,
+            'properties': module.stringified_properties
         }
-        for i, prop in enumerate(device.properties, start=1):
-            mapping['property{}'.format(i)] = prop.name
-            mapping['value{}'.format(i)] = prop.value
 
-        self.redis_client.hmset(device.storage_key, mapping)
+        self.redis_client.hmset(module.storage_key, mapping)
 
-    def unregister_device(self, device):
-        self.redis_client.delete(device.storage_key)
+    def unregister_module(self, module):
+        self.redis_client.delete(module.storage_key)
 
-    def update_device(self, device):
-        hkeys = [hkey for hkey in self.redis_client.hkeys(device.storage_key)
-                 if hkey.startswith('property') or hkey.startswith('value')]
-        self.redis_client.hdel(device.storage_key, *hkeys)
-        self.register_device(device)
+    def update_module(self, module):
+        self.register_module(module)
