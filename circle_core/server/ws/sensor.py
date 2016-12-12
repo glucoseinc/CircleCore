@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 """TornadoでWebSocketサーバーを立てる."""
-from logging import getLogger
+import logging
 
 from tornado.websocket import WebSocketHandler
 
 from circle_core.exceptions import DeviceNotFoundError
 from circle_core.helpers.nanomsg import Sender
 from circle_core.helpers.topics import SensorDataTopic
+from circle_core.logger import get_stream_legger
 
-logger = getLogger(__name__)
+logger = get_stream_legger(__name__)
 
 
 class SensorHandler(WebSocketHandler):

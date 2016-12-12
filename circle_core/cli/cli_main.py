@@ -23,13 +23,15 @@ from ..database import Database
 @click.group()
 @click.option('config_url', '--config', envvar='CRCR_CONFIG')
 @click.option('crcr_uuid', '--uuid', envvar='CRCR_UUID', type=UUID)
+@click.option('log_file_path', '--log-file', envvar='CRCR_LOG_FILE_PATH', default='var/log.ltsv')
 @click.pass_context
-def cli_main(ctx, config_url, crcr_uuid):
+def cli_main(ctx, config_url, crcr_uuid, log_file_path):
     """`crcr`の起点.
 
     :param Context ctx: Context
     :param str config_url: ConfigのURLスキーム
     :param str crcr_uuid: CircleCore UUID
+    :param str log_file_path: ログファイルのパス
     """
     if config_url is None:
         click.echo('Config is not set.')
@@ -44,7 +46,7 @@ def cli_main(ctx, config_url, crcr_uuid):
         ctx.exit(code=-1)
 
     try:
-        ctx.obj = ContextObject(config_url, crcr_uuid)
+        ctx.obj = ContextObject(config_url, crcr_uuid, log_file_path)
     except ContextObjectError as e:
         click.echo(e)
         ctx.exit(code=-1)
@@ -57,8 +59,10 @@ def cli_main_env(ctx):
 
     :param Context ctx: Context
     """
-    click.echo(ctx.obj.config_url)
-    click.echo(ctx.obj.uuid)
+    context_object = ctx.obj  # type: ContextObject
+    click.echo(context_object.config_url)
+    click.echo(context_object.uuid)
+    click.echo(context_object.log_file_path)
 
 
 @cli_main.command('run')

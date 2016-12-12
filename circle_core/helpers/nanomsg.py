@@ -3,7 +3,7 @@
 """nanomsgのラッパー."""
 
 # system module
-from logging import getLogger
+import logging
 from time import sleep
 
 # community module
@@ -11,13 +11,16 @@ from click import get_current_context
 import nnpy
 from six import add_metaclass, PY3
 
+# project module
+from circle_core.logger import get_stream_legger
+
 if PY3:
     from json.decoder import JSONDecodeError
 else:
     JSONDecodeError = ValueError
 
 __all__ = ('Receiver', 'Sender', 'get_ipc_socket_path')
-logger = getLogger(__name__)
+logger = get_stream_legger(__name__)
 
 
 def get_ipc_socket_path():

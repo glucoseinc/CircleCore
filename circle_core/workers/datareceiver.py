@@ -2,13 +2,14 @@
 """センサデータを受け取って保存する"""
 
 # system module
-from logging import getLogger
+import logging
 import time
 from uuid import UUID
 
 from six import PY3
 
 # project module
+from circle_core.logger import get_stream_legger
 from ..database import Database
 from ..exceptions import DatabaseMismatchError, DeviceNotFoundError, SchemaNotFoundError
 from ..helpers.nanomsg import Receiver
@@ -18,7 +19,7 @@ if PY3:
     from typing import Any, Dict
 
 
-logger = getLogger(__name__)
+logger = get_stream_legger(__name__)
 
 
 def run(config):

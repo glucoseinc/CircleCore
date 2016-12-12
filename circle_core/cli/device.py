@@ -134,6 +134,7 @@ def device_add(ctx, display_name, schema_uuid, properties_string, active):
     # TODO: activeの扱い
 
     config.register_device(device)
+    context_object.log_info('device add', uuid=device.uuid)
     click.echo('Device "{}" is added.'.format(device.uuid))
 
 
@@ -158,6 +159,7 @@ def device_remove(ctx, device_uuid):
         click.echo('Device "{}" is not registered. Do nothing.'.format(device_uuid))
         ctx.exit(code=-1)
     config.unregister_device(device)
+    context_object.log_info('device remove', uuid=device_uuid)
     click.echo('Device "{}" is removed.'.format(device_uuid))
 
 
@@ -208,4 +210,5 @@ def device_property(ctx, adding_properties_string, removing_property_names_strin
         device.append_properties(adding_properties)
 
     config.update_device(device)
+    context_object.log_info('device update', uuid=device_uuid)
     click.echo('Device "{}" is updated.'.format(device_uuid))
