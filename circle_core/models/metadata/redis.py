@@ -97,9 +97,10 @@ class MetadataRedis(MetadataReader, MetadataWriter):
     def register_schema(self, schema):
         mapping = {
             'uuid': schema.uuid,
-            'display_name': schema.display_name,
             'properties': schema.stringified_properties
         }
+        if schema.display_name is not None:
+            mapping['display_name'] = schema.display_name,
 
         self.redis_client.hmset(schema.storage_key, mapping)
 
@@ -109,10 +110,11 @@ class MetadataRedis(MetadataReader, MetadataWriter):
     def register_module(self, module):
         mapping = {
             'uuid': module.uuid,
-            'display_name': module.display_name,
             'schema_uuid': module.schema_uuid,
             'properties': module.stringified_properties
         }
+        if module.display_name is not None:
+            mapping['display_name'] = module.display_name
 
         self.redis_client.hmset(module.storage_key, mapping)
 
