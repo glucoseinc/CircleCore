@@ -70,6 +70,11 @@ class MetadataReader(MetadataBase):
 
     @property
     def readable(self):
+        """Metadataが読み込み可能か.
+
+        :return: Metadataが読み込み可能か
+        :rtype: bool
+        """
         return True
 
     @abstractproperty

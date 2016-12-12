@@ -4,6 +4,7 @@
 import os
 
 # community module
+from six import PY3
 from six.moves import configparser
 from six.moves.urllib.parse import urlparse
 
@@ -12,6 +13,9 @@ from .base import MetadataError, MetadataReader
 from ..module import Module
 from ..schema import Schema
 from ..user import User
+
+if PY3:
+    from typing import List
 
 
 class MetadataIniFile(MetadataReader):
@@ -32,6 +36,12 @@ class MetadataIniFile(MetadataReader):
 
     @classmethod
     def parse_url_scheme(cls, url_scheme):
+        """URLスキームからMetadataオブジェクトを生成する.
+
+        :param str url_scheme: URLスキーム
+        :return: Metadataオブジェクト
+        :rtype: MetadataIniFile
+        """
         ini_file_path = urlparse(url_scheme).path
         if not os.path.exists(ini_file_path):
             raise MetadataError('INI file "{}" not found.'.format(ini_file_path))
@@ -40,6 +50,11 @@ class MetadataIniFile(MetadataReader):
 
     @property
     def schemas(self):
+        """全てのSchemaオブジェクト.
+
+        :return: Schemaオブジェクトリスト
+        :rtype: List[Schema]
+        """
         parser = configparser.ConfigParser()
         parser.read(self.ini_file_path)
         schema_dicts = [dict(parser.items(section)) for section in parser.sections() if Schema.is_key_matched(section)]
@@ -47,6 +62,11 @@ class MetadataIniFile(MetadataReader):
 
     @property
     def modules(self):
+        """全てのModuleオブジェクト.
+
+        :return: Moduleオブジェクトリスト
+        :rtype: List[Module]
+        """
         parser = configparser.ConfigParser()
         parser.read(self.ini_file_path)
         module_dicts = [dict(parser.items(section)) for section in parser.sections() if Module.is_key_matched(section)]
@@ -54,6 +74,11 @@ class MetadataIniFile(MetadataReader):
 
     @property
     def users(self):
+        """全てのUserオブジェクト.
+
+        :return: Userオブジェクトリスト
+        :rtype: List[User]
+        """
         parser = configparser.ConfigParser()
         parser.read(self.ini_file_path)
         user_dicts = [dict(parser.items(section)) for section in parser.sections()

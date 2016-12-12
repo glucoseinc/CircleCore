@@ -14,7 +14,7 @@ from ..schema import Schema
 from ..user import User
 
 if PY3:
-    from typing import Any, Dict
+    from typing import Any, Dict, List
 
 
 class RedisClient(Redis):
@@ -56,6 +56,12 @@ class MetadataRedis(MetadataReader, MetadataWriter):
 
     @classmethod
     def parse_url_scheme(cls, url_scheme):
+        """URLスキームからMetadataオブジェクトを生成する.
+
+        :param str url_scheme: URLスキーム
+        :return: Metadataオブジェクト
+        :rtype: MetadataRedis
+        """
         try:
             redis_client = RedisClient.from_url(url_scheme)
             redis_client.ping()
@@ -66,6 +72,11 @@ class MetadataRedis(MetadataReader, MetadataWriter):
 
     @property
     def schemas(self):
+        """全てのSchemaオブジェクト.
+
+        :return: Schemaオブジェクトリスト
+        :rtype: List[Schema]
+        """
         schemas = []
         keys = [key for key in self.redis_client.keys() if Schema.is_key_matched(key)]
         for key in keys:
@@ -76,6 +87,11 @@ class MetadataRedis(MetadataReader, MetadataWriter):
 
     @property
     def modules(self):
+        """全てのModuleオブジェクト.
+
+        :return: Moduleオブジェクトリスト
+        :rtype: List[Module]
+        """
         modules = []
         keys = [key for key in self.redis_client.keys() if Module.is_key_matched(key)]
         for key in keys:
@@ -86,6 +102,11 @@ class MetadataRedis(MetadataReader, MetadataWriter):
 
     @property
     def users(self):
+        """全てのUserオブジェクト.
+
+        :return: Userオブジェクトリスト
+        :rtype: List[User]
+        """
         users = []
         keys = [key for key in self.redis_client.keys() if User.is_key_matched(key)]
         for key in keys:
@@ -95,6 +116,10 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         return users
 
     def register_schema(self, schema):
+        """Schemaオブジェクトをストレージに登録する.
+
+        :param Schema schema: Schemaオブジェクト
+        """
         mapping = {
             'uuid': schema.uuid,
             'properties': schema.stringified_properties
@@ -105,9 +130,17 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         self.redis_client.hmset(schema.storage_key, mapping)
 
     def unregister_schema(self, schema):
+        """Schemaオブジェクトをストレージから削除する.
+
+        :param Schema schema: Schemaオブジェクト
+        """
         self.redis_client.delete(schema.storage_key)
 
     def register_module(self, module):
+        """Moduleオブジェクトをストレージに登録する.
+
+        :param Module module: Moduleオブジェクト
+        """
         mapping = {
             'uuid': module.uuid,
             'schema_uuid': module.schema_uuid,
@@ -119,12 +152,24 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         self.redis_client.hmset(module.storage_key, mapping)
 
     def unregister_module(self, module):
+        """Moduleオブジェクトをストレージから削除する.
+
+        :param Module module: Moduleオブジェクト
+        """
         self.redis_client.delete(module.storage_key)
 
     def update_module(self, module):
+        """ストレージ上のModuleオブジェクトを更新する.
+
+        :param Module module: Moduleオブジェクト
+        """
         self.register_module(module)
 
     def register_user(self, user):
+        """Userオブジェクトをストレージに登録する.
+
+        :param User user: Userオブジェクト
+        """
         mapping = {
             'uuid': user.uuid,
             'mail_address': user.mail_address,
@@ -135,4 +180,8 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         self.redis_client.hmset(user.storage_key, mapping)
 
     def unregister_user(self, user):
+        """Userオブジェクトをストレージから削除する.
+
+        :param User user: Userオブジェクト
+        """
         self.redis_client.delete(user.storage_key)
