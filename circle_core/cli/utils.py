@@ -134,7 +134,7 @@ class RestartableProcess:
         signal(SIGINT, cls.terminate_all)
 
         for proc in cycle(cls.procs):
-            sleep(.1)  # これがないとCPU使用率100%
+            proc.join(0.1)
             if not proc.is_alive():
                 click.echo('PID {} has died. Restarting...'.format(proc.pid))
                 try:
