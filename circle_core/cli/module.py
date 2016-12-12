@@ -16,7 +16,7 @@ from .utils import generate_uuid, output_listing_columns, output_properties
 from ..models import Module
 
 if PY3:
-    from typing import List, Tuple
+    from typing import List, Optional, Tuple
 
 
 @click.group('module')
@@ -89,15 +89,15 @@ def module_detail(ctx, module_uuid):
 
 @cli_module.command('add')
 @click.option('display_name', '--name')
-@click.option('schema_uuid', '--schema', type=UUID)
-@click.option('properties', '--property')
-@click.option('--active/--inactive')
+@click.option('schema_uuid', '--schema', type=UUID, required=True)
+@click.option('properties', '--property', required=True)
+@click.option('--active/--inactive', default=True)
 @click.pass_context
 def module_add(ctx, display_name, schema_uuid, properties, active):
     """モジュールを登録する.
 
     :param Context ctx: Context
-    :param str display_name: モジュール表示名
+    :param Optional[str] display_name: モジュール表示名
     :param UUID schema_uuid: スキーマUUID
     :param str properties: プロパティ
     :param bool active:
@@ -165,8 +165,8 @@ def module_property(ctx, adding_properties_string, removing_property_names_strin
     """モジュールのプロパティを更新する.
 
     :param Context ctx: Context
-    :param str adding_properties_string: 追加プロパティ
-    :param str removing_property_names_string: 削除プロパティ
+    :param Optional[str] adding_properties_string: 追加プロパティ
+    :param Optional[str] removing_property_names_string: 削除プロパティ
     :param UUID module_uuid: モジュールUUID
     """
     context_object = ctx.obj  # type: ContextObject
