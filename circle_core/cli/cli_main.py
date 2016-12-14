@@ -4,8 +4,11 @@
 
 from __future__ import absolute_import, print_function
 
+from itertools import cycle
 from multiprocessing import Process
+from signal import SIGINT, signal, SIGTERM
 import sys
+from time import time
 from uuid import UUID
 
 # community module
@@ -17,6 +20,8 @@ from circle_core import server
 from circle_core.server import ws, wui
 from circle_core.workers import get_worker
 from .context import ContextObject, ContextObjectError
+from .utils import RestartableProcess
+
 from ..database import Database
 
 
@@ -72,37 +77,27 @@ def cli_main_env(ctx):
 @click.option('--ipc-socket', type=click.Path(resolve_path=True), envvar='CRCR_IPCSOCK', default='/tmp/circlecore.ipc')
 @click.option('workers', '--worker', type=click.STRING, envvar='CRCR_WORKERS', multiple=True)
 @click.option('database_url', '--database', envvar='CRCR_DATABASE')
-@click.pass_obj
-def cli_main_run(obj, ws_port, ws_path, wui_port, ipc_socket, workers, database_url):
+@click.pass_context
+def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, workers, database_url):
     """CircleCoreの起動."""
-    obj.ipc_socket = 'ipc://' + ipc_socket
-    metadata = obj.metadata
+    ctx.obj.ipc_socket = 'ipc://' + ipc_socket
+    metadata = ctx.obj.metadata
     metadata.database_url = database_url  # とりあえず...
 
-    procs = [Process(target=get_worker(worker).run, args=(metadata,)) for worker in workers]
+    for worker in workers:
+        RestartableProcess(target=get_worker(worker).run, args=[metadata]).start()
+
     if ws_port == wui_port:
-        procs.append(Process(target=server.run, args=[wui_port, obj.metadata]))
+        RestartableProcess(target=server.run, args=[wui_port, metadata]).start()
     else:
-        app = wui.create_app(obj.metadata)
-        procs += [
-            Process(target=ws.run, args=[ws_path, ws_port]),
-            Process(target=app.run, kwargs={'port': wui_port})
-        ]
+        RestartableProcess(target=ws.run, args=[ws_path, ws_port]).start()
+        RestartableProcess(target=wui.create_app(metadata).run, kwargs={'port': wui_port}).start()
 
-    print(
-        'Websocket : ws://{host}:{port}{path}'.format(path=ws_path, port=ws_port, host='127.0.0.1'),
-        file=sys.stderr)
-    print('WebUI : http://127.0.0.1:{port}{path}'.format(path='/', port=ws_port), file=sys.stderr)
-    print('IPC : {}'.format(obj.ipc_socket), file=sys.stderr)
+    click.echo('Websocket : ws://{host}:{port}{path}'.format(path=ws_path, port=ws_port, host='127.0.0.1'), err=True)
+    click.echo('WebUI : http://127.0.0.1:{port}{path}'.format(path='/', port=ws_port), err=True)
+    click.echo('IPC : {}'.format(ctx.obj.ipc_socket), err=True)
 
-    for proc in procs:
-        proc.daemon = True
-        proc.start()
-
-    while all(proc.is_alive() for proc in procs):
-        pass
-
-    raise RuntimeError()
+    RestartableProcess.wait_all()
 
 
 @cli_main.command('migrate')
@@ -110,7 +105,7 @@ def cli_main_run(obj, ws_port, ws_path, wui_port, ipc_socket, workers, database_
 @click.option('--dry-run', '-n', is_flag=True)
 @click.option('database_url', '--database', envvar='CRCR_DATABASE')
 def cli_main_migrate(ctx, dry_run, database_url):
-    """DBを最新スキーマの状態にあわせる
+    """DBを最新スキーマの状態にあわせる.
 
     :param Context ctx: Context
     :param bool dry_run: 実行しなければTrue

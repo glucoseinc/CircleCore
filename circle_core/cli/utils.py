@@ -3,6 +3,10 @@
 """CLI Utilities."""
 
 # system module
+from itertools import cycle
+from multiprocessing import Process
+from signal import SIGINT, signal, SIGTERM
+from time import sleep, time
 from unicodedata import east_asian_width
 from uuid import UUID, uuid4
 
@@ -109,3 +113,60 @@ def generate_uuid(existing=None):
         while str(generated) in [str(e) for e in existing]:
             generated = uuid4()
     return generated
+
+
+class RestartableProcess:
+    """RestartableProcess.
+
+    :param list args:
+    :param dict kwargs:
+    :param int startedTime:
+    :param Process proc:
+    :param list procs:
+    """
+
+    procs = []
+
+    @classmethod
+    def wait_all(cls):
+        """`crcr run`."""
+        signal(SIGTERM, cls.terminate_all)
+        signal(SIGINT, cls.terminate_all)
+
+        for proc in cycle(cls.procs):
+            proc.join(0.1)
+            if not proc.is_alive():
+                click.echo('PID {} has died. Restarting...'.format(proc.pid))
+                try:
+                    proc.start()
+                except RuntimeError:
+                    cls.terminate_all()
+
+    @classmethod
+    def terminate_all(cls, *args):
+        """全ての子プロセスをterminate."""
+        for proc in cls.procs:
+            proc.terminate()
+
+        click.get_current_context().abort()
+
+    def __init__(self, *args, **kwargs):
+        """constructor."""
+        self.args = args
+        self.kwargs = kwargs
+        self.startedTime = 0
+
+    def __getattr__(self, attr):
+        """delegation."""
+        return getattr(self.proc, attr)
+
+    def start(self):
+        """start."""
+        if 10 > time() - self.startedTime:
+            raise RuntimeError('Restarted process has died immediately')
+
+        self.proc = Process(*self.args, **self.kwargs)
+        self.procs.append(self)
+        self.proc.daemon = True
+        self.proc.start()
+        self.startedTime = time()

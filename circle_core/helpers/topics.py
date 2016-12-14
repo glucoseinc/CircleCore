@@ -16,6 +16,7 @@ class TopicBase(object):
 
     @property
     def topic(self):
+        """Topic名をTOPIC_LENGTHに揃えた値."""
         return self.__class__.__name__.ljust(TOPIC_LENGTH)
 
     def with_json(self, jsondata):
@@ -50,9 +51,7 @@ class TopicBase(object):
 class JustLogging(TopicBase):
     """特に意味のないTopic."""
 
-    @property
-    def topic(self):
-        return ''
+    pass
 
 
 class SensorDataTopic(TopicBase):
