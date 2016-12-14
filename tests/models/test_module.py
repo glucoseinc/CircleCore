@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from circle_core.models.module import Module
+from circle_core.models import Module
 
 
 TEST_MODULE_UUID = '00000000-0000-0000-0000-000000000000'

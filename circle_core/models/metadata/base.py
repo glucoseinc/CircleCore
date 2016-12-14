@@ -11,6 +11,7 @@ from six import add_metaclass, PY3
 from circle_core import abstractclassmethod
 from ..module import Module
 from ..schema import Schema
+from ..user import User
 
 if PY3:
     from typing import List, Optional
@@ -89,10 +90,19 @@ class MetadataReader(MetadataBase):
         """
         raise NotImplementedError
 
+    @abstractproperty
+    def users(self):
+        """全てのUserオブジェクト.
+
+        :return: Userオブジェクトリスト
+        :rtype: List[User]
+        """
+        raise NotImplementedError
+
     def find_schema(self, schema_uuid):
         """スキーマリストからUUIDがマッチするものを取得する.
 
-        :param str schema_uuid: 取得するスキーマのUUID
+        :param UUID schema_uuid: 取得するスキーマのUUID
         :return: マッチしたスキーマ
         :rtype: Optional[Schema]
         """
@@ -105,10 +115,10 @@ class MetadataReader(MetadataBase):
         return None
 
     def find_module(self, module_uuid):
-        """モジュールリストから表示名がマッチするものを取得する.
+        """モジュールリストからUUIDがマッチするものを取得する.
 
-        :param str module_uuid: 取得するモジュールのUUID
-        :return: マッチしたスキーマ
+        :param UUID module_uuid: 取得するモジュールのUUID
+        :return: マッチしたモジュール
         :rtype: Optional[Module]
         """
         if not isinstance(module_uuid, UUID):
@@ -117,6 +127,30 @@ class MetadataReader(MetadataBase):
         for module in self.modules:
             if module.uuid == module_uuid:
                 return module
+        return None
+
+    def find_user(self, user_uuid):
+        """ユーザリストからUUIDがマッチするものを取得する.
+
+        :param UUID user_uuid: 取得するユーザのUUID
+        :return: マッチしたユーザ
+        :rtype: Optional[User]
+        """
+        for user in self.users:  # type: User
+            if user.uuid == user_uuid:
+                return user
+        return None
+
+    def find_user_by_mail_address(self, mail_address):
+        """ユーザリストからメールアドレスがマッチするものを取得する.
+
+        :param str mail_address: 取得するユーザのメールアドレス
+        :return: マッチしたユーザ
+        :rtype: Optional[User]
+        """
+        for user in self.users:  # type: User
+            if user.mail_address == mail_address:
+                return user
         return None
 
 
@@ -163,5 +197,21 @@ class MetadataWriter(MetadataBase):
         """ストレージ上のModuleオブジェクトを更新する.
 
         :param Module module: Moduleオブジェクト
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def register_user(self, user):
+        """Userオブジェクトをストレージに登録する.
+
+        :param User user: Userオブジェクト
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def unregister_user(self, user):
+        """Userオブジェクトをストレージから削除する.
+
+        :param User user: Userオブジェクト
         """
         raise NotImplementedError

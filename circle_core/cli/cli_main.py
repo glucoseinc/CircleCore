@@ -30,7 +30,7 @@ def cli_main(ctx, metadata_url, crcr_uuid, log_file_path):
 
     :param Context ctx: Context
     :param str metadata_url: MetadataのURLスキーム
-    :param str crcr_uuid: CircleCore UUID
+    :param UUID crcr_uuid: CircleCore UUID
     :param str log_file_path: ログファイルのパス
     """
     if metadata_url is None:

@@ -16,6 +16,7 @@ import sqlalchemy.sql.ddl
 from circle_core.exceptions import MigrationError
 from circle_core.logger import get_stream_logger
 from .constants import CRDataType
+from .models import Module, Schema
 
 if PY3:
     from typing import List
@@ -128,6 +129,11 @@ class Database(object):
         self._engine.dispose()
 
     def make_table_name_for_module(self, module):
+        """
+
+        :param Module module:
+        :return:
+        """
         return 'module_{}'.format(
             base58.b58encode(module.uuid.bytes)
         )

@@ -2,6 +2,7 @@
 
 """CLI Schema."""
 
+# system module
 from uuid import UUID
 
 # community module
@@ -63,7 +64,7 @@ def schema_detail(ctx, schema_uuid):
     """スキーマの詳細を表示する.
 
     :param Context ctx: Context
-    :param str schema_uuid: スキーマUUID
+    :param UUID schema_uuid: スキーマUUID
     """
     context_object = ctx.obj  # type: ContextObject
     metadata = context_object.metadata
@@ -132,7 +133,7 @@ def schema_remove(ctx, schema_uuid):
     """スキーマを削除する.
 
     :param Context ctx: Context
-    :param str schema_uuid: スキーマUUID
+    :param UUID schema_uuid: スキーマUUID
     """
     context_object = ctx.obj  # type: ContextObject
     metadata = context_object.metadata

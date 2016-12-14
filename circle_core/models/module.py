@@ -35,7 +35,7 @@ class Module(object):
 
     :param UUID uuid: Module UUID
     :param Optional[str] display_name: 表示名
-    :param str schema_uuid: Schema UUID
+    :param UUID schema_uuid: Schema UUID
     :param List[ModuleProperty] properties: プロパティ
     """
 

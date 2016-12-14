@@ -11,6 +11,7 @@ from six import PY3
 from .base import MetadataError, MetadataReader, MetadataWriter
 from ..module import Module
 from ..schema import Schema
+from ..user import User
 
 if PY3:
     from typing import Any, Dict
@@ -83,6 +84,16 @@ class MetadataRedis(MetadataReader, MetadataWriter):
                 modules.append(Module(**fields))
         return modules
 
+    @property
+    def users(self):
+        users = []
+        keys = [key for key in self.redis_client.keys() if User.is_key_matched(key)]
+        for key in keys:
+            if self.redis_client.type(key) == 'hash':
+                fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]
+                users.append(User(**fields))
+        return users
+
     def register_schema(self, schema):
         mapping = {
             'uuid': schema.uuid,
@@ -110,3 +121,16 @@ class MetadataRedis(MetadataReader, MetadataWriter):
 
     def update_module(self, module):
         self.register_module(module)
+
+    def register_user(self, user):
+        mapping = {
+            'uuid': user.uuid,
+            'mail_address': user.mail_address,
+            'encrypted_password': user.encrypted_password,
+            'permissions': user.stringified_permissions,
+        }
+
+        self.redis_client.hmset(user.storage_key, mapping)
+
+    def unregister_user(self, user):
+        self.redis_client.delete(user.storage_key)

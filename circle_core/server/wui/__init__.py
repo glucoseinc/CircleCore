@@ -6,14 +6,14 @@ from flask import Flask, render_template
 from six import PY3
 
 # project module
-from ...models import Metadata
+from ...models.metadata import MetadataIniFile, MetadataRedis
 
 if PY3:
-    from typing import Optional
+    from typing import Optional, Union
 
 
 app = Flask(__name__)
-app.metadata = None  # type: Optional[Metadata]
+app.metadata = None  # type: Optional[Union[MetadataIniFile, MetadataRedis]]
 
 
 @app.route('/')
