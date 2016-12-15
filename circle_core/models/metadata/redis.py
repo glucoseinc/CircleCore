@@ -136,6 +136,14 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         """
         self.redis_client.delete(schema.storage_key)
 
+    def update_schema(self, schema):
+        """ストレージ上のSchemaオブジェクトを更新する.
+
+        :param Schema schema: Schemaオブジェクト
+        """
+        self.unregister_schema(schema)
+        self.register_schema(schema)
+
     def register_module(self, module):
         """Moduleオブジェクトをストレージに登録する.
 
@@ -163,6 +171,7 @@ class MetadataRedis(MetadataReader, MetadataWriter):
 
         :param Module module: Moduleオブジェクト
         """
+        self.unregister_module(module)
         self.register_module(module)
 
     def register_user(self, user):

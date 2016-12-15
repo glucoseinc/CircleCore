@@ -194,6 +194,14 @@ class MetadataWriter(MetadataBase):
         raise NotImplementedError
 
     @abstractmethod
+    def update_schema(self, schema):
+        """ストレージ上のSchemaオブジェクトを更新する.
+
+        :param Schema schema: Schemaオブジェクト
+        """
+        raise NotImplementedError
+
+    @abstractmethod
     def register_module(self, module):
         """Moduleオブジェクトをストレージに登録する.
 
