@@ -14,6 +14,10 @@ if PY3:
     from typing import List, Union
 
 
+class UserError(Exception):
+    pass
+
+
 class User(object):
     """Userオブジェクト.
 
@@ -32,7 +36,10 @@ class User(object):
         :param str permissions: 権限
         """
         if not isinstance(uuid, UUID):
-            uuid = UUID(uuid)
+            try:
+                uuid = UUID(uuid)
+            except ValueError:
+                raise UserError('Invalid uuid : {}'.format(uuid))
 
         self.uuid = uuid
         self.mail_address = mail_address

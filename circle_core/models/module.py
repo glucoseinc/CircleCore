@@ -13,6 +13,10 @@ if PY3:
     from typing import List, Optional, Tuple, Union
 
 
+class ModuleError(Exception):
+    pass
+
+
 class ModuleProperty(object):
     """ModulePropertyオブジェクト.
 
@@ -48,9 +52,16 @@ class Module(object):
         :param Optional[str] properties: プロパティ
         """
         if not isinstance(uuid, UUID):
-            uuid = UUID(uuid)
+            try:
+                uuid = UUID(uuid)
+            except ValueError:
+                raise ModuleError('Invalid uuid : {}'.format(uuid))
+
         if not isinstance(schema_uuid, UUID):
-            schema_uuid = UUID(schema_uuid)
+            try:
+                schema_uuid = UUID(schema_uuid)
+            except ValueError:
+                raise ModuleError('Invalid schema_uuid : {}'.format(uuid))
 
         self.uuid = uuid
         self.schema_uuid = schema_uuid

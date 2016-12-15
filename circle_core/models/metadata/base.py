@@ -14,7 +14,7 @@ from ..schema import Schema
 from ..user import User
 
 if PY3:
-    from typing import List, Optional
+    from typing import List, Optional, Union
 
 
 class MetadataError(Exception):
@@ -107,12 +107,15 @@ class MetadataReader(MetadataBase):
     def find_schema(self, schema_uuid):
         """スキーマリストからUUIDがマッチするものを取得する.
 
-        :param UUID schema_uuid: 取得するスキーマのUUID
+        :param Union[str, UUID] schema_uuid: 取得するスキーマのUUID
         :return: マッチしたスキーマ
         :rtype: Optional[Schema]
         """
         if not isinstance(schema_uuid, UUID):
-            schema_uuid = UUID(schema_uuid)
+            try:
+                schema_uuid = UUID(schema_uuid)
+            except ValueError:
+                return None
 
         for schema in self.schemas:
             if schema.uuid == schema_uuid:
@@ -122,12 +125,15 @@ class MetadataReader(MetadataBase):
     def find_module(self, module_uuid):
         """モジュールリストからUUIDがマッチするものを取得する.
 
-        :param UUID module_uuid: 取得するモジュールのUUID
+        :param Union[str, UUID] module_uuid: 取得するモジュールのUUID
         :return: マッチしたモジュール
         :rtype: Optional[Module]
         """
         if not isinstance(module_uuid, UUID):
-            module_uuid = UUID(module_uuid)
+            try:
+                module_uuid = UUID(module_uuid)
+            except ValueError:
+                return None
 
         for module in self.modules:
             if module.uuid == module_uuid:
@@ -137,10 +143,16 @@ class MetadataReader(MetadataBase):
     def find_user(self, user_uuid):
         """ユーザリストからUUIDがマッチするものを取得する.
 
-        :param UUID user_uuid: 取得するユーザのUUID
+        :param Union[str, UUID] user_uuid: 取得するユーザのUUID
         :return: マッチしたユーザ
         :rtype: Optional[User]
         """
+        if not isinstance(user_uuid, UUID):
+            try:
+                user_uuid = UUID(user_uuid)
+            except ValueError:
+                return None
+
         for user in self.users:  # type: User
             if user.uuid == user_uuid:
                 return user
