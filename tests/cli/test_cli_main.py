@@ -67,6 +67,7 @@ class TestCliMain(object):
         result = CliRunner().invoke(cli_entry, default_args)
         assert result.exit_code != 0
 
+    @pytest.mark.skip
     def test_main_migrate(self, monkeypatch):
         test_db_url = 'mysql+mysqlconnector://localhsot/testtest'
         # DatabaseクラスにPatchを当てる

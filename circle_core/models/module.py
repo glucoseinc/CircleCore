@@ -10,7 +10,7 @@ from uuid import UUID
 from six import PY3
 
 if PY3:
-    from typing import List, Optional, Tuple, Union
+    from typing import List, Optional, Union
 
 
 class ModuleError(Exception):
@@ -38,18 +38,20 @@ class Module(object):
     """Moduleオブジェクト.
 
     :param UUID uuid: Module UUID
+    :param List[UUID] message_box_uuids: MessageBox
     :param Optional[str] display_name: 表示名
-    :param UUID schema_uuid: Schema UUID
-    :param List[ModuleProperty] properties: プロパティ
+    :param List[str] tags: タグ
+    :param Optional[str] description: 説明
     """
 
-    def __init__(self, uuid, schema_uuid, display_name=None, properties=None):
+    def __init__(self, uuid, message_box_uuids, display_name=None, tags=None, description=None):
         """init.
 
         :param Union[str, UUID] uuid: Module UUID
-        :param Union[str, UUID] schema_uuid: Schema UUID
+        :param str message_box_uuids: MessageBoxのUUIDリスト(文字列化)
         :param Optional[str] display_name: 表示名
-        :param Optional[str] properties: プロパティ
+        :param Optional[str] tags: タグ
+        :param Optional[str] description: 説明
         """
         if not isinstance(uuid, UUID):
             try:
@@ -57,33 +59,37 @@ class Module(object):
             except ValueError:
                 raise ModuleError('Invalid uuid : {}'.format(uuid))
 
-        if not isinstance(schema_uuid, UUID):
+        _message_box_uuids = []
+        for message_box_uuid in message_box_uuids.split(','):
             try:
-                schema_uuid = UUID(schema_uuid)
+                message_box_uuid = UUID(message_box_uuid)
             except ValueError:
-                raise ModuleError('Invalid schema_uuid : {}'.format(uuid))
+                raise ModuleError('Invalid message_box_uuid : {}'.format(message_box_uuids))
+            _message_box_uuids.append(message_box_uuid)
 
         self.uuid = uuid
-        self.schema_uuid = schema_uuid
+        self.message_box_uuids = _message_box_uuids
         self.display_name = display_name
-        self.properties = []
-        if properties is not None:
-            name_and_values = properties.split(',')
-            for name_and_value in name_and_values:
-                _name, _value = name_and_value.split(':', 1)
-                self.properties.append(ModuleProperty(_name, _value))
+        self.tags = tags.split(',') if tags is not None else []
+        self.description = description
 
     @property
-    def stringified_properties(self):
-        """プロパティを文字列化する.
+    def stringified_tags(self):
+        """タグを文字列化する.
 
-        :return: 文字列化プロパティ
+        :return: 文字列化タグ
         :rtype: str
         """
-        strings = []
-        for prop in self.properties:
-            strings.append('{}:{}'.format(prop.name, prop.value))
-        return ','.join(strings)
+        return ','.join(self.tags)
+
+    @property
+    def stringified_message_box_uuids(self):
+        """MessageBoxのUUIDリストを文字列化する.
+
+        :return: 文字列化MessageBox UUID
+        :rtype: str
+        """
+        return ','.join([str(uuid) for uuid in self.message_box_uuids])
 
     @property
     def storage_key(self):
@@ -93,26 +99,6 @@ class Module(object):
         :rtype: str
         """
         return 'module_{}'.format(self.uuid)
-
-    def append_properties(self, name_and_values):
-        """プロパティを追加する.
-
-        :param List[Tuple[str, str]] name_and_values: 属性名と属性値のタプルのリスト
-        """
-        for name, value in name_and_values:
-            for prop in self.properties:
-                if prop.name == name:
-                    prop.value = value
-                    break
-            else:
-                self.properties.append(ModuleProperty(name, value))
-
-    def remove_properties(self, names):
-        """プロパティを除去する.
-
-        :param List[str] names: 属性名リスト
-        """
-        self.properties = [prop for prop in self.properties if prop.name not in names]
 
     @classmethod
     def is_key_matched(cls, key):

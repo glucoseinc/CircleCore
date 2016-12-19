@@ -10,6 +10,7 @@ from six.moves.urllib.parse import urlparse
 
 # project module
 from .base import MetadataError, MetadataReader
+from ..message_box import MessageBox
 from ..module import Module
 from ..schema import Schema
 from ..user import User
@@ -59,6 +60,19 @@ class MetadataIniFile(MetadataReader):
         parser.read(self.ini_file_path)
         schema_dicts = [dict(parser.items(section)) for section in parser.sections() if Schema.is_key_matched(section)]
         return [Schema(**schema_dict) for schema_dict in schema_dicts]
+
+    @property
+    def message_boxes(self):
+        """全てのMessageBoxオブジェクト.
+
+        :return: MessageBoxオブジェクトリスト
+        :rtype: List[MessageBox]
+        """
+        parser = configparser.ConfigParser()
+        parser.read(self.ini_file_path)
+        message_box_dicts = [dict(parser.items(section)) for section in parser.sections()
+                             if MessageBox.is_key_matched(section)]
+        return [MessageBox(**message_box_dict) for message_box_dict in message_box_dicts]
 
     @property
     def modules(self):

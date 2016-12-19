@@ -9,6 +9,7 @@ from six import PY3
 
 # project module
 from .base import MetadataError, MetadataReader, MetadataWriter
+from ..message_box import MessageBox
 from ..module import Module
 from ..schema import Schema
 from ..user import User
@@ -86,6 +87,21 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         return schemas
 
     @property
+    def message_boxes(self):
+        """全てのMessageBoxオブジェクト.
+
+        :return: MessageBoxオブジェクトリスト
+        :rtype: List[MessageBox]
+        """
+        message_boxes = []
+        keys = [key for key in self.redis_client.keys() if MessageBox.is_key_matched(key)]
+        for key in keys:
+            if self.redis_client.type(key) == 'hash':
+                fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]
+                message_boxes.append(MessageBox(**fields))
+        return message_boxes
+
+    @property
     def modules(self):
         """全てのModuleオブジェクト.
 
@@ -122,10 +138,10 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         """
         mapping = {
             'uuid': schema.uuid,
-            'properties': schema.stringified_properties
+            'properties': schema.stringified_properties,
         }
         if schema.display_name is not None:
-            mapping['display_name'] = schema.display_name,
+            mapping['display_name'] = schema.display_name
 
         self.redis_client.hmset(schema.storage_key, mapping)
 
@@ -144,6 +160,37 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         self.unregister_schema(schema)
         self.register_schema(schema)
 
+    def register_message_box(self, message_box):
+        """MessageBoxオブジェクトをストレージに登録する.
+
+        :param MessageBox message_box: MessageBoxオブジェクト
+        """
+        mapping = {
+            'uuid': message_box.uuid,
+            'schema_uuid': message_box.schema_uuid,
+        }
+        if message_box.display_name is not None:
+            mapping['display_name'] = message_box.display_name
+        if message_box.description is not None:
+            mapping['description'] = message_box.description
+
+        self.redis_client.hmset(message_box.storage_key, mapping)
+
+    def unregister_message_box(self, message_box):
+        """MessageBoxオブジェクトをストレージから削除する.
+
+        :param MessageBox message_box: MessageBoxオブジェクト
+        """
+        self.redis_client.delete(message_box.storage_key)
+
+    def update_message_box(self, message_box):
+        """ストレージ上のMessageBoxオブジェクトを更新する.
+
+        :param MessageBox message_box: MessageBoxオブジェクト
+        """
+        self.unregister_module(message_box)
+        self.register_module(message_box)
+
     def register_module(self, module):
         """Moduleオブジェクトをストレージに登録する.
 
@@ -151,11 +198,13 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         """
         mapping = {
             'uuid': module.uuid,
-            'schema_uuid': module.schema_uuid,
-            'properties': module.stringified_properties
+            'message_box_uuids': module.stringified_message_box_uuids,
+            'tags': module.stringified_tags,
         }
         if module.display_name is not None:
             mapping['display_name'] = module.display_name
+        if module.description is not None:
+            mapping['description'] = module.description
 
         self.redis_client.hmset(module.storage_key, mapping)
 
