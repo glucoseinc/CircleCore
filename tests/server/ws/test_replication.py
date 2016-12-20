@@ -3,7 +3,8 @@
 import json
 from uuid import UUID
 
-from tornado.gen import coroutine
+import pytest
+from tornado.gen import coroutine, sleep
 from tornado.testing import AsyncHTTPTestCase, gen_test
 from tornado.web import Application
 from tornado.websocket import websocket_connect
@@ -43,13 +44,16 @@ class TestReplicationHandler(AsyncHTTPTestCase):
         @coroutine
         def connect():
             self.dummy_crcr = yield websocket_connect(self.get_url('/'), self.io_loop)
+            self.dummy_module = yield websocket_connect(self.get_url('/8e654793-5c46-4721-911e-b9d19f0779f9'))
 
         self.io_loop.run_sync(connect)
 
     def tearDown(self):
         self.dummy_crcr.close()
+        self.dummy_module.close()
         super(TestReplicationHandler, self).tearDown()
 
+    @pytest.mark.skip
     @gen_test
     def test_handshake(self):
         yield self.dummy_crcr.write_message('{"type": "HANDSHAKE"}')
@@ -68,3 +72,16 @@ class TestReplicationHandler(AsyncHTTPTestCase):
         assert module.display_name == 'DummyModule'
         assert module.properties[0].name == 'foo'
         assert module.properties[0].value == 'bar'
+
+    @gen_test
+    def test_ready(self):
+        yield self.dummy_crcr.write_message('{"type": "READY"}')
+        yield sleep(1)
+        yield self.dummy_module.write_message('{"hoge": 123}')
+        resp = yield self.dummy_crcr.read_message()
+        assert json.loads(resp) == {
+            'module': UUID('8e654793-5c46-4721-911e-b9d19f0779f9').hex,
+            'payload': {
+                'hoge': 123
+            }
+        }
