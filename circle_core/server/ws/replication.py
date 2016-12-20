@@ -8,6 +8,7 @@ from tornado.websocket import WebSocketHandler
 from ...helpers.nanomsg import Receiver
 from ...helpers.topics import SensorDataTopic
 from ...logger import get_stream_logger
+from ...models.message import Message
 
 logger = get_stream_logger(__name__)
 
@@ -15,7 +16,7 @@ logger = get_stream_logger(__name__)
 class ReplicationHandler(WebSocketHandler):
     """スキーマを交換し、まだ相手に送っていないデータを送る.
 
-    :param Sender __nanomsg:
+    :param UUID slave_uuid:
     """
 
     def open(self, slave_uuid):
@@ -71,14 +72,11 @@ class ReplicationHandler(WebSocketHandler):
 
     def pass_messages(self):
         """自分がこれから受け取るメッセージを相手にも知らせるように."""
-        def pass_message(decoded):
-            module_uuid, payload = decoded
-            resp = json.dumps({
-                'module': module_uuid.hex,
-                'payload': payload
-            })
-            self.write_message(resp)
+        def pass_message(msg):
+            logger.debug('Received from nanomsg: %s', msg.encode())
+            self.write_message(msg.encode())
 
-        receiver = Receiver(SensorDataTopic())
+        logger.debug('Replication Master %s', SensorDataTopic().topic)
+        receiver = Receiver(SensorDataTopic(), Message)
         receiver.register_ioloop(pass_message)
         self.watching_fd = receiver.fileno()

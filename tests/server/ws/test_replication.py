@@ -9,6 +9,7 @@ from tornado.testing import AsyncHTTPTestCase, gen_test
 from tornado.web import Application
 from tornado.websocket import websocket_connect
 
+from circle_core.models import message
 from circle_core.models.module import Module
 from circle_core.models.schema import Schema
 from circle_core.server.ws import ReplicationHandler, SensorHandler
@@ -26,6 +27,9 @@ class DummyMetadata:
     @classmethod
     def find_module(cls, *args):
         return cls.modules[0]
+
+
+message.metadata = DummyMetadata
 
 
 class TestReplicationHandler(AsyncHTTPTestCase):
@@ -59,6 +63,7 @@ class TestReplicationHandler(AsyncHTTPTestCase):
         self.dummy_module.close()
         super(TestReplicationHandler, self).tearDown()
 
+    @pytest.mark.timeout(2)
     @gen_test
     def test_migrate(self):
         yield self.dummy_crcr.write_message('{"command": "MIGRATE"}')
@@ -78,15 +83,15 @@ class TestReplicationHandler(AsyncHTTPTestCase):
         assert module.properties[0].name == 'foo'
         assert module.properties[0].value == 'bar'
 
+    @pytest.mark.timeout(2)
     @gen_test
     def test_retrieve(self):
         yield self.dummy_crcr.write_message('{"command": "RETRIEVE"}')
         yield sleep(1)
         yield self.dummy_module.write_message('{"hoge": 123}')
         resp = yield self.dummy_crcr.read_message()
-        assert json.loads(resp) == {
-            'module': UUID('8e654793-5c46-4721-911e-b9d19f0779f9').hex,
-            'payload': {
-                'hoge': 123
-            }
+        resp = json.loads(resp)
+        assert resp['module'] == UUID('8e654793-5c46-4721-911e-b9d19f0779f9').hex
+        assert resp['payload'] == {
+            'hoge': 123
         }

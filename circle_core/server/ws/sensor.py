@@ -19,27 +19,24 @@ class SensorHandler(WebSocketHandler):
 
     def open(self, module_uuid):
         """センサーとの接続が開いた際に呼ばれる."""
-        # Senderはシングルトンだが今のところインスタンス生成の直後にsendできないので予め作っておく
-
         # TODO: cr_metadata周りは作り直す
         module = self.application.settings['cr_metadata'].find_module(module_uuid)
         if not module:
             raise ModuleNotFoundError('module {} not found'.format(module_uuid))
 
         # TODO: 認証を行う
-
-        self.topic = SensorDataTopic(module)
-        self.__sender = Sender()
+        # Senderはシングルトンだがインスタンス生成の直後にsendできないので予め作っておく
+        self._sender = Sender(SensorDataTopic(module))
         logger.debug('connection opened: %s', self)
 
-    def on_message(self, message):  # TODO: messageのスキーマを決める
+    def on_message(self, msg):
         """センサーからメッセージが送られてきた際に呼ばれる.
 
-        :param unicode message:
+        :param unicode msg:
         """
-        rv = self.__sender.send(self.topic.with_json(message))
+        logger.debug('Received from nanomsg: %s', msg)
+        rv = self._sender.send(msg)
         logger.debug('%r', rv)
-        logger.debug('message %r is sent from %s with topic %r', message, self, self.topic.topic)
 
     def on_close(self):
         """センサーとの接続が切れた際に呼ばれる."""
@@ -47,5 +44,6 @@ class SensorHandler(WebSocketHandler):
 
     def check_origin(self, origin):
         """CORSチェック."""
+        # FIXME: 本番環境でどうするか
         # wsta等テストツールから投げる場合はTrueにしておく
         return True

@@ -14,6 +14,7 @@ from tornado.ioloop import IOLoop
 
 # project module
 from circle_core.logger import get_stream_logger
+from ..models.message import Message
 
 if PY3:
     from json.decoder import JSONDecodeError
@@ -36,23 +37,26 @@ class Receiver(object):
     """受信. PubSubのSub.
 
     :param Socket _socket:
+    :param Message message:
     """
 
-    def __init__(self, topic):
+    def __init__(self, topic, message=Message):
         """接続を開く.
 
-        :param TopicBase topic:
+        :param Message message:
         """
         self._socket = nnpy.Socket(nnpy.AF_SP, nnpy.SUB)
         self._socket.connect(get_ipc_socket_path())
+        logger.debug('Receiver %s', topic.topic)
         self._socket.setsockopt(nnpy.SUB, nnpy.SUB_SUBSCRIBE, topic.topic)
-        self.topic = topic
+        self.message = message
 
     def __del__(self):
         """接続を閉じる."""
         self._socket.close()
 
     def fileno(self):
+        """Tornadoに叩かれる."""
         return self._socket.getsockopt(nnpy.SOL_SOCKET, nnpy.RCVFD)
 
     def set_timeout(self, timeout):
@@ -66,7 +70,7 @@ class Receiver(object):
         """メッセージを受信次第それを返すジェネレータ.
 
         :param TopicBase topic:
-        :return unicode: 受信したメッセージ
+        :return Message: 受信したメッセージ
         """
         while True:
             # TODO: 接続切れたときにStopIterationしたいが自分でheartbeatを実装したりしないといけないのかな
@@ -78,7 +82,7 @@ class Receiver(object):
                 raise
 
             try:
-                yield self.topic.decode_json(msg)
+                yield self.message(msg)
             except JSONDecodeError:
                 logger.warning('Received an non-JSON message. Ignore it.')
 
@@ -87,12 +91,11 @@ class Receiver(object):
 
         :param TopicBase topic:
         """
-
         def call_callback(*args):
             # TODO: incoming_messagesと同じような処理が多い。共通化する
             msg = self._socket.recv().decode('utf-8')
             try:
-                decoded = self.topic.decode_json(msg)
+                decoded = self.message(msg)
             except JSONDecodeError:
                 logger.warning('Received an non-JSON message, Ignore it.')
             else:
@@ -126,26 +129,27 @@ class Singleton(type):
 class Sender(object):
     """送信. PubSubのPub.
 
+    同じアドレスにbindできるのは一度に一つのSocketだけなのでSingleton.
+
     :param Socket _socket:
     """
 
-    def __init__(self):
+    def __init__(self, topic):
         """接続を開く."""
         self._socket = nnpy.Socket(nnpy.AF_SP, nnpy.PUB)
         self._socket.bind(get_ipc_socket_path())
-        # 同じアドレスにbindできるのは一度に一つのSocketだけ
-        sleep(0.5)
-        # おそらくbindが完了するまでブロックされていない
-        # bindの直後にsendしても届かなかった
+        logger.debug('Sender %s', topic.topic)
+        self.topic = topic
+        sleep(0.5)  # おそらくbindが完了するまでブロックされていない。bindの直後にsendしても届かなかった。
 
     def __del__(self):
         """接続を閉じる."""
         self._socket.close()
 
-    def send(self, msg):
+    def send(self, payload):
         """送信.
 
-        :param unicode msg:
+        :param payload:
         """
         # nnpy.Socket.sendにunicodeを渡すとasciiでencodeしようとして例外を吐く
-        self._socket.send(msg.encode('utf-8'))
+        self._socket.send(self.topic.encode(payload).encode('utf-8'))
