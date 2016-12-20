@@ -31,8 +31,8 @@ class DummyMetadata:
 class TestReplicationHandler(AsyncHTTPTestCase):
     def get_app(self):
         return Application([
-            ('/', ReplicationHandler),
-            ('/(?P<module_uuid>[0-9A-Fa-f-]+)', SensorHandler)
+            ('/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', ReplicationHandler),
+            ('/ws/(?P<module_uuid>[0-9A-Fa-f-]+)', SensorHandler)
         ], cr_metadata=DummyMetadata)
 
     def get_protocol(self):
@@ -43,8 +43,14 @@ class TestReplicationHandler(AsyncHTTPTestCase):
 
         @coroutine
         def connect():
-            self.dummy_crcr = yield websocket_connect(self.get_url('/'), self.io_loop)
-            self.dummy_module = yield websocket_connect(self.get_url('/8e654793-5c46-4721-911e-b9d19f0779f9'))
+            self.dummy_crcr = yield websocket_connect(
+                self.get_url('/replication/d267f765-8a72-4056-94b3-7b1a63f47da6'),
+                self.io_loop
+            )
+            self.dummy_module = yield websocket_connect(
+                self.get_url('/ws/8e654793-5c46-4721-911e-b9d19f0779f9'),
+                self.io_loop
+            )
 
         self.io_loop.run_sync(connect)
 
@@ -53,7 +59,6 @@ class TestReplicationHandler(AsyncHTTPTestCase):
         self.dummy_module.close()
         super(TestReplicationHandler, self).tearDown()
 
-    @pytest.mark.skip
     @gen_test
     def test_migrate(self):
         yield self.dummy_crcr.write_message('{"command": "MIGRATE"}')

@@ -18,9 +18,10 @@ class ReplicationHandler(WebSocketHandler):
     :param Sender __nanomsg:
     """
 
-    def open(self):
+    def open(self, slave_uuid):
         """他のCircleCoreから接続された際に呼ばれる."""
         logger.debug('Connected to another CircleCore')
+        self.slave_uuid = slave_uuid
 
     def on_message(self, msg):
         """センサーからメッセージが送られてきた際に呼ばれる.

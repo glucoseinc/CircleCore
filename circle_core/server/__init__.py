@@ -18,7 +18,7 @@ def run(port=5000, metadata=None, debug=True):
     print('start combined server')
     flask_app = create_app(metadata)
     tornado_app = Application([
-        (r'/ws/?', ReplicationHandler),
+        (r'/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', ReplicationHandler),
         (r'/ws/(?P<module_uuid>[0-9A-Fa-f-]+)', SensorHandler),
         (r'.*', FallbackHandler, {'fallback': WSGIContainer(flask_app)})
     ],
