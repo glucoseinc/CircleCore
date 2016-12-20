@@ -28,10 +28,10 @@ class ReplicationHandler(WebSocketHandler):
         :param unicode message:
         """
         action = json.loads(msg)
-        if action['type'] == 'HANDSHAKE':
-            self.handshake()
-        elif action['type'] == 'READY':
-            self.ready()
+        if action['command'] == 'MIGRATE':
+            self.send_modules()
+        elif action['command'] == 'RETRIEVE':
+            self.pass_messages()
 
         logger.debug('message from another circlecore: %r' % msg)
 
@@ -47,7 +47,7 @@ class ReplicationHandler(WebSocketHandler):
         # wsta等テストツールから投げる場合はTrueにしておく
         return True
 
-    def handshake(self):
+    def send_modules(self):
         """自分に登録されているDataSourceとSchemaを通知."""
         metadata = self.application.settings['cr_metadata']
         modules = [
@@ -68,7 +68,7 @@ class ReplicationHandler(WebSocketHandler):
         resp = json.dumps({'modules': modules, 'schemas': schemas})
         self.write_message(resp)
 
-    def ready(self):
+    def pass_messages(self):
         """自分がこれから受け取るメッセージを相手にも知らせるように."""
         def pass_message(decoded):
             module_uuid, payload = decoded

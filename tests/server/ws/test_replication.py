@@ -55,8 +55,8 @@ class TestReplicationHandler(AsyncHTTPTestCase):
 
     @pytest.mark.skip
     @gen_test
-    def test_handshake(self):
-        yield self.dummy_crcr.write_message('{"type": "HANDSHAKE"}')
+    def test_migrate(self):
+        yield self.dummy_crcr.write_message('{"command": "MIGRATE"}')
         resp = yield self.dummy_crcr.read_message()
         resp = json.loads(resp)
 
@@ -74,8 +74,8 @@ class TestReplicationHandler(AsyncHTTPTestCase):
         assert module.properties[0].value == 'bar'
 
     @gen_test
-    def test_ready(self):
-        yield self.dummy_crcr.write_message('{"type": "READY"}')
+    def test_retrieve(self):
+        yield self.dummy_crcr.write_message('{"command": "RETRIEVE"}')
         yield sleep(1)
         yield self.dummy_module.write_message('{"hoge": 123}')
         resp = yield self.dummy_crcr.read_message()
