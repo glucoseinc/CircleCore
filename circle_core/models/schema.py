@@ -13,6 +13,10 @@ if PY3:
     from typing import List, Optional, Union
 
 
+class SchemaError(Exception):
+    pass
+
+
 class SchemaProperty(object):
     """SchemaPropertyオブジェクト.
 
@@ -46,7 +50,10 @@ class Schema(object):
         :param Optional[str] properties: プロパティ
         """
         if not isinstance(uuid, UUID):
-            uuid = UUID(uuid)
+            try:
+                uuid = UUID(uuid)
+            except ValueError:
+                raise SchemaError('Invalid uuid : {}'.format(uuid))
 
         self.uuid = uuid
         self.display_name = display_name

@@ -16,7 +16,7 @@ from .utils import generate_uuid, output_listing_columns, output_properties
 from ..models import Module
 
 if PY3:
-    from typing import List, Tuple
+    from typing import List, Optional, Tuple
 
 
 @click.group('module')
@@ -49,11 +49,15 @@ def _format_for_columns(modules):
     :return: data: 加工後のモジュールリスト, header: 見出し
     :rtype: Tuple[List[List[str]], List[str]]
     """
-    header = ['UUID', 'DISPLAY_NAME', 'SCHEMA_UUID', 'PROPERTIES']
+    header = ['UUID', 'DISPLAY_NAME', 'TAGS']
     data = []  # type: List[List[str]]
     for module in modules:
         display_name = module.display_name or ''
-        data.append([str(module.uuid), display_name, str(module.schema_uuid), module.stringified_properties])
+        data.append([
+            str(module.uuid),
+            display_name,
+            module.stringified_tags,
+        ])
     return data, header
 
 
@@ -77,30 +81,44 @@ def module_detail(ctx, module_uuid):
     data = [
         ('UUID', str(module.uuid)),
         ('DISPLAY_NAME', module.display_name or ''),
-        ('SCHEMA_UUID', str(module.schema_uuid)),
     ]
-    for i, prop in enumerate(module.properties):
-        data.append(('PROPERTIES' if i == 0 else '', '{}:{}'.format(prop.name, prop.value)))
+
+    for i, message_box_uuid in enumerate(module.message_box_uuids):
+        data.append(('MESSAGE_BOX_UUID' if i == 0 else '', str(message_box_uuid)))
+
+    for i, tag in enumerate(module.tags):
+        data.append(('TAG' if i == 0 else '', tag))
+
+    data.append(('DESCRIPTION', module.description or ''))
 
     output_properties(data)
 
-    # TODO: Schema情報を表示
+    for message_box_uuid in module.message_box_uuids:
+        click.echo('-' * 32)
+        message_box = metadata.find_message_box(message_box_uuid)
+        data = [
+            ('UUID', str(message_box.uuid)),
+            ('DISPLAY_NAME', message_box.display_name or ''),
+            ('SCHEMA_UUID', str(message_box.schema_uuid)),
+            ('DESCRIPTION', message_box.description or ''),
+        ]
+        output_properties(data)
 
 
 @cli_module.command('add')
 @click.option('display_name', '--name')
-@click.option('schema_uuid', '--schema', type=UUID)
-@click.option('properties', '--property')
-@click.option('--active/--inactive')
+@click.option('message_box_uuids', '--box', required=True)
+@click.option('tags', '--tag')
+@click.option('--description')
 @click.pass_context
-def module_add(ctx, display_name, schema_uuid, properties, active):
+def module_add(ctx, display_name, message_box_uuids, tags, description):
     """モジュールを登録する.
 
     :param Context ctx: Context
-    :param str display_name: モジュール表示名
-    :param UUID schema_uuid: スキーマUUID
-    :param str properties: プロパティ
-    :param bool active:
+    :param Optional[str] display_name: モジュール表示名
+    :param str message_box_uuids: メッセージボックスUUIDリスト
+    :param Optional[str] tags: タグ
+    :param Optional[str] description: 説明
     """
     context_object = ctx.obj  # type: ContextObject
     metadata = context_object.metadata
@@ -111,20 +129,22 @@ def module_add(ctx, display_name, schema_uuid, properties, active):
 
     module_uuid = generate_uuid(existing=[module.uuid for module in metadata.modules])
 
-    schema = metadata.find_schema(schema_uuid)
-    if schema is None:
-        click.echo('Schema "{}" is not exist. Do nothing.'.format(schema_uuid))
-        ctx.exit(code=-1)
-
-    for prop in properties.split(','):
-        splitted = [val.strip() for val in prop.split(':')]
-        if len(splitted) != 2:
-            click.echo('Argument "property" is invalid : {}. Do nothing.'.format(prop))
-            click.echo('Argument "property" format must be "name1:type1,name2:type2...".')
+    message_boxes = []
+    message_box_uuids = message_box_uuids.split(',')
+    for message_box_uuid in message_box_uuids:
+        message_box = metadata.find_message_box(message_box_uuid)
+        if message_box is None:
+            click.echo('MessageBox "{}" is not exist. Do nothing.'.format(message_box_uuid))
             ctx.exit(code=-1)
+        message_boxes.append(message_box)
 
-    module = Module(module_uuid, schema.uuid, display_name, properties)
-    # TODO: activeの扱い
+    module = Module(
+        module_uuid,
+        ','.join([str(_message_box.uuid) for _message_box in message_boxes]),
+        display_name,
+        tags,
+        description
+    )
 
     metadata.register_module(module)
     context_object.log_info('module add', uuid=module.uuid)
@@ -154,54 +174,3 @@ def module_remove(ctx, module_uuid):
     metadata.unregister_module(module)
     context_object.log_info('module remove', uuid=module_uuid)
     click.echo('Module "{}" is removed.'.format(module_uuid))
-
-
-@cli_module.command('property')
-@click.option('adding_properties_string', '--add')
-@click.option('removing_property_names_string', '--remove')
-@click.argument('module_uuid', type=UUID)
-@click.pass_context
-def module_property(ctx, adding_properties_string, removing_property_names_string, module_uuid):
-    """モジュールのプロパティを更新する.
-
-    :param Context ctx: Context
-    :param str adding_properties_string: 追加プロパティ
-    :param str removing_property_names_string: 削除プロパティ
-    :param UUID module_uuid: モジュールUUID
-    """
-    context_object = ctx.obj  # type: ContextObject
-    metadata = context_object.metadata
-
-    if not metadata.writable:
-        click.echo('Cannot edit {}.'.format(metadata.stringified_type))
-        ctx.exit(code=-1)
-
-    module = metadata.find_module(module_uuid)
-    if module is None:
-        click.echo('Module "{}" is not registered. Do nothing.'.format(module_uuid))
-        ctx.exit(code=-1)
-    if removing_property_names_string is not None:
-        removing_property_names = set([key.strip() for key in removing_property_names_string.split(',')])
-        current_property_names = set([prop.name for prop in module.properties])
-        if not removing_property_names.issubset(current_property_names):
-            difference_property_names = removing_property_names.difference(current_property_names)
-            click.echo('Argument "remove" is invalid : "{}" is not exist in properties. Do nothing.'
-                       .format(','.join(difference_property_names)))
-            ctx.exit(code=-1)
-        module.remove_properties(list(removing_property_names))
-
-    if adding_properties_string is not None:
-        adding_properties = []
-        for i, string in enumerate(adding_properties_string.split(','), start=1):
-            splitted = [val.strip() for val in string.split(':')]
-            if len(splitted) != 2:
-                click.echo('Argument "add" is invalid : {}. Do nothing.'.format(string))
-                click.echo('Argument "add" format must be "name1:type1,name2:type2...".')
-                ctx.exit(code=-1)
-            name, value = splitted[0], splitted[1]
-            adding_properties.append((name, value))
-        module.append_properties(adding_properties)
-
-    metadata.update_module(module)
-    context_object.log_info('module update', uuid=module_uuid)
-    click.echo('Module "{}" is updated.'.format(module_uuid))

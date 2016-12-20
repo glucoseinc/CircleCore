@@ -9,12 +9,13 @@ from six import add_metaclass, PY3
 
 # project module
 from circle_core import abstractclassmethod
+from ..message_box import MessageBox
 from ..module import Module
 from ..schema import Schema
 from ..user import User
 
 if PY3:
-    from typing import List, Optional
+    from typing import List, Optional, Union
 
 
 class MetadataError(Exception):
@@ -70,6 +71,11 @@ class MetadataReader(MetadataBase):
 
     @property
     def readable(self):
+        """Metadataが読み込み可能か.
+
+        :return: Metadataが読み込み可能か
+        :rtype: bool
+        """
         return True
 
     @abstractproperty
@@ -83,6 +89,15 @@ class MetadataReader(MetadataBase):
 
     @abstractproperty
     def modules(self):
+        """全てのMessageBoxオブジェクト.
+
+        :return: MessageBoxオブジェクトリスト
+        :rtype: List[MessageBox]
+        """
+        raise NotImplementedError
+
+    @abstractproperty
+    def message_boxes(self):
         """全てのModuleオブジェクト.
 
         :return: Moduleオブジェクトリスト
@@ -100,29 +115,53 @@ class MetadataReader(MetadataBase):
         raise NotImplementedError
 
     def find_schema(self, schema_uuid):
-        """スキーマリストからUUIDがマッチするものを取得する.
+        """SchemaリストからUUIDがマッチするものを取得する.
 
-        :param UUID schema_uuid: 取得するスキーマのUUID
-        :return: マッチしたスキーマ
+        :param Union[str, UUID] schema_uuid: 取得するSchemaのUUID
+        :return: マッチしたSchema
         :rtype: Optional[Schema]
         """
         if not isinstance(schema_uuid, UUID):
-            schema_uuid = UUID(schema_uuid)
+            try:
+                schema_uuid = UUID(schema_uuid)
+            except ValueError:
+                return None
 
         for schema in self.schemas:
             if schema.uuid == schema_uuid:
                 return schema
         return None
 
-    def find_module(self, module_uuid):
-        """モジュールリストからUUIDがマッチするものを取得する.
+    def find_message_box(self, message_box_uuid):
+        """MessageBoxリストからUUIDがマッチするものを取得する.
 
-        :param UUID module_uuid: 取得するモジュールのUUID
-        :return: マッチしたモジュール
+        :param Union[str, UUID] message_box_uuid: 取得するMessageBoxのUUID
+        :return: マッチしたMessageBox
+        :rtype: Optional[MessageBox]
+        """
+        if not isinstance(message_box_uuid, UUID):
+            try:
+                message_box_uuid = UUID(message_box_uuid)
+            except ValueError:
+                return None
+
+        for message_box in self.message_boxes:
+            if message_box.uuid == message_box_uuid:
+                return message_box
+        return None
+
+    def find_module(self, module_uuid):
+        """ModuleリストからUUIDがマッチするものを取得する.
+
+        :param Union[str, UUID] module_uuid: 取得するModuleのUUID
+        :return: マッチしたModule
         :rtype: Optional[Module]
         """
         if not isinstance(module_uuid, UUID):
-            module_uuid = UUID(module_uuid)
+            try:
+                module_uuid = UUID(module_uuid)
+            except ValueError:
+                return None
 
         for module in self.modules:
             if module.uuid == module_uuid:
@@ -132,10 +171,16 @@ class MetadataReader(MetadataBase):
     def find_user(self, user_uuid):
         """ユーザリストからUUIDがマッチするものを取得する.
 
-        :param UUID user_uuid: 取得するユーザのUUID
+        :param Union[str, UUID] user_uuid: 取得するユーザのUUID
         :return: マッチしたユーザ
         :rtype: Optional[User]
         """
+        if not isinstance(user_uuid, UUID):
+            try:
+                user_uuid = UUID(user_uuid)
+            except ValueError:
+                return None
+
         for user in self.users:  # type: User
             if user.uuid == user_uuid:
                 return user
@@ -173,6 +218,38 @@ class MetadataWriter(MetadataBase):
         """Schemaオブジェクトをストレージから削除する.
 
         :param Schema schema: Schemaオブジェクト
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def update_schema(self, schema):
+        """ストレージ上のSchemaオブジェクトを更新する.
+
+        :param Schema schema: Schemaオブジェクト
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def register_message_box(self, message_box):
+        """MessageBoxオブジェクトをストレージに登録する.
+
+        :param MessageBox message_box: MessageBoxオブジェクト
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def unregister_message_box(self, message_box):
+        """MessageBoxオブジェクトをストレージから削除する.
+
+        :param MessageBox message_box: MessageBoxオブジェクト
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def update_message_box(self, message_box):
+        """ストレージ上のMessageBoxオブジェクトを更新する.
+
+        :param MessageBox message_box: MessageBoxオブジェクト
         """
         raise NotImplementedError
 

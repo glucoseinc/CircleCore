@@ -22,6 +22,7 @@ test_modules = [
 ]
 
 
+@pytest.mark.skip
 @pytest.mark.usefixtures('mysql')
 def test_migrate_new(mysql):
     """宛先DBが空っぽなので、作成するだけのテスト"""
@@ -42,6 +43,7 @@ def test_migrate_new(mysql):
     assert len(result.error_tables) == 0
 
 
+@pytest.mark.skip
 @pytest.mark.usefixtures('mysql')
 def test_migrate_alter(mysql):
     """宛先DBに変なスキーマかつ空のTableがあるのでrecreateするテスト"""
@@ -67,6 +69,7 @@ def test_migrate_alter(mysql):
     assert len(result.error_tables) == 0
 
 
+@pytest.mark.skip
 @pytest.mark.usefixtures('mysql')
 def test_migrate_error(mysql):
     """宛先DBに変なスキーマかつデータの入ったのTableがあるのでrエラーになるテスト"""

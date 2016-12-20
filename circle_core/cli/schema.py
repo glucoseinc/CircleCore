@@ -81,7 +81,13 @@ def schema_detail(ctx, schema_uuid):
     for i, prop in enumerate(schema.properties):
         data.append(('PROPERTIES' if i == 0 else '', '{}:{}'.format(prop.name, prop.type)))
 
-    modules = [module for module in metadata.modules if module.schema_uuid == schema_uuid]
+    modules = []
+    for module in metadata.modules:
+        for message_box_uuid in module.message_box_uuids:
+            message_box = metadata.find_message_box(message_box_uuid)
+            if message_box is not None and message_box.schema_uuid == schema_uuid:
+                modules.append(module)
+                break
     if len(modules):
         for i, module in enumerate(modules):
             data.append(('Modules' if i == 0 else '', str(module.uuid)))
