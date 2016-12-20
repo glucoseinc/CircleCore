@@ -4,6 +4,7 @@
 
 # system module
 from time import sleep
+from weakref import WeakValueDictionary
 
 # community module
 from click import get_current_context
@@ -96,14 +97,18 @@ class Receiver(object):
 
 # http://stackoverflow.com/a/6798042
 class Singleton(type):
-    __instances = {}
+    __instances = WeakValueDictionary()
 
     # インスタンスに()が付いたときに呼び出されるのが__call__
     # メタクラスのインスタンスはクラス
     # クラス名()で呼び出され、そのクラスのインスタンスを生成して返す
     def __call__(cls, *args, **kwargs):  # noqa
         if cls not in cls.__instances:
-            cls.__instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+            logger.debug('Initialize new %s', cls.__name__)
+            instance = super(Singleton, cls).__call__(*args, **kwargs)
+            cls.__instances[cls] = instance
+            return instance
+
         return cls.__instances[cls]
 
 
