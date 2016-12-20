@@ -90,7 +90,7 @@ def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, workers, database_
     if ws_port == wui_port:
         RestartableProcess(target=server.run, args=[wui_port, metadata]).start()
     else:
-        RestartableProcess(target=ws.run, args=[ws_path, ws_port]).start()
+        RestartableProcess(target=ws.run, args=[metadata, ws_path, ws_port]).start()
         RestartableProcess(target=wui.create_app(metadata).run, kwargs={'port': wui_port}).start()
 
     click.echo('Websocket : ws://{host}:{port}{path}'.format(path=ws_path, port=ws_port, host='127.0.0.1'), err=True)

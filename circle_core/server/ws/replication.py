@@ -2,7 +2,6 @@
 """他のCircleCoreとの同期."""
 import json
 
-from click import get_current_context
 from tornado.websocket import WebSocketHandler
 
 from ...helpers.nanomsg import Sender
@@ -26,6 +25,7 @@ class ReplicationHandler(WebSocketHandler):
 
         :param unicode message:
         """
+        metadata = self.application.settings['cr_metadata']
         action = json.loads(msg)
         if action['type'] == 'HANDSHAKE':
             modules = [
@@ -34,14 +34,14 @@ class ReplicationHandler(WebSocketHandler):
                     'uuid': module.uuid.hex,
                     'schema_uuid': module.schema_uuid.hex,
                     'properties': module.stringified_properties
-                } for module in get_current_context().obj.metadata.modules
+                } for module in metadata.modules
             ]
             schemas = [
                 {
                     'display_name': schema.display_name,
                     'uuid': schema.uuid.hex,
                     'properties': schema.stringified_properties
-                } for schema in get_current_context().obj.metadata.schemas
+                } for schema in metadata.schemas
             ]
             resp = json.dumps({'modules': modules, 'schemas': schemas})
             self.write_message(resp)
