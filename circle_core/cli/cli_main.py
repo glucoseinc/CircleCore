@@ -18,7 +18,7 @@ from click.core import Context
 # project module
 from circle_core import server
 from circle_core.server import ws, wui
-from circle_core.workers import get_worker
+from circle_core.workers import get_worker, replicator
 from .context import ContextObject, ContextObjectError
 from .utils import RestartableProcess
 
@@ -76,13 +76,17 @@ def cli_main_env(ctx):
 @click.option('--wui-port', type=click.INT, envvar='CRCR_WUIPORT', default=5000)
 @click.option('--ipc-socket', type=click.Path(resolve_path=True), envvar='CRCR_IPCSOCK', default='/tmp/circlecore.ipc')
 @click.option('workers', '--worker', type=click.STRING, envvar='CRCR_WORKERS', multiple=True)
+@click.option('replicate_from', '--replicate', type=click.STRING, envvar='CRCR_REPLICATION', multiple=True)
 @click.option('database_url', '--database', envvar='CRCR_DATABASE')
 @click.pass_context
-def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, workers, database_url):
+def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, workers, replicate_from, database_url):
     """CircleCoreの起動."""
     ctx.obj.ipc_socket = 'ipc://' + ipc_socket
     metadata = ctx.obj.metadata
     metadata.database_url = database_url  # とりあえず...
+
+    for addr in replicate_from:
+        RestartableProcess(target=replicator.run, args=[metadata, addr]).start()
 
     for worker in workers:
         RestartableProcess(target=get_worker(worker).run, args=[metadata]).start()

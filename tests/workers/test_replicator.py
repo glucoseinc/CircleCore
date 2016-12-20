@@ -2,6 +2,7 @@
 import json
 from multiprocessing import Process
 from os import environ
+from time import sleep
 from uuid import UUID
 
 from click.testing import CliRunner
@@ -19,11 +20,33 @@ from circle_core.database import Database
 from circle_core.models.module import Module
 from circle_core.models.schema import Schema
 from circle_core.server.ws import ReplicationHandler, SensorHandler
+from circle_core.workers import replicator
+
+
+def setup_module(module):
+    replicator.get_uuid = lambda: '5c8fe778-1cb8-4a92-8f5d-588990a19def'
+
+
+def teardown_module(module):
+    global worker
+    worker.terminate()
+
+
+def start_worker(mysql):
+    global worker
+    sleep(0.5)
+
+    class DummyMetadata(object):
+        database_url = mysql.url
+
+    worker = Process(target=replicator.run, args=[DummyMetadata, 'localhost:5001'])
+    worker.start()
 
 
 class DummyReplicationMaster(WebSocketHandler):
     def on_message(self, message):
-        if json.loads(message) == {'command': 'MIGRATE'}:
+        msg = json.loads(message)
+        if msg == {'command': 'MIGRATE'}:
             res = json.dumps({
                 'modules': [{
                     'uuid': '8e654793-5c46-4721-911e-b9d19f0779f9',
@@ -38,28 +61,18 @@ class DummyReplicationMaster(WebSocketHandler):
                 }]
             })
             self.write_message(res)
+        elif msg == {'command': 'RETRIEVE'}:
+            IOLoop.current().stop()
 
 
-def start_dummy_server():
-    Application([(r'/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', DummyReplicationMaster)]).listen(5001)
-    IOLoop.current().start()
-
-
-def setup_module(module):
-    global server
-    server = Process(target=start_dummy_server)
-    server.start()
-
-
-def teardown_module(module):
-    global server
-    server.terminate()
-
-
+@pytest.mark.timeout(1)
 @pytest.mark.usefixtures('mysql')
 def test_migrate(mysql):
-    result = CliRunner().invoke(cli_main, ['replication', 'add', 'localhost:5001', '--database', mysql.url])
-    assert result.exit_code == 0
+    start_worker(mysql)
+    Application([
+        (r'/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', DummyReplicationMaster)
+    ], mysql=mysql, debug=True).listen(5001)
+    IOLoop.current().start()
 
     db = Database(mysql.url)
     engine = create_engine(mysql.url)
