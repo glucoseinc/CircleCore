@@ -4,7 +4,8 @@ import json
 
 from tornado.websocket import WebSocketHandler
 
-from ...helpers.nanomsg import Sender
+from ...helpers.topics import SensorDataTopic
+from ...helpers.nanomsg import Receiver
 from ...logger import get_stream_logger
 
 logger = get_stream_logger(__name__)
@@ -25,28 +26,11 @@ class ReplicationHandler(WebSocketHandler):
 
         :param unicode message:
         """
-        metadata = self.application.settings['cr_metadata']
         action = json.loads(msg)
         if action['type'] == 'HANDSHAKE':
-            modules = [
-                {
-                    'display_name': module.display_name,
-                    'uuid': module.uuid.hex,
-                    'schema_uuid': module.schema_uuid.hex,
-                    'properties': module.stringified_properties
-                } for module in metadata.modules
-            ]
-            schemas = [
-                {
-                    'display_name': schema.display_name,
-                    'uuid': schema.uuid.hex,
-                    'properties': schema.stringified_properties
-                } for schema in metadata.schemas
-            ]
-            resp = json.dumps({'modules': modules, 'schemas': schemas})
-            self.write_message(resp)
+            self.handshake()
         elif action['type'] == 'READY':
-            logger.debug('READY')
+            self.ready()
 
         logger.debug('message from another circlecore: %r' % msg)
 
@@ -58,3 +42,36 @@ class ReplicationHandler(WebSocketHandler):
         """CORSチェック."""
         # wsta等テストツールから投げる場合はTrueにしておく
         return True
+
+    def handshake(self):
+        """自分に登録されているDataSourceとSchemaを通知."""
+        metadata = self.application.settings['cr_metadata']
+        modules = [
+            {
+                'display_name': module.display_name,
+                'uuid': module.uuid.hex,
+                'schema_uuid': module.schema_uuid.hex,
+                'properties': module.stringified_properties
+            } for module in metadata.modules
+        ]
+        schemas = [
+            {
+                'display_name': schema.display_name,
+                'uuid': schema.uuid.hex,
+                'properties': schema.stringified_properties
+            } for schema in metadata.schemas
+        ]
+        resp = json.dumps({'modules': modules, 'schemas': schemas})
+        self.write_message(resp)
+
+    def ready(self):
+        """自分がこれから受け取るメッセージを相手にも知らせるように."""
+        def pass_message(decoded):
+            module_uuid, payload = decoded
+            resp = json.dumps({
+                'module': module_uuid.hex,
+                'payload': payload
+            })
+            self.write_message(resp)
+
+        Receiver().register_ioloop(SensorDataTopic(), pass_message)

@@ -9,6 +9,7 @@ from time import sleep
 from click import get_current_context
 import nnpy
 from six import add_metaclass, PY3
+from tornado.ioloop import IOLoop
 
 # project module
 from circle_core.logger import get_stream_logger
@@ -71,6 +72,26 @@ class Receiver(object):
                 yield topic.decode_json(msg)
             except JSONDecodeError:
                 logger.warning('Received an non-JSON message. Ignore it.')
+
+    def register_ioloop(self, topic, callback):
+        """TornadoのIOLoopにメッセージ受信時のコールバックを登録.
+
+        :param TopicBase topic:
+        """
+
+        def call_callback(*args):
+            # TODO: incoming_messagesと同じような処理が多い。共通化する
+            msg = self.__socket.recv().decode('utf-8')
+            try:
+                decoded = topic.decode_json(msg)
+            except JSONDecodeError:
+                logger.warning('Received an non-JSON message, Ignore it.')
+            else:
+                callback(decoded)
+
+        self.__socket.setsockopt(nnpy.SUB, nnpy.SUB_SUBSCRIBE, topic.topic)
+        fileno = self.__socket.getsockopt(nnpy.SOL_SOCKET, nnpy.RCVFD)
+        IOLoop.current().add_handler(fileno, call_callback, IOLoop.READ)
 
 
 # http://stackoverflow.com/a/6798042
