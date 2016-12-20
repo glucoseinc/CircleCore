@@ -2,10 +2,11 @@
 """他のCircleCoreとの同期."""
 import json
 
+from tornado.ioloop import IOLoop
 from tornado.websocket import WebSocketHandler
 
-from ...helpers.topics import SensorDataTopic
 from ...helpers.nanomsg import Receiver
+from ...helpers.topics import SensorDataTopic
 from ...logger import get_stream_logger
 
 logger = get_stream_logger(__name__)
@@ -37,6 +38,9 @@ class ReplicationHandler(WebSocketHandler):
     def on_close(self):
         """センサーとの接続が切れた際に呼ばれる."""
         logger.debug('connection closed: %s', self)
+
+        if hasattr(self, 'watching_fd'):
+            IOLoop.current().remove_handler(self.watching_fd)
 
     def check_origin(self, origin):
         """CORSチェック."""
@@ -74,4 +78,4 @@ class ReplicationHandler(WebSocketHandler):
             })
             self.write_message(resp)
 
-        Receiver().register_ioloop(SensorDataTopic(), pass_message)
+        self.watching_fd = Receiver().register_ioloop(SensorDataTopic(), pass_message)

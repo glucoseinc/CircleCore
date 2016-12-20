@@ -93,6 +93,7 @@ class Receiver(object):
         self.__socket.setsockopt(nnpy.SUB, nnpy.SUB_SUBSCRIBE, topic.topic)
         fileno = self.__socket.getsockopt(nnpy.SOL_SOCKET, nnpy.RCVFD)
         IOLoop.current().add_handler(fileno, call_callback, IOLoop.READ)
+        return fileno
 
 
 # http://stackoverflow.com/a/6798042
