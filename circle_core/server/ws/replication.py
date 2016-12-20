@@ -13,7 +13,7 @@ logger = get_stream_logger(__name__)
 
 
 class ReplicationHandler(WebSocketHandler):
-    """スキーマを交換し、まだ相手に送っていないデータを送る
+    """スキーマを交換し、まだ相手に送っていないデータを送る.
 
     :param Sender __nanomsg:
     """
@@ -79,4 +79,6 @@ class ReplicationHandler(WebSocketHandler):
             })
             self.write_message(resp)
 
-        self.watching_fd = Receiver().register_ioloop(SensorDataTopic(), pass_message)
+        receiver = Receiver(SensorDataTopic())
+        receiver.register_ioloop(pass_message)
+        self.watching_fd = receiver.fileno()

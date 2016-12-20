@@ -25,6 +25,7 @@ logger = get_stream_logger(__name__)
 
 
 def get_ipc_socket_path():
+    """Unix domain socket ファイルのパス."""
     try:
         return get_current_context().obj.ipc_socket
     except RuntimeError:
@@ -34,47 +35,54 @@ def get_ipc_socket_path():
 class Receiver(object):
     """受信. PubSubのSub.
 
-    :param Socket __socket:
+    :param Socket _socket:
     """
 
-    def __init__(self):
-        """接続を開く."""
-        self.__socket = nnpy.Socket(nnpy.AF_SP, nnpy.SUB)
-        self.__socket.connect(get_ipc_socket_path())
+    def __init__(self, topic):
+        """接続を開く.
+
+        :param TopicBase topic:
+        """
+        self._socket = nnpy.Socket(nnpy.AF_SP, nnpy.SUB)
+        self._socket.connect(get_ipc_socket_path())
+        self._socket.setsockopt(nnpy.SUB, nnpy.SUB_SUBSCRIBE, topic.topic)
+        self.topic = topic
 
     def __del__(self):
         """接続を閉じる."""
-        self.__socket.close()
+        self._socket.close()
+
+    def fileno(self):
+        return self._socket.getsockopt(nnpy.SOL_SOCKET, nnpy.RCVFD)
 
     def set_timeout(self, timeout):
-        """タイムアウトを設定する
+        """タイムアウトを設定する.
 
         :param int timeout: タイムアウト millisecond
         """
-        self.__socket.setsockopt(nnpy.SOL_SOCKET, nnpy.RCVTIMEO, timeout)
+        self._socket.setsockopt(nnpy.SOL_SOCKET, nnpy.RCVTIMEO, timeout)
 
-    def incoming_messages(self, topic):
+    def incoming_messages(self):
         """メッセージを受信次第それを返すジェネレータ.
 
         :param TopicBase topic:
         :return unicode: 受信したメッセージ
         """
-        self.__socket.setsockopt(nnpy.SUB, nnpy.SUB_SUBSCRIBE, topic.topic)
         while True:
             # TODO: 接続切れたときにStopIterationしたいが自分でheartbeatを実装したりしないといけないのかな
             try:
-                msg = self.__socket.recv().decode('utf-8')
+                msg = self._socket.recv().decode('utf-8')
             except nnpy.NNError as error:
                 if error.error_no == nnpy.ETIMEDOUT:
                     break
                 raise
 
             try:
-                yield topic.decode_json(msg)
+                yield self.topic.decode_json(msg)
             except JSONDecodeError:
                 logger.warning('Received an non-JSON message. Ignore it.')
 
-    def register_ioloop(self, topic, callback):
+    def register_ioloop(self, callback):
         """TornadoのIOLoopにメッセージ受信時のコールバックを登録.
 
         :param TopicBase topic:
@@ -82,18 +90,19 @@ class Receiver(object):
 
         def call_callback(*args):
             # TODO: incoming_messagesと同じような処理が多い。共通化する
-            msg = self.__socket.recv().decode('utf-8')
+            msg = self._socket.recv().decode('utf-8')
             try:
-                decoded = topic.decode_json(msg)
+                decoded = self.topic.decode_json(msg)
             except JSONDecodeError:
                 logger.warning('Received an non-JSON message, Ignore it.')
             else:
                 callback(decoded)
 
-        self.__socket.setsockopt(nnpy.SUB, nnpy.SUB_SUBSCRIBE, topic.topic)
-        fileno = self.__socket.getsockopt(nnpy.SOL_SOCKET, nnpy.RCVFD)
-        IOLoop.current().add_handler(fileno, call_callback, IOLoop.READ)
-        return fileno
+        IOLoop.current().add_handler(self, call_callback, IOLoop.READ)
+
+    def close(self):
+        """Tornadoに叩かれる."""
+        IOLoop.current().remove_handler(self)
 
 
 # http://stackoverflow.com/a/6798042
@@ -117,13 +126,13 @@ class Singleton(type):
 class Sender(object):
     """送信. PubSubのPub.
 
-    :param Socket __socket:
+    :param Socket _socket:
     """
 
     def __init__(self):
         """接続を開く."""
-        self.__socket = nnpy.Socket(nnpy.AF_SP, nnpy.PUB)
-        self.__socket.bind(get_ipc_socket_path())
+        self._socket = nnpy.Socket(nnpy.AF_SP, nnpy.PUB)
+        self._socket.bind(get_ipc_socket_path())
         # 同じアドレスにbindできるのは一度に一つのSocketだけ
         sleep(0.5)
         # おそらくbindが完了するまでブロックされていない
@@ -131,7 +140,7 @@ class Sender(object):
 
     def __del__(self):
         """接続を閉じる."""
-        self.__socket.close()
+        self._socket.close()
 
     def send(self, msg):
         """送信.
@@ -139,4 +148,4 @@ class Sender(object):
         :param unicode msg:
         """
         # nnpy.Socket.sendにunicodeを渡すとasciiでencodeしようとして例外を吐く
-        self.__socket.send(msg.encode('utf-8'))
+        self._socket.send(msg.encode('utf-8'))

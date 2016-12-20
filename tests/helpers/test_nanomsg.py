@@ -15,8 +15,8 @@ class TestReceiver(object):
     def setup_class(cls):
         cls.socket = Socket(AF_SP, PUB)
         cls.socket.bind(get_ipc_socket_path())
-        cls.receiver = Receiver()
-        cls.messages = cls.receiver.incoming_messages(TestTopic())
+        cls.receiver = Receiver(TestTopic())
+        cls.messages = cls.receiver.incoming_messages()
 
     @classmethod
     def teardown_class(cls):

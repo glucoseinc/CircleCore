@@ -78,7 +78,6 @@ class TestReplicationHandler(AsyncHTTPTestCase):
         assert module.properties[0].name == 'foo'
         assert module.properties[0].value == 'bar'
 
-    @pytest.mark.skip
     @gen_test
     def test_retrieve(self):
         yield self.dummy_crcr.write_message('{"command": "RETRIEVE"}')

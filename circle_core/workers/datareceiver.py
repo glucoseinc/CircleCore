@@ -33,7 +33,7 @@ def run(metadata):
     metadata.data_receiver_cycle_count = 10
 
     topic = SensorDataTopic()
-    receiver = Receiver()
+    receiver = Receiver(topic)
     receiver.set_timeout(metadata.data_receiver_cycle_time)
 
     db = Database(metadata.database_url)
@@ -54,7 +54,7 @@ def run(metadata):
 
     while True:
         try:
-            for module_uuid, payload in receiver.incoming_messages(topic):
+            for module_uuid, payload in receiver.incoming_messages():
                 if not isinstance(payload, list):
                     payload = [payload]
                 logger.debug('received a sensor data for %s : %r', module_uuid, payload)

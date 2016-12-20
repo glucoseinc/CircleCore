@@ -23,9 +23,9 @@ class TestSensorHandler(object):
                 from uuid import UUID
                 return DummyModule(UUID(module_uuid))
 
-        cls.receiver = Receiver()
+        cls.receiver = Receiver(JustLogging())
         cls.receiver.set_timeout(5000)
-        cls.messages = cls.receiver.incoming_messages(JustLogging())
+        cls.messages = cls.receiver.incoming_messages()
         cls.server = Process(target=ws.run, args=[DummyMetadata(), '/(?P<module_uuid>[0-9A-Fa-f-]+)', 5000])
         cls.server.daemon = True
         cls.server.start()
