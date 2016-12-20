@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 """レプリケーション先からメッセージを受け取るワーカー."""
+from datetime import datetime
 import json
 from select import select
+import traceback
+from uuid import UUID
 
+from base58 import b58encode
 from click import get_current_context
 from websocket import create_connection
 
@@ -19,21 +23,52 @@ def get_uuid():  # テスト時には上書きする
     return get_current_context().obj.uuid.hex
 
 
-def run(metadata, master_addr):
-    """`crcr run`の下で走る."""
-    db = Database(metadata.database_url)
-    conn = create_connection('ws://' + master_addr + '/replication/' + get_uuid())
-    req = json.dumps({
-        'command': 'MIGRATE'
-    })
-    conn.send(req)
-    res = json.loads(conn.recv())
-    modules = [Module(**module) for module in res['modules']]
-    schemas = [Schema(**schema) for schema in res['schemas']]
-    db.register_schemas_and_modules(schemas, modules)
-    db.migrate()
+class Replicator(object):
+    def __init__(self, metadata, master_addr):
+        self.ws = create_connection('ws://' + master_addr + '/replication/' + get_uuid())
+        self.db = Database(metadata.database_url)
+        self.metadata = metadata
 
-    req = json.dumps({
-        'command': 'RETRIEVE'
-    })
-    conn.send(req)
+    def migrate(self):
+        res = json.loads(self.ws.recv())
+        modules = [Module(**module) for module in res['modules']]
+        schemas = [Schema(**schema) for schema in res['schemas']]
+        self.db.register_schemas_and_modules(schemas, modules)
+        self.db.migrate()
+
+    def retrieve(self):
+        dbconn = self.db._engine.connect()
+
+        while True:
+            transaction = dbconn.begin()
+            try:
+                res = json.loads(self.ws.recv())  # MessageがJSONシリアライズされたオブジェクト
+                logger.debug('Received from master: %r', res)
+
+                # TODO: MasterのModuleはmetadataに登録するべきか
+                table = self.db._metadata.tables['module_' + b58encode(UUID(res['module']).bytes)]
+                query = table.insert().values(
+                    _created_at=datetime.fromtimestamp(res['timestamp']),
+                    _counter=res['count'],
+                    **res['payload']
+                )
+                dbconn.execute(query)
+            except:
+                traceback.print_exc()
+                transaction.rollback()
+            else:
+                transaction.commit()
+                logger.debug('Execute query %s', query)
+
+    def run(self):
+        req = json.dumps({
+            'command': 'MIGRATE'
+        })
+        self.ws.send(req)
+        self.migrate()
+
+        req = json.dumps({
+            'command': 'RETRIEVE'
+        })
+        self.ws.send(req)
+        self.retrieve()

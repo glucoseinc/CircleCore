@@ -77,6 +77,6 @@ class ReplicationHandler(WebSocketHandler):
             self.write_message(msg.encode())
 
         logger.debug('Replication Master %s', SensorDataTopic().topic)
-        receiver = Receiver(SensorDataTopic(), Message)
+        receiver = Receiver(SensorDataTopic())
         receiver.register_ioloop(pass_message)
         self.watching_fd = receiver.fileno()
