@@ -22,7 +22,7 @@ def metadata():
 class Message(object):
     """デバイスからのメッセージ.
 
-    :param Message last_message:
+    :param Dict[str, Message] last_message_per_module:
     :param BaseTopic topic:
     :param Module module:
     :param Schema schema:
@@ -31,8 +31,7 @@ class Message(object):
     :param dict payload:
     """
 
-    topic = SensorDataTopic
-    last_message = None  # 別のプロセスで動いているものは別のテーブルに書き込もうとするので重複は気にしなくていい
+    last_message_per_module = {}
 
     def __init__(self, msg):
         """timestampとcountをMessageの識別子とする.
@@ -43,20 +42,28 @@ class Message(object):
         self.decode(msg)
         self.schema = metadata().find_module(self.module.uuid)
 
-        self.timestamp = time()
+        self.timestamp = round(time(), 6)  # datetimeはJSON Serializableではないので
         if self.last_message is not None and self.last_message.timestamp == self.timestamp:
             self.count = self.last_message.count + 1
         else:
             self.count = 0
-
         self.last_message = self
+
+    @property
+    def last_message(self):
+        """このメッセージを送ったモジュールからの一つ前のメッセージ."""
+        return self.last_message_per_module.get(self.module.uuid.hex, None)
+
+    @last_message.setter
+    def last_message(self, msg):
+        self.last_message_per_module[self.module.uuid.hex] = msg
 
     def decode(self, msg):
         """nanomsgで送られてきたメッセージがJSONだとしてデシリアライズ.
 
         :param str msg:
         """
-        module_uuid = UUID(bytes=b58decode(msg[len(self.topic.prefix):TOPIC_LENGTH].rstrip()))
+        module_uuid = UUID(bytes=b58decode(msg[len(SensorDataTopic().prefix):TOPIC_LENGTH].rstrip()))
         self.module = metadata().find_module(module_uuid)
         self.payload = json.loads(msg[TOPIC_LENGTH:])
 

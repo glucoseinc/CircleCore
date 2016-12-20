@@ -47,7 +47,6 @@ class Receiver(object):
         """
         self._socket = nnpy.Socket(nnpy.AF_SP, nnpy.SUB)
         self._socket.connect(get_ipc_socket_path())
-        logger.debug('Receiver %s', topic.topic)
         self._socket.setsockopt(nnpy.SUB, nnpy.SUB_SUBSCRIBE, topic.topic)
         self.message = message
 
@@ -138,7 +137,6 @@ class Sender(object):
         """接続を開く."""
         self._socket = nnpy.Socket(nnpy.AF_SP, nnpy.PUB)
         self._socket.bind(get_ipc_socket_path())
-        logger.debug('Sender %s', topic.topic)
         self.topic = topic
         sleep(0.5)  # おそらくbindが完了するまでブロックされていない。bindの直後にsendしても届かなかった。
 

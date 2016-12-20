@@ -2,6 +2,7 @@
 """センサデータを受け取って保存する"""
 
 # system module
+from datetime import datetime
 import time
 from uuid import UUID
 
@@ -32,8 +33,7 @@ def run(metadata):
     metadata.data_receiver_cycle_time = 10 * 1000
     metadata.data_receiver_cycle_count = 10
 
-    topic = SensorDataTopic()
-    receiver = Receiver(topic)
+    receiver = Receiver(SensorDataTopic())
     receiver.set_timeout(metadata.data_receiver_cycle_time)
 
     db = Database(metadata.database_url)
@@ -43,44 +43,30 @@ def run(metadata):
         # TODO: 例外処理
         raise Exception
 
-    app = CRCRApp(metadata)
     conn = db._engine.connect()
 
     trans = conn.begin()
     last_commit_count = 0
 
-    time_before = 0
-    counter = 0
-
     while True:
         try:
-            for module_uuid, payload in receiver.incoming_messages():
-                if not isinstance(payload, list):
-                    payload = [payload]
-                logger.debug('received a sensor data for %s : %r', module_uuid, payload)
+            for msg in receiver.incoming_messages():
+                logger.debug('received a sensor data for %s : %r', msg.module.uuid, msg.payload)
 
                 try:
-                    module, schema = app.find_module_and_schema(module_uuid)
-                    table = db.find_table_for_module(module)
-
-                    now = time.time()
-                    if time_before != now:
-                        counter = 0
-
-                    for packet in payload:
-                        # TODO: packetチェック
-                        conn.execute(table.insert().values(
-                            _created_at=now,
-                            _counter=counter,
-                            **packet
-                        ))
-                        counter += 1
+                    table = db.find_table_for_module(msg.module)
+                    query = table.insert().values(
+                        _created_at=msg.timestamp,
+                        _counter=msg.count,
+                        **msg.payload
+                    )
+                    conn.execute(query)
                 except:
                     import traceback
                     traceback.print_exc()
                     pass
 
-                last_commit_count += len(payload)
+                last_commit_count += 1
                 if last_commit_count >= metadata.data_receiver_cycle_count:
                     break
         except:
@@ -96,46 +82,3 @@ def run(metadata):
                 logger.debug('begin new transaction')
                 trans = conn.begin()
                 last_commit_count = 0
-
-
-class CRCRApp(object):
-    """
-    CircleCoreの情報をやりとりするクラス。metadata直接さわるのはアレなので。
-
-    とりあえずここに殴り書きしたけど、ちゃんと纏める
-    """
-    def __init__(self, metadata):
-        """
-        @constructor
-
-        :param Union[MetadataIniFile, MetadataRedis] metadata: metadata
-        """
-        self.__metadata = metadata
-        self.__modules_cache = {}
-        self.__schemas_cache = {}
-
-    def find_module_and_schema(self, module_uuid):
-        """
-        moduleのUUIDからmoduleとそのschemaを返す
-
-        :param UUID module_uuid: moduleのUUID
-        :return: moduleとschema
-        :rtype: Tuple[Module, Schema]
-        """
-
-        assert isinstance(module_uuid, UUID)
-        if module_uuid not in self.__modules_cache:
-            module = self.__metadata.find_module(module_uuid)
-            self.__modules_cache[module_uuid] = module
-        module = self.__modules_cache[module_uuid]
-        if not module:
-            raise ModuleNotFoundError
-
-        if module.schema_uuid not in self.__schemas_cache:
-            schema = self.__metadata.find_schema(module.schema_uuid)
-            self.__schemas_cache[module.schema_uuid] = schema
-        schema = self.__schemas_cache[module.schema_uuid]
-        if not schema:
-            raise SchemaNotFoundError
-
-        return module, schema

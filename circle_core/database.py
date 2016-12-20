@@ -71,6 +71,7 @@ class Database(object):
 
             # define columns
             columns = [
+                # FIXME: 常にMessageからtimestampを注入するのでDEFALUT CURRENT_TIMESTAMPを切りたいが方法が分からない
                 sa.Column('_created_at', sa.Numeric(16, 6, asdecimal=True), nullable=False),
                 sa.Column('_counter', sa.Integer(), nullable=False, default=0),
             ]
