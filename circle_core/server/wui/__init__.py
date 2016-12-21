@@ -37,5 +37,9 @@ def schema_list():
 def create_app(metadata=None):
     """App factory."""
     # TODO: Use blueprint
+
+    from .api import api
+
+    app.register_blueprint(api, url_prefix='/api')
     app.metadata = metadata
     return app

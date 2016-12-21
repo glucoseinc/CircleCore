@@ -1,9 +1,8 @@
 import React, {Component, PropTypes} from 'react'
 import {Link} from 'react-router'
-import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn}
-  from 'material-ui/Table'
+import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
+import RefreshIndicator from 'material-ui/RefreshIndicator'
 import withWidth from 'material-ui/utils/withWidth'
-import spacing from 'material-ui/styles/spacing'
 import {blueGrey600} from 'material-ui/styles/colors'
 
 import CCAPI from '../api'
@@ -30,10 +29,8 @@ class ModuleListPage extends Component {
     super(...args)
 
     this.state = {
-      isLoading: false,
-      moduleList: [
-        {display_name: 'test', uuid: '0C92D140-6E74-4F6D-B2FA-4CC124DBC6DC'},
-      ]
+      isLoading: true,
+      moduleList: [],
     }
   }
 
@@ -42,11 +39,11 @@ class ModuleListPage extends Component {
    */
   async componentDidMount() {
     // TODO: moduleListを取りに行く
-    this.setState({loading: true})
+    this.setState({isLoading: true})
+    let response = await CCAPI.listModules()
+    let moduleList = response.modules
 
-    let moduleList = await CCAPI.listModules()
-
-    this.setState({loading: false, moduleList})
+    this.setState({isLoading: false, moduleList})
   }
   /**
    * @override
@@ -56,10 +53,28 @@ class ModuleListPage extends Component {
       subtext: {
         color: blueGrey600,
         fontSize: 10,
-      }
+      },
     }
     let {muiTheme} = this.context
     let {isLoading, moduleList} = this.state
+
+    if(isLoading) {
+      return (
+        <div>
+          <RefreshIndicator
+            size={50}
+            left={70}
+            top={0}
+            loadingColor="#FF9800"
+            status="loading"
+            style={{
+              display: 'inline-block',
+              position: 'relative',
+            }}
+          />
+        </div>
+      )
+    }
 
     return (
       <div>

@@ -1,6 +1,9 @@
 import request from 'superagent'
 
 
+/**
+ * CircleCore管理用APIのラッパ
+ */
 class CCAPI {
   /**
    * @constructor
@@ -31,18 +34,21 @@ class CCAPI {
    * モジュールのリストを得る
    * @return {Array<Module>} モジュールのリスト
    */
-  listModules() {
-    return this._get('modules')
+  async listModules() {
+    let res = await this._get('/modules/')
+    return res.body
   }
 
   /**
    * モジュールの詳細を得る
+   * @param {String} moduleId モジュールのID
    * @return {Module} モジュール
    */
-  getModule(moduleId) {
-    return this._get(`modules/${moduleId}`)
+  async getModule(moduleId) {
+    let res = await this._get(`/modules/${moduleId}`)
+    return res.body
   }
 }
 
 
-export default new CCAPI('/api/')
+export default new CCAPI('/api')

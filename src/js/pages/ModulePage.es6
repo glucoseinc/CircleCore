@@ -1,10 +1,6 @@
 import React, {Component, PropTypes} from 'react'
-import {Link} from 'react-router'
-import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn}
-  from 'material-ui/Table'
+import RefreshIndicator from 'material-ui/RefreshIndicator'
 import withWidth from 'material-ui/utils/withWidth'
-import spacing from 'material-ui/styles/spacing'
-import {blueGrey600} from 'material-ui/styles/colors'
 
 import CCAPI from '../api'
 
@@ -24,12 +20,15 @@ class ModulePage extends Component {
     router: PropTypes.object.isRequired,
   }
 
+  /**
+   * @constructor
+   */
   constructor(...args) {
     super(...args)
 
     this.state = {
       isLoading: true,
-      module: null
+      module: null,
     }
   }
 
@@ -38,32 +37,40 @@ class ModulePage extends Component {
    */
   async componentDidMount() {
     // TODO: moduleListを取りに行く
-    this.setState({loading: true})
+    this.setState({isLoading: true})
 
     let module = await CCAPI.getModule(this.props.params.moduleId)
 
-    this.setState({loading: false, module: module})
+    this.setState({isLoading: false, module: module})
   }
 
   /**
    * @override
    */
   render() {
-    const styles = {
-      subtext: {
-        color: blueGrey600,
-        fontSize: 10,
-      }
-    }
-    const style = {
-      paddingTop: spacing.desktopKeylineIncrement,
-    }
-    let {muiTheme} = this.context
     let {isLoading, module} = this.state
+
+    if(isLoading) {
+      return (
+        <div>
+          <RefreshIndicator
+            size={50}
+            left={70}
+            top={0}
+            loadingColor="#FF9800"
+            status="loading"
+            style={{
+              display: 'inline-block',
+              position: 'relative',
+            }}
+          />
+        </div>
+      )
+    }
 
     return (
       <div>
-        module: {this.props.params.moduleId}
+        module: {module}{this.props.params.moduleId}
       </div>
     )
   }
