@@ -29,6 +29,16 @@ class CCAPI {
   }
 
 
+  // schemas
+  /**
+   * スキーマのリストを得る
+   * @return {Array<Schema>} スキーマのリスト
+   */
+  async listSchemas() {
+    let res = await this._get('/schemas/')
+    return res.body
+  }
+
   // modules
   /**
    * モジュールのリストを得る
