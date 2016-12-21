@@ -19,6 +19,7 @@ app.metadata = None  # type: Optional[Union[MetadataIniFile, MetadataRedis]]
 @app.route('/')
 def index():
     """仮."""
+    return render_template('index.html')
     return 'Greetings from flask!'
 
 
