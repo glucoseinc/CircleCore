@@ -14,13 +14,13 @@ if PY3:
 
 app = Flask(__name__)
 app.metadata = None  # type: Optional[Union[MetadataIniFile, MetadataRedis]]
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 
 @app.route('/')
 def index():
     """仮."""
     return render_template('index.html')
-    return 'Greetings from flask!'
 
 
 @app.route('/schema/list')
