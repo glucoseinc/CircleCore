@@ -56,4 +56,23 @@ $ crcr server run
 $ tox -e sphinx
 ```
 
+## Development
+
+### Setup
+
+```bash
+$ npm install
+```
+
+### Build JS & CSS
+
+```bash
+$ npm run build
+```
+
+watch changes & rebuild
+```bash
+$ npm run watch
+```
+
 see doc/README.md .

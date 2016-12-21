@@ -33,7 +33,7 @@ rules:
   no-unused-vars:
     - 2
     - args: 'none'
-      varsIgnorePattern: "_"
+      varsIgnorePattern: "_|React"
 
   "import-order/import-order": 2
   "react/jsx-uses-vars": 1
