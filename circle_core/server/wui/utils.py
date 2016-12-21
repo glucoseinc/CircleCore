@@ -1,9 +1,15 @@
 # -*- coding:utf-8 -*-
+
+# community module
 from flask import current_app, request
 from flask.json import _dump_arg_defaults, _json, JSONEncoder as BaseJSONEncoder, text_type
+from six import PY3
 
+# project module
+from circle_core.models.metadata import MetadataIniFile, MetadataRedis
 
-__all__ = ('api_jsonify',)
+if PY3:
+    from typing import Union
 
 
 class JSONEncoder(BaseJSONEncoder):
@@ -29,3 +35,15 @@ def api_jsonify(*args, **kwargs):
     return current_app.response_class(
         dumps(dict(*args, **kwargs), indent=indent),
         mimetype='application/json; charset=utf-8')
+
+
+def get_metadata():
+    """Metadataを返す.
+
+    :return:Metadata
+    :rtype: Union[MetadataIniFile, MetadataRedis]
+    """
+    metadata = current_app.config.get('METADATA')
+    if metadata is None:
+        raise Exception  # TODO: 適切な例外投げる
+    return metadata

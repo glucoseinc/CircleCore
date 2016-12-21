@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-"""モジュール関連APIの実装"""
-from circle_core.server.wui.utils import api_jsonify
-from . import api
+
+"""モジュール関連APIの実装."""
+
+from .api import api
+from ..utils import api_jsonify
 
 
 @api.route('/modules/')
