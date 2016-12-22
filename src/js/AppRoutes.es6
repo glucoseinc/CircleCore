@@ -13,9 +13,8 @@ const AppRoutes = (
   <Route path="/" component={Master}>
     <IndexRoute component={HomePage} />
     <Route path="home" component={HomePage} />
-    <Route path="modules" component={require('./pages/ModuleList').default}>
-    </Route>
-    <Route path="/module/:moduleId" component={require('./pages/ModulePage').default} />
+    <Route path="modules" component={require('./pages/ModuleList').default}/>
+    <Route path="modules/:moduleId" component={require('./pages/ModulePage').default} />
 
     <Route path="*" component={() => (<div>Page not found</div>)}/>
   </Route>

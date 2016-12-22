@@ -97,7 +97,7 @@ class ModuleListPage extends Component {
               return (
                 <TableRow key={module.uuid}>
                   <TableRowColumn>
-                    <Link to={`/module/${module.uuid}`}>
+                    <Link to={`/modules/${module.uuid}`}>
                       {module.display_name}<br />
                       <span style={muiTheme.prepareStyles(styles.subtext)}>{module.uuid}</span>
                     </Link>
