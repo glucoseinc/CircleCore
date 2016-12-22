@@ -14,12 +14,13 @@ if PY3:
 
 app = Flask(__name__)
 app.metadata = None  # type: Optional[Union[MetadataIniFile, MetadataRedis]]
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 
 @app.route('/')
 def index():
     """仮."""
-    return 'Greetings from flask!'
+    return render_template('index.html')
 
 
 @app.route('/schema/list')
@@ -36,5 +37,9 @@ def schema_list():
 def create_app(metadata=None):
     """App factory."""
     # TODO: Use blueprint
+
+    from .api import api
+
+    app.register_blueprint(api, url_prefix='/api')
     app.metadata = metadata
     return app
