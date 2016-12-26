@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import {Link} from 'react-router'
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
+import {FlatButton, RaisedButton} from 'material-ui'
 import RefreshIndicator from 'material-ui/RefreshIndicator'
 import withWidth from 'material-ui/utils/withWidth'
 import {blueGrey600} from 'material-ui/styles/colors'
@@ -9,10 +10,10 @@ import CCAPI from '../api'
 
 
 /**
- * /modules/ページのレンダリング
- * モジュールのリストを表示する
+ * /schemas/ページのレンダリング
+ * Schemaのリストを表示する
  */
-class ModuleListPage extends Component {
+class SchemaListPage extends Component {
   static propTypes = {
     width: PropTypes.number.isRequired,
   }
@@ -30,7 +31,7 @@ class ModuleListPage extends Component {
 
     this.state = {
       isLoading: true,
-      moduleList: [],
+      schemaList: [],
     }
   }
 
@@ -38,12 +39,14 @@ class ModuleListPage extends Component {
    * @override
    */
   async componentDidMount() {
-    // TODO: moduleListを取りに行く
     this.setState({isLoading: true})
-    let response = await CCAPI.listModules()
-    let moduleList = response.modules
+    let response = await CCAPI.listSchemas()
+    let schemaList = response.schemas
 
-    this.setState({isLoading: false, moduleList})
+    this.setState({
+      isLoading: false,
+      schemaList: schemaList,
+    })
   }
   /**
    * @override
@@ -55,8 +58,7 @@ class ModuleListPage extends Component {
         fontSize: 10,
       },
     }
-    let {muiTheme} = this.context
-    let {isLoading, moduleList} = this.state
+    let {isLoading, schemaList} = this.state
 
     if(isLoading) {
       return (
@@ -78,6 +80,9 @@ class ModuleListPage extends Component {
 
     return (
       <div>
+        <Link to="/schemas/new">
+          <RaisedButton label="Add" primary={true} />
+        </Link>
         <Table>
 
           <TableHeader
@@ -85,7 +90,9 @@ class ModuleListPage extends Component {
             adjustForCheckbox={false}
           >
             <TableRow>
-              <TableHeaderColumn tooltip="Module's name">Name</TableHeaderColumn>
+              <TableHeaderColumn tooltip="Schema's name">Name</TableHeaderColumn>
+              <TableHeaderColumn tooltip="Modules using schema">Modules</TableHeaderColumn>
+              <TableHeaderColumn></TableHeaderColumn>
             </TableRow>
           </TableHeader>
 
@@ -93,20 +100,26 @@ class ModuleListPage extends Component {
             displayRowCheckbox={false}
           >
 
-            {moduleList.map((module) => {
+            {schemaList.map((schema) => {
               return (
-                <TableRow key={module.uuid}>
+                <TableRow key={schema.uuid}>
                   <TableRowColumn>
-                    <Link to={`/modules/${module.uuid}`}>
-                      {module.display_name}<br />
-                      <span style={muiTheme.prepareStyles(styles.subtext)}>{module.uuid}</span>
+                    <Link to={`/schemas/${schema.uuid}`}>
+                      {schema.display_name}<br/>
+                      <span style={styles.subtext}>{schema.uuid}</span>
                     </Link>
                   </TableRowColumn>
                   <TableRowColumn>
-                    MessageBox
+                    {schema.modules.map((module) =>
+                      <Link key={module.uuid} to={`/modules/${module.uuid}`}>
+                        <FlatButton key={module.uuid} label={module.display_name ? module.display_name : module.uuid}/>
+                      </Link>
+                    )}
                   </TableRowColumn>
                   <TableRowColumn>
-                    Tag
+                    <Link to={`/schemas/${schema.uuid}/delete`}>
+                      <RaisedButton label="Delete" secondary={true} />
+                    </Link>
                   </TableRowColumn>
                 </TableRow>
               )
@@ -120,4 +133,4 @@ class ModuleListPage extends Component {
   }
 }
 
-export default withWidth()(ModuleListPage)
+export default withWidth()(SchemaListPage)

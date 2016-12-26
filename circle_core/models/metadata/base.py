@@ -88,7 +88,7 @@ class MetadataReader(MetadataBase):
         raise NotImplementedError
 
     @abstractproperty
-    def modules(self):
+    def message_boxes(self):
         """全てのMessageBoxオブジェクト.
 
         :return: MessageBoxオブジェクトリスト
@@ -97,7 +97,7 @@ class MetadataReader(MetadataBase):
         raise NotImplementedError
 
     @abstractproperty
-    def message_boxes(self):
+    def modules(self):
         """全てのModuleオブジェクト.
 
         :return: Moduleオブジェクトリスト
@@ -150,6 +150,21 @@ class MetadataReader(MetadataBase):
                 return message_box
         return None
 
+    def find_message_boxes_by_schema(self, schema_uuid):
+        """MessageBoxリストからschema_uuidがマッチするものを取得する.
+
+        :param Union[str, UUID] schema_uuid: 取得するSchemaのUUID
+        :return: マッチしたMessageBoxのリスト
+        :rtype: List[MessageBox]
+        """
+        if not isinstance(schema_uuid, UUID):
+            try:
+                schema_uuid = UUID(schema_uuid)
+            except ValueError:
+                return []
+
+        return [message_box for message_box in self.message_boxes if message_box.schema_uuid == schema_uuid]
+
     def find_module(self, module_uuid):
         """ModuleリストからUUIDがマッチするものを取得する.
 
@@ -167,6 +182,21 @@ class MetadataReader(MetadataBase):
             if module.uuid == module_uuid:
                 return module
         return None
+
+    def find_modules_by_schema(self, schema_uuid):
+        """Moduleリストからschema_uuidがマッチするものを取得する.
+
+        :param Union[str, UUID] schema_uuid: 取得するSchemaのUUID
+        :return: マッチしたModuleのリスト
+        :rtype: List[Module]
+        """
+        message_boxes = self.find_message_boxes_by_schema(schema_uuid)
+        message_box_uuids = set([message_box.uuid for message_box in message_boxes])
+        modules = []
+        for module in self.modules:  # type: Module
+            if len(set(module.message_box_uuids).intersection(message_box_uuids)) > 0:
+                modules.append(module)
+        return modules
 
     def find_user(self, user_uuid):
         """ユーザリストからUUIDがマッチするものを取得する.
