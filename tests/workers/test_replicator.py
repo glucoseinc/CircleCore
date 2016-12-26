@@ -67,7 +67,7 @@ class DummyReplicationMaster(WebSocketHandler):
                 }]
             })
             self.write_message(res)
-        elif msg == {'command': 'RETRIEVE'}:
+        elif msg == {'command': 'RECEIVE'}:
             IOLoop.current().stop()
 
 

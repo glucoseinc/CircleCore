@@ -37,7 +37,7 @@ class Replicator(object):
         self.db.register_message_boxes(boxes, schemas)
         self.db.migrate()
 
-    def retrieve(self):
+    def receive(self):
         dbconn = self.db._engine.connect()
 
         while True:
@@ -69,7 +69,7 @@ class Replicator(object):
         self.migrate()
 
         req = json.dumps({
-            'command': 'RETRIEVE'
+            'command': 'RECEIVE'
         })
         self.ws.send(req)
-        self.retrieve()
+        self.receive()

@@ -88,8 +88,8 @@ class TestReplicationHandler(AsyncHTTPTestCase):
 
     @pytest.mark.timeout(2)
     @gen_test
-    def test_retrieve(self):
-        yield self.dummy_crcr.write_message('{"command": "RETRIEVE"}')
+    def test_receive(self):
+        yield self.dummy_crcr.write_message('{"command": "RECEIVE"}')
         yield sleep(1)
         yield self.dummy_module.write_message('{"hoge": 123}')
         resp = yield self.dummy_crcr.read_message()

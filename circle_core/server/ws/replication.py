@@ -32,7 +32,7 @@ class ReplicationHandler(WebSocketHandler):
         action = json.loads(msg)
         if action['command'] == 'MIGRATE':
             self.send_modules()
-        elif action['command'] == 'RETRIEVE':
+        elif action['command'] == 'RECEIVE':
             self.pass_messages()
 
         logger.debug('message from another circlecore: %r' % msg)
