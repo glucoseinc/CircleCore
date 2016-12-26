@@ -10,6 +10,7 @@ from tornado.web import Application
 from tornado.websocket import websocket_connect
 
 from circle_core.models import message
+from circle_core.models.message_box import MessageBox
 from circle_core.models.module import Module
 from circle_core.models.schema import Schema
 from circle_core.server.ws import ReplicationHandler, SensorHandler
@@ -17,11 +18,12 @@ from circle_core.server.ws import ReplicationHandler, SensorHandler
 
 class DummyMetadata:
     schemas = [Schema('44ae2fd8-52d0-484d-9a48-128b07937a0a', 'DummySchema', 'hoge:int')]
+    message_boxes = [MessageBox('316720eb-84fe-43b3-88b7-9aad49a93220', '44ae2fd8-52d0-484d-9a48-128b07937a0a')]
     modules = [Module(
         '8e654793-5c46-4721-911e-b9d19f0779f9',
-        '44ae2fd8-52d0-484d-9a48-128b07937a0a',
+        '316720eb-84fe-43b3-88b7-9aad49a93220',
         'DummyModule',
-        'foo:bar'
+        'foo,bar'
     )]
 
     @classmethod
@@ -76,12 +78,15 @@ class TestReplicationHandler(AsyncHTTPTestCase):
         assert schema.properties[0].name == 'hoge'
         assert schema.properties[0].type == 'int'
 
+        box = MessageBox(**resp['message_boxes'][0])
+        assert box.uuid == UUID('316720eb-84fe-43b3-88b7-9aad49a93220')
+        assert box.schema_uuid == UUID('44ae2fd8-52d0-484d-9a48-128b07937a0a')
+
         module = Module(**resp['modules'][0])
         assert module.uuid == UUID('8e654793-5c46-4721-911e-b9d19f0779f9')
-        assert module.schema_uuid == UUID('44ae2fd8-52d0-484d-9a48-128b07937a0a')
+        assert module.message_box_uuids[0] == UUID('316720eb-84fe-43b3-88b7-9aad49a93220')
         assert module.display_name == 'DummyModule'
-        assert module.properties[0].name == 'foo'
-        assert module.properties[0].value == 'bar'
+        assert module.tags == ['foo', 'bar']
 
     @pytest.mark.timeout(2)
     @gen_test

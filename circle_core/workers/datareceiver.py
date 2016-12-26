@@ -37,7 +37,7 @@ def run(metadata):
     receiver.set_timeout(metadata.data_receiver_cycle_time)
 
     db = Database(metadata.database_url)
-    db.register_schemas_and_modules(metadata.schemas, metadata.modules)
+    db.register_message_boxes(metadata.message_boxes, metadata.schemas)
 
     if not db.check_tables().is_ok:
         # TODO: 例外処理

@@ -17,10 +17,12 @@ from tornado.websocket import websocket_connect, WebSocketHandler
 
 from circle_core.cli.cli_main import cli_main
 from circle_core.database import Database
+from circle_core.models.message_box import MessageBox
 from circle_core.models.module import Module
 from circle_core.models.schema import Schema
 from circle_core.server.ws import ReplicationHandler, SensorHandler
 from circle_core.workers import replicator
+from circle_core.workers.replicator import Replicator
 
 
 def setup_module(module):
@@ -39,7 +41,7 @@ def start_worker(mysql):
     class DummyMetadata(object):
         database_url = mysql.url
 
-    worker = Process(target=replicator.run, args=[DummyMetadata, 'localhost:5001'])
+    worker = Process(target=lambda: Replicator(DummyMetadata, 'localhost:5001').run())
     worker.start()
 
 
@@ -50,9 +52,13 @@ class DummyReplicationMaster(WebSocketHandler):
             res = json.dumps({
                 'modules': [{
                     'uuid': '8e654793-5c46-4721-911e-b9d19f0779f9',
-                    'schema_uuid': '44ae2fd8-52d0-484d-9a48-128b07937a0a',
+                    'message_box_uuids': '316720eb-84fe-43b3-88b7-9aad49a93220',
                     'display_name': 'DummyModule',
-                    'properties': 'foo:bar'
+                    'tags': 'foo,bar'
+                }],
+                'message_boxes': [{
+                    'uuid': '316720eb-84fe-43b3-88b7-9aad49a93220',
+                    'schema_uuid': '44ae2fd8-52d0-484d-9a48-128b07937a0a'
                 }],
                 'schemas': [{
                     'uuid': '44ae2fd8-52d0-484d-9a48-128b07937a0a',
@@ -77,13 +83,8 @@ def test_migrate(mysql):
     db = Database(mysql.url)
     engine = create_engine(mysql.url)
     inspector = Inspector.from_engine(engine)
-    module = Module(
-        '8e654793-5c46-4721-911e-b9d19f0779f9',
-        '44ae2fd8-52d0-484d-9a48-128b07937a0a',
-        'DummyModule',
-        'foo:bar'
-    )
-    table_name = db.make_table_name_for_module(module)
+    box = MessageBox('316720eb-84fe-43b3-88b7-9aad49a93220', '44ae2fd8-52d0-484d-9a48-128b07937a0a')
+    table_name = db.make_table_name_for_message_box(box)
     columns = inspector.get_columns(table_name)
     types = {
         '_created_at': TIMESTAMP,

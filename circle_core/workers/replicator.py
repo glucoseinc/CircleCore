@@ -13,6 +13,7 @@ from websocket import create_connection
 from circle_core.logger import get_stream_logger
 from ..database import Database
 from ..helpers.nanomsg import Receiver
+from ..models.message_box import MessageBox
 from ..models.module import Module
 from ..models.schema import Schema
 
@@ -31,9 +32,9 @@ class Replicator(object):
 
     def migrate(self):
         res = json.loads(self.ws.recv())
-        modules = [Module(**module) for module in res['modules']]
+        boxes = [MessageBox(**box) for box in res['message_boxes']]
         schemas = [Schema(**schema) for schema in res['schemas']]
-        self.db.register_schemas_and_modules(schemas, modules)
+        self.db.register_message_boxes(boxes, schemas)
         self.db.migrate()
 
     def retrieve(self):

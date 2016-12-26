@@ -67,3 +67,15 @@ class MessageBox(object):
         """
         pattern = r'^message_box_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
         return re.match(pattern, key) is not None
+
+    def serialize(self):
+        """このインスタンスをslaveが再構築できるだけの情報.
+
+        レプリケーション時に使用.
+        """
+        return {
+            'uuid': self.uuid.hex,
+            'schema_uuid': self.schema_uuid.hex,
+            'display_name': self.display_name,
+            'description': self.description
+        }

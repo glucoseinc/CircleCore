@@ -132,3 +132,14 @@ class Schema(object):
                 'type': _type,
             })
         return dictified_properties
+
+    def serialize(self):
+        """このインスタンスをslaveが再構築できるだけの情報.
+
+        レプリケーション時に使用.
+        """
+        return {
+            'uuid': self.uuid.hex,
+            'display_name': self.display_name,
+            'properties': self.stringified_properties
+        }

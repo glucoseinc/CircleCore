@@ -58,6 +58,10 @@ class Receiver(object):
         """Tornadoに叩かれる."""
         return self._socket.getsockopt(nnpy.SOL_SOCKET, nnpy.RCVFD)
 
+    def close(self):
+        """Tornadoに叩かれる."""
+        IOLoop.current().remove_handler(self)
+
     def set_timeout(self, timeout):
         """タイムアウトを設定する.
 
@@ -101,10 +105,6 @@ class Receiver(object):
                 callback(decoded)
 
         IOLoop.current().add_handler(self, call_callback, IOLoop.READ)
-
-    def close(self):
-        """Tornadoに叩かれる."""
-        IOLoop.current().remove_handler(self)
 
 
 # http://stackoverflow.com/a/6798042

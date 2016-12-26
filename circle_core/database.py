@@ -4,7 +4,7 @@
 
 from __future__ import absolute_import
 
-import base58
+from base58 import b58encode
 from six import PY3
 import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
@@ -45,7 +45,6 @@ class Database(object):
         self._session = sessionmaker(bind=self._engine)
 
         self._metadata = sa.MetaData()
-        self._tablename_to_module_map = {}
         self._register_meta_table()
 
     def _register_meta_table(self):
@@ -56,18 +55,14 @@ class Database(object):
             **TABLE_OPTIONS
         )
 
-    def register_schemas_and_modules(self, schemas, modules):
+    def register_message_boxes(self, boxes, schemas):
         """
         望むべきスキーマとモジュールを登録する
 
-        :param List[Schema] schemas: スキーマのリスト
-        :param List[Module] modules: モジュールのリスト
+        :param List[MessageBox] boxes: メッセージボックスのリスト
         """
-        for module in modules:
-            schema = [sc for sc in schemas if sc.uuid == module.schema_uuid][0]
-
-            # make table name
-            table_name = self.make_table_name_for_module(module)
+        for box in boxes:
+            table_name = self.make_table_name_for_message_box(box)
 
             # define columns
             columns = [
@@ -75,13 +70,13 @@ class Database(object):
                 sa.Column('_created_at', sa.Numeric(16, 6, asdecimal=True), nullable=False),
                 sa.Column('_counter', sa.Integer(), nullable=False, default=0),
             ]
+            schema = [schema for schema in schemas if schema.uuid == box.schema_uuid][0]
             for prop in schema.properties:
                 columns.append(make_sqlcolumn_from_datatype(prop.name, prop.type))
             columns.append(
                 sa.PrimaryKeyConstraint('_created_at', '_counter')
             )
             sa.Table(table_name, self._metadata, *columns, **TABLE_OPTIONS)
-            self._tablename_to_module_map[table_name] = (module, schema)
 
     def check_tables(self):
         """
@@ -129,20 +124,17 @@ class Database(object):
         # poolの中のconnectionが古いTable情報をキャッシュしちゃってる？とかで怪しい挙動になるので、全部破棄する
         self._engine.dispose()
 
-    def make_table_name_for_module(self, module):
+    def make_table_name_for_message_box(self, box):
         """
 
-        :param Module module:
-        :return:
+        :param MessageBox box:
+        :return str:
         """
-        return 'module_{}'.format(
-            base58.b58encode(module.uuid.bytes)
-        )
+        return 'messagebox_' + b58encode(box.uuid.bytes)
 
-    def find_table_for_module(self, module):
-        table_name = self.make_table_name_for_module(module)
+    def find_table_for_message_box(self, box):
+        table_name = self.make_table_name_for_message_box(box)
         return self._metadata.tables[table_name]
-        # return self._module_to_table_map[module.uuid]
 
 
 class DiffResult(object):
