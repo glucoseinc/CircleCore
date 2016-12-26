@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from uuid import uuid4
+
 import pytest
 
 from circle_core.models import Schema
@@ -20,3 +22,9 @@ class TestSchema(object):
         for prop in schema.properties:
             assert prop.name in expected['properties']
             assert prop.type == expected['properties'][prop.name]
+
+    def test_validation(self):
+        schema = Schema(uuid4(), uuid4(), 'hoge:int,piyo:str')
+        assert not schema.is_valid({})
+        assert not schema.is_valid({'hoge': 4, 'piyo': 4})
+        assert schema.is_valid({'hoge': 4, 'piyo': 'foobar'})

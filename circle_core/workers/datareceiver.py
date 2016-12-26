@@ -54,7 +54,7 @@ def run(metadata):
                 logger.debug('received a sensor data for %s : %r', msg.module.uuid, msg.payload)
 
                 try:
-                    table = db.find_table_for_module(msg.module)
+                    table = db.find_table_for_message(msg)
                     query = table.insert().values(
                         _created_at=msg.timestamp,
                         _counter=msg.count,

@@ -5,6 +5,7 @@
 from __future__ import absolute_import
 
 from base58 import b58encode
+from click import get_current_context
 from six import PY3
 import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
@@ -130,10 +131,20 @@ class Database(object):
         :param MessageBox box:
         :return str:
         """
-        return 'messagebox_' + b58encode(box.uuid.bytes)
+        return 'message_box_' + b58encode(box.uuid.bytes)
 
     def find_table_for_message_box(self, box):
         table_name = self.make_table_name_for_message_box(box)
+        return self._metadata.tables[table_name]
+
+    def find_table_for_message(self, msg):
+        metadata = get_current_context().obj.metadata
+        boxes = [metadata.find_message_box(box_uuid) for box_uuid in msg.module.message_box_uuids]
+        table_name = [
+            self.make_table_name_for_message_box(box)
+            for box in boxes
+            if metadata.find_schema(box.schema_uuid).is_valid(msg.payload)
+        ][0]
         return self._metadata.tables[table_name]
 
 

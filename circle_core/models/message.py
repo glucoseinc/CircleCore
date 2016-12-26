@@ -9,6 +9,10 @@ from base58 import b58decode
 from click import get_current_context
 
 from ..helpers.topics import SensorDataTopic, TOPIC_LENGTH
+from ..logger import get_stream_logger
+
+
+logger = get_stream_logger(__name__)
 
 
 def metadata():
@@ -39,8 +43,18 @@ class Message(object):
         :param Module module:
         :param str msg:
         """
+        logger.debug(metadata().schemas[0].properties[0].name)
         self.decode(msg)
-        self.schema = metadata().find_module(self.module.uuid)
+
+        try:
+            self.schema = [schema for schema in metadata().schemas if schema.is_valid(self.payload)][0]
+        except IndexError:
+            logger.error('Known schemas: %r', [(hoge.name, hoge.type) for hoge in metadata().schemas[0].properties])
+            logger.error(
+                'Schema of the received message: %r',
+                {key: type(value) for key, value in self.payload.items()}
+            )
+            raise ValueError('Schema of a received message is unknown')
 
         self.timestamp = round(time(), 6)  # datetimeはJSON Serializableではないので
         if self.last_message is not None and self.last_message.timestamp == self.timestamp:

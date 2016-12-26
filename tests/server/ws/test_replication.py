@@ -31,9 +31,6 @@ class DummyMetadata:
         return cls.modules[0]
 
 
-message.metadata = DummyMetadata
-
-
 class TestReplicationHandler(AsyncHTTPTestCase):
     def get_app(self):
         return Application([
@@ -46,6 +43,7 @@ class TestReplicationHandler(AsyncHTTPTestCase):
 
     def setUp(self):
         super(TestReplicationHandler, self).setUp()
+        message.metadata = DummyMetadata
 
         @coroutine
         def connect():

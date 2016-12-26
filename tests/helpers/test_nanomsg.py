@@ -6,7 +6,9 @@ import pytest
 
 from circle_core.helpers.nanomsg import get_ipc_socket_path, Receiver, Sender  # TODO: flake8-import-orderの設定
 from circle_core.helpers.topics import BaseTopic, TOPIC_LENGTH
+from circle_core.models import message
 from circle_core.models.message import Message
+from circle_core.models.message_box import MessageBox
 from circle_core.models.module import Module
 from circle_core.models.schema import Schema
 
@@ -26,12 +28,21 @@ class DummyMessage(Message):
 
 
 class DummyMetadata:
-    schemas = [Schema('44ae2fd8-52d0-484d-9a48-128b07937a0a', 'DummySchema', 'hoge:int')]
+    schemas = [
+        Schema('44ae2fd8-52d0-484d-9a48-128b07937a0a', 'json', 'body:str'),
+        Schema('a1912d13-8fc7-4714-8cb3-e6f9326fdb36', 'multibyte_json', '鍵:str'),
+        Schema('1a7c8c61-7709-442e-9059-e8498501fb36', 'blocking', 'count:int')
+    ]
+    message_boxes = [
+        MessageBox('316720eb-84fe-43b3-88b7-9aad49a93220', '44ae2fd8-52d0-484d-9a48-128b07937a0a'),
+        MessageBox('e2ca248d-5300-4641-830f-97a4dae0d245', 'a1912d13-8fc7-4714-8cb3-e6f9326fdb36'),
+        MessageBox('50ba26f6-2447-4f6a-93b1-d62051d83026', '1a7c8c61-7709-442e-9059-e8498501fb36')
+    ]
     modules = [Module(
         '8e654793-5c46-4721-911e-b9d19f0779f9',
-        '44ae2fd8-52d0-484d-9a48-128b07937a0a',
+        '316720eb-84fe-43b3-88b7-9aad49a93220',
         'DummyModule',
-        'foo:bar'
+        'foo,bar'
     )]
 
     @classmethod
@@ -46,6 +57,7 @@ class DummyMetadata:
 class TestReceiver(object):
     @classmethod
     def setup_class(cls):
+        message.metadata = DummyMetadata
         cls.socket = Socket(AF_SP, PUB)
         cls.socket.bind(get_ipc_socket_path())
         cls.receiver = Receiver(DummyTopic(), DummyMessage)
