@@ -40,7 +40,7 @@ class SchemaListPage extends Component {
    */
   async componentDidMount() {
     this.setState({isLoading: true})
-    let response = await CCAPI.listSchemas()
+    let response = await CCAPI.getSchemas()
     let schemaList = response.schemas
 
     this.setState({
