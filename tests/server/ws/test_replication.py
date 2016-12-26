@@ -11,12 +11,13 @@ from tornado.websocket import websocket_connect
 
 from circle_core.models import message
 from circle_core.models.message_box import MessageBox
+from circle_core.models.metadata.base import MetadataReader
 from circle_core.models.module import Module
 from circle_core.models.schema import Schema
 from circle_core.server.ws import ReplicationHandler, SensorHandler
 
 
-class DummyMetadata:
+class DummyMetadata(MetadataReader):
     schemas = [Schema('44ae2fd8-52d0-484d-9a48-128b07937a0a', 'DummySchema', 'hoge:int')]
     message_boxes = [MessageBox('316720eb-84fe-43b3-88b7-9aad49a93220', '44ae2fd8-52d0-484d-9a48-128b07937a0a')]
     modules = [Module(
@@ -25,10 +26,8 @@ class DummyMetadata:
         'DummyModule',
         'foo,bar'
     )]
-
-    @classmethod
-    def find_module(cls, *args):
-        return cls.modules[0]
+    users = []
+    parse_url_scheme = None
 
 
 class TestReplicationHandler(AsyncHTTPTestCase):
@@ -36,7 +35,7 @@ class TestReplicationHandler(AsyncHTTPTestCase):
         return Application([
             ('/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', ReplicationHandler),
             ('/ws/(?P<module_uuid>[0-9A-Fa-f-]+)', SensorHandler)
-        ], cr_metadata=DummyMetadata)
+        ], cr_metadata=DummyMetadata())
 
     def get_protocol(self):
         return 'ws'

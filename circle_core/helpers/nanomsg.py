@@ -14,7 +14,7 @@ from tornado.ioloop import IOLoop
 
 # project module
 from circle_core.logger import get_stream_logger
-from ..models.message import Message
+from ..models.message import ModuleMessage
 
 if PY3:
     from json.decoder import JSONDecodeError
@@ -37,18 +37,18 @@ class Receiver(object):
     """受信. PubSubのSub.
 
     :param Socket _socket:
-    :param Message message:
+    :param BaseTopic topic:
     """
 
-    def __init__(self, topic, message=Message):
+    def __init__(self, topic):
         """接続を開く.
 
-        :param Message message:
+        :param ModuleMessage message:
         """
         self._socket = nnpy.Socket(nnpy.AF_SP, nnpy.SUB)
         self._socket.connect(get_ipc_socket_path())
         self._socket.setsockopt(nnpy.SUB, nnpy.SUB_SUBSCRIBE, topic.topic)
-        self.message = message
+        self.topic = topic
 
     def __del__(self):
         """接続を閉じる."""
@@ -73,36 +73,37 @@ class Receiver(object):
         """メッセージを受信次第それを返すジェネレータ.
 
         :param TopicBase topic:
-        :return Message: 受信したメッセージ
+        :return ModuleMessage: 受信したメッセージ
         """
         while True:
             # TODO: 接続切れたときにStopIterationしたいが自分でheartbeatを実装したりしないといけないのかな
             try:
-                msg = self._socket.recv().decode('utf-8')
+                plain_msg = self._socket.recv().decode('utf-8')
             except nnpy.NNError as error:
                 if error.error_no == nnpy.ETIMEDOUT:
                     break
                 raise
 
             try:
-                yield self.message(msg)
+                yield from self.topic.decode(plain_msg)
             except JSONDecodeError:
                 logger.warning('Received an non-JSON message. Ignore it.')
 
     def register_ioloop(self, callback):
         """TornadoのIOLoopにメッセージ受信時のコールバックを登録.
 
-        :param TopicBase topic:
+        :param FunctionType callback:
         """
         def call_callback(*args):
             # TODO: incoming_messagesと同じような処理が多い。共通化する
-            msg = self._socket.recv().decode('utf-8')
+            plain_msg = self._socket.recv().decode('utf-8')
             try:
-                decoded = self.message(msg)
+                msgs = self.topic.decode(plain_msg)
             except JSONDecodeError:
                 logger.warning('Received an non-JSON message, Ignore it.')
             else:
-                callback(decoded)
+                for msg in msgs:
+                    callback(msg)
 
         IOLoop.current().add_handler(self, call_callback, IOLoop.READ)
 

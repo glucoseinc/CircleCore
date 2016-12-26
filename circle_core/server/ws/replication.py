@@ -8,7 +8,7 @@ from tornado.websocket import WebSocketHandler
 from ...helpers.nanomsg import Receiver
 from ...helpers.topics import SensorDataTopic
 from ...logger import get_stream_logger
-from ...models.message import Message
+
 
 logger = get_stream_logger(__name__)
 
@@ -62,6 +62,10 @@ class ReplicationHandler(WebSocketHandler):
     def pass_messages(self):
         """自分がこれから受け取るメッセージを相手にも知らせるように."""
         def pass_message(msg):
+            """自分がCircleModuleから受け取ったデータをslaveに垂れ流す.
+
+            :param ModuleMessage msg:
+            """
             logger.debug('Received from nanomsg: %s', msg.encode())
             self.write_message(msg.encode())
 

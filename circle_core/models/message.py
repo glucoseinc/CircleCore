@@ -8,7 +8,6 @@ from uuid import UUID
 from base58 import b58decode
 from click import get_current_context
 
-from ..helpers.topics import SensorDataTopic, TOPIC_LENGTH
 from ..logger import get_stream_logger
 
 
@@ -23,12 +22,11 @@ def metadata():
     return get_current_context().obj.metadata
 
 
-class Message(object):
-    """デバイスからのメッセージ.
+class ModuleMessage(object):
+    """CircleModuleからのメッセージ.
 
     :param Dict[str, Message] last_message_per_module:
-    :param BaseTopic topic:
-    :param Module module:
+    :param Module module_uuid:
     :param Schema schema:
     :param int timestamp:
     :param int count:
@@ -37,31 +35,49 @@ class Message(object):
 
     last_message_per_module = {}
 
-    def __init__(self, msg):
+    @classmethod
+    def decode(cls, json_msg):
+        """encodeの対.
+
+        :return ModuleMessage:
+        """
+        return cls(**json_msg)
+
+    def __init__(self, module_uuid, payload, timestamp=None, count=None):
         """timestampとcountをMessageの識別子とする.
 
-        :param Module module:
-        :param str msg:
+        :param UUID module_uuid:
+        :param dict payload:
         """
-        logger.debug(metadata().schemas[0].properties[0].name)
-        self.decode(msg)
+        self.payload = payload
 
+        if not isinstance(module_uuid, UUID):
+            module_uuid = UUID(module_uuid)
+
+        self.module = metadata().find_module(module_uuid)
+        boxes = [metadata().find_message_box(box_uuid) for box_uuid in self.module.message_box_uuids]
+        schemas = [metadata().find_schema(box.schema_uuid) for box in boxes]
         try:
-            self.schema = [schema for schema in metadata().schemas if schema.is_valid(self.payload)][0]
+            self.schema = [schema for schema in schemas if schema.is_valid(payload)][0]
         except IndexError:
             logger.error('Known schemas: %r', [(hoge.name, hoge.type) for hoge in metadata().schemas[0].properties])
             logger.error(
                 'Schema of the received message: %r',
-                {key: type(value) for key, value in self.payload.items()}
+                {key: type(value) for key, value in payload.items()}
             )
             raise ValueError('Schema of a received message is unknown')
+
+        if timestamp and count:
+            self.timestamp = timestamp
+            self.count = count
+            return
 
         self.timestamp = round(time(), 6)  # datetimeはJSON Serializableではないので
         if self.last_message is not None and self.last_message.timestamp == self.timestamp:
             self.count = self.last_message.count + 1
         else:
             self.count = 0
-        self.last_message = self
+            self.last_message = self
 
     @property
     def last_message(self):
@@ -71,15 +87,6 @@ class Message(object):
     @last_message.setter
     def last_message(self, msg):
         self.last_message_per_module[self.module.uuid.hex] = msg
-
-    def decode(self, msg):
-        """nanomsgで送られてきたメッセージがJSONだとしてデシリアライズ.
-
-        :param str msg:
-        """
-        module_uuid = UUID(bytes=b58decode(msg[len(SensorDataTopic().prefix):TOPIC_LENGTH].rstrip()))
-        self.module = metadata().find_module(module_uuid)
-        self.payload = json.loads(msg[TOPIC_LENGTH:])
 
     def encode(self):
         """slaveのCircleCoreに送られる際に使われる.

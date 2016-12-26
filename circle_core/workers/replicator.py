@@ -43,7 +43,7 @@ class Replicator(object):
         while True:
             transaction = dbconn.begin()
             try:
-                res = json.loads(self.ws.recv())  # MessageがJSONシリアライズされたオブジェクト
+                res = json.loads(self.ws.recv())  # TODO: ModuleMessage.decode使う
                 logger.debug('Received from master: %r', res)
 
                 # TODO: MasterのModuleはmetadataに登録するべきか

@@ -7,27 +7,20 @@ import pytest
 from circle_core.helpers.nanomsg import get_ipc_socket_path, Receiver, Sender  # TODO: flake8-import-orderの設定
 from circle_core.helpers.topics import BaseTopic, TOPIC_LENGTH
 from circle_core.models import message
-from circle_core.models.message import Message
+from circle_core.models.message import ModuleMessage
 from circle_core.models.message_box import MessageBox
+from circle_core.models.metadata.base import MetadataReader
 from circle_core.models.module import Module
 from circle_core.models.schema import Schema
 
 
 class DummyTopic(BaseTopic):
-    pass
+    def decode(self, plain_msg):
+        payload = json.loads(plain_msg[TOPIC_LENGTH:])
+        return [ModuleMessage('8e654793-5c46-4721-911e-b9d19f0779f9', payload)]
 
 
-class DummyMessage(Message):
-    @property
-    def _metadata(self):
-        return DummyMetadata
-
-    def decode(self, msg):
-        self.module = self._metadata.modules[0]
-        self.payload = json.loads(msg[TOPIC_LENGTH:])
-
-
-class DummyMetadata:
+class DummyMetadata(MetadataReader):
     schemas = [
         Schema('44ae2fd8-52d0-484d-9a48-128b07937a0a', 'json', 'body:str'),
         Schema('a1912d13-8fc7-4714-8cb3-e6f9326fdb36', 'multibyte_json', '鍵:str'),
@@ -40,18 +33,12 @@ class DummyMetadata:
     ]
     modules = [Module(
         '8e654793-5c46-4721-911e-b9d19f0779f9',
-        '316720eb-84fe-43b3-88b7-9aad49a93220',
+        '316720eb-84fe-43b3-88b7-9aad49a93220,e2ca248d-5300-4641-830f-97a4dae0d245,50ba26f6-2447-4f6a-93b1-d62051d83026',  # NOQA
         'DummyModule',
         'foo,bar'
     )]
-
-    @classmethod
-    def find_module(cls, *args):
-        return cls.modules[0]
-
-    @classmethod
-    def find_schema(cls, *args):
-        return cls.schemas[0]
+    users = []
+    parse_url_scheme = None
 
 
 class TestReceiver(object):
@@ -60,7 +47,7 @@ class TestReceiver(object):
         message.metadata = DummyMetadata
         cls.socket = Socket(AF_SP, PUB)
         cls.socket.bind(get_ipc_socket_path())
-        cls.receiver = Receiver(DummyTopic(), DummyMessage)
+        cls.receiver = Receiver(DummyTopic())
         cls.messages = cls.receiver.incoming_messages()
 
     @classmethod
