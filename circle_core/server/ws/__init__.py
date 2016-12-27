@@ -4,7 +4,7 @@ from six import PY3
 from tornado.ioloop import IOLoop
 from tornado.web import Application
 
-from circle_core.server.ws.replication import ReplicationHandler
+from circle_core.server.ws.replication_master import ReplicationHandler
 from circle_core.server.ws.sensor import SensorHandler
 from ...models.metadata import MetadataIniFile, MetadataRedis
 

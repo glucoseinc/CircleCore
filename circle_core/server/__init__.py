@@ -4,7 +4,7 @@ from tornado.ioloop import IOLoop
 from tornado.web import Application, FallbackHandler
 from tornado.wsgi import WSGIContainer
 
-from .ws.replication import ReplicationHandler
+from .ws.replication_master import ReplicationHandler
 from .ws.sensor import SensorHandler
 from .wui import create_app
 

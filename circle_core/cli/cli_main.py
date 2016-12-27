@@ -19,7 +19,7 @@ from click.core import Context
 from circle_core import server
 from circle_core.server import ws, wui
 from circle_core.workers import get_worker
-from circle_core.workers.replicator import Replicator
+from circle_core.workers.replication_slave import Replicator
 from .context import ContextObject, ContextObjectError
 from .utils import RestartableProcess
 

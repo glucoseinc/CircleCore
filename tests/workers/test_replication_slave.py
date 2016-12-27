@@ -22,8 +22,8 @@ from circle_core.models.metadata.base import MetadataReader
 from circle_core.models.module import Module
 from circle_core.models.schema import Schema
 from circle_core.server.ws import ReplicationHandler, SensorHandler
-from circle_core.workers import replicator
-from circle_core.workers.replicator import Replicator
+from circle_core.workers import replication_slave
+from circle_core.workers.replication_slave import Replicator
 
 
 class DummyMetadata(MetadataReader):
@@ -50,8 +50,8 @@ class DummyMetadata(MetadataReader):
 
 
 def setup_module(module):
-    replicator.get_uuid = lambda: '5c8fe778-1cb8-4a92-8f5d-588990a19def'
-    replicator.metadata = DummyMetadata
+    replication_slave.get_uuid = lambda: '5c8fe778-1cb8-4a92-8f5d-588990a19def'
+    replication_slave.metadata = DummyMetadata
 
 
 def teardown_module(module):
