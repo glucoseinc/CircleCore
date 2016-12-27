@@ -87,8 +87,18 @@ class Replicator(object):
         self.ws.send(req)
         self.migrate()
 
+        db = Database(metadata().database_url)
+        payload = {}
+        for box in metadata().message_boxes:
+            last_timestamp, last_count = db.last_message_identifier_for_box(box)
+            payload[box.uuid.hex] = {
+                'timestamp': last_timestamp,
+                'count': last_count
+            }
+
         req = json.dumps({
-            'command': 'RECEIVE'
+            'command': 'RECEIVE',
+            'payload': payload
         })
         self.ws.send(req)
         self.receive()

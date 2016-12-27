@@ -3,6 +3,7 @@
 """circle_coreのDBとの接続を取り仕切る"""
 
 from __future__ import absolute_import
+from time import mktime
 
 from base58 import b58encode
 from click import get_current_context
@@ -43,7 +44,7 @@ class Database(object):
 
         """
         self._engine = sa.create_engine(database_url)
-        self._session = sessionmaker(bind=self._engine)
+        self._session = sessionmaker(bind=self._engine, autocommit=True)
 
         self._metadata = sa.MetaData()
         self._register_meta_table()
@@ -134,8 +135,12 @@ class Database(object):
         return 'message_box_' + b58encode(box.uuid.bytes)
 
     def find_table_for_message_box(self, box):
-        table_name = self.make_table_name_for_message_box(box)
-        return self._metadata.tables[table_name]
+        return sa.Table(
+            self.make_table_name_for_message_box(box),
+            self._metadata,
+            autoload=True,
+            autoload_with=self._engine
+        )
 
     def find_table_for_message(self, msg):
         metadata = get_current_context().obj.metadata
@@ -146,6 +151,17 @@ class Database(object):
             if metadata.find_schema(box.schema_uuid).is_valid(msg.payload)
         ][0]
         return self._metadata.tables[table_name]
+
+    def last_message_identifier_for_box(self, box):
+        session = self._session()
+        with session.begin():
+            table = self.find_table_for_message_box(box)
+            created_at, counter = session.query(table) \
+                .with_entities(table.columns._created_at, table.columns._counter) \
+                .order_by(table.columns._created_at.desc(), table.columns._counter.desc()) \
+                .first()
+
+        return mktime(created_at.timetuple()), counter
 
 
 class DiffResult(object):
