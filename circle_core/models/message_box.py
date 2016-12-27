@@ -1,14 +1,24 @@
 # -*- coding: utf-8 -*-
 
 # system module
+from datetime import datetime
 import re
+from time import mktime
 from uuid import UUID
 
 # community module
 from six import PY3
 
+from .message import ModuleMessage
+from ..database import Database
+from ..helpers.metadata import metadata
+from ..logger import get_stream_logger
+
 if PY3:
     from typing import Optional, Union
+
+
+logger = get_stream_logger()
 
 
 class MessageBoxError(Exception):
@@ -57,6 +67,13 @@ class MessageBox(object):
         """
         return 'message_box_{}'.format(self.uuid)
 
+    @property
+    def module(self):
+        for m in metadata().modules:
+            for box_uuid in m.message_box_uuids:
+                if box_uuid == self.uuid:
+                    return m
+
     @classmethod
     def is_key_matched(cls, key):
         """指定のキーがストレージキーの形式にマッチしているか.
@@ -79,3 +96,32 @@ class MessageBox(object):
             'display_name': self.display_name,
             'description': self.description
         }
+
+    def messages_since(self, timestamp, count):
+        """引数以降、このMessageBoxに蓄えられたModuleMessageを返す.
+
+        :param int timestamp:
+        :param int count:
+        """
+        db = Database(metadata().database_url)
+        table = db.find_table_for_message_box(self)
+        session = db._session()
+        with session.begin():
+            created_at = datetime.fromtimestamp(timestamp)  # TODO: Python側ではdatetimeを使うよう統一
+            query = session.query(table).filter(
+                (created_at < table.columns._created_at) |
+                ((table.columns._created_at == created_at) & (count < table.columns._counter))
+            )
+            logger.debug('Execute query %s', query)
+            rows = query.all()
+            logger.debug('Result: %r', rows)
+
+            for row in rows:
+                payload = {
+                    key: value
+                    for key, value in zip(row.keys(), row)
+                    if not key.startswith('_')
+                }
+                timestamp = mktime(row._created_at.timetuple())
+
+                yield ModuleMessage(self.module.uuid, payload=payload, timestamp=timestamp, count=row._counter)

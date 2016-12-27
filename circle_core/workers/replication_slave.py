@@ -15,7 +15,7 @@ from ..database import Database
 from ..helpers.nanomsg import Receiver
 from ..models.message import ModuleMessage
 from ..models.message_box import MessageBox
-from ..models.metadata import metadata
+from ..helpers.metadata import metadata
 from ..models.module import Module
 from ..models.schema import Schema
 
@@ -85,6 +85,7 @@ class Replicator(object):
             'command': 'MIGRATE'
         })
         self.ws.send(req)
+        logger.debug('Send request: %s', req)
         self.migrate()
 
         db = Database(metadata().database_url)
@@ -101,4 +102,5 @@ class Replicator(object):
             'payload': payload
         })
         self.ws.send(req)
+        logger.debug('Send request: %s', req)
         self.receive()

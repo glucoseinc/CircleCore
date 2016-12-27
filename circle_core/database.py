@@ -18,7 +18,8 @@ import sqlalchemy.sql.ddl
 from circle_core.exceptions import MigrationError
 from circle_core.logger import get_stream_logger
 from .constants import CRDataType
-from .models import Module, Schema
+from .models.module import Module
+from .models.schema import Schema
 
 if PY3:
     from typing import List
@@ -134,7 +135,7 @@ class Database(object):
         """
         return 'message_box_' + b58encode(box.uuid.bytes)
 
-    def find_table_for_message_box(self, box):
+    def find_table_for_message_box(self, box):  # これらも各modelのメソッドにした方がいいかなあ
         return sa.Table(
             self.make_table_name_for_message_box(box),
             self._metadata,
@@ -152,7 +153,7 @@ class Database(object):
         ][0]
         return self._metadata.tables[table_name]
 
-    def last_message_identifier_for_box(self, box):
+    def last_message_identifier_for_box(self, box):  # TODO: MessageBoxのメソッドにする
         session = self._session()
         with session.begin():
             table = self.find_table_for_message_box(box)

@@ -8,6 +8,8 @@ from tornado.websocket import WebSocketHandler
 from ...helpers.nanomsg import Receiver
 from ...helpers.topics import SensorDataTopic
 from ...logger import get_stream_logger
+from ...models.message_box import MessageBox
+from ...helpers.metadata import metadata
 
 
 logger = get_stream_logger(__name__)
@@ -24,18 +26,22 @@ class ReplicationHandler(WebSocketHandler):
         logger.debug('Connected to another CircleCore')
         self.slave_uuid = slave_uuid
 
-    def on_message(self, msg):
+    def on_message(self, plain_msg):
         """センサーからメッセージが送られてきた際に呼ばれる.
 
         :param unicode message:
         """
-        action = json.loads(msg)
-        if action['command'] == 'MIGRATE':
+        json_msg = json.loads(plain_msg)
+        if json_msg['command'] == 'MIGRATE':
             self.send_modules()
-        elif action['command'] == 'RECEIVE':
+        elif json_msg['command'] == 'RECEIVE':
             self.pass_messages()
 
-        logger.debug('message from another circlecore: %r' % msg)
+            for box_uuid, value in json_msg['payload'].items():
+                box = metadata().find_message_box(box_uuid)
+                self.seed_messages(box, value['timestamp'], value['count'])
+
+        logger.debug('message from another circlecore: %r' % json_msg)
 
     def on_close(self):
         """センサーとの接続が切れた際に呼ばれる."""
@@ -58,6 +64,17 @@ class ReplicationHandler(WebSocketHandler):
             'schemas': [schema.serialize() for schema in metadata.schemas]
         })
         self.write_message(resp)
+
+    def seed_messages(self, box, since_timestamp, since_count):
+        """蓄えたデータを共有.
+
+        :param MessageBox box:
+        :param int since_timestamp:
+        :param int since_count:
+        """
+        for msg in box.messages_since(since_timestamp, since_count):
+            logger.debug('Seeding already stored messages: %s', msg.encode())
+            self.write_message(msg.encode())
 
     def pass_messages(self):
         """自分がこれから受け取るメッセージを相手にも知らせるように."""

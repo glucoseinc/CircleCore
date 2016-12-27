@@ -9,10 +9,9 @@ from base58 import b58decode
 from click import get_current_context
 
 from ..logger import get_stream_logger
-from ..models.message_box import MessageBox
-from ..models.metadata import metadata
-from ..models.module import Module
-from ..models.schema import Schema
+from ..helpers.metadata import metadata
+from .module import Module
+from .schema import Schema
 
 
 logger = get_stream_logger(__name__)

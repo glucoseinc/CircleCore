@@ -28,12 +28,3 @@ def parse_url_scheme(url_scheme):
         return MetadataRedis.parse_url_scheme(url_scheme)
 
     raise MetadataError('No matching URL scheme.')
-
-
-def metadata():
-    """metadata getter."""
-    try:
-        return get_current_context().obj.metadata
-    except RuntimeError:
-        # raise from 使いたいがPython2がサポートしていない
-        raise NotImplementedError('Click context not found. You must set some mock metadata in the tests.')

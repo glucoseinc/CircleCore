@@ -9,7 +9,6 @@ from six import add_metaclass, PY3
 
 # project module
 from circle_core import abstractclassmethod
-from ..message_box import MessageBox
 from ..module import Module
 from ..schema import Schema
 from ..user import User
