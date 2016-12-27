@@ -9,17 +9,13 @@ from base58 import b58decode
 from click import get_current_context
 
 from ..logger import get_stream_logger
+from ..models.message_box import MessageBox
+from ..models.metadata import metadata
+from ..models.module import Module
+from ..models.schema import Schema
 
 
 logger = get_stream_logger(__name__)
-
-
-def metadata():
-    """テスト時に上書き.
-
-    もっといい方法ないかな
-    """
-    return get_current_context().obj.metadata
 
 
 class ModuleMessage(object):
@@ -39,9 +35,11 @@ class ModuleMessage(object):
     def decode(cls, json_msg):
         """encodeの対.
 
+        :param str plain_msg:
         :return ModuleMessage:
         """
-        return cls(**json_msg)
+        decoded = json.loads(json_msg)
+        return cls(**decoded)
 
     def __init__(self, module_uuid, payload, timestamp=None, count=None):
         """timestampとcountをMessageの識別子とする.
@@ -65,7 +63,7 @@ class ModuleMessage(object):
                 'Schema of the received message: %r',
                 {key: type(value) for key, value in payload.items()}
             )
-            raise ValueError('Schema of a received message is unknown')
+            raise ValueError('Received message has unknow schema')
 
         if timestamp and count:
             self.timestamp = timestamp
