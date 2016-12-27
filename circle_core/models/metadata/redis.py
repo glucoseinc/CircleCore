@@ -83,6 +83,9 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         for key in keys:
             if self.redis_client.type(key) == 'hash':
                 fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]
+                properties_string = fields.pop('properties', None)
+                if properties_string is not None:
+                    fields['dictified_properties'] = Schema.dictify_properties(properties_string)
                 schemas.append(Schema(**fields))
         return schemas
 
@@ -142,6 +145,8 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         }
         if schema.display_name is not None:
             mapping['display_name'] = schema.display_name
+        if schema.memo is not None:
+            mapping['memo'] = schema.memo
 
         self.redis_client.hmset(schema.storage_key, mapping)
 

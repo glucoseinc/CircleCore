@@ -28,14 +28,58 @@ class CCAPI {
       .query(query || {})
   }
 
+  /**
+   * POSTクエリを発行する
+   * @param {String} path APIのパス
+   * @param {Object} [params] パラメータ
+   * @return {Object} 戻り値
+   */
+  _post(path, params) {
+    return request
+      .post(path)
+      .use(this.prefixer)
+      .set('Accept', 'application/json')
+      // .withCredentials()
+      .send(params || {})
+  }
+
 
   // schemas
   /**
-   * スキーマのリストを得る
-   * @return {Array<Schema>} スキーマのリスト
+   * Schemaのリストを得る
+   * @return {Array<Schema>} Schemaのリスト
    */
-  async listSchemas() {
+  async getSchemas() {
     let res = await this._get('/schemas/')
+    return res.body
+  }
+
+  /**
+   * Schemaの詳細を得る
+   * @param {String} schemaId SchemaのID
+   * @return {Schema} Schema
+   */
+  async getSchema(schemaId) {
+    let res = await this._get(`/schemas/${schemaId}`)
+    return res.body
+  }
+
+    /**
+     * Schemaを作成する
+     * @param {Object} [schema] パラメータ
+     * @return {Object} Result
+     */
+  async postSchema(schema) {
+    let res = await this._post('/schemas/', schema)
+    return res.body
+  }
+
+  /**
+   * Schema Property Typeのリストを得る
+   * @return {Array<Schema>} Schema Property Typeのリスト
+   */
+  async getSchemaPropertyTypes() {
+    let res = await this._get('/schemas/propertytypes')
     return res.body
   }
 

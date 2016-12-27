@@ -28,7 +28,7 @@ class TestCliSchema(object):
         (['--metadata', url_scheme_ini_file],  # main_params
          ['32218d0b-ad2a-4316-843b-4217fc2deb0b'],  # schema_detail_params 温度センサ
          0,  # expected_exit_code
-         1 + 1 + 5 + 1),  # expected_output_length
+         1 + 1 + 5 + 1 + 1),  # expected_output_length
 
         (['--metadata', url_scheme_ini_file],  # main_params
          ['00000000-0000-0000-0000-000000000000'],  # schema_detail_params 登録なし
@@ -38,7 +38,7 @@ class TestCliSchema(object):
         (['--metadata', url_scheme_ini_file],  # main_params
          ['7c6b4c74-43f2-493d-9d33-8e460047fccd'],  # schema_detail_params 湿度センサ
          0,  # expected_exit_code
-         1 + 1 + 5 + 1),  # expected_output_length
+         1 + 1 + 5 + 1 + 1),  # expected_output_length
     ])
     def test_schema_detail(self, main_params, schema_detail_params, expected_exit_code, expected_output_length):
         runner = CliRunner()

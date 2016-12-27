@@ -80,6 +80,7 @@ def schema_detail(ctx, schema_uuid):
     ]
     for i, prop in enumerate(schema.properties):
         data.append(('PROPERTIES' if i == 0 else '', '{}:{}'.format(prop.name, prop.type)))
+    data.append(('MEMO', schema.memo or ''))
 
     modules = metadata.find_modules_by_schema(schema_uuid)
     if len(modules):
@@ -93,13 +94,15 @@ def schema_detail(ctx, schema_uuid):
 
 @cli_schema.command('add')
 @click.option('display_name', '--name')
+@click.option('memo', '--memo')
 @click.argument('name_and_types', nargs=-1)
 @click.pass_context
-def schema_add(ctx, display_name, name_and_types):
+def schema_add(ctx, display_name, memo, name_and_types):
     """スキーマを登録する.
 
     :param Context ctx: Context
     :param Optional[str] display_name: 表示名
+    :param Optional[str] memo: メモ
     :param List[str] name_and_types: プロパティ
     """
     context_object = ctx.obj  # type: ContextObject
@@ -117,9 +120,9 @@ def schema_add(ctx, display_name, name_and_types):
             click.echo('Argument is invalid : {}.'.format(name_and_type))
             click.echo('Argument format must be "name:type".')
             ctx.exit(code=-1)
-    properties = ','.join(name_and_types)
+    dictified_properties = Schema.dictify_properties(','.join(name_and_types))
 
-    schema = Schema(schema_uuid, display_name, properties)
+    schema = Schema(schema_uuid, display_name, dictified_properties, memo)
 
     metadata.register_schema(schema)
     context_object.log_info('schema add', uuid=schema.uuid)
