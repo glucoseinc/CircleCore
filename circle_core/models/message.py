@@ -94,6 +94,6 @@ class ModuleMessage(object):
         return json.dumps({
             'timestamp': self.timestamp,
             'count': self.count,
-            'module': self.module.uuid.hex,
+            'module_uuid': self.module.uuid.hex,
             'payload': self.payload
         })

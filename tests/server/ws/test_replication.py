@@ -93,7 +93,10 @@ class TestReplicationHandler(AsyncHTTPTestCase):
         yield self.dummy_module.write_message('{"hoge": 123}')
         resp = yield self.dummy_crcr.read_message()
         resp = json.loads(resp)
-        assert resp['module'] == UUID('8e654793-5c46-4721-911e-b9d19f0779f9').hex
+        assert resp['count'] == 0
+        assert resp['module_uuid'] == UUID('8e654793-5c46-4721-911e-b9d19f0779f9').hex
         assert resp['payload'] == {
             'hoge': 123
         }
+
+    # TODO: countの加算/リセットテスト
