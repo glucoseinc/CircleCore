@@ -7,13 +7,15 @@ import traceback
 from uuid import UUID
 
 from base58 import b58encode
-from click import get_current_context
-from websocket import create_connection
+import click
+from websocket import create_connection, WebSocketConnectionClosedException
 
 from circle_core.logger import get_stream_logger
 from ..database import Database
 from ..helpers.nanomsg import Receiver
+from ..models.message import ModuleMessage
 from ..models.message_box import MessageBox
+from ..models.metadata import metadata
 from ..models.module import Module
 from ..models.schema import Schema
 
@@ -21,7 +23,7 @@ logger = get_stream_logger(__name__)
 
 
 def get_uuid():  # テスト時には上書きする
-    return get_current_context().obj.uuid.hex
+    return click.get_current_context().obj.uuid.hex
 
 
 class Replicator(object):
@@ -31,9 +33,23 @@ class Replicator(object):
         self.metadata = metadata
 
     def migrate(self):
+        if not metadata().writable:
+            click.echo("Can't update the metadata. You must specify redis as --metadata.", err=True)
+            click.get_current_context().abort()
+
         res = json.loads(self.ws.recv())
-        boxes = [MessageBox(**box) for box in res['message_boxes']]
+
         schemas = [Schema(**schema) for schema in res['schemas']]
+        for schema in schemas:
+            metadata().register_schema(schema)
+
+        boxes = [MessageBox(**box) for box in res['message_boxes']]
+        for box in boxes:
+            metadata().register_message_box(box)
+
+        for module in res['modules']:
+            metadata().register_module(Module(**module))
+
         self.db.register_message_boxes(boxes, schemas)
         self.db.migrate()
 
@@ -43,15 +59,18 @@ class Replicator(object):
         while True:
             transaction = dbconn.begin()
             try:
-                res = json.loads(self.ws.recv())  # TODO: ModuleMessage.decode使う
-                logger.debug('Received from master: %r', res)
+                try:
+                    msg = ModuleMessage.decode(self.ws.recv())
+                except WebSocketConnectionClosedException:
+                    logger.error('WebSocket connection closed')
+                    return
+                logger.debug('Received from master: %r', msg)
 
-                # TODO: MasterのModuleはmetadataに登録するべきか
-                table = self.db._metadata.tables['module_' + b58encode(UUID(res['module']).bytes)]
+                table = self.db.find_table_for_message(msg)
                 query = table.insert().values(
-                    _created_at=datetime.fromtimestamp(res['timestamp']),
-                    _counter=res['count'],
-                    **res['payload']
+                    _created_at=datetime.fromtimestamp(msg.timestamp),
+                    _counter=msg.count,
+                    **msg.payload
                 )
                 dbconn.execute(query)
             except:
