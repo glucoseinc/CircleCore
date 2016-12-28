@@ -1,10 +1,13 @@
 import React, {Component, PropTypes} from 'react'
 import {Link} from 'react-router'
-import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
-import {FlatButton, RaisedButton} from 'material-ui'
-import RefreshIndicator from 'material-ui/RefreshIndicator'
+
 import withWidth from 'material-ui/utils/withWidth'
 import {blueGrey600} from 'material-ui/styles/colors'
+import Dialog from 'material-ui/Dialog'
+import FlatButton from 'material-ui/FlatButton'
+import RaisedButton from 'material-ui/RaisedButton'
+import RefreshIndicator from 'material-ui/RefreshIndicator'
+import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
 
 import CCAPI from '../api'
 
@@ -31,6 +34,10 @@ class SchemaListPage extends Component {
 
     this.state = {
       isLoading: true,
+      deleteAsked: false,
+      isDeleting: false,
+      isError: false,
+      deletingSchema: null,
       schemaList: [],
     }
   }
@@ -48,6 +55,41 @@ class SchemaListPage extends Component {
       schemaList: schemaList,
     })
   }
+
+
+  /**
+   * Delete(Dialog)クリック Schemaを削除する
+   */
+  async handleClickDelete() {
+    let schemaId = this.state.deletingSchema.uuid
+    this.setState({
+      deleteAsked: false,
+      deletingSchema: null,
+      isDeleting: true,
+    })
+    let response = await CCAPI.deleteSchema(schemaId)
+
+    this.setState({
+      isDeleting: false,
+    })
+    switch (response.result) {
+    case 'success': {
+      this.setState({isLoading: true})
+      let response = await CCAPI.getSchemas()
+      let schemaList = response.schemas
+
+      this.setState({
+        isLoading: false,
+        schemaList: schemaList,
+      })
+      break
+    }
+    case 'failure':
+    default:
+      this.setState({isError: true})
+    }
+  }
+
   /**
    * @override
    */
@@ -58,9 +100,8 @@ class SchemaListPage extends Component {
         fontSize: 10,
       },
     }
-    let {isLoading, schemaList} = this.state
 
-    if(isLoading) {
+    if(this.state.isLoading) {
       return (
         <div>
           <RefreshIndicator
@@ -69,6 +110,22 @@ class SchemaListPage extends Component {
             top={0}
             loadingColor="#FF9800"
             status="loading"
+            style={{
+              display: 'inline-block',
+              position: 'relative',
+            }}
+          />
+        </div>
+      )
+    }
+
+    if(this.state.isDeleting) {
+      return (
+        <div>
+          <CircularProgress
+            size={50}
+            left={70}
+            top={0}
             style={{
               display: 'inline-block',
               position: 'relative',
@@ -100,7 +157,7 @@ class SchemaListPage extends Component {
             displayRowCheckbox={false}
           >
 
-            {schemaList.map((schema) => {
+            {this.state.schemaList.map((schema) => {
               return (
                 <TableRow key={schema.uuid}>
                   <TableRowColumn>
@@ -117,9 +174,15 @@ class SchemaListPage extends Component {
                     )}
                   </TableRowColumn>
                   <TableRowColumn>
-                    <Link to={`/schemas/${schema.uuid}/delete`}>
-                      <RaisedButton label="Delete" secondary={true} />
-                    </Link>
+                    <RaisedButton
+                      label="Delete"
+                      secondary={true}
+                      disabled={schema.modules.length === 0 ? false : true}
+                      onClick={ () => this.setState({
+                        deleteAsked: true,
+                        deletingSchema: schema,
+                      })}
+                    />
                   </TableRowColumn>
                 </TableRow>
               )
@@ -128,6 +191,49 @@ class SchemaListPage extends Component {
           </TableBody>
 
         </Table>
+        <Dialog
+          title="Delete Schema?"
+          actions={[
+            <FlatButton
+              label="Cancel"
+              onClick={ () => this.setState({
+                deleteAsked: false,
+                deletingSchema: null,
+              })}
+            />,
+            <FlatButton
+              label="Delete"
+              onClick={::this.handleClickDelete}
+            />,
+          ]}
+          modal={true}
+          open={this.state.deleteAsked}
+        >
+          {(() => {
+            let s = this.state.deletingSchema
+            if (s !== null)
+              return (
+                <div>
+                  <p>{s.display_name}</p>
+                  <p>{s.uuid}</p>
+                </div>
+              )
+            return ''
+          })()}
+        </Dialog>
+        <Dialog
+          title="Error"
+          actions={[
+            <FlatButton
+              label="Close"
+              onClick={ () => this.setState({isError: false})}
+            />,
+          ]}
+          modal={true}
+          open={this.state.isError}
+        >
+          Error!
+        </Dialog>
       </div>
     )
   }

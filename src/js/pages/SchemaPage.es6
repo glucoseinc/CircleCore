@@ -95,9 +95,9 @@ class SchemaPage extends Component {
                   </TableHeader>
 
                   <TableBody displayRowCheckbox={false}>
-                    {schema.properties.map((property) => {
+                    {schema.properties.map((property, index) => {
                       return (
-                        <TableRow>
+                        <TableRow key={index}>
                           <TableRowColumn>{property.name}</TableRowColumn>
                           <TableRowColumn>{property.type}</TableRowColumn>
                         </TableRow>

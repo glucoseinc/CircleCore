@@ -43,6 +43,21 @@ class CCAPI {
       .send(params || {})
   }
 
+  /**
+   * DELETEクエリを発行する
+   * @param {String} path APIのパス
+   * @param {Object} [query] クエリ
+   * @return {Object} 戻り値
+   */
+  _delete(path, query) {
+    return request
+    .del(path)
+    .use(this.prefixer)
+    .set('Accept', 'application/json')
+    // .withCredentials()
+    .query(query || {})
+  }
+
 
   // schemas
   /**
@@ -64,13 +79,23 @@ class CCAPI {
     return res.body
   }
 
-    /**
-     * Schemaを作成する
-     * @param {Object} [schema] パラメータ
-     * @return {Object} Result
-     */
+  /**
+   * Schemaを作成する
+   * @param {Object} [schema] パラメータ
+   * @return {Object} Result
+   */
   async postSchema(schema) {
     let res = await this._post('/schemas/', schema)
+    return res.body
+  }
+
+  /**
+   * Schemaを削除する
+   * @param {String} schemaId SchemaのID
+   * @return {Object} Result
+   */
+  async deleteSchema(schemaId) {
+    let res = await this._delete(`/schemas/${schemaId}`)
     return res.body
   }
 
