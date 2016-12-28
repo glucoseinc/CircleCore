@@ -49,7 +49,7 @@ def _post_schemas():
     except KeyError:
         response['result'] = 'failure'
         response['detail'] = {
-            'error': 'key error'
+            'reason': 'key error'
         }
         return api_jsonify(**response)
 
@@ -64,15 +64,54 @@ def _post_schemas():
     return api_jsonify(**response)
 
 
-@api.route('/schemas/<schema_uuid>')
-def api_get_schema(schema_uuid):
+@api.route('/schemas/<schema_uuid>', methods=['GET', 'DELETE'])
+def api_schema(schema_uuid):
+    if request.method == 'GET':
+        return _get_schema(schema_uuid)
+    if request.method == 'DELETE':
+        return _delete_schema(schema_uuid)
+    # SchemaのUpdateはなし
+    abort(405)
+
+
+def _get_schema(schema_uuid):
     metadata = get_metadata()
     schema = metadata.find_schema(schema_uuid)
     if schema is None:
-        return api_jsonify()
+        return api_jsonify()  # TODO: return failure
 
     dic = _dictify(schema)
     return api_jsonify(schema=dic)
+
+
+def _delete_schema(schema_uuid):
+    metadata = get_metadata()
+    response = {}  # TODO: response形式の統一
+    schema = metadata.find_schema(schema_uuid)
+    if schema is None:
+        response['result'] = 'failure'
+        response['detail'] = {
+            'reason': 'not found'
+        }
+        return api_jsonify(**response)
+
+    attached_modules = metadata.find_modules_by_schema(schema_uuid)
+    if len(attached_modules) != 0:
+        response['result'] = 'failure'
+        response['detail'] = {
+            'reason': 'module {uuids} {verb} attached'.format(
+                uuids=', '.join([str(module.uuid) for module in attached_modules]),
+                verb='is' if len(attached_modules) == 1 else 'are'
+            )
+        }
+        return api_jsonify(**response)
+
+    metadata.unregister_schema(schema)
+    response['result'] = 'success'
+    response['detail'] = {
+        'uuid': schema_uuid
+    }
+    return api_jsonify(**response)
 
 
 def _dictify(schema):

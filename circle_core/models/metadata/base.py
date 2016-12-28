@@ -240,6 +240,8 @@ class MetadataWriter(MetadataBase):
         """Schemaオブジェクトをストレージに登録する.
 
         :param Schema schema: Schemaオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
         raise NotImplementedError
 
@@ -248,6 +250,8 @@ class MetadataWriter(MetadataBase):
         """Schemaオブジェクトをストレージから削除する.
 
         :param Schema schema: Schemaオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
         raise NotImplementedError
 
@@ -256,6 +260,8 @@ class MetadataWriter(MetadataBase):
         """ストレージ上のSchemaオブジェクトを更新する.
 
         :param Schema schema: Schemaオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
         raise NotImplementedError
 
@@ -264,6 +270,8 @@ class MetadataWriter(MetadataBase):
         """MessageBoxオブジェクトをストレージに登録する.
 
         :param MessageBox message_box: MessageBoxオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
         raise NotImplementedError
 
@@ -272,6 +280,8 @@ class MetadataWriter(MetadataBase):
         """MessageBoxオブジェクトをストレージから削除する.
 
         :param MessageBox message_box: MessageBoxオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
         raise NotImplementedError
 
@@ -280,6 +290,8 @@ class MetadataWriter(MetadataBase):
         """ストレージ上のMessageBoxオブジェクトを更新する.
 
         :param MessageBox message_box: MessageBoxオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
         raise NotImplementedError
 
@@ -288,6 +300,8 @@ class MetadataWriter(MetadataBase):
         """Moduleオブジェクトをストレージに登録する.
 
         :param Module module: Moduleオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
         raise NotImplementedError
 
@@ -296,6 +310,8 @@ class MetadataWriter(MetadataBase):
         """Moduleオブジェクトをストレージから削除する.
 
         :param Module module: Moduleオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
         raise NotImplementedError
 
@@ -304,6 +320,8 @@ class MetadataWriter(MetadataBase):
         """ストレージ上のModuleオブジェクトを更新する.
 
         :param Module module: Moduleオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
         raise NotImplementedError
 
@@ -312,6 +330,8 @@ class MetadataWriter(MetadataBase):
         """Userオブジェクトをストレージに登録する.
 
         :param User user: Userオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
         raise NotImplementedError
 
@@ -320,5 +340,7 @@ class MetadataWriter(MetadataBase):
         """Userオブジェクトをストレージから削除する.
 
         :param User user: Userオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
         raise NotImplementedError
