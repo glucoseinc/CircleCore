@@ -140,5 +140,8 @@ def _dictify(schema):
 
 @api.route('/schemas/propertytypes')
 def api_get_property_types():
-    property_types = ['int', 'float', 'text']
+    property_types = [
+        {'name': 'int'},
+        {'name': 'float'},
+        {'name': 'text'}]
     return api_jsonify(property_types=property_types)

@@ -14,7 +14,7 @@ if PY3:
     from typing import Optional, Union
 
 
-def _index():
+def _index(path):
     """WUI root."""
     return render_template('index.html')
 
@@ -30,6 +30,7 @@ def create_app(metadata=None):
     app.config['METADATA'] = metadata
     app.config['TEMPLATES_AUTO_RELOAD'] = True
 
-    app.add_url_rule('/', 'index', _index)
+    app.add_url_rule('/', 'index', _index, defaults={'path': ''})
+    app.add_url_rule('/<path:path>', 'index', _index)
 
     return app
