@@ -3,7 +3,7 @@ import DefinePlugin from 'webpack/lib/DefinePlugin'
 
 module.exports = {
   entry: {
-    'main': ['babel-polyfill', './src/js/main.es6'],
+    'main': ['babel-polyfill', './circle_core/server/wui/src/js/main.es6'],
   },
   output: {
     publicPath: '/styles/',
@@ -24,7 +24,7 @@ module.exports = {
     ],
   },
   resolve: {
-    root: path.resolve('src/js'),
+    root: path.resolve('circle_core/server/wui/src/js'),
     modulesDirectories: ['node_modules'],
     extensions: ['', '.es6', '.js'],
   },
