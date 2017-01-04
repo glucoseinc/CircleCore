@@ -63,15 +63,15 @@ class NavDrawer extends Component {
         //   ],
         // },
       ],
-      // [
-      //   {
-      //     title: null,
-      //     items: [
-      //       mapURLToMenuItem(urls.changeProfile),
-      //       mapURLToMenuItem(urls.logout),
-      //     ],
-      //   },
-      // ],
+      [
+        {
+          title: null,
+          items: [
+            mapURLToMenuItem(urls.changeProfile),
+            mapURLToMenuItem(urls.logout),
+          ],
+        },
+      ],
     ]
 
     const {

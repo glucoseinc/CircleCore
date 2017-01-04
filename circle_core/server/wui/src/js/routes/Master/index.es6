@@ -1,5 +1,7 @@
 import Master from '../../containers/Master'
 
+import ChangeProfile from './ChangeProfile'
+import Logout from './Logout'
 import Modules from './Modules'
 import ModulesNew from './ModulesNew'
 import Module from './Module'
@@ -14,6 +16,8 @@ const masterRoute = {
   component: Master,
   indexRoute: {component: Modules.component},
   childRoutes: [
+    ChangeProfile,
+    Logout,
     Modules,
     ModulesNew,
     Module,

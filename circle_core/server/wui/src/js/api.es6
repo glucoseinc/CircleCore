@@ -6,15 +6,20 @@ import Module from './models/Module'
 
 
 /**
- * CircleCore管理用APIのラッパ
+ * API呼び出し用の便利クラス
  */
-class CCAPI {
+class APICaller {
   /**
    * @constructor
    * @param {String} prefix API endpoint
    */
   constructor(prefix) {
     this.prefixer = require('superagent-prefix')(prefix)
+    this.token = null
+  }
+
+  setToken(token) {
+    this.token = token
   }
 
   /**
@@ -60,6 +65,25 @@ class CCAPI {
     .set('Accept', 'application/json')
     // .withCredentials()
     .query(query || {})
+  }
+}
+
+
+/**
+ * CircleCore管理用APIのラッパ
+ */
+class CCAPI extends APICaller {
+  // auth
+  /**
+   * oauthでもらったcodeからtokenを得る
+   */
+  async oauthToken(query) {
+    // form-url-encodedで送らないといけないので...
+    let res = await request.post('/oauth/token')
+      .type('form')
+      .set('Accept', 'application/json')
+      .send(query)
+    return res.body
   }
 
 
