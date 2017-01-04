@@ -74,8 +74,8 @@ def run(metadata):
             raise
         else:
             # commit
-            logger.debug('commit data count=%d', last_commit_count)
             if last_commit_count:
+                logger.debug('commit data count=%d', last_commit_count)
                 trans.commit()
 
                 # restart new transaction
