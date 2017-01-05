@@ -162,5 +162,5 @@ class Schema(object):
         return {
             'uuid': self.uuid.hex,
             'display_name': self.display_name,
-            'properties': self.stringified_properties
+            'dictified_properties': self.dictified_properties
         }

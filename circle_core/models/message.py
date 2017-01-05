@@ -8,10 +8,10 @@ from uuid import UUID
 from base58 import b58decode
 from click import get_current_context
 
-from ..logger import get_stream_logger
-from ..helpers.metadata import metadata
 from .module import Module
 from .schema import Schema
+from ..helpers.metadata import metadata
+from ..logger import get_stream_logger
 
 
 logger = get_stream_logger(__name__)
@@ -26,10 +26,10 @@ class ModuleMessageFactory(object):
     last_message_per_module = {}
 
     @classmethod
-    def new(cls, module_uuid, payload):
+    def new(cls, module_uuid, json_msg):
         """
         :param UUID module_uuid:
-        :param dict payload:
+        :param str plain_msg:
         :return ModuleMessage:
         """
         timestamp = round(time(), 6)  # TODO: Python内ではdatetimeで統一
@@ -39,7 +39,7 @@ class ModuleMessageFactory(object):
         else:
             count = 0
 
-        cls.last_message_per_module[module_uuid] = ModuleMessage(module_uuid, payload, timestamp, count)
+        cls.last_message_per_module[module_uuid] = ModuleMessage(module_uuid, json_msg, timestamp, count)
         return cls.last_message_per_module[module_uuid]
 
 
@@ -54,13 +54,13 @@ class ModuleMessage(object):
     """
 
     @classmethod
-    def decode(cls, json_msg):
+    def decode(cls, plain_msg):
         """encodeの対.
 
         :param str plain_msg:
         :return ModuleMessage:
         """
-        decoded = json.loads(json_msg)
+        decoded = json.loads(plain_msg)
         return cls(**decoded)
 
     def __init__(self, module_uuid, payload, timestamp, count):

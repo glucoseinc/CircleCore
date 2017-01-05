@@ -7,7 +7,7 @@ from uuid import UUID
 from base58 import b58decode, b58encode
 from werkzeug import cached_property
 
-from circle_core.models.message import ModuleMessageFactory
+from circle_core.models.message import ModuleMessage
 
 
 TOPIC_LENGTH = 48  # Topic name must be shorter than this value
@@ -70,16 +70,14 @@ class SensorDataTopic(BaseTopic):
         else:
             return self.prefix
 
+    def encode(self, json_msg):
+        return self.topic.ljust(TOPIC_LENGTH) + json.dumps(json_msg)
+
     def decode(self, plain_msg):
         """nanomsgで送られてきたメッセージがJSONだとしてデシリアライズ.
 
         :param str plain_msg:
         :return [ModuleMessage]:
         """
-        module_uuid = UUID(bytes=b58decode(plain_msg[len(SensorDataTopic().prefix):TOPIC_LENGTH].rstrip()))
         payload = json.loads(plain_msg[TOPIC_LENGTH:])
-
-        if not isinstance(payload, list):
-            return [ModuleMessageFactory.new(module_uuid, payload)]
-
-        return [ModuleMessageFactory.new(module_uuid, i) for i in payload]
+        return [ModuleMessage.decode(i) for i in payload]
