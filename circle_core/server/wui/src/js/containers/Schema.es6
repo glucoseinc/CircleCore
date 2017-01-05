@@ -56,7 +56,7 @@ class Schema extends Component {
           <TableBody displayRowCheckbox={false}>
             <TableRow>
               <TableRowColumn>名前</TableRowColumn>
-              <TableRowColumn>{schema.display_name}</TableRowColumn>
+              <TableRowColumn>{schema.displayName}</TableRowColumn>
             </TableRow>
             <TableRow>
               <TableRowColumn>UUID</TableRowColumn>

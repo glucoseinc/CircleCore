@@ -6,9 +6,9 @@ import RaisedButton from 'material-ui/RaisedButton'
 
 import * as actions from '../actions/schemas'
 import {urls} from '../routes'
-import SchemasTable from '../components/SchemasTable'
-import CCLink from '../components/CCLink'
 import Fetching from '../components/Fetching'
+import CCLink from '../components/CCLink'
+import SchemasTable from '../components/SchemasTable'
 import SchemaDeleteDialog from '../components/SchemaDeleteDialog'
 
 /**
@@ -18,7 +18,7 @@ class Schemas extends Component {
     isFetching: PropTypes.bool.isRequired,
     isDeleteAsking: PropTypes.bool.isRequired,
     schemas: PropTypes.array.isRequired,
-    schema: PropTypes.object,
+    schema: PropTypes.object.isRequired,
     actions: PropTypes.object.isRequired,
   }
 

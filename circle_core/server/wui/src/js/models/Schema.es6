@@ -79,7 +79,7 @@ class SchemaMetadata extends SchemaMetadataRecord {
 
 const SchemaRecord = Record({
   uuid: '',
-  display_name: '',
+  displayName: '',
   properties: List(),
   metadata: new SchemaMetadata(),
   modules: List(),
@@ -97,7 +97,7 @@ export default class Schema extends SchemaRecord {
     const modules = rawSchema.modules ? rawSchema.modules.map(Module.fromObject) : []
     return new Schema({
       uuid: rawSchema.uuid || '',
-      display_name: rawSchema.display_name || '',
+      displayName: rawSchema.displayName || '',
       properties: List(properties),
       metadata: SchemaMetadata.fromObject(rawSchema.metadata || {}),
       modules: List(modules),

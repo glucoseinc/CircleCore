@@ -4,12 +4,32 @@ import {Record, List} from 'immutable'
 import MessageBox from '../models/MessageBox'
 
 
+const ModuleMetadataRecord = Record({
+  tags: List(),
+  description: '',
+})
+
+/**
+ */
+export class ModuleMetadata extends ModuleMetadataRecord {
+  /**
+   * @param {object} rawModuleMetadata
+   * @return {ModuleMetadata}
+   */
+  static fromObject(rawModuleMetadata) {
+    const tags = rawModuleMetadata.tags || []
+    return new ModuleMetadata({
+      tags: List(tags),
+      description: rawModuleMetadata.description || '',
+    })
+  }
+}
+
 const ModuleRecord = Record({
   uuid: '',
   messageBoxes: List(),
-  display_name: '',
-  tags: List(),
-  description: '',
+  displayName: '',
+  metadata: new ModuleMetadata(),
 })
 
 /**
@@ -24,9 +44,8 @@ export default class Module extends ModuleRecord {
     return new Module({
       uuid: rawModule.uuid || '',
       messageBoxes: List(messageBoxes),
-      display_name: rawModule.display_name || '',
-      tags: List(rawModule.tags),
-      description: rawModule.description || '',
+      displayName: rawModule.displayName || '',
+      metadata: ModuleMetadata.fromObject(rawModule.metadata || {}),
     })
   }
 }

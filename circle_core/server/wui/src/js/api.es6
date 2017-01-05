@@ -1,6 +1,7 @@
 import request from 'superagent'
 
 import Schema, {SchemaPropertyType} from './models/Schema'
+import Module from './models/Module'
 
 /**
  * CircleCore管理用APIのラッパ
@@ -86,7 +87,7 @@ class CCAPI {
    * @return {Object} Result
    */
   async postSchema(schema) {
-    let res = await this._post('/schemas/', schema)
+    const res = await this._post('/schemas/', schema)
     return res.body
   }
 
@@ -96,7 +97,7 @@ class CCAPI {
    * @return {Object} Result
    */
   async deleteSchema(schemaId) {
-    let res = await this._delete(`/schemas/${schemaId}`)
+    const res = await this._delete(`/schemas/${schemaId}`)
     return res.body
   }
 
@@ -105,8 +106,8 @@ class CCAPI {
    * @return {Array<Schema>} Schema Property Typeのリスト
    */
   async getSchemaPropertyTypes() {
-    let res = await this._get('/schemas/propertytypes')
-    return res.body.property_types.map(SchemaPropertyType.fromObject)
+    const res = await this._get('/schemas/propertytypes')
+    return res.body.propertyTypes.map(SchemaPropertyType.fromObject)
   }
 
   // modules
@@ -114,9 +115,9 @@ class CCAPI {
    * モジュールのリストを得る
    * @return {Array<Module>} モジュールのリスト
    */
-  async listModules() {
-    let res = await this._get('/modules/')
-    return res.body
+  async getModules() {
+    const res = await this._get('/modules/')
+    return res.body.modules.map(Module.fromObject)
   }
 
   /**

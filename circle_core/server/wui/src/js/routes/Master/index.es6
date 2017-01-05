@@ -1,6 +1,7 @@
 import Master from '../../containers/Master'
 
 import Modules from './Modules'
+import ModulesNew from './ModulesNew'
 import Module from './Module'
 import Schemas from './Schemas'
 import SchemasNew from './SchemasNew'
@@ -14,6 +15,7 @@ const masterRoute = {
   indexRoute: {component: Modules.component},
   childRoutes: [
     Modules,
+    ModulesNew,
     Module,
     Schemas,
     SchemasNew,

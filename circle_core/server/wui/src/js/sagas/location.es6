@@ -41,6 +41,9 @@ function* onLocationChange(action) {
     yield put({type: actionTypes.schema.createInit})
     yield put({type: actionTypes.schema.propertyTypes.fetchRequested})
     break
+  case pathnames.modules:
+    yield put({type: actionTypes.modules.fetchRequested})
+    break
   default: {
     if (matched(pathnames.schema, pathname)) {
       yield put({type: actionTypes.schemas.fetchRequested})

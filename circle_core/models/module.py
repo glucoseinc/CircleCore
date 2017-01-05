@@ -36,6 +36,7 @@ class Module(object):
         :param Optional[str] tags: タグ
         :param Optional[str] description: 説明
         """
+        # TODO: 引き渡すmessage_box_uuidsはリスト化
         if not isinstance(uuid, UUID):
             try:
                 uuid = UUID(uuid)

@@ -47,12 +47,12 @@ class SchemasNew extends Component {
               <TableRowColumn>名前</TableRowColumn>
               <TableRowColumn>
                 <TextField
-                  name="display_name"
+                  name="displayName"
                   hintText="Option"
                   fullWidth={true}
-                  value={schema.display_name}
+                  value={schema.displayName}
                   onChange={(e) => actions.updateSchema(
-                    schema.update('display_name', e.target.value)
+                    schema.update('displayName', e.target.value)
                   )}
                 />
               </TableRowColumn>
