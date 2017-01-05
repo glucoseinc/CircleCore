@@ -1,19 +1,14 @@
-var DefinePlugin = require('webpack/lib/DefinePlugin');
-var path = require('path');
-
-// get git rev
-var gitRevision = require('child_process').execSync(
-  'git rev-parse --short HEAD', {encoding: 'utf-8'}
-).trim();
+import path from 'path'
+import DefinePlugin from 'webpack/lib/DefinePlugin'
 
 module.exports = {
   entry: {
-    'main': ['babel-polyfill', './src/js/main.es6']
+    'main': ['babel-polyfill', './circle_core/server/wui/src/js/main.es6'],
   },
   output: {
     publicPath: '/styles/',
     filename: '[name].bundle.js',
-    chunkFilename: '[id].[chunkhash].chunked.js'
+    chunkFilename: '[id].[chunkhash].chunked.js',
   },
   module: {
     loaders: [
@@ -22,20 +17,20 @@ module.exports = {
         exclude: /node_modules/,
         loader: 'babel',
         query: {
-          cacheDirectory: true
-        }
+          cacheDirectory: true,
+        },
       },
-      {test: /\.json$/, loader: 'json'}
-    ]
+      {test: /\.json$/, loader: 'json'},
+    ],
   },
   resolve: {
-    root: path.resolve('src/js'),
+    root: path.resolve('circle_core/server/wui/src/js'),
     modulesDirectories: ['node_modules'],
-    extensions: ['', '.es6', '.js']
+    extensions: ['', '.es6', '.js'],
   },
   plugins: [
     new DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
-    })
-  ]
-};
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+    }),
+  ],
+}

@@ -1,11 +1,11 @@
 import gulp from 'gulp'
 import eslint from 'gulp-eslint'
-import gzip from 'gulp-gzip'
+// import gzip from 'gulp-gzip'
 import notifier from 'node-notifier'
 import runSequence from 'run-sequence'
 import named from 'vinyl-named'
 import webpack from 'webpack-stream'
-import shell from 'gulp-shell'
+// import shell from 'gulp-shell'
 import postcss from 'gulp-postcss'
 import del from 'del'
 import plumber from 'gulp-plumber'
@@ -26,7 +26,7 @@ gulp.task('script', (cb) => {
 gulp.task('clean_script', del.bind(null, [`${DESTINATION_DIR}/*.js`]))
 
 gulp.task('lint', () => {
-  return gulp.src(['src/js/**/*.es6']) // lint のチェック先を指定
+  return gulp.src(['circle_core/server/wui/src/js/**/*.es6']) // lint のチェック先を指定
     .pipe(plumber({
       // エラーをハンドル
       errorHandler: function(error) {
@@ -50,14 +50,14 @@ gulp.task('lint', () => {
 })
 
 gulp.task('babel', () => {
-  return gulp.src(['src/js/main.es6'])
+  return gulp.src(['circle_core/server/wui/src/js/main.es6'])
     .pipe(named())
     .pipe(webpack(require('./webpack.config.js'), null, (err, stats) => {
       if(!err) {
         let elapsedTime = (stats.endTime - stats.startTime) / 1000.
         notifier.notify({
           title: 'gulp scripts',
-          message: `Webpack build. ${elapsedTime}secs`
+          message: `Webpack build. ${elapsedTime}secs`,
         })
       } else {
         notifier.notify({
@@ -71,7 +71,7 @@ gulp.task('babel', () => {
 
 
 gulp.task('style', () => {
-  return gulp.src(['src/css/main.css'])
+  return gulp.src(['circle_core/server/wui/src/css/main.css'])
     .pipe(postcss([
       require('postcss-import'),
       require('postcss-mixins'),
@@ -88,6 +88,6 @@ gulp.task('style', () => {
 
 
 gulp.task('watch', () => {
-  gulp.watch(['src/js/*.es6', 'src/js/**/*.es6'], ['script'])
-  gulp.watch(['src/css/**/*.css', 'assets/css/common.css'], ['style'])
+  gulp.watch(['circle_core/server/wui/src/js/*.es6', 'circle_core/server/wui/src/js/**/*.es6'], ['script'])
+  gulp.watch(['circle_core/server/wui/src/css/**/*.css', 'circle_core/server/wui/assets/css/common.css'], ['style'])
 })

@@ -17,23 +17,6 @@ class ModuleError(Exception):
     pass
 
 
-class ModuleProperty(object):
-    """ModulePropertyオブジェクト.
-
-    :param str name: 属性名
-    :param str value: 属性値
-    """
-
-    def __init__(self, name, value):
-        """init.
-
-        :param str name: 属性名
-        :param str value: 属性値
-        """
-        self.name = name
-        self.value = value
-
-
 class Module(object):
     """Moduleオブジェクト.
 

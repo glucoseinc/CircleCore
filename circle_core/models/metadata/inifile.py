@@ -59,7 +59,13 @@ class MetadataIniFile(MetadataReader):
         parser = configparser.ConfigParser()
         parser.read(self.ini_file_path)
         schema_dicts = [dict(parser.items(section)) for section in parser.sections() if Schema.is_key_matched(section)]
-        return [Schema(**schema_dict) for schema_dict in schema_dicts]
+        schemas = []
+        for schema_dict in schema_dicts:
+            properties_string = schema_dict.pop('properties', None)
+            if properties_string is not None:
+                schema_dict['dictified_properties'] = Schema.dictify_properties(properties_string)
+            schemas.append(Schema(**schema_dict))
+        return schemas
 
     @property
     def message_boxes(self):

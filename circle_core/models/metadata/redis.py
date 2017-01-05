@@ -83,6 +83,9 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         for key in keys:
             if self.redis_client.type(key) == 'hash':
                 fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]
+                properties_string = fields.pop('properties', None)
+                if properties_string is not None:
+                    fields['dictified_properties'] = Schema.dictify_properties(properties_string)
                 schemas.append(Schema(**fields))
         return schemas
 
@@ -135,6 +138,8 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         """Schemaオブジェクトをストレージに登録する.
 
         :param Schema schema: Schemaオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
         mapping = {
             'uuid': schema.uuid,
@@ -142,28 +147,42 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         }
         if schema.display_name is not None:
             mapping['display_name'] = schema.display_name
+        if schema.memo is not None:
+            mapping['memo'] = schema.memo
 
         self.redis_client.hmset(schema.storage_key, mapping)
+        return True
 
     def unregister_schema(self, schema):
         """Schemaオブジェクトをストレージから削除する.
 
         :param Schema schema: Schemaオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
+        if len(self.find_modules_by_schema(schema.uuid)) != 0:
+            return False
+
         self.redis_client.delete(schema.storage_key)
+        return True
 
     def update_schema(self, schema):
         """ストレージ上のSchemaオブジェクトを更新する.
 
         :param Schema schema: Schemaオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
-        self.unregister_schema(schema)
-        self.register_schema(schema)
+        if self.unregister_schema(schema) is True:
+            return self.register_schema(schema)
+        return False
 
     def register_message_box(self, message_box):
         """MessageBoxオブジェクトをストレージに登録する.
 
         :param MessageBox message_box: MessageBoxオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
         mapping = {
             'uuid': message_box.uuid,
@@ -175,26 +194,35 @@ class MetadataRedis(MetadataReader, MetadataWriter):
             mapping['description'] = message_box.description
 
         self.redis_client.hmset(message_box.storage_key, mapping)
+        return True
 
     def unregister_message_box(self, message_box):
         """MessageBoxオブジェクトをストレージから削除する.
 
         :param MessageBox message_box: MessageBoxオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
         self.redis_client.delete(message_box.storage_key)
+        return True
 
     def update_message_box(self, message_box):
         """ストレージ上のMessageBoxオブジェクトを更新する.
 
         :param MessageBox message_box: MessageBoxオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
-        self.unregister_module(message_box)
-        self.register_module(message_box)
+        if self.unregister_module(message_box) is True:
+            return self.register_module(message_box)
+        return False
 
     def register_module(self, module):
         """Moduleオブジェクトをストレージに登録する.
 
         :param Module module: Moduleオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
         mapping = {
             'uuid': module.uuid,
@@ -207,26 +235,36 @@ class MetadataRedis(MetadataReader, MetadataWriter):
             mapping['description'] = module.description
 
         self.redis_client.hmset(module.storage_key, mapping)
+        return True
 
     def unregister_module(self, module):
         """Moduleオブジェクトをストレージから削除する.
 
         :param Module module: Moduleオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
+        # TODO: Module削除時には紐づいているMessageBoxも一緒に削除する
         self.redis_client.delete(module.storage_key)
+        return True
 
     def update_module(self, module):
         """ストレージ上のModuleオブジェクトを更新する.
 
         :param Module module: Moduleオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
-        self.unregister_module(module)
-        self.register_module(module)
+        if self.unregister_module(module) is True:
+            return self.register_module(module)
+        return False
 
     def register_user(self, user):
         """Userオブジェクトをストレージに登録する.
 
         :param User user: Userオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
         mapping = {
             'uuid': user.uuid,
@@ -236,10 +274,14 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         }
 
         self.redis_client.hmset(user.storage_key, mapping)
+        return True
 
     def unregister_user(self, user):
         """Userオブジェクトをストレージから削除する.
 
         :param User user: Userオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
         self.redis_client.delete(user.storage_key)
+        return True
