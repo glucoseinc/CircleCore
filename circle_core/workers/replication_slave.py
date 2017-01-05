@@ -26,7 +26,7 @@ def get_uuid():  # テスト時には上書きする
     return click.get_current_context().obj.uuid.hex
 
 
-class Replicator(object):
+class ReplicationSlave(object):
     def __init__(self, metadata, master_addr):
         self.ws = create_connection('ws://' + master_addr + '/replication/' + get_uuid())
         self.db = Database(metadata.database_url)

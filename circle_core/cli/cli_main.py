@@ -19,7 +19,7 @@ from click.core import Context
 from circle_core import server
 from circle_core.server import ws, wui
 from circle_core.workers import get_worker
-from circle_core.workers.replication_slave import Replicator
+from circle_core.workers.replication_slave import ReplicationSlave
 from .context import ContextObject, ContextObjectError
 from .utils import RestartableProcess
 
@@ -87,7 +87,7 @@ def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, workers, replicate
     metadata.database_url = database_url  # とりあえず...
 
     for addr in replicate_from:
-        RestartableProcess(target=lambda: Replicator(metadata, addr).run()).start()
+        RestartableProcess(target=lambda: ReplicationSlave(metadata, addr).run()).start()
 
     for worker in workers:
         RestartableProcess(target=get_worker(worker).run, args=[metadata]).start()

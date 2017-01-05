@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 import json
 from uuid import UUID
@@ -14,7 +13,7 @@ from circle_core.models.message_box import MessageBox
 from circle_core.models.metadata.base import MetadataReader
 from circle_core.models.module import Module
 from circle_core.models.schema import Schema
-from circle_core.server.ws import ReplicationHandler, SensorHandler
+from circle_core.server.ws import ReplicationMaster, SensorHandler
 
 
 class DummyMetadata(MetadataReader):
@@ -30,10 +29,10 @@ class DummyMetadata(MetadataReader):
     parse_url_scheme = None
 
 
-class TestReplicationHandler(AsyncHTTPTestCase):
+class TestReplicationMaster(AsyncHTTPTestCase):
     def get_app(self):
         return Application([
-            ('/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', ReplicationHandler),
+            ('/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', ReplicationMaster),
             ('/ws/(?P<module_uuid>[0-9A-Fa-f-]+)', SensorHandler)
         ], cr_metadata=DummyMetadata())
 
@@ -41,7 +40,7 @@ class TestReplicationHandler(AsyncHTTPTestCase):
         return 'ws'
 
     def setUp(self):
-        super(TestReplicationHandler, self).setUp()
+        super(TestReplicationMaster, self).setUp()
         message.metadata = DummyMetadata
 
         @coroutine
@@ -60,7 +59,7 @@ class TestReplicationHandler(AsyncHTTPTestCase):
     def tearDown(self):
         self.dummy_crcr.close()
         self.dummy_module.close()
-        super(TestReplicationHandler, self).tearDown()
+        super(TestReplicationMaster, self).tearDown()
 
     @pytest.mark.timeout(2)
     @gen_test

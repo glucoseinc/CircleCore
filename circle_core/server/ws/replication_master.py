@@ -5,17 +5,17 @@ import json
 from tornado.ioloop import IOLoop
 from tornado.websocket import WebSocketHandler
 
+from ...helpers.metadata import metadata
 from ...helpers.nanomsg import Receiver
 from ...helpers.topics import SensorDataTopic
 from ...logger import get_stream_logger
 from ...models.message_box import MessageBox
-from ...helpers.metadata import metadata
 
 
 logger = get_stream_logger(__name__)
 
 
-class ReplicationHandler(WebSocketHandler):
+class ReplicationMaster(WebSocketHandler):
     """スキーマを交換し、まだ相手に送っていないデータを送る.
 
     :param UUID slave_uuid:

@@ -21,9 +21,9 @@ from circle_core.models.message_box import MessageBox
 from circle_core.models.metadata.base import MetadataReader
 from circle_core.models.module import Module
 from circle_core.models.schema import Schema
-from circle_core.server.ws import ReplicationHandler, SensorHandler
+from circle_core.server.ws import ReplicationMaster, SensorHandler
 from circle_core.workers import replication_slave
-from circle_core.workers.replication_slave import Replicator
+from circle_core.workers.replication_slave import ReplicationSlave
 
 
 class DummyMetadata(MetadataReader):
@@ -66,7 +66,7 @@ def start_worker(mysql):
     class DummyMetadata(object):
         database_url = mysql.url
 
-    worker = Process(target=lambda: Replicator(DummyMetadata, 'localhost:5001').run())
+    worker = Process(target=lambda: ReplicationSlave(DummyMetadata, 'localhost:5001').run())
     worker.start()
 
 
