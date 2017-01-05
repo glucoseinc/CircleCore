@@ -43,7 +43,7 @@ class Receiver(object):
     def __init__(self, topic):
         """接続を開く.
 
-        :param ModuleMessage message:
+        :param BaseTopic topic:
         """
         self._socket = nnpy.Socket(nnpy.AF_SP, nnpy.SUB)
         self._socket.connect(get_ipc_socket_path())

@@ -17,18 +17,41 @@ from .schema import Schema
 logger = get_stream_logger(__name__)
 
 
+class ModuleMessageFactory(object):
+    """新しいModuleMessageのためのtimestamp/countを管理する責務を持つ
+
+    :param Dict[str, ModuleMessage] last_message_per_module:
+    """
+
+    last_message_per_module = {}
+
+    @classmethod
+    def new(cls, module_uuid, payload):
+        """
+        :param UUID module_uuid:
+        :param dict payload:
+        :return ModuleMessage:
+        """
+        timestamp = round(time(), 6)  # TODO: Python内ではdatetimeで統一
+        last_message = cls.last_message_per_module.get(module_uuid, None)
+        if last_message is not None and last_message.timestamp == timestamp:
+            count = last_message.count + 1
+        else:
+            count = 0
+
+        cls.last_message_per_module[module_uuid] = ModuleMessage(module_uuid, payload, timestamp, count)
+        return cls.last_message_per_module[module_uuid]
+
+
 class ModuleMessage(object):
     """CircleModuleからのメッセージ.
 
-    :param Dict[str, Message] last_message_per_module:
-    :param Module module_uuid:
+    :param Module module:
     :param Schema schema:
     :param int timestamp:
     :param int count:
     :param dict payload:
     """
-
-    last_message_per_module = {}
 
     @classmethod
     def decode(cls, json_msg):
@@ -40,13 +63,17 @@ class ModuleMessage(object):
         decoded = json.loads(json_msg)
         return cls(**decoded)
 
-    def __init__(self, module_uuid, payload, timestamp=None, count=None):
+    def __init__(self, module_uuid, payload, timestamp, count):
         """timestampとcountをMessageの識別子とする.
 
         :param UUID module_uuid:
         :param dict payload:
+        :param int timestamp:
+        :param int count:
         """
         self.payload = payload
+        self.timestamp = timestamp
+        self.count = count
 
         if not isinstance(module_uuid, UUID):
             module_uuid = UUID(module_uuid)
@@ -63,27 +90,6 @@ class ModuleMessage(object):
                 {key: type(value) for key, value in payload.items()}
             )
             raise ValueError('Received message has unknow schema')
-
-        if timestamp and count:
-            self.timestamp = timestamp
-            self.count = count
-            return
-
-        self.timestamp = round(time(), 6)  # datetimeはJSON Serializableではないので
-        if self.last_message is not None and self.last_message.timestamp == self.timestamp:
-            self.count = self.last_message.count + 1
-        else:
-            self.count = 0
-            self.last_message = self
-
-    @property
-    def last_message(self):
-        """このメッセージを送ったモジュールからの一つ前のメッセージ."""
-        return self.last_message_per_module.get(self.module.uuid.hex, None)
-
-    @last_message.setter
-    def last_message(self, msg):
-        self.last_message_per_module[self.module.uuid.hex] = msg
 
     def encode(self):
         """slaveのCircleCoreに送られる際に使われる.

@@ -7,7 +7,7 @@ from uuid import UUID
 from base58 import b58decode, b58encode
 from werkzeug import cached_property
 
-from circle_core.models.message import ModuleMessage
+from circle_core.models.message import ModuleMessageFactory
 
 
 TOPIC_LENGTH = 48  # Topic name must be shorter than this value
@@ -80,6 +80,6 @@ class SensorDataTopic(BaseTopic):
         payload = json.loads(plain_msg[TOPIC_LENGTH:])
 
         if not isinstance(payload, list):
-            return [ModuleMessage(module_uuid, payload)]
+            return [ModuleMessageFactory.new(module_uuid, payload)]
 
-        return [ModuleMessage(module_uuid, i) for i in payload]
+        return [ModuleMessageFactory.new(module_uuid, i) for i in payload]

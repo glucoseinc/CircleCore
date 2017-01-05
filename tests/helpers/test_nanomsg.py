@@ -7,7 +7,7 @@ import pytest
 from circle_core.helpers.nanomsg import get_ipc_socket_path, Receiver, Sender  # TODO: flake8-import-orderの設定
 from circle_core.helpers.topics import BaseTopic, TOPIC_LENGTH
 from circle_core.models import message
-from circle_core.models.message import ModuleMessage
+from circle_core.models.message import ModuleMessageFactory
 from circle_core.models.message_box import MessageBox
 from circle_core.models.metadata.base import MetadataReader
 from circle_core.models.module import Module
@@ -17,7 +17,7 @@ from circle_core.models.schema import Schema
 class DummyTopic(BaseTopic):
     def decode(self, plain_msg):
         payload = json.loads(plain_msg[TOPIC_LENGTH:])
-        return [ModuleMessage('8e654793-5c46-4721-911e-b9d19f0779f9', payload)]
+        return [ModuleMessageFactory.new('8e654793-5c46-4721-911e-b9d19f0779f9', payload)]
 
 
 class DummyMetadata(MetadataReader):
