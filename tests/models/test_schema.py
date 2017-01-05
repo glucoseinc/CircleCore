@@ -24,7 +24,7 @@ class TestSchema(object):
             assert prop.type == expected['properties'][prop.name]
 
     def test_validation(self):
-        schema = Schema(uuid4(), uuid4(), 'hoge:int,piyo:str')
+        schema = Schema(uuid4(), uuid4(), [{'name': 'hoge', 'type': 'int'}, {'name': 'piyo', 'type': 'str'}])
         assert not schema.is_valid({})
         assert not schema.is_valid({'hoge': 4, 'piyo': 4})
         assert schema.is_valid({'hoge': 4, 'piyo': 'foobar'})

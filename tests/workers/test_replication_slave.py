@@ -2,6 +2,7 @@
 import json
 from multiprocessing import Process
 from os import environ
+from threading import Thread
 from time import sleep
 from uuid import UUID
 
@@ -27,7 +28,7 @@ from circle_core.workers.replication_slave import ReplicationSlave
 
 
 class DummyMetadata(MetadataReader):
-    schemas = [Schema('95eef02e-36e5-446e-9fea-aedd10321f6f', 'json', 'hoge:int')]
+    schemas = [Schema('95eef02e-36e5-446e-9fea-aedd10321f6f', 'json', [{'name': 'hoge', 'type': 'int'}])]
     message_boxes = [MessageBox('402a7a37-691d-40ed-b0fe-4aeed9d0bba1', '95eef02e-36e5-446e-9fea-aedd10321f6f')]
     modules = [Module(
         '314a578a-6543-4331-90f7-ed80c81d29bf',
@@ -54,56 +55,50 @@ def setup_module(module):
     replication_slave.metadata = DummyMetadata
 
 
-def teardown_module(module):
-    global worker
-    worker.terminate()
-
-
-def start_worker(mysql):
-    global worker
-    sleep(0.5)
-
-    class DummyMetadata(object):
-        database_url = mysql.url
-
-    worker = Process(target=lambda: ReplicationSlave(DummyMetadata, 'localhost:5001').run())
-    worker.start()
-
-
-class DummyReplicationMaster(WebSocketHandler):
-    def on_message(self, message):
-        msg = json.loads(message)
-        if msg == {'command': 'MIGRATE'}:
-            res = json.dumps({
-                'modules': [{
-                    'uuid': '8e654793-5c46-4721-911e-b9d19f0779f9',
-                    'message_box_uuids': '316720eb-84fe-43b3-88b7-9aad49a93220',
-                    'display_name': 'DummyModule',
-                    'tags': 'foo,bar'
-                }],
-                'message_boxes': [{
-                    'uuid': '316720eb-84fe-43b3-88b7-9aad49a93220',
-                    'schema_uuid': '44ae2fd8-52d0-484d-9a48-128b07937a0a'
-                }],
-                'schemas': [{
-                    'uuid': '44ae2fd8-52d0-484d-9a48-128b07937a0a',
-                    'display_name': 'DummySchema',
-                    'properties': 'hoge:int'
-                }]
-            })
-            self.write_message(res)
-        elif msg == {'command': 'RECEIVE'}:
-            IOLoop.current().stop()
-
-
 @pytest.mark.timeout(1)
 @pytest.mark.usefixtures('mysql')
 def test_migrate(mysql):
-    start_worker(mysql)
-    Application([
-        (r'/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', DummyReplicationMaster)
-    ], mysql=mysql, debug=True).listen(5001)
-    IOLoop.current().start()
+    def run_server():
+        class DummyReplicationMaster(WebSocketHandler):
+            def on_message(self, message):
+                msg = json.loads(message)
+                if msg == {'command': 'MIGRATE'}:
+                    res = json.dumps({
+                        'modules': [{
+                            'uuid': '8e654793-5c46-4721-911e-b9d19f0779f9',
+                            'message_box_uuids': '316720eb-84fe-43b3-88b7-9aad49a93220',
+                            'display_name': 'DummyModule',
+                            'tags': 'foo,bar'
+                        }],
+                        'message_boxes': [{
+                            'uuid': '316720eb-84fe-43b3-88b7-9aad49a93220',
+                            'schema_uuid': '44ae2fd8-52d0-484d-9a48-128b07937a0a'
+                        }],
+                        'schemas': [{
+                            'uuid': '44ae2fd8-52d0-484d-9a48-128b07937a0a',
+                            'display_name': 'DummySchema',
+                            'dictified_properties': [{'name': 'hoge', 'type': 'int'}]
+                        }]
+                    })
+                    self.write_message(res)
+                    IOLoop.current().stop()
+
+        Application([
+            (r'/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', DummyReplicationMaster)
+        ], debug=True).listen(5001)
+        IOLoop.current().start()
+
+    DummyMetadata.database_url = mysql.url
+    server = Thread(target=run_server)
+    server.daemon = True
+    server.start()
+
+    slave = ReplicationSlave(DummyMetadata, 'localhost:5001')
+    req = json.dumps({
+        'command': 'MIGRATE'
+    })
+    slave.ws.send(req)
+    slave.migrate()
 
     assert filter(lambda schema: schema.uuid == UUID('8e654793-5c46-4721-911e-b9d19f0779f9'), DummyMetadata.schemas)
     assert filter(lambda box: box.uuid == UUID('316720eb-84fe-43b3-88b7-9aad49a93220'), DummyMetadata.message_boxes)

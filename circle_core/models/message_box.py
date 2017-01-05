@@ -10,7 +10,6 @@ from uuid import UUID
 from six import PY3
 
 from .message import ModuleMessage
-from ..database import Database
 from ..helpers.metadata import metadata
 from ..logger import get_stream_logger
 
@@ -103,6 +102,7 @@ class MessageBox(object):
         :param int timestamp:
         :param int count:
         """
+        from ..database import Database  # 循環importを防ぐ
         db = Database(metadata().database_url)
         table = db.find_table_for_message_box(self)
         session = db._session()

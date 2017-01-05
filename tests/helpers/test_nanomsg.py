@@ -22,9 +22,9 @@ class DummyTopic(BaseTopic):
 
 class DummyMetadata(MetadataReader):
     schemas = [
-        Schema('44ae2fd8-52d0-484d-9a48-128b07937a0a', 'json', 'body:str'),
-        Schema('a1912d13-8fc7-4714-8cb3-e6f9326fdb36', 'multibyte_json', '鍵:str'),
-        Schema('1a7c8c61-7709-442e-9059-e8498501fb36', 'blocking', 'count:int')
+        Schema('44ae2fd8-52d0-484d-9a48-128b07937a0a', 'json', [{'name': 'body', 'type': 'str'}]),
+        Schema('a1912d13-8fc7-4714-8cb3-e6f9326fdb36', 'multibyte_json', [{'name': '鍵', 'type': 'str'}]),
+        Schema('1a7c8c61-7709-442e-9059-e8498501fb36', 'blocking', [{'name': 'count', 'type': 'int'}])
     ]
     message_boxes = [
         MessageBox('316720eb-84fe-43b3-88b7-9aad49a93220', '44ae2fd8-52d0-484d-9a48-128b07937a0a'),

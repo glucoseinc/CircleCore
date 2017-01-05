@@ -17,7 +17,7 @@ from circle_core.server.ws import ReplicationMaster, SensorHandler
 
 
 class DummyMetadata(MetadataReader):
-    schemas = [Schema('44ae2fd8-52d0-484d-9a48-128b07937a0a', 'DummySchema', 'hoge:int')]
+    schemas = [Schema('44ae2fd8-52d0-484d-9a48-128b07937a0a', 'DummySchema', [{'name': 'hoge', 'type': 'int'}])]
     message_boxes = [MessageBox('316720eb-84fe-43b3-88b7-9aad49a93220', '44ae2fd8-52d0-484d-9a48-128b07937a0a')]
     modules = [Module(
         '8e654793-5c46-4721-911e-b9d19f0779f9',
@@ -87,7 +87,7 @@ class TestReplicationMaster(AsyncHTTPTestCase):
     @pytest.mark.timeout(2)
     @gen_test
     def test_receive(self):
-        yield self.dummy_crcr.write_message('{"command": "RECEIVE"}')
+        yield self.dummy_crcr.write_message('{"command": "RECEIVE", "payload": {}}')
         yield sleep(1)
         yield self.dummy_module.write_message('{"hoge": 123}')
         resp = yield self.dummy_crcr.read_message()

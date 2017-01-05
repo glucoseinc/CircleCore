@@ -3,6 +3,7 @@
 """circle_coreのDBとの接続を取り仕切る"""
 
 from __future__ import absolute_import
+
 from time import mktime
 
 from base58 import b58encode

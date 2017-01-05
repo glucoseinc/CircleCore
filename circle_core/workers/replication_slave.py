@@ -12,10 +12,10 @@ from websocket import create_connection, WebSocketConnectionClosedException
 
 from circle_core.logger import get_stream_logger
 from ..database import Database
+from ..helpers.metadata import metadata
 from ..helpers.nanomsg import Receiver
 from ..models.message import ModuleMessage
 from ..models.message_box import MessageBox
-from ..helpers.metadata import metadata
 from ..models.module import Module
 from ..models.schema import Schema
 
