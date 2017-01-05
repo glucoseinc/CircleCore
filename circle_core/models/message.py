@@ -34,7 +34,7 @@ class ModuleMessageFactory(object):
         """
         timestamp = round(time(), 6)  # TODO: Python内ではdatetimeで統一
         last_message = cls.last_message_per_module.get(module_uuid, None)
-        if last_message is not None and last_message.timestamp == timestamp:
+        if last_message is not None and 32767 > last_message.count:
             count = last_message.count + 1
         else:
             count = 0
