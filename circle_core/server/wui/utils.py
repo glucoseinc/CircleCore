@@ -88,9 +88,9 @@ def snake_case(obj):
         if value is None or value == '':
             return value
 
-        ret = re.sub(r'([\s|A-Z])', "_\\1",value)
-        ret = re.sub(r'([\s])', "",ret)
-        ret = re.sub(r'^_', "",ret)
+        ret = re.sub(r'([\s|A-Z])', "_\\1", value)
+        ret = re.sub(r'([\s])', "", ret)
+        ret = re.sub(r'^_', "", ret)
         ret = ret.lower()
 
         return ret

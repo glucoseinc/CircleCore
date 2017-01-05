@@ -10,7 +10,7 @@ from six import PY3
 from circle_core.cli.utils import generate_uuid
 from circle_core.models import Module
 from .api import api
-from ..utils import api_jsonify, camel_case, snake_case, get_metadata
+from ..utils import api_jsonify, camel_case, get_metadata, snake_case
 
 if PY3:
     from typing import Any, Dict

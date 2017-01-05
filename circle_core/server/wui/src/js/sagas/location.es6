@@ -48,6 +48,9 @@ function* onLocationChange(action) {
     if (matched(pathnames.schema, pathname)) {
       yield put({type: actionTypes.schemas.fetchRequested})
     }
+    if (matched(pathnames.module, pathname)) {
+      yield put({type: actionTypes.modules.fetchRequested})
+    }
     yield
   }
   }
