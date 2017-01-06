@@ -10,7 +10,10 @@ from six import PY3
 from circle_core.cli.utils import generate_uuid
 from circle_core.models import Schema
 from .api import api
-from ..utils import api_jsonify, convert_dict_key_camel_case, convert_dict_key_snake_case, get_metadata
+from ..utils import (
+    api_jsonify, convert_dict_key_camel_case, convert_dict_key_snake_case, get_metadata,
+    oauth_require_read_schema_scope, oauth_require_write_schema_scope
+)
 
 if PY3:
     from typing import Any, Dict
@@ -25,6 +28,7 @@ def api_schemas():
     abort(405)
 
 
+@oauth_require_read_schema_scope
 def _get_schemas():
     metadata = get_metadata()
     schemas = metadata.schemas
@@ -35,6 +39,7 @@ def _get_schemas():
     return api_jsonify(**convert_dict_key_camel_case(response))
 
 
+@oauth_require_write_schema_scope
 def _post_schemas():
     dic = convert_dict_key_snake_case(request.json)
     response = {}  # TODO: response形式の統一
@@ -76,6 +81,7 @@ def api_schema(schema_uuid):
     abort(405)
 
 
+@oauth_require_read_schema_scope
 def _get_schema(schema_uuid):
     metadata = get_metadata()
     schema = metadata.find_schema(schema_uuid)
@@ -88,6 +94,7 @@ def _get_schema(schema_uuid):
     return api_jsonify(**convert_dict_key_camel_case(response))
 
 
+@oauth_require_write_schema_scope
 def _delete_schema(schema_uuid):
     metadata = get_metadata()
     response = {}  # TODO: response形式の統一
@@ -141,6 +148,7 @@ def _dictify(schema):
 
 
 @api.route('/schemas/propertytypes')
+@oauth_require_read_schema_scope
 def api_get_property_types():
     # TODO: constants.pyから引っ張ってくる
     response = {

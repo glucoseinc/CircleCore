@@ -10,7 +10,10 @@ from six import PY3
 from circle_core.cli.utils import generate_uuid
 from circle_core.models import MessageBox, Module
 from .api import api
-from ..utils import api_jsonify, convert_dict_key_camel_case, convert_dict_key_snake_case, get_metadata
+from ..utils import (
+    api_jsonify, convert_dict_key_camel_case, convert_dict_key_snake_case, get_metadata,
+    oauth_require_read_schema_scope, oauth_require_write_schema_scope
+)
 
 if PY3:
     from typing import Any, Dict
@@ -25,6 +28,7 @@ def api_modules():
     abort(405)
 
 
+@oauth_require_read_schema_scope
 def _get_modules():
     metadata = get_metadata()
     modules = metadata.modules
@@ -35,6 +39,7 @@ def _get_modules():
     return api_jsonify(**convert_dict_key_camel_case(response))
 
 
+@oauth_require_write_schema_scope
 def _post_modules():
     metadata = get_metadata()
     dic = convert_dict_key_snake_case(request.json)
@@ -98,6 +103,7 @@ def api_module(module_uuid):
     abort(405)
 
 
+@oauth_require_read_schema_scope
 def _get_module(module_uuid):
     metadata = get_metadata()
     module = metadata.find_module(module_uuid)
@@ -110,6 +116,7 @@ def _get_module(module_uuid):
     return api_jsonify(**convert_dict_key_camel_case(response))
 
 
+@oauth_require_write_schema_scope
 def _put_module(module_uuid):
     # TODO: Implement
     response = {}  # TODO: response形式の統一
@@ -120,6 +127,7 @@ def _put_module(module_uuid):
     return api_jsonify(**convert_dict_key_camel_case(response))
 
 
+@oauth_require_write_schema_scope
 def _delete_module(module_uuid):
     metadata = get_metadata()
     response = {}  # TODO: response形式の統一

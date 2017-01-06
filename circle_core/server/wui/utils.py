@@ -104,3 +104,21 @@ def convert_dict_key_snake_case(obj):
         return [convert_dict_key_snake_case(item) for item in obj]
 
     return obj
+
+
+def oauth_require_user_scope(f):
+    """user管理Scope"""
+    from .authorize import oauth
+    return oauth.require_oauth('user')(f)
+
+
+def oauth_require_read_schema_scope(f):
+    """Schema読むだけScope"""
+    from .authorize import oauth
+    return oauth.require_oauth('schema+r', 'schema+rw')(f)
+
+
+def oauth_require_write_schema_scope(f):
+    """Schema管理Scope"""
+    from .authorize import oauth
+    return oauth.require_oauth('schema+rw')(f)
