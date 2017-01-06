@@ -122,6 +122,6 @@ class MessageBox(object):
                     for key, value in zip(row.keys(), row)
                     if not key.startswith('_')
                 }
-                timestamp = mktime(row._created_at.timetuple())
+                timestamp = row._created_at.timestamp()  # timetupleを使うとmicrosecondの情報が切り捨てられる...
 
                 yield ModuleMessage(self.module.uuid, payload=payload, timestamp=timestamp, count=row._counter)

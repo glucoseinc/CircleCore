@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from contextlib import redirect_stdout
+from datetime import datetime
 import json
-from os import devnull
+from time import time
 from uuid import UUID
 
 import pytest
@@ -10,11 +10,14 @@ from tornado.testing import AsyncHTTPTestCase, gen_test
 from tornado.web import Application
 from tornado.websocket import websocket_connect
 
+from circle_core.database import Database
 from circle_core.models import message
+from circle_core.models import message_box
 from circle_core.models.message_box import MessageBox
 from circle_core.models.metadata.base import MetadataReader
 from circle_core.models.module import Module
 from circle_core.models.schema import Schema
+from circle_core.server.ws import replication_master
 from circle_core.server.ws import ReplicationMaster, SensorHandler
 
 
@@ -31,6 +34,7 @@ class DummyMetadata(MetadataReader):
     parse_url_scheme = None
 
 
+@pytest.mark.usefixtures('class_wide_mysql')
 class TestReplicationMaster(AsyncHTTPTestCase):
     def get_app(self):
         return Application([
@@ -44,6 +48,8 @@ class TestReplicationMaster(AsyncHTTPTestCase):
     def setUp(self):
         super(TestReplicationMaster, self).setUp()
         message.metadata = DummyMetadata
+        replication_master.metadata = DummyMetadata
+        message_box.metadata = DummyMetadata
 
         @coroutine
         def connect():
@@ -122,3 +128,78 @@ class TestReplicationMaster(AsyncHTTPTestCase):
         yield self.dummy_module.write_message('{"hoge": 45}')
         resp = yield self.dummy_crcr.read_message()
         assert json.loads(resp)['count'] == 0
+
+    @pytest.mark.timeout(2)
+    @gen_test
+    def test_receive_count_seeding(self):  # メソッド名で実行順が決まってる？
+        DummyMetadata.database_url = self.mysql.url
+        now = round(time(), 6)
+
+        # timestampが同じでcountが違う場合
+        db = Database(self.mysql.url)
+        db.register_message_boxes(DummyMetadata.message_boxes, DummyMetadata.schemas)
+        db.migrate()
+        table = db.find_table_for_message_box(DummyMetadata.message_boxes[0])
+        db._engine.execute(table.insert(), _created_at=datetime.fromtimestamp(now), _counter=0, hoge=123)
+        db._engine.execute(table.insert(), _created_at=datetime.fromtimestamp(now), _counter=1, hoge=678)
+
+        req = json.dumps({
+            'command': 'RECEIVE',
+            'payload': {
+                '316720eb-84fe-43b3-88b7-9aad49a93220': {
+                    'timestamp': now,
+                    'count': 0
+                }
+            }
+        })
+        yield self.dummy_crcr.write_message(req)
+        resp = yield self.dummy_crcr.read_message()
+        resp = json.loads(resp)
+        assert resp['timestamp'] == now
+        assert resp['count'] == 1
+        assert UUID(resp['module_uuid']) == UUID('8e654793-5c46-4721-911e-b9d19f0779f9')
+        assert resp['payload'] == {'hoge': 678}
+
+        # countが同じでtimestampが違う場合
+        now = time()
+        db._engine.execute(table.insert(), _created_at=datetime.fromtimestamp(now - 0.000001), _counter=0, hoge=234)
+        db._engine.execute(table.insert(), _created_at=datetime.fromtimestamp(now), _counter=0, hoge=789)
+
+        req = json.dumps({
+            'command': 'RECEIVE',
+            'payload': {
+                '316720eb-84fe-43b3-88b7-9aad49a93220': {
+                    'timestamp': now - 0.000001,
+                    'count': 0
+                }
+            }
+        })
+        yield self.dummy_crcr.write_message(req)
+        resp = yield self.dummy_crcr.read_message()
+        resp = json.loads(resp)
+        assert resp['timestamp'] == now
+        assert resp['count'] == 0
+        assert UUID(resp['module_uuid']) == UUID('8e654793-5c46-4721-911e-b9d19f0779f9')
+        assert resp['payload'] == {'hoge': 789}
+
+        # countもtimestampも違う場合
+        now = time()
+        db._engine.execute(table.insert(), _created_at=datetime.fromtimestamp(now - 0.000001), _counter=1, hoge=345)
+        db._engine.execute(table.insert(), _created_at=datetime.fromtimestamp(now), _counter=0, hoge=543)
+
+        req = json.dumps({
+            'command': 'RECEIVE',
+            'payload': {
+                '316720eb-84fe-43b3-88b7-9aad49a93220': {
+                    'timestamp': now - 0.000001,
+                    'count': 1
+                }
+            }
+        })
+        yield self.dummy_crcr.write_message(req)
+        resp = yield self.dummy_crcr.read_message()
+        resp = json.loads(resp)
+        assert resp['timestamp'] == now
+        assert resp['count'] == 0
+        assert UUID(resp['module_uuid']) == UUID('8e654793-5c46-4721-911e-b9d19f0779f9')
+        assert resp['payload'] == {'hoge': 543}
