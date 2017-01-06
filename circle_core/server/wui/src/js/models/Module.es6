@@ -36,6 +36,14 @@ const ModuleRecord = Record({
  */
 export default class Module extends ModuleRecord {
   /**
+   * @override
+   */
+  constructor(...args) {
+    super(...args)
+    this.label = this.displayName || this.uuid
+  }
+
+  /**
    * @param {object} rawModule
    * @return {Module}
    */

@@ -15,6 +15,14 @@ const MessageBoxRecord = Record({
  */
 export default class MessageBox extends MessageBoxRecord {
   /**
+   * @override
+   */
+  constructor(...args) {
+    super(...args)
+    this.label = this.displayName || this.uuid
+  }
+
+  /**
    * @param {object} rawMessageBox
    * @return {MessageBox}
    */

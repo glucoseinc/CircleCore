@@ -89,6 +89,14 @@ const SchemaRecord = Record({
  */
 export default class Schema extends SchemaRecord {
   /**
+   * @override
+   */
+  constructor(...args) {
+    super(...args)
+    this.label = this.displayName || this.uuid
+  }
+
+  /**
    * @param {object} rawSchema
    * @return {Schema}
    */

@@ -33,7 +33,7 @@ class ModuleDeleteDialog extends Component {
         onCancelTouchTap={onCancelTouchTap}
         open={isActive ? true : false}
       >
-        <p>{module.displayName || module.uuid}</p>
+        <p>{module.label}</p>
       </OkCancelDialog>
     )
   }

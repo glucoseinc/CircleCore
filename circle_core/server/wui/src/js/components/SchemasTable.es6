@@ -80,7 +80,7 @@ class SchemasTable extends Component {
                     <FlatButton
                       key={module.uuid}
                       style={style.moduleButton}
-                      label={module.displayName ? module.displayName : module.uuid}
+                      label={module.label}
                       labelStyle={module.displayName ? {} : style.subtext}
                     />
                   </CCLink>

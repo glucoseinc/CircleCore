@@ -33,7 +33,7 @@ class SchemaDeleteDialog extends Component {
         onCancelTouchTap={onCancelTouchTap}
         open={isActive ? true : false}
       >
-        <p>{schema.displayName || schema.uuid}</p>
+        <p>{schema.label}</p>
       </OkCancelDialog>
     )
   }
