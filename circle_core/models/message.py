@@ -84,12 +84,15 @@ class ModuleMessage(object):
         try:
             self.schema = [schema for schema in schemas if schema.is_valid(payload)][0]
         except IndexError:
-            logger.error('Known schemas: %r', [schema.properties for schema in metadata().schemas])
+            logger.error(
+                'Known schemas: %r',
+                [{property.name: property.type for property in schema.properties} for schema in metadata().schemas]
+            )
             logger.error(
                 'Schema of the received message: %r',
                 {key: type(value) for key, value in payload.items()}
             )
-            raise ValueError('Received message has unknow schema')
+            raise ValueError('Received message has unknown schema')
 
     def encode(self):
         """slaveのCircleCoreに送られる際に使われる.

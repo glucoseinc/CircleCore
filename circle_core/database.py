@@ -17,6 +17,7 @@ import sqlalchemy.sql.ddl
 
 # project module
 from circle_core.exceptions import MigrationError
+from circle_core.helpers.metadata import metadata
 from circle_core.logger import get_stream_logger
 from .constants import CRDataType
 from .models.module import Module
@@ -145,14 +146,13 @@ class Database(object):
         )
 
     def find_table_for_message(self, msg):
-        metadata = get_current_context().obj.metadata
-        boxes = [metadata.find_message_box(box_uuid) for box_uuid in msg.module.message_box_uuids]
+        boxes = [metadata().find_message_box(box_uuid) for box_uuid in msg.module.message_box_uuids]
         table_name = [
             self.make_table_name_for_message_box(box)
             for box in boxes
-            if metadata.find_schema(box.schema_uuid).is_valid(msg.payload)
+            if metadata().find_schema(box.schema_uuid).is_valid(msg.payload)
         ][0]
-        return self._metadata.tables[table_name]
+        return sa.Table(table_name, self._metadata, autoload=True, autoload_with=self._engine)
 
     def last_message_identifier_for_box(self, box):  # TODO: MessageBoxのメソッドにする
         session = self._session()

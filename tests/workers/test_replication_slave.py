@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
 import json
 from multiprocessing import Process
 from os import environ
 from threading import Thread
-from time import sleep
+from time import sleep, time
 from uuid import UUID
 
 from click.testing import CliRunner
 import pytest
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, Table
 from sqlalchemy.engine.reflection import Inspector
 from sqlalchemy.types import INTEGER, TIMESTAMP
 from tornado.ioloop import IOLoop
@@ -16,8 +17,10 @@ from tornado.testing import AsyncHTTPTestCase, gen_test
 from tornado.web import Application
 from tornado.websocket import websocket_connect, WebSocketHandler
 
+from circle_core import database
 from circle_core.cli.cli_main import cli_main
 from circle_core.database import Database
+from circle_core.models import message
 from circle_core.models.message_box import MessageBox
 from circle_core.models.metadata.base import MetadataReader
 from circle_core.models.module import Module
@@ -50,15 +53,34 @@ class DummyMetadata(MetadataReader):
         self.modules.append(module)
 
 
-def setup_module(module):
-    replication_slave.get_uuid = lambda: '5c8fe778-1cb8-4a92-8f5d-588990a19def'
-    replication_slave.metadata = DummyMetadata
+@pytest.mark.usefixtures('class_wide_mysql')
+class TestReplicationSlave:
+    @classmethod
+    def setup_class(cls):
+        replication_slave.get_uuid = lambda: '5c8fe778-1cb8-4a92-8f5d-588990a19def'
+        replication_slave.metadata = DummyMetadata
+        message.metadata = DummyMetadata
+        database.metadata = DummyMetadata
 
+    def teardown_method(self, method):
+        self.server.terminate()
 
-@pytest.mark.timeout(1)
-@pytest.mark.usefixtures('mysql')
-def test_migrate(mysql):
-    def run_server():
+    def run_dummy_server(self, replication_master):
+        def run():
+            Application([
+                (r'/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', replication_master)
+            ], debug=True).listen(5001)
+            IOLoop.current().start()
+
+        self.server = Process(target=run)
+        self.server.daemon = True
+        self.server.start()
+        sleep(1)
+
+    @pytest.mark.timeout(2)
+    def test_migrate(self):
+        DummyMetadata.database_url = self.mysql.url
+
         class DummyReplicationMaster(WebSocketHandler):
             def on_message(self, message):
                 msg = json.loads(message)
@@ -83,38 +105,68 @@ def test_migrate(mysql):
                     self.write_message(res)
                     IOLoop.current().stop()
 
-        Application([
-            (r'/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', DummyReplicationMaster)
-        ], debug=True).listen(5001)
-        IOLoop.current().start()
+        self.run_dummy_server(DummyReplicationMaster)
 
-    DummyMetadata.database_url = mysql.url
-    server = Thread(target=run_server)
-    server.daemon = True
-    server.start()
+        slave = ReplicationSlave(DummyMetadata, 'localhost:5001')
+        req = json.dumps({
+            'command': 'MIGRATE'
+        })
+        slave.ws.send(req)
+        slave.migrate()
 
-    slave = ReplicationSlave(DummyMetadata, 'localhost:5001')
-    req = json.dumps({
-        'command': 'MIGRATE'
-    })
-    slave.ws.send(req)
-    slave.migrate()
+        assert filter(lambda schema: schema.uuid == UUID('8e654793-5c46-4721-911e-b9d19f0779f9'), DummyMetadata.schemas)
+        assert filter(lambda box: box.uuid == UUID('316720eb-84fe-43b3-88b7-9aad49a93220'), DummyMetadata.message_boxes)
+        assert filter(lambda module: module.uuid == UUID('8e654793-5c46-4721-911e-b9d19f0779f9'), DummyMetadata.modules)
 
-    assert filter(lambda schema: schema.uuid == UUID('8e654793-5c46-4721-911e-b9d19f0779f9'), DummyMetadata.schemas)
-    assert filter(lambda box: box.uuid == UUID('316720eb-84fe-43b3-88b7-9aad49a93220'), DummyMetadata.message_boxes)
-    assert filter(lambda module: module.uuid == UUID('8e654793-5c46-4721-911e-b9d19f0779f9'), DummyMetadata.modules)
+        db = Database(self.mysql.url)
+        engine = create_engine(self.mysql.url)
+        inspector = Inspector.from_engine(engine)
+        box = MessageBox('316720eb-84fe-43b3-88b7-9aad49a93220', '44ae2fd8-52d0-484d-9a48-128b07937a0a')
+        table_name = db.make_table_name_for_message_box(box)
+        columns = inspector.get_columns(table_name)
+        types = {
+            '_created_at': TIMESTAMP,
+            '_counter': INTEGER,
+            'hoge': INTEGER
+        }
 
-    db = Database(mysql.url)
-    engine = create_engine(mysql.url)
-    inspector = Inspector.from_engine(engine)
-    box = MessageBox('316720eb-84fe-43b3-88b7-9aad49a93220', '44ae2fd8-52d0-484d-9a48-128b07937a0a')
-    table_name = db.make_table_name_for_message_box(box)
-    columns = inspector.get_columns(table_name)
-    types = {
-        '_created_at': TIMESTAMP,
-        '_counter': INTEGER,
-        'hoge': INTEGER
-    }
+        for column in columns:
+            assert isinstance(column['type'], types[column['name']])
 
-    for column in columns:
-        assert isinstance(column['type'], types[column['name']])
+    @pytest.mark.timeout(2)
+    def test_receive(self):
+        now = time()
+
+        class DummyReplicationMaster(WebSocketHandler):
+            def on_message(self, req):
+                req = json.loads(req)
+                if req['command'] == 'RECEIVE':
+                    resp = json.dumps({
+                        'module_uuid': '8e654793-5c46-4721-911e-b9d19f0779f9',
+                        'timestamp': now,
+                        'count': 0,
+                        'payload': {
+                            'hoge': 123
+                        }
+                    })
+                    self.write_message(resp)
+                    IOLoop.current().stop()
+
+        self.run_dummy_server(DummyReplicationMaster)
+
+        slave = ReplicationSlave(DummyMetadata, 'localhost:5001')
+        req = json.dumps({
+            'command': 'RECEIVE'
+        })
+        slave.ws.send(req)
+        slave.receive()
+
+        db = Database(self.mysql.url)
+        table = Table('message_box_76pzhAbUqxJeYp1CYkLBc3', db._metadata, autoload=True, autoload_with=db._engine)
+        session = db._session()
+        with session.begin():
+            rows = session.query(table).all()
+            assert len(rows) == 1
+            assert datetime.timestamp(rows[0]._created_at) == now
+            assert rows[0]._counter == 0
+            assert rows[0].hoge == 123
