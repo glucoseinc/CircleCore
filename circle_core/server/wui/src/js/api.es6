@@ -1,7 +1,9 @@
 import request from 'superagent'
 
-import Schema, {SchemaPropertyType} from './models/Schema'
+import Schema from './models/Schema'
+import SchemaPropertyType from './models/SchemaPropertyType'
 import Module from './models/Module'
+
 
 /**
  * CircleCore管理用APIのラッパ
@@ -73,31 +75,31 @@ class CCAPI {
 
   /**
    * Schemaの詳細を得る
-   * @param {String} schemaId SchemaのID
+   * @param {Schema} schema Schema
    * @return {Schema} Schema
    */
-  async getSchema(schemaId) {
-    let res = await this._get(`/schemas/${schemaId}`)
-    return res.body
+  async getSchema(schema) {
+    const res = await this._get(`/schemas/${schema.uuid}`)
+    return Schema.fromObject(res.body.schema)
   }
 
   /**
    * Schemaを作成する
-   * @param {Object} [schema] パラメータ
+   * @param {Schema} schema Schema
    * @return {Object} Result
    */
   async postSchema(schema) {
-    const res = await this._post('/schemas/', schema)
+    const res = await this._post('/schemas/', schema.toJS())
     return res.body
   }
 
   /**
    * Schemaを削除する
-   * @param {String} schemaId SchemaのID
+   * @param {Schema} schema Schema
    * @return {Object} Result
    */
-  async deleteSchema(schemaId) {
-    const res = await this._delete(`/schemas/${schemaId}`)
+  async deleteSchema(schema) {
+    const res = await this._delete(`/schemas/${schema.uuid}`)
     return res.body
   }
 
@@ -122,21 +124,32 @@ class CCAPI {
 
   /**
    * Moduleの詳細を得る
-   * @param {String} moduleId モジュールのID
-   * @return {Module} モジュール
+   * @param {Module} module Module
+   * @return {Module} Module
    */
-  async getModule(moduleId) {
-    let res = await this._get(`/modules/${moduleId}`)
+  async getModule(module) {
+    const res = await this._get(`/modules/${module.uuid}`)
     return res.body
   }
 
   /**
-   * Moduleを削除する
-   * @param {String} moduleId ModuleのID
+   * Moduleを作成する
+   * @param {Module} module Module
    * @return {Object} Result
    */
-  async deleteModule(moduleId) {
-    const res = await this._delete(`/modules/${moduleId}`)
+  async postModule(module) {
+    const res = await this._post('/modules/', module.toJS())
+    return res.body
+  }
+
+
+  /**
+   * Moduleを削除する
+   * @param {Module} module Module
+   * @return {Object} Result
+   */
+  async deleteModule(module) {
+    const res = await this._delete(`/modules/${module.uuid}`)
     return res.body
   }
 }

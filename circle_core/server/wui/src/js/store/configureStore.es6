@@ -5,6 +5,7 @@ import {routerMiddleware} from 'react-router-redux'
 import rootReducer from '../reducers'
 import DevTools from '../containers/DevTools'
 
+
 /**
  * [configureStore description]
  * @param  {[type]} history      [description]

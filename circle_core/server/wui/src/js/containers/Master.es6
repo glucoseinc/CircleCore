@@ -6,9 +6,9 @@ import AppBar from 'material-ui/AppBar'
 import withWidth, {LARGE} from 'material-ui/utils/withWidth'
 import Title from 'react-title-component'
 
+import actions from '../actions'
 import NavDrawer from '../components/NavDrawer'
 import DevTools from '../containers/DevTools'
-import * as actions from '../actions/master'
 
 
 /**
@@ -57,7 +57,7 @@ class Master extends Component {
         <div style={style.content}>
           <AppBar
             showMenuIconButton={appBarShowMenuIconButton}
-            onLeftIconButtonTouchTap={actions.leftIconButtonTouchTap}
+            onLeftIconButtonTouchTap={actions.misc.navDrawerToggleOpen}
           />
           <div style={style.children}>
             {children}
@@ -67,8 +67,8 @@ class Master extends Component {
           <NavDrawer
             alwaysOpen={navDrawerAlwaysOpen}
             open={navDrawerOpen}
-            onRequestChange={actions.navDrawerRequestChange}
-            onNavItemTouchTap={actions.locationRequestChange}
+            onRequestChange={actions.misc.navDrawerToggleOpen}
+            onNavItemTouchTap={actions.location.changeRequest}
           />
         </div>
         <DevTools />
@@ -85,7 +85,7 @@ class Master extends Component {
  */
 function mapStateToProps(state) {
   return {
-    navDrawerOpen: state.miscs.navDrawerOpen,
+    navDrawerOpen: state.misc.navDrawerOpen,
   }
 }
 
@@ -96,7 +96,10 @@ function mapStateToProps(state) {
  */
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(actions, dispatch),
+    actions: {
+      location: bindActionCreators(actions.location, dispatch),
+      misc: bindActionCreators(actions.misc, dispatch),
+    },
   }
 }
 

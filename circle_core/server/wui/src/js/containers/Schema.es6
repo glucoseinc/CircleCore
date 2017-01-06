@@ -5,11 +5,12 @@ import {connect} from 'react-redux'
 import RaisedButton from 'material-ui/RaisedButton'
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
 
-import * as actions from '../actions/schema'
+import actions from '../actions'
 import {urls} from '../routes'
 import CCLink from '../components/CCLink'
 import Fetching from '../components/Fetching'
 import SchemaDeleteDialog from '../components/SchemaDeleteDialog'
+
 
 /**
  */
@@ -20,6 +21,16 @@ class Schema extends Component {
     schemas: PropTypes.array.isRequired,
     params: PropTypes.object.isRequired,
     actions: PropTypes.object.isRequired,
+  }
+
+  /**
+   * @override
+   */
+  componentWillMount() {
+    const {
+      actions,
+    } = this.props
+    actions.schemas.fetchRequest()
   }
 
   /**
@@ -40,7 +51,7 @@ class Schema extends Component {
       )
     }
 
-    const schema = schemas.filter((_schema) => _schema.uuid === params.schemaId)[0]
+    const schema = schemas.find((_schema) => _schema.uuid === params.schemaId)
 
     if (schema === undefined) {
       return (
@@ -74,14 +85,12 @@ class Schema extends Component {
                   </TableHeader>
 
                   <TableBody displayRowCheckbox={false}>
-                    {schema.properties.map((property, index) => {
-                      return (
-                        <TableRow key={index}>
-                          <TableRowColumn>{property.name}</TableRowColumn>
-                          <TableRowColumn>{property.type}</TableRowColumn>
-                        </TableRow>
-                      )
-                    })}
+                    {schema.properties.map((property, index) =>
+                      <TableRow key={index}>
+                        <TableRowColumn>{property.name}</TableRowColumn>
+                        <TableRowColumn>{property.type}</TableRowColumn>
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
               </TableRowColumn>
@@ -90,7 +99,7 @@ class Schema extends Component {
               <TableRowColumn>メタデータ</TableRowColumn>
               <TableRowColumn>
                 <p>メモ</p>
-                <p>{schema.metadata.memo}</p>
+                <p>{schema.memo}</p>
               </TableRowColumn>
             </TableRow>
           </TableBody>
@@ -106,13 +115,13 @@ class Schema extends Component {
           label="Delete"
           secondary={true}
           disabled={schema.modules.size === 0 ? false : true}
-          onTouchTap={actions.deleteTouchTap}
+          onTouchTap={() => actions.schemas.deleteAsk(schema)}
         />
         <SchemaDeleteDialog
           isActive={isDeleteAsking}
           schema={schema}
-          onOkTouchTap={actions.deleteExecuteTouchTap}
-          onCancelTouchTap={actions.deleteCancelTouchTap}
+          onOkTouchTap={actions.schemas.deleteRequest}
+          onCancelTouchTap={actions.schemas.deleteCancel}
         />
       </div>
     )
@@ -128,7 +137,7 @@ class Schema extends Component {
 function mapStateToProps(state) {
   return {
     isFetching: state.asyncs.isSchemasFetching,
-    isDeleteAsking: state.asyncs.isSchemaDeleteAsking,
+    isDeleteAsking: state.asyncs.isSchemasDeleteAsking,
     schemas: state.entities.schemas,
   }
 }
@@ -140,7 +149,9 @@ function mapStateToProps(state) {
  */
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(actions, dispatch),
+    actions: {
+      schemas: bindActionCreators(actions.schemas, dispatch),
+    },
   }
 }
 

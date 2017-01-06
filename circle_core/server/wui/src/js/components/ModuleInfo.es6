@@ -6,6 +6,7 @@ import {GridList, GridTile} from 'material-ui/GridList'
 import Subheader from 'material-ui/Subheader'
 import RaisedButton from 'material-ui/RaisedButton'
 
+
 /**
  */
 class ModuleInfo extends Component {
@@ -58,15 +59,17 @@ class ModuleInfo extends Component {
                   <GridTile>
                     <Subheader>Tags</Subheader>
                     <div style={{paddingLeft: 24}}>
-                      {module.metadata.tags.map((tag) => <Chip style={style.tagChip} key={tag}>
-                        {tag}
-                      </Chip>)}
+                      {module.tags.map((tag) =>
+                        <Chip style={style.tagChip} key={tag}>
+                          {tag}
+                        </Chip>
+                      )}
                     </div>
                   </GridTile>
                   <GridTile>
                     <Subheader>Memo</Subheader>
                     <div style={{paddingLeft: 24}}>
-                      {module.metadata.description}
+                      {module.description}
                     </div>
                   </GridTile>
                 </GridList>

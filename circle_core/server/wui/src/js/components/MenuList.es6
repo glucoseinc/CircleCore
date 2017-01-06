@@ -72,16 +72,14 @@ class MenuSection extends Component {
     return (
       <div>
         {sectionDivider}
-        {section.map((block, blockIndex) => {
-          return (
-            <MenuBlock
-              key={blockIndex}
-              block={block}
-              index={blockIndex}
-              onTouchTap={onItemTouchTap}
-            />
-          )
-        })}
+        {section.map((block, blockIndex) =>
+          <MenuBlock
+            key={blockIndex}
+            block={block}
+            index={blockIndex}
+            onTouchTap={onItemTouchTap}
+          />
+        )}
       </div>
     )
   }
@@ -107,16 +105,14 @@ class MenuList extends Component {
 
     return (
       <List>
-        {sections.map((section, sectionIndex) => {
-          return (
-            <MenuSection
-              key={sectionIndex}
-              section={section}
-              index={sectionIndex}
-              onItemTouchTap={onItemTouchTap}
-            />
-          )
-        })}
+        {sections.map((section, sectionIndex) =>
+          <MenuSection
+            key={sectionIndex}
+            section={section}
+            index={sectionIndex}
+            onItemTouchTap={onItemTouchTap}
+          />
+        )}
       </List>
     )
   }

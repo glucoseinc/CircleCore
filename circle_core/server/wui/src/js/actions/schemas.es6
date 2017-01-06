@@ -1,28 +1,23 @@
-import actionTypes from '../constants/ActionTypes'
+import {createCcActions, nullPayloadCreator} from './utils'
 
 
-/**
- * [deleteTouchTap description]
- * @param {[type]} schema [description]
- * @return {[type]} [description]
- */
-export function deleteTouchTap(schema) {
-  return {type: actionTypes.schema.deleteAsked, schema: schema}
+const payloadCreators = {
+  createRequest: (schema) => schema.toJS(),
+  createSucceeded: (response) => response,
+  createFailed: (message) => message,
+
+  fetchRequest: nullPayloadCreator,
+  fetchSucceeded: (schemas) => schemas.map((schema) => schema.toJS()),
+  fetchFailed: (message) => message,
+
+  deleteAsk: (schema) => schema.toJS(),
+  deleteCancel: nullPayloadCreator,
+  deleteRequest: (schema) => schema.toJS(),
+  deleteSucceeded: (response) => response,
+  deleteFailed: (message) => message,
 }
 
-/**
- * [deleteExecuteTouchTap description]
- * @param {[type]} schema [description]
- * @return {[type]} [description]
- */
-export function deleteExecuteTouchTap(schema) {
-  return {type: actionTypes.schema.deleteRequested, schema: schema}
-}
+const ccActions = createCcActions('schemas', payloadCreators)
 
-/**
- * [deleteCancelTouchTap description]
- * @return {[type]} [description]
- */
-export function deleteCancelTouchTap() {
-  return {type: actionTypes.schema.deleteCanceled}
-}
+export default ccActions.actions
+export const actionTypes = ccActions.actionTypes

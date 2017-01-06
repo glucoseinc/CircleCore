@@ -1,98 +1,81 @@
-import actionTypes from '../constants/ActionTypes'
+import {handleActions} from 'redux-actions'
+
+import actionTypes from '../actions/actionTypes'
+
 
 const initialState = {
+  isSchemasCreating: false,
   isSchemasFetching: false,
-  isSchemaPropertyFetching: false,
-  isSchemaCreating: false,
-  isSchemaDeleteAsking: false,
+  isSchemasDeleteAsking: false,
 
+  isSchemaPropertyTypesFetching: false,
+
+  isModulesCreating: false,
   isModulesFetching: false,
-  isModuleCreating: false,
-  isModuleUpdating: false,
-  isModuleDeleteAsking: false,
+  isModulesUpdating: false,
+  isModulesDeleteAsking: false,
 }
 
-/**
- * [asyncs description]
- * @param  {[type]} [state=initialState] [description]
- * @param  {[type]} action               [description]
- * @return {[type]}                      [description]
- */
-export default function asyncs(state = initialState, action) {
-  switch (action.type) {
-  case actionTypes.schemas.fetchRequested:
-    return {
-      ...state,
-      isSchemasFetching: true,
-    }
-  case actionTypes.schemas.fetchSucceeded:
-  case actionTypes.schemas.fetchFailed:
-    return {
-      ...state,
-      isSchemasFetching: false,
-    }
+const setSchemasCreating = (newState) => (state, action) => ({
+  ...state,
+  isSchemasCreating: newState,
+})
 
-  case actionTypes.schema.createRequested:
-    return {
-      ...state,
-      isSchemaCreating: true,
-    }
-  case actionTypes.schema.createSucceeded:
-  case actionTypes.schema.createFailed:
-    return {
-      ...state,
-      isSchemaCreating: false,
-    }
+const setSchemasFetching = (newState) => (state, action) => ({
+  ...state,
+  isSchemasFetching: newState,
+})
 
-  case actionTypes.schema.deleteAsked:
-    return {
-      ...state,
-      isSchemaDeleteAsking: true,
-    }
-  case actionTypes.schema.deleteRequested:
-  case actionTypes.schema.deleteCanceled:
-    return {
-      ...state,
-      isSchemaDeleteAsking: false,
-    }
+const setSchemasDeleteAsking = (newState) => (state, action) => ({
+  ...state,
+  isSchemasDeleteAsking: newState,
+})
 
-  case actionTypes.schema.propertyTypes.fetchRequested:
-    return {
-      ...state,
-      isSchemaPropertyFetching: true,
-    }
-  case actionTypes.schema.propertyTypes.fetchSucceeded:
-  case actionTypes.schema.propertyTypes.fetchFailed:
-    return {
-      ...state,
-      isSchemaPropertyFetching: false,
-    }
+const setSchemaPropertyTypesFetching = (newState) => (state, action) => ({
+  ...state,
+  isSchemaPropertyTypesFetching: newState,
+})
 
-  case actionTypes.modules.fetchRequested:
-    return {
-      ...state,
-      isModulesFetching: true,
-    }
-  case actionTypes.modules.fetchSucceeded:
-  case actionTypes.modules.fetchFailed:
-    return {
-      ...state,
-      isModulesFetching: false,
-    }
+const setModulesFetching = (newState) => (state, action) => ({
+  ...state,
+  isModulesFetching: newState,
+})
 
-  case actionTypes.module.deleteAsked:
-    return {
-      ...state,
-      isModuleDeleteAsking: true,
-    }
-  case actionTypes.module.deleteRequested:
-  case actionTypes.module.deleteCanceled:
-    return {
-      ...state,
-      isModuleDeleteAsking: false,
-    }
+const setModulesDeleteAsking = (newState) => (state, action) => ({
+  ...state,
+  isModulesDeleteAsking: newState,
+})
 
-  default:
-    return state
-  }
-}
+const asyncs = handleActions({
+  // Create Schemas
+  [actionTypes.schemas.createRequest]: setSchemasCreating(true),
+  [actionTypes.schemas.createSucceeded]: setSchemasCreating(false),
+  [actionTypes.schemas.createFailed]: setSchemasCreating(false),
+
+  // Fetch Schemas
+  [actionTypes.schemas.fetchRequest]: setSchemasFetching(true),
+  [actionTypes.schemas.fetchSucceeded]: setSchemasFetching(false),
+  [actionTypes.schemas.fetchFailed]: setSchemasFetching(false),
+
+  // Delete Schemas
+  [actionTypes.schemas.deleteAsk]: setSchemasDeleteAsking(true),
+  [actionTypes.schemas.deleteRequest]: setSchemasDeleteAsking(false),
+  [actionTypes.schemas.deleteCancel]: setSchemasDeleteAsking(false),
+
+  // Fetch Schema property types
+  [actionTypes.schemaPropertyTypes.fetchRequest]: setSchemaPropertyTypesFetching(true),
+  [actionTypes.schemaPropertyTypes.fetchSucceeded]: setSchemaPropertyTypesFetching(false),
+  [actionTypes.schemaPropertyTypes.fetchFailed]: setSchemaPropertyTypesFetching(false),
+
+  // Fetch Modules
+  [actionTypes.modules.fetchRequest]: setModulesFetching(true),
+  [actionTypes.modules.fetchSucceeded]: setModulesFetching(false),
+  [actionTypes.modules.fetchFailed]: setModulesFetching(false),
+
+  // Delete Modules
+  [actionTypes.modules.deleteAsk]: setModulesDeleteAsking(true),
+  [actionTypes.modules.deleteRequest]: setModulesDeleteAsking(false),
+  [actionTypes.modules.deleteCancel]: setModulesDeleteAsking(false),
+}, initialState)
+
+export default asyncs

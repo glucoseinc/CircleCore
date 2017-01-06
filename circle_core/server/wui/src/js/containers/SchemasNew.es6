@@ -8,16 +8,18 @@ import SelectField from 'material-ui/SelectField'
 import {Table, TableBody, TableRow, TableRowColumn} from 'material-ui/Table'
 import TextField from 'material-ui/TextField'
 
-import * as actions from '../actions/schemasNew'
+import actions from '../actions'
 import {urls} from '../routes'
 import CCLink from '../components/CCLink'
 import Fetching from '../components/Fetching'
+
 
 /**
  */
 class SchemasNew extends Component {
   static propTypes = {
-    schema: PropTypes.object,
+    isSchemaPropertyTypesFetching: PropTypes.bool.isRequired,
+    schema: PropTypes.object.isRequired,
     schemaPropertyTypes: PropTypes.array.isRequired,
     actions: PropTypes.object.isRequired,
   }
@@ -25,15 +27,27 @@ class SchemasNew extends Component {
   /**
    * @override
    */
+  componentWillMount() {
+    const {
+      actions,
+    } = this.props
+    actions.schema.createInit()
+    actions.schemaPropertyTypes.fetchRequest()
+  }
+
+
+  /**
+   * @override
+   */
   render() {
     const {
-      isFetching,
+      isSchemaPropertyTypesFetching,
       schema,
       schemaPropertyTypes,
       actions,
     } = this.props
 
-    if (isFetching) {
+    if (isSchemaPropertyTypesFetching) {
       return (
         <Fetching />
       )
@@ -51,7 +65,7 @@ class SchemasNew extends Component {
                   hintText="Option"
                   fullWidth={true}
                   value={schema.displayName}
-                  onChange={(e) => actions.updateSchema(
+                  onChange={(e) => actions.schema.update(
                     schema.update('displayName', e.target.value)
                   )}
                 />
@@ -62,57 +76,53 @@ class SchemasNew extends Component {
               <TableRowColumn>
                 <Table selectable={false}>
                   <TableBody displayRowCheckbox={false}>
-                    {schema.properties.map((property, index) => {
-                      return (
-                        <TableRow key={index}>
-                          <TableRowColumn>
-                            <TextField
-                              name="proparty-name"
-                              floatingLabelText="name"
-                              value={property.name}
-                              onChange={(e) => actions.updateSchema(
-                                schema.updateSchemaProperty(index, 'name', e.target.value)
-                              )}
-                            />
-                          </TableRowColumn>
-                          <TableRowColumn>
-                            <SelectField
-                              floatingLabelText="type"
-                              value={property.type}
-                              onChange={(e, i, v) => actions.updateSchema(
-                                schema.updateSchemaProperty(index, 'type', v)
-                              )}
-                            >
-                              {schemaPropertyTypes.map((schemaPropertyType) => {
-                                return (
-                                  <MenuItem
-                                    key={schemaPropertyType.name}
-                                    value={schemaPropertyType.name}
-                                    primaryText={schemaPropertyType.name}
-                                  />
-                                )
-                              })}
-                            </SelectField>
-                          </TableRowColumn>
-                          <TableRowColumn>
-                            <RaisedButton
-                              label="Remove"
-                              secondary={true}
-                              disabled={schema.properties.size === 1 ? true : false}
-                              onTouchTap={() => actions.updateSchema(
-                                schema.removeSchemaProperty(index)
-                              )}
-                            />
-                          </TableRowColumn>
-                        </TableRow>
-                      )
-                    })}
+                    {schema.properties.map((property, index) =>
+                      <TableRow key={index}>
+                        <TableRowColumn>
+                          <TextField
+                            name="proparty-name"
+                            floatingLabelText="name"
+                            value={property.name}
+                            onChange={(e) => actions.schema.update(
+                              schema.updateSchemaProperty(index, 'name', e.target.value)
+                            )}
+                          />
+                        </TableRowColumn>
+                        <TableRowColumn>
+                          <SelectField
+                            floatingLabelText="type"
+                            value={property.type}
+                            onChange={(e, i, v) => actions.schema.update(
+                              schema.updateSchemaProperty(index, 'type', v)
+                            )}
+                          >
+                            {schemaPropertyTypes.map((schemaPropertyType) =>
+                              <MenuItem
+                                key={schemaPropertyType.name}
+                                value={schemaPropertyType.name}
+                                primaryText={schemaPropertyType.name}
+                              />
+                            )}
+                          </SelectField>
+                        </TableRowColumn>
+                        <TableRowColumn>
+                          <RaisedButton
+                            label="Remove"
+                            secondary={true}
+                            disabled={schema.properties.size === 1 ? true : false}
+                            onTouchTap={() => actions.schema.update(
+                              schema.removeSchemaProperty(index)
+                            )}
+                          />
+                        </TableRowColumn>
+                      </TableRow>
+                    )}
                     <TableRow>
                       <TableRowColumn colSpan="3">
                         <RaisedButton
                           label="Add New Property"
                           primary={true}
-                          onTouchTap={() => actions.updateSchema(
+                          onTouchTap={() => actions.schema.update(
                             schema.pushSchemaProperty()
                           )}
                         />
@@ -133,8 +143,9 @@ class SchemasNew extends Component {
                   multiLine={true}
                   rows={4}
                   rowsMax={4}
-                  onChange={(e) => actions.updateSchema(
-                    schema.updateSchemaMeta('memo', e.target.value)
+                  value={schema.memo}
+                  onChange={(e) => actions.schema.update(
+                    schema.update('memo', e.target.value)
                   )}
                 />
               </TableRowColumn>
@@ -153,7 +164,7 @@ class SchemasNew extends Component {
           label="Create"
           primary={true}
           disabled={schema.isReadytoCreate() ? false : true}
-          onTouchTap={() => actions.createTouchTap(schema)}
+          onTouchTap={() => actions.schemas.createRequest(schema)}
         />
       </div>
     )
@@ -167,8 +178,8 @@ class SchemasNew extends Component {
  */
 function mapStateToProps(state) {
   return {
-    isFetching: state.asyncs.isSchemaPropertyFetching,
-    schema: state.miscs.schema,
+    isSchemaPropertyTypesFetching: state.asyncs.isSchemaPropertyTypesFetching,
+    schema: state.misc.schema,
     schemaPropertyTypes: state.entities.schemaPropertyTypes,
   }
 }
@@ -180,7 +191,11 @@ function mapStateToProps(state) {
  */
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(actions, dispatch),
+    actions: {
+      schemas: bindActionCreators(actions.schemas, dispatch),
+      schema: bindActionCreators(actions.schema, dispatch),
+      schemaPropertyTypes: bindActionCreators(actions.schemaPropertyTypes, dispatch),
+    },
   }
 }
 

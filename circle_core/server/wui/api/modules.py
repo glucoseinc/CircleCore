@@ -8,7 +8,7 @@ from six import PY3
 
 # project module
 from circle_core.cli.utils import generate_uuid
-from circle_core.models import Module
+from circle_core.models import MessageBox, Module
 from .api import api
 from ..utils import api_jsonify, convert_dict_key_camel_case, convert_dict_key_snake_case, get_metadata
 
@@ -36,16 +36,29 @@ def _get_modules():
 
 
 def _post_modules():
+    metadata = get_metadata()
     dic = convert_dict_key_snake_case(request.json)
     response = {}  # TODO: response形式の統一
-    # TODO: message_boxの処理
-    message_box_uuids = ''
+
     try:
+        message_boxes = []
+        message_box_dics = dic['message_boxes']
+        for message_box_dic in message_box_dics:
+            display_name = message_box_dic['display_name']
+            if len(display_name) == 0:
+                display_name = None
+            schema_dic = message_box_dic['schema']
+            schema_uuid = schema_dic['uuid']
+            description = message_box_dic['description']
+            message_box_uuid = generate_uuid(existing=[_message_box.uuid for _message_box in metadata.message_boxes])
+            message_box = MessageBox(message_box_uuid, schema_uuid, display_name, description)
+            message_boxes.append(message_box)
+
         display_name = dic['display_name']
         if len(display_name) == 0:
             display_name = None
-        tags = dic['metadata']['tags']
-        description = dic['metadata']['description']
+        tags = ','.join(dic['tags'])
+        description = dic['description']
         if len(description) == 0:
             description = None
     except KeyError:
@@ -55,7 +68,7 @@ def _post_modules():
         }
         return api_jsonify(**response)
 
-    metadata = get_metadata()
+    message_box_uuids = ','.join([str(_message_box.uuid) for _message_box in message_boxes])
     module_uuid = generate_uuid(existing=[module.uuid for module in metadata.modules])
     module = Module(
         module_uuid,
@@ -63,6 +76,9 @@ def _post_modules():
         display_name,
         tags,
         description)
+
+    for message_box in message_boxes:
+        metadata.register_message_box(message_box)
     metadata.register_module(module)
     response['result'] = 'success'
     response['detail'] = {
@@ -135,19 +151,26 @@ def _dictify(module):
     dic = {
         'uuid': str(module.uuid),
         'display_name': module.display_name,
-        'metadata': {
-            'tags': module.tags,
-            'description': module.description
-        }
+        'tags': module.tags,
+        'description': module.description,
     }
     message_boxes = [message_box for message_box in metadata.message_boxes
                      if message_box.uuid in module.message_box_uuids]
-    dic['message_boxes'] = [{
-        'uuid': str(message_box.uuid),
-        'display_name': message_box.display_name,
-        'description': message_box.description,
-        'schema': {
-            'uuid': str(message_box.schema_uuid)  # TODO: Schemaの他情報も構築する？
+    dictified_message_boxes = []
+    for message_box in message_boxes:
+        schema = metadata.find_schema(message_box.schema_uuid)
+        dictified_schema = {
+            'uuid': str(schema.uuid),
+            'display_name': schema.display_name,
+            'properties': schema.dictified_properties,
+            'memo': schema.memo,
+        } if schema is not None else None
+        dictified_message_box = {
+            'uuid': str(message_box.uuid),
+            'display_name': message_box.display_name,
+            'description': message_box.description,
+            'schema': dictified_schema,
         }
-    } for message_box in message_boxes]
+        dictified_message_boxes.append(dictified_message_box)
+    dic['message_boxes'] = dictified_message_boxes
     return dic

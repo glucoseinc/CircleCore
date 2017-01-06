@@ -1,88 +1,31 @@
 import {fork, put, select, takeEvery} from 'redux-saga/effects'
-import {matchPattern} from 'react-router/lib/PatternUtils'
-import {routerActions} from 'react-router-redux'
+import {routerActions, LOCATION_CHANGE} from 'react-router-redux'
 
-import actionTypes from '../constants/ActionTypes'
+import actionTypes from '../actions/actionTypes'
+import actions from '../actions'
 import {urls} from '../routes'
-import * as selector from '../selectors'
+import * as selectors from '../selectors'
 
-const pathnames = (() => {
-  let _pathnames = {}
-  Object.entries(urls).forEach(([key, url]) => {
-    _pathnames[key] = url.fullPath
-  })
-  return _pathnames
-})()
 
-/**
- * [matched description]
- * @param  {[type]} pattern  [description]
- * @param  {[type]} pathname [description]
- * @return {[type]}          [description]
- */
-function matched(pattern, pathname) {
-  if (Object.values(pathnames).filter((_pathname) => _pathname === pathname).length !== 0) {
-    return false
-  }
-  return matchPattern(pattern, pathname) !== null
-}
+const pathnames = Object.entries(urls).reduce((_pathnames, [key, url]) => ({
+  ..._pathnames,
+  [key]: url.fullPath,
+}), {})
 
-/**
- * [onLocationChange description]
- * @param  {[type]}    action [description]
- */
-function* onLocationChange(action) {
-  const pathname = action.payload.pathname
-  switch (pathname) {
-  case pathnames.schemas:
-    yield put({type: actionTypes.schemas.fetchRequested})
-    break
-  case pathnames.schemasNew:
-    yield put({type: actionTypes.schema.createInit})
-    yield put({type: actionTypes.schema.propertyTypes.fetchRequested})
-    break
-  case pathnames.modules:
-    yield put({type: actionTypes.modules.fetchRequested})
-    break
-  default: {
-    if (matched(pathnames.schema, pathname)) {
-      yield put({type: actionTypes.schemas.fetchRequested})
-    }
-    if (matched(pathnames.module, pathname)) {
-      yield put({type: actionTypes.modules.fetchRequested})
-    }
-    yield
-  }
-  }
-}
-
-/**
- * [handleLocationChangeExecuted description]
- */
-function* handleLocationChangeExecuted() {
-  yield takeEvery(actionTypes.location.change, onLocationChange)
-}
 
 /**
  * [locationChangeJudge description]
  * @param  {[type]}    action [description]
  */
 function* locationChangeJudge(action) {
-  const currentPathname = yield select(selector.pathname)
-  if (currentPathname !== action.pathname) {
-    yield put(routerActions.push(action.pathname))
+  const requestedPathname = action.payload
+  const currentPathname = yield select(selectors.pathname)
+  if (currentPathname !== requestedPathname) {
+    yield put(routerActions.push(requestedPathname))
   } else {
-    yield put({type: actionTypes.location.changeCanceled})
+    yield put(actions.location.changeCancel())
   }
 }
-
-/**
- * [handleLocationChangeRequet description]
- */
-function* handleLocationChangeRequet() {
-  yield takeEvery(actionTypes.location.changeRequested, locationChangeJudge)
-}
-
 
 /**
  * [locationChangetoSchemas description]
@@ -93,18 +36,6 @@ function* locationChangetoSchemas(action) {
 }
 
 /**
- * [handleLocationChangetoSchemas description]
- */
-function* handleLocationChangetoSchemas() {
-  const triggerActionTypes = [
-    actionTypes.schema.createSucceeded,
-    actionTypes.schema.deleteSucceeded,
-  ]
-  yield takeEvery(triggerActionTypes, locationChangetoSchemas)
-}
-
-
-/**
  * [locationChangetoModules description]
  * @param  {[type]}    action [description]
  */
@@ -112,25 +43,42 @@ function* locationChangetoModules(action) {
   yield put(routerActions.push(pathnames.modules))
 }
 
+
+/**
+ * [handleLocationChangeRequest description]
+ */
+function* handleLocationChangeRequest() {
+  yield takeEvery(actionTypes.location.changeRequest, locationChangeJudge)
+}
+
+/**
+ * [handleLocationChangetoSchemas description]
+ */
+function* handleLocationChangetoSchemas() {
+  const triggerActionTypes = [
+    actionTypes.schemas.createSucceeded,
+    actionTypes.schemas.deleteSucceeded,
+  ]
+  yield takeEvery(triggerActionTypes, locationChangetoSchemas)
+}
+
 /**
  * [handleLocationChangetoModules description]
  */
 function* handleLocationChangetoModules() {
   const triggerActionTypes = [
-    actionTypes.module.createSucceeded,
-    actionTypes.module.deleteSucceeded,
+    actionTypes.modules.createSucceeded,
+    actionTypes.modules.deleteSucceeded,
   ]
   yield takeEvery(triggerActionTypes, locationChangetoModules)
 }
-
 
 /**
  * [locationSaga description]
  * @param  {[type]}    args [description]
  */
 export default function* locationSaga(...args) {
-  yield fork(handleLocationChangeExecuted, ...args)
-  yield fork(handleLocationChangeRequet, ...args)
+  yield fork(handleLocationChangeRequest, ...args)
   yield fork(handleLocationChangetoSchemas, ...args)
   yield fork(handleLocationChangetoModules, ...args)
 }

@@ -54,7 +54,8 @@ class Module(object):
         self.uuid = uuid
         self.message_box_uuids = _message_box_uuids
         self.display_name = display_name
-        self.tags = tags.split(',') if tags is not None else []
+        _tags = tags.split(',') if tags is not None else []
+        self.tags = [tag for tag in _tags if tag != '']
         self.description = description
 
     @property

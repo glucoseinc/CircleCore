@@ -8,7 +8,7 @@ import RaisedButton from 'material-ui/RaisedButton'
 import Subheader from 'material-ui/Subheader'
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
 
-import * as actions from '../actions/module'
+import actions from '../actions'
 import Fetching from '../components/Fetching'
 import ModuleInfo from '../components/ModuleInfo'
 
@@ -22,6 +22,16 @@ class Module extends Component {
     modules: PropTypes.array.isRequired,
     params: PropTypes.object.isRequired,
     actions: PropTypes.object.isRequired,
+  }
+
+  /**
+   * @override
+   */
+  componentWillMount() {
+    const {
+      actions,
+    } = this.props
+    actions.modules.fetchRequest()
   }
 
   /**
@@ -41,7 +51,7 @@ class Module extends Component {
       )
     }
 
-    const module = modules.filter((_module) => _module.uuid === params.moduleId)[0]
+    const module = modules.find((_module) => _module.uuid === params.moduleId)
 
     if (module === undefined) {
       return (
@@ -94,21 +104,19 @@ class Module extends Component {
                           </TableHeader>
 
                           <TableBody displayRowCheckbox={false}>
-                            {messageBox.schema.properties.map((property, index) => {
-                              return (
-                                <TableRow key={index}>
-                                  <TableRowColumn>{property.name}</TableRowColumn>
-                                  <TableRowColumn>{property.type}</TableRowColumn>
-                                </TableRow>
-                              )
-                            })}
+                            {messageBox.schema.properties.map((property, index) =>
+                              <TableRow key={index}>
+                                <TableRowColumn>{property.name}</TableRowColumn>
+                                <TableRowColumn>{property.type}</TableRowColumn>
+                              </TableRow>
+                            )}
                           </TableBody>
                         </Table>
                       </div>
                       <div>
                         <Subheader>Memo</Subheader>
                         <div style={{paddingLeft: 16}}>
-                          {messageBox.schema.metadata.memo}
+                          {messageBox.schema.memo}
                         </div>
                       </div>
                     </CardMedia>
@@ -133,7 +141,7 @@ class Module extends Component {
         <RaisedButton
           label="Delete this module"
           secondary={true}
-          onTouchTap={actions.deleteTouchTap}
+          onTouchTap={() => actions.modules.deleteAsk(module)}
         />
       </div>
     )
@@ -149,7 +157,7 @@ class Module extends Component {
 function mapStateToProps(state) {
   return {
     isFetching: state.asyncs.isModulesFetching,
-    isDeleteAsking: state.asyncs.isModuleDeleteAsking,
+    isDeleteAsking: state.asyncs.isModulesDeleteAsking,
     modules: state.entities.modules,
   }
 }
@@ -161,7 +169,9 @@ function mapStateToProps(state) {
  */
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(actions, dispatch),
+    actions: {
+      modules: bindActionCreators(actions.modules, dispatch),
+    },
   }
 }
 
