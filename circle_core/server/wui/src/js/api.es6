@@ -6,6 +6,21 @@ import Module from './models/Module'
 
 
 /**
+ * superagentのリクエストをリセットする
+ * @param {object} req リクエスト
+ * @return {object} リセットされたRequest
+ */
+function resetRequest(req) {
+  // superagentをhackしているのでversionによっては動かなくなると思う
+  delete req._callback
+  delete req.xhr
+  delete req._fullfilledPromise
+  delete req._endCalled
+  return req
+}
+
+
+/**
  * API呼び出し用の便利クラス
  */
 class APICaller {
@@ -29,12 +44,12 @@ class APICaller {
    * @return {Object} 戻り値
    */
   _get(path, query) {
-    return request
+    return this._wrapRequestWithAuthorization(request
       .get(path)
       .use(this.prefixer)
       .set('Accept', 'application/json')
-      // .withCredentials()
       .query(query || {})
+    )
   }
 
   /**
@@ -44,12 +59,12 @@ class APICaller {
    * @return {Object} 戻り値
    */
   _post(path, params) {
-    return request
+    return this._wrapRequestWithAuthorization(request
       .post(path)
       .use(this.prefixer)
       .set('Accept', 'application/json')
-      // .withCredentials()
       .send(params || {})
+    )
   }
 
   /**
@@ -59,12 +74,89 @@ class APICaller {
    * @return {Object} 戻り値
    */
   _delete(path, query) {
+    return this._wrapRequestWithAuthorization(request
+      .del(path)
+      .use(this.prefixer)
+      .set('Accept', 'application/json')
+      .query(query || {})
+    )
+  }
+
+  /**
+   * リクエストを認証付きで発行する。TokenRefreshが必要であればやり直す
+   * @param {req} req req
+   * @return {Promise} リクエストの返り値を渡すPromise
+   */
+  async _wrapRequestWithAuthorization(req) {
+    require('assert')(this.token.accessToken)
+
+    req = req.set('Authorization', `Bearer ${this.token.accessToken}`)
+
+    try {
+      return await req
+    } catch(err) {
+      if(err.status == 403) {
+        // refresh token, and retry
+        await this._extendToken()
+
+        // retry
+        req = resetRequest(req).set('Authorization', `Bearer ${this.token.accessToken}`)
+        return await req
+      }
+      throw err
+    }
+  }
+
+  /**
+   * tokenを更新する
+   * ref 18.2.4
+   * @return {Promise} リクエストのPromise
+   */
+  _extendToken() {
+    if(this._extendTokenRequest) {
+      // extend中
+      console.log('extending... suspend request')
+      return this._extendTokenRequest
+    }
+
+    // create new request
+    this._extendTokenRequest = new Promise((resolve, reject) => {
+      this._requestRefresh()
+        .then((res) => {
+          // succeeded
+          console.log('refresh token', res.body)
+
+          this.token.update(res.body.access_token, res.body.refresh_token)
+          this.token.save()
+
+          delete this._extendTokenRequest
+          resolve()
+        }, (err) => {
+          // rejected
+          console.log('extend failed!')
+          reject(err)
+        })
+    })
+    return this._extendTokenRequest
+  }
+
+  /**
+   * Tokenを更新する
+   * @return {Promise} 更新完了したら呼ばれるRefresh
+   */
+  _requestRefresh() {
+    /* eslint-disable camelcase */
     return request
-    .del(path)
-    .use(this.prefixer)
-    .set('Accept', 'application/json')
-    // .withCredentials()
-    .query(query || {})
+      .post('/oauth/token')
+      .type('form')
+      .set('Accept', 'application/json')
+      .send({
+        grant_type: 'refresh_token',
+        client_id: this.token.clientID,
+        // client_secret: this.token.clientSecret,
+        refresh_token: this.token.refreshToken,
+      })
+    /* eslint-enable camelcase */
   }
 }
 

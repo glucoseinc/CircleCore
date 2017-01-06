@@ -98,6 +98,8 @@ class OAuthToken(object):
     '''
 
     def __init__(self, access_token, refresh_token, client_id, scopes, expires, user):
+        if isinstance(scopes, str):
+            scopes = scopes.split(' ')
         self.access_token = access_token
         self.refresh_token = refresh_token
         self.client_id = client_id
@@ -134,7 +136,7 @@ class OAuthToken(object):
             d['refresh_token'],
             d['client_id'],
             d['scopes'],
-            datetime.datetime.strptime(d['expires'], '%Y-%m-%dT%H:%M:%S.%fZ'),
+            datetime.datetime.strptime(d['expires'], '%Y-%m-%dT%H:%M:%S.%f'),
             d['user'],
         )
 

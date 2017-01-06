@@ -32,11 +32,13 @@ def dumps(obj, **kwargs):
 def api_jsonify(*args, **kwargs):
     """flask.json.jsonify"""
     indent = None
+    _status = kwargs.pop('_status', None)
     if current_app.config['JSONIFY_PRETTYPRINT_REGULAR'] \
        and not request.is_xhr:
         indent = 2
     return current_app.response_class(
         dumps(dict(*args, **kwargs), indent=indent),
+        status=_status,
         mimetype='application/json; charset=utf-8')
 
 

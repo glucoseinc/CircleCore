@@ -22,7 +22,7 @@ webui_client = OAuthClient(
     ['http://localhost:5000'],
     'http://localhost:5000',
     ['user', 'schema+rw'],
-    ['password', 'authorization_code'],
+    ['password', 'authorization_code', 'refresh_token'],
     ['code']
 )
 

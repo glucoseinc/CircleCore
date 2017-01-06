@@ -2,6 +2,7 @@ import CCAPI from './api'
 
 const TOKEN_KEY = 'crcr:session'
 const CLIENT_ID = '8F9A5449-F219-4BC4-9EA6-5F4C3100CD25'
+const CLIENT_SECRET = '3f82ad86ff167cebc39bf735533efe080b596f4ce343e4f51fd6c760a9835ccb6ff76df5d2e72489b30d07ce81a273a6ea4128f98412f4b6027245c76cd0a098'
 
 
 /**
@@ -13,9 +14,11 @@ class OAuthToken {
    * @param {string} accessToken accessToken
    * @param {string} refreshToken refreshToken
    */
-  constructor(storage, storageKey, accessToken, refreshToken) {
+  constructor(storage, storageKey, clientID, clientSecret, accessToken, refreshToken) {
     this._storage = storage
     this._storageKey = storageKey
+    this.clientID = clientID,
+    this.clientSecret = clientSecret
     this.accessToken = accessToken
     this.refreshToken = refreshToken
   }
@@ -57,7 +60,7 @@ class OAuthToken {
   }
 }
 
-var oauthToken = new OAuthToken(localStorage, TOKEN_KEY)
+var oauthToken = new OAuthToken(localStorage, TOKEN_KEY, CLIENT_ID, CLIENT_SECRET)
 
 
 /**
@@ -73,6 +76,16 @@ export async function checkAuthorization() {
 
   if(oauthToken.load()) {
     // tokenがある -> 死活チェック(...はしない、API使った時の認証エラーでなんとかすればええねん)
+    // let resp
+
+    // resp = await CCAPI._get('/oauth/scope_test/user')
+    // console.log(resp)
+    // resp = await CCAPI._get('/oauth/scope_test/schema+r')
+    // console.log(resp)
+    // resp = await CCAPI._get('/oauth/scope_test/schema+rw')
+    // console.log(resp)
+    // resp = await CCAPI._get('/oauth/scope_test/bad-scope')
+    // console.log(resp)
     return true
   } else {
     // tokenがない ->
