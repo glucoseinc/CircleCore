@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+from contextlib import redirect_stdout
 import json
+from os import devnull
 from uuid import UUID
 
 import pytest
@@ -64,6 +66,10 @@ class TestReplicationMaster(AsyncHTTPTestCase):
     @pytest.mark.timeout(2)
     @gen_test
     def test_migrate(self):
+        """レプリケーション親が自身に登録されているModule/MessageBox/Schemaをすべて返すか
+
+        TODO: レプリケーション親がまた別のCircleCoreのレプリケーション子になっていた場合、それらの情報は除く
+        """
         yield self.dummy_crcr.write_message('{"command": "MIGRATE"}')
         resp = yield self.dummy_crcr.read_message()
         resp = json.loads(resp)
@@ -87,6 +93,7 @@ class TestReplicationMaster(AsyncHTTPTestCase):
     @pytest.mark.timeout(2)
     @gen_test
     def test_receive(self):
+        """新着メッセージがレプリケーション子にたらい回せているか"""
         yield self.dummy_crcr.write_message('{"command": "RECEIVE", "payload": {}}')
         yield sleep(1)
         yield self.dummy_module.write_message('{"hoge": 123}')
@@ -98,4 +105,20 @@ class TestReplicationMaster(AsyncHTTPTestCase):
             'hoge': 123
         }
 
-    # TODO: countの加算/リセットテスト
+    @pytest.mark.timeout(120)  # 遅い...
+    @gen_test
+    def test_receive_count(self):
+        # setUpとtearDownはメソッド毎に実行されてる？
+        yield self.dummy_crcr.write_message('{"command": "RECEIVE", "payload": {}}')
+        yield sleep(1)
+
+        # カウントの増加
+        for i in range(1, 32768):
+            yield self.dummy_module.write_message('{"hoge": 678}')
+            resp = yield self.dummy_crcr.read_message()
+            assert json.loads(resp)['count'] == i
+
+        # カウントのリセット
+        yield self.dummy_module.write_message('{"hoge": 45}')
+        resp = yield self.dummy_crcr.read_message()
+        assert json.loads(resp)['count'] == 0
