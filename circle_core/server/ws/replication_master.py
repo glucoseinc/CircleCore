@@ -47,9 +47,6 @@ class ReplicationMaster(WebSocketHandler):
         """センサーとの接続が切れた際に呼ばれる."""
         logger.debug('connection closed: %s', self)
 
-        if hasattr(self, 'watching_fd'):
-            IOLoop.current().remove_handler(self.watching_fd)
-
     def check_origin(self, origin):
         """CORSチェック."""
         # wsta等テストツールから投げる場合はTrueにしておく
@@ -89,4 +86,3 @@ class ReplicationMaster(WebSocketHandler):
         logger.debug('Replication Master %s', SensorDataTopic().topic)
         receiver = Receiver(SensorDataTopic())
         receiver.register_ioloop(pass_message)
-        self.watching_fd = receiver.fileno()
