@@ -31,6 +31,7 @@ const actionTypes = {
   },
 
   modules: {
+    filterByTag: 'FILTER_BY_TAG',
     fetchRequested: 'MODULES_FETCH_REQUESTED',
     fetchSucceeded: 'MODULES_FETCH_SUCCEEDED',
     fetchFailed: 'MODULES_FETCH_FAILED',
@@ -53,6 +54,10 @@ const actionTypes = {
     changeRequested: 'LOCATION_CHANGE_REQUESTED',
     changeCanceled: 'LOCATION_CHANGE_CANCELED',
     change: LOCATION_CHANGE,
+  },
+
+  miscs: {
+    searchTextChange: 'MISCS_SEARCH_TEXT_CHANGE',
   },
 }
 

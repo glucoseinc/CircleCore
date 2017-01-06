@@ -8,6 +8,7 @@ const initialState = {
   navDrawerOpen: false,
   schema: new Schema(),
   module: new Module(),
+  searchText: '',
 }
 
 /**
@@ -52,6 +53,30 @@ export default function miscs(state = initialState, action) {
     return {
       ...state,
       schema: new Schema(),
+    }
+
+  case actionTypes.modules.filterByTag:
+    return {
+      ...state,
+      searchText: action.payload,
+    }
+
+  case actionTypes.module.deleteAsked:
+    return {
+      ...state,
+      module: action.payload,
+    }
+  case actionTypes.module.deleteRequested:
+  case actionTypes.module.deleteCanceled:
+    return {
+      ...state,
+      module: new Module(),
+    }
+
+  case actionTypes.miscs.searchTextChange:
+    return {
+      ...state,
+      searchText: action.payload,
     }
 
   default:

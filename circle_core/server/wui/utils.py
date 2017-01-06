@@ -52,7 +52,7 @@ def get_metadata():
     return metadata
 
 
-def camel_case(obj):
+def convert_dict_key_camel_case(obj):
     """辞書のkeyをsnake caseからcamel caseに変換する.
 
     :param Union[Dict[str, Any], List, Any] obj: 辞書/リスト/その他
@@ -69,15 +69,15 @@ def camel_case(obj):
         return ''.join(words)
 
     if isinstance(obj, dict):
-        return {to_camel(key): camel_case(val) for key, val in obj.items()}
+        return {to_camel(key): convert_dict_key_camel_case(val) for key, val in obj.items()}
 
     if isinstance(obj, list):
-        return [camel_case(item) for item in obj]
+        return [convert_dict_key_camel_case(item) for item in obj]
 
     return obj
 
 
-def snake_case(obj):
+def convert_dict_key_snake_case(obj):
     """辞書のkeyをcamel caseからsnake caseに変換する.
 
     :param Union[Dict[str, Any], List, Any] obj: 辞書/リスト/その他
@@ -96,9 +96,9 @@ def snake_case(obj):
         return ret
 
     if isinstance(obj, dict):
-        return {to_snake(key): snake_case(val) for key, val in obj.items()}
+        return {to_snake(key): convert_dict_key_snake_case(val) for key, val in obj.items()}
 
     if isinstance(obj, list):
-        return [snake_case(item) for item in obj]
+        return [convert_dict_key_snake_case(item) for item in obj]
 
     return obj

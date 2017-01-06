@@ -105,6 +105,26 @@ function* handleLocationChangetoSchemas() {
 
 
 /**
+ * [locationChangetoModules description]
+ * @param  {[type]}    action [description]
+ */
+function* locationChangetoModules(action) {
+  yield put(routerActions.push(pathnames.modules))
+}
+
+/**
+ * [handleLocationChangetoModules description]
+ */
+function* handleLocationChangetoModules() {
+  const triggerActionTypes = [
+    actionTypes.module.createSucceeded,
+    actionTypes.module.deleteSucceeded,
+  ]
+  yield takeEvery(triggerActionTypes, locationChangetoModules)
+}
+
+
+/**
  * [locationSaga description]
  * @param  {[type]}    args [description]
  */
@@ -112,4 +132,5 @@ export default function* locationSaga(...args) {
   yield fork(handleLocationChangeExecuted, ...args)
   yield fork(handleLocationChangeRequet, ...args)
   yield fork(handleLocationChangetoSchemas, ...args)
+  yield fork(handleLocationChangetoModules, ...args)
 }

@@ -1,7 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 
 import Chip from 'material-ui/Chip'
-import FlatButton from 'material-ui/FlatButton'
 import RaisedButton from 'material-ui/RaisedButton'
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
 import {blueGrey600} from 'material-ui/styles/colors'
@@ -15,9 +14,8 @@ import {urls} from '../routes'
 class ModulesTable extends Component {
   static propTypes = {
     modules: PropTypes.array.isRequired,
-    onMessageBoxTouchTap: PropTypes.func,
     onTagTouchTap: PropTypes.func,
-    onDeleteTouchTap: PropTypes.func.isRequired,
+    onDeleteTouchTap: PropTypes.func,
   }
 
   static contextTypes = {
@@ -30,7 +28,6 @@ class ModulesTable extends Component {
   render() {
     const {
       modules,
-      onMessageBoxTouchTap,
       onTagTouchTap,
       onDeleteTouchTap,
     } = this.props
@@ -42,7 +39,7 @@ class ModulesTable extends Component {
       messageBoxButton: {
         maxWidth: muiTheme.button.minWidth + 32,
       },
-      tagChip: {
+      chip: {
         display: 'inline-flex',
         margin: 2,
       },
@@ -53,7 +50,9 @@ class ModulesTable extends Component {
     }
 
     return (
-      <Table>
+      <Table
+        selectable={false}
+      >
         <TableHeader
           displaySelectAll={false}
           adjustForCheckbox={false}
@@ -82,19 +81,18 @@ class ModulesTable extends Component {
               </TableRowColumn>
               <TableRowColumn>
                 {module.messageBoxes.map((messageBox) =>
-                  <FlatButton
+                  <Chip
                     key={messageBox.uuid}
-                    style={style.messageBoxButton}
-                    label={messageBox.displayName ? messageBox.displayName : messageBox.uuid}
-                    labelStyle={messageBox.displayName ? {} : style.subtext}
-                    onTouchTap={() => onMessageBoxTouchTap(messageBox)}
-                  />
+                    style={style.chip}
+                  >
+                    {messageBox.label}
+                  </Chip>
                 )}
               </TableRowColumn>
               <TableRowColumn>
                 {module.metadata.tags.map((tag) =>
                   <Chip
-                    style={style.tagChip}
+                    style={style.chip}
                     key={tag}
                     onTouchTap={() => onTagTouchTap(tag)}
                   >

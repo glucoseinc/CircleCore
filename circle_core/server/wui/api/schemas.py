@@ -10,7 +10,7 @@ from six import PY3
 from circle_core.cli.utils import generate_uuid
 from circle_core.models import Schema
 from .api import api
-from ..utils import api_jsonify, camel_case, get_metadata, snake_case
+from ..utils import api_jsonify, convert_dict_key_camel_case, convert_dict_key_snake_case, get_metadata
 
 if PY3:
     from typing import Any, Dict
@@ -32,11 +32,11 @@ def _get_schemas():
     response = {
         'schemas': [_dictify(schema) for schema in schemas],
     }
-    return api_jsonify(**camel_case(response))
+    return api_jsonify(**convert_dict_key_camel_case(response))
 
 
 def _post_schemas():
-    dic = snake_case(request.json)
+    dic = convert_dict_key_snake_case(request.json)
     response = {}  # TODO: response形式の統一
     try:
         display_name = dic['display_name']
@@ -53,7 +53,7 @@ def _post_schemas():
         response['detail'] = {
             'reason': 'key error'
         }
-        return api_jsonify(**camel_case(response))
+        return api_jsonify(**convert_dict_key_camel_case(response))
 
     metadata = get_metadata()
     schema_uuid = generate_uuid(existing=[schema.uuid for schema in metadata.schemas])
@@ -63,7 +63,7 @@ def _post_schemas():
     response['detail'] = {
         'uuid': schema_uuid
     }
-    return api_jsonify(**camel_case(response))
+    return api_jsonify(**convert_dict_key_camel_case(response))
 
 
 @api.route('/schemas/<schema_uuid>', methods=['GET', 'DELETE'])
@@ -85,7 +85,7 @@ def _get_schema(schema_uuid):
     response = {
         'schema': _dictify(schema)
     }
-    return api_jsonify(**camel_case(response))
+    return api_jsonify(**convert_dict_key_camel_case(response))
 
 
 def _delete_schema(schema_uuid):
@@ -97,7 +97,7 @@ def _delete_schema(schema_uuid):
         response['detail'] = {
             'reason': 'not found'
         }
-        return api_jsonify(**camel_case(response))
+        return api_jsonify(**convert_dict_key_camel_case(response))
 
     attached_modules = metadata.find_modules_by_schema(schema_uuid)
     if len(attached_modules) != 0:
@@ -108,14 +108,14 @@ def _delete_schema(schema_uuid):
                 verb='is' if len(attached_modules) == 1 else 'are'
             )
         }
-        return api_jsonify(**camel_case(response))
+        return api_jsonify(**convert_dict_key_camel_case(response))
 
     metadata.unregister_schema(schema)
     response['result'] = 'success'
     response['detail'] = {
         'uuid': schema_uuid
     }
-    return api_jsonify(**camel_case(response))
+    return api_jsonify(**convert_dict_key_camel_case(response))
 
 
 def _dictify(schema):
@@ -152,4 +152,4 @@ def api_get_property_types():
             {'name': 'text'},
         ],
     }
-    return api_jsonify(**camel_case(response))
+    return api_jsonify(**convert_dict_key_camel_case(response))

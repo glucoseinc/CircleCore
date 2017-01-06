@@ -112,7 +112,7 @@ class CCAPI {
 
   // modules
   /**
-   * モジュールのリストを得る
+   * Moduleのリストを得る
    * @return {Array<Module>} モジュールのリスト
    */
   async getModules() {
@@ -121,12 +121,22 @@ class CCAPI {
   }
 
   /**
-   * モジュールの詳細を得る
+   * Moduleの詳細を得る
    * @param {String} moduleId モジュールのID
    * @return {Module} モジュール
    */
   async getModule(moduleId) {
     let res = await this._get(`/modules/${moduleId}`)
+    return res.body
+  }
+
+  /**
+   * Moduleを削除する
+   * @param {String} moduleId ModuleのID
+   * @return {Object} Result
+   */
+  async deleteModule(moduleId) {
+    const res = await this._delete(`/modules/${moduleId}`)
     return res.body
   }
 }

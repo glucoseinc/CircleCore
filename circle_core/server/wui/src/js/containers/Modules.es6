@@ -2,9 +2,11 @@ import React, {Component, PropTypes} from 'react'
 import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
+import {GridList, GridTile} from 'material-ui/GridList'
 import RaisedButton from 'material-ui/RaisedButton'
+import TextField from 'material-ui/TextField'
 
-import * as actions from '../actions/modules'
+import actions from '../actions/modules'
 import {urls} from '../routes'
 import Fetching from '../components/Fetching'
 import CCLink from '../components/CCLink'
@@ -19,6 +21,7 @@ class Modules extends Component {
     isDeleteAsking: PropTypes.bool.isRequired,
     modules: PropTypes.array.isRequired,
     module: PropTypes.object.isRequired,
+    searchText: PropTypes.string.isRequired,
     actions: PropTypes.object.isRequired,
   }
 
@@ -31,6 +34,7 @@ class Modules extends Component {
       isDeleteAsking,
       modules,
       module,
+      searchText,
       actions,
     } = this.props
 
@@ -40,18 +44,33 @@ class Modules extends Component {
       )
     }
 
+    const filteredModules = searchText === '' ? modules : modules.filter((module) => (
+      module.metadata.tags.filter((tag) => tag.includes(searchText)).size > 0
+    ))
+
     return (
       <div>
-        <CCLink url={urls.modulesNew}>
-          <RaisedButton
-            label="Add"
-            primary={true}
-          />
-        </CCLink>
+        <GridList cols={12} cellHeight="auto">
+          <GridTile cols={10}>
+            <TextField
+              hintText="Search by tag"
+              fullWidth={true}
+              value={searchText}
+              onChange={(e) => actions.searchTextChange(e.target.value)}
+            />
+          </GridTile>
+          <GridTile cols={2}>
+            <CCLink url={urls.modulesNew}>
+              <RaisedButton
+                label="Add"
+                primary={true}
+              />
+            </CCLink>
+          </GridTile>
+        </GridList>
 
         <ModulesTable
-          modules={modules}
-          onMessageBoxTouchTap={actions.messageBoxTouchTap}
+          modules={filteredModules}
           onTagTouchTap={actions.tagTouchTap}
           onDeleteTouchTap={actions.deleteTouchTap}
         />
@@ -78,6 +97,7 @@ function mapStateToProps(state) {
     isDeleteAsking: state.asyncs.isModuleDeleteAsking,
     modules: state.entities.modules,
     module: state.miscs.module,
+    searchText: state.miscs.searchText,
   }
 }
 

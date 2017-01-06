@@ -10,7 +10,7 @@ from six import PY3
 from circle_core.cli.utils import generate_uuid
 from circle_core.models import Module
 from .api import api
-from ..utils import api_jsonify, camel_case, get_metadata, snake_case
+from ..utils import api_jsonify, convert_dict_key_camel_case, convert_dict_key_snake_case, get_metadata
 
 if PY3:
     from typing import Any, Dict
@@ -32,11 +32,11 @@ def _get_modules():
     response = {
         'modules': [_dictify(module) for module in modules],
     }
-    return api_jsonify(**camel_case(response))
+    return api_jsonify(**convert_dict_key_camel_case(response))
 
 
 def _post_modules():
-    dic = snake_case(request.json)
+    dic = convert_dict_key_snake_case(request.json)
     response = {}  # TODO: response形式の統一
     # TODO: message_boxの処理
     message_box_uuids = ''
@@ -68,7 +68,7 @@ def _post_modules():
     response['detail'] = {
         'uuid': module_uuid
     }
-    return api_jsonify(**camel_case(response))
+    return api_jsonify(**convert_dict_key_camel_case(response))
 
 
 @api.route('/modules/<module_uuid>', methods=['GET', 'DELETE'])
@@ -91,7 +91,7 @@ def _get_module(module_uuid):
     response = {
         'module': _dictify(module)
     }
-    return api_jsonify(**camel_case(response))
+    return api_jsonify(**convert_dict_key_camel_case(response))
 
 
 def _put_module(module_uuid):
@@ -101,7 +101,7 @@ def _put_module(module_uuid):
     response['detail'] = {
         'reason': 'not implemented'
     }
-    return api_jsonify(**camel_case(response))
+    return api_jsonify(**convert_dict_key_camel_case(response))
 
 
 def _delete_module(module_uuid):
@@ -113,7 +113,7 @@ def _delete_module(module_uuid):
         response['detail'] = {
             'reason': 'not found'
         }
-        return api_jsonify(**camel_case(response))
+        return api_jsonify(**convert_dict_key_camel_case(response))
 
     metadata.unregister_module(module)
     # TODO: messageBoxも消す -> unregister_moduleで一緒にやる
@@ -121,7 +121,7 @@ def _delete_module(module_uuid):
     response['detail'] = {
         'uuid': module_uuid
     }
-    return api_jsonify(**camel_case(response))
+    return api_jsonify(**convert_dict_key_camel_case(response))
 
 
 def _dictify(module):

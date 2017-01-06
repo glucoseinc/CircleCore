@@ -80,6 +80,18 @@ export default function asyncs(state = initialState, action) {
       isModulesFetching: false,
     }
 
+  case actionTypes.module.deleteAsked:
+    return {
+      ...state,
+      isModuleDeleteAsking: true,
+    }
+  case actionTypes.module.deleteRequested:
+  case actionTypes.module.deleteCanceled:
+    return {
+      ...state,
+      isModuleDeleteAsking: false,
+    }
+
   default:
     return state
   }

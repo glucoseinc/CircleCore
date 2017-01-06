@@ -29,11 +29,12 @@ function* handleModulesFetchRequest() {
  * @param  {[type]}    action [description]
  */
 function* deleteModule(action) {
+  const module = action.payload
   try {
-    const response = yield call(::CCAPI.deleteModule, action.module.uuid)
+    const response = yield call(::CCAPI.deleteModule, module.uuid)
     yield put({type: actionTypes.module.deleteSucceeded, response: response})
   } catch (e) {
-    yield put({type: actionTypes.module.deleteSucceeded, message: e.message})
+    yield put({type: actionTypes.module.deleteFailed, message: e.message})
   }
 }
 
