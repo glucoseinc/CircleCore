@@ -28,13 +28,24 @@ from circle_core.workers.replication_slave import ReplicationSlave
 
 
 class DummyMetadata(MetadataReader):
-    schemas = [Schema('44ae2fd8-52d0-484d-9a48-128b07937a0a', 'DummySchema', [{'name': 'hoge', 'type': 'int'}])]
-    message_boxes = [MessageBox('316720eb-84fe-43b3-88b7-9aad49a93220', '44ae2fd8-52d0-484d-9a48-128b07937a0a')]
+    schemas = [
+        Schema('44ae2fd8-52d0-484d-9a48-128b07937a0a', 'DummySchema', [{'name': 'hoge', 'type': 'int'}]),
+        Schema('17be0dbf-73c2-4055-9aa9-2a487dd8475b', 'DummySchema2', [{'name': 'piyo', 'type': 'float'}])
+    ]
+    message_boxes = [
+        MessageBox('316720eb-84fe-43b3-88b7-9aad49a93220', '44ae2fd8-52d0-484d-9a48-128b07937a0a'),
+        MessageBox('3d5a6cc9-d496-4858-8541-ce0d9673422e', '17be0dbf-73c2-4055-9aa9-2a487dd8475b')
+    ]
     modules = [Module(
         '8e654793-5c46-4721-911e-b9d19f0779f9',
         '316720eb-84fe-43b3-88b7-9aad49a93220',
         'DummyModule',
         'foo,bar'
+    ), Module(
+        'a1956117-bf4e-4ddb-b840-5cd3d9708b49',
+        '3d5a6cc9-d496-4858-8541-ce0d9673422e',
+        'DummyModule2',
+        'fooo,baar'
     )]
     users = []
     parse_url_scheme = None
@@ -148,6 +159,12 @@ class TestReplicationMaster(AsyncHTTPTestCase):
         yield self.dummy_crcr.read_message()
         yield self.dummy_crcr.write_message('{"command": "RECEIVE", "payload": {}}')
         yield sleep(1)
+
+        # MIGRATE時に要求しなかったのでたらい回されない
+        dummy_module2 = yield websocket_connect(self.get_url('/ws/a1956117-bf4e-4ddb-b840-5cd3d9708b49'), self.io_loop)
+        yield dummy_module2.write_message('{"piyo": 12.3}')
+
+        # MIGRATE時に要求したのでたらい回される
         yield self.dummy_module.write_message('{"hoge": 123}')
         resp = yield self.dummy_crcr.read_message()
         resp = json.loads(resp)
@@ -157,6 +174,7 @@ class TestReplicationMaster(AsyncHTTPTestCase):
             'hoge': 123
         }
 
+    @pytest.mark.skip
     @pytest.mark.timeout(120)  # 遅い...
     @gen_test
     def test_receive_count(self):
