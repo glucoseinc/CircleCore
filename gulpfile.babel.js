@@ -50,7 +50,7 @@ gulp.task('lint', () => {
 })
 
 gulp.task('babel', () => {
-  return gulp.src(['circle_core/server/wui/src/js/main.es6'])
+  return gulp.src(['circle_core/server/wui/src/js/main.es6', 'circle_core/server/wui/src/js/public.es6'])
     .pipe(named())
     .pipe(webpack(require('./webpack.config.js'), null, (err, stats) => {
       if(!err) {
