@@ -13,6 +13,7 @@ from sqlalchemy import create_engine, Table
 from sqlalchemy.engine.reflection import Inspector
 from sqlalchemy.types import INTEGER, TIMESTAMP
 from tornado.ioloop import IOLoop
+from tornado.httpserver import HTTPServer
 from tornado.testing import AsyncHTTPTestCase, gen_test
 from tornado.web import Application
 from tornado.websocket import websocket_connect, WebSocketHandler
@@ -63,18 +64,23 @@ class TestReplicationSlave:
         database.metadata = DummyMetadata
 
     def teardown_method(self, method):
-        self.server.terminate()
+        ioloop = IOLoop.current()
+        self.server.stop()
+        ioloop.add_callback(ioloop.stop)
+        self.thread.join()
 
     def run_dummy_server(self, replication_master):
         def run():
-            Application([
+            app = Application([
                 (r'/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', replication_master)
-            ], debug=True).listen(5001)
+            ])
+            self.server = HTTPServer(app)
+            self.server.listen(5001)
             IOLoop.current().start()
 
-        self.server = Process(target=run)
-        self.server.daemon = True
-        self.server.start()
+        self.thread = Thread(target=run)
+        self.thread.daemon = True
+        self.thread.start()
         sleep(1)
 
     @pytest.mark.timeout(2)
@@ -103,7 +109,6 @@ class TestReplicationSlave:
                         }]
                     })
                     self.write_message(res)
-                    IOLoop.current().stop()
 
         self.run_dummy_server(DummyReplicationMaster)
 
@@ -135,12 +140,13 @@ class TestReplicationSlave:
         for column in columns:
             assert isinstance(column['type'], types[column['name']])
 
-    @pytest.mark.timeout(2)
+    @pytest.mark.timeout(3)
     def test_receive(self):
         now = time()
 
         class DummyReplicationMaster(WebSocketHandler):
             def on_message(self, req):
+                print('COMING')
                 req = json.loads(req)
                 if req['command'] == 'RECEIVE':
                     resp = json.dumps({
@@ -152,7 +158,7 @@ class TestReplicationSlave:
                         }
                     })
                     self.write_message(resp)
-                    IOLoop.current().stop()
+                    raise RuntimeError('This exception is used to stop DummyReplicationMaster.')
 
         self.run_dummy_server(DummyReplicationMaster)
 
