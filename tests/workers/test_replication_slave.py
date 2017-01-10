@@ -114,6 +114,7 @@ class TestReplicationSlave:
         slave.ws.send(req)
         slave.migrate()
 
+        # Redisに同期親の情報が書き込まれているか
         assert filter(lambda schema: schema.uuid == UUID('8e654793-5c46-4721-911e-b9d19f0779f9'), DummyMetadata.schemas)
         assert filter(lambda box: box.uuid == UUID('316720eb-84fe-43b3-88b7-9aad49a93220'), DummyMetadata.message_boxes)
         assert filter(lambda module: module.uuid == UUID('8e654793-5c46-4721-911e-b9d19f0779f9'), DummyMetadata.modules)
@@ -130,6 +131,7 @@ class TestReplicationSlave:
             'hoge': INTEGER
         }
 
+        # DBのテーブルが同期されているか
         for column in columns:
             assert isinstance(column['type'], types[column['name']])
 
@@ -164,6 +166,8 @@ class TestReplicationSlave:
         db = Database(self.mysql.url)
         table = Table('message_box_76pzhAbUqxJeYp1CYkLBc3', db._metadata, autoload=True, autoload_with=db._engine)
         session = db._session()
+
+        # テーブルにメッセージが書き込まれているか
         with session.begin():
             rows = session.query(table).all()
             assert len(rows) == 1

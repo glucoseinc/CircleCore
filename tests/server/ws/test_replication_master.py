@@ -2,15 +2,19 @@
 from datetime import datetime
 import json
 from time import time
+from threading import Thread
 from uuid import UUID
+from multiprocessing import Process
 
 import pytest
 from tornado.gen import coroutine, sleep
 from tornado.testing import AsyncHTTPTestCase, gen_test
 from tornado.web import Application
-from tornado.websocket import websocket_connect
+from tornado.websocket import websocket_connect, WebSocketHandler
 
 from circle_core.database import Database
+from circle_core.models import schema
+from circle_core.models import module
 from circle_core.models import message
 from circle_core.models import message_box
 from circle_core.models.message_box import MessageBox
@@ -19,6 +23,8 @@ from circle_core.models.module import Module
 from circle_core.models.schema import Schema
 from circle_core.server.ws import replication_master
 from circle_core.server.ws import ReplicationMaster, SensorHandler
+from circle_core.workers import replication_slave
+from circle_core.workers.replication_slave import ReplicationSlave
 
 
 class DummyMetadata(MetadataReader):
@@ -32,12 +38,47 @@ class DummyMetadata(MetadataReader):
     )]
     users = []
     parse_url_scheme = None
+    writable = True
+
+    def register_schema(self, schema):
+        self.schemas.append(schema)
+
+    def register_message_box(self, box):
+        self.message_boxes.append(box)
+
+    def register_module(self, module):
+        self.modules.append(module)
+
+
+class DummyReplicationMaster(WebSocketHandler):
+    def on_message(self, plain_msg):
+        json_msg = json.loads(plain_msg)
+        if json_msg['command'] == 'MIGRATE':
+            res = json.dumps({
+                'schemas': [Schema(
+                    '3038b66a-9ebd-4f1b-8ca6-6281e004bb76',
+                    'DummySchema',
+                    [{'name': 'hoge', 'type': 'text'}]
+                ).serialize()],
+                'message_boxes': [MessageBox(
+                    '9168d87f-72cc-4dff-90d5-ad30e3e28958',
+                    '3038b66a-9ebd-4f1b-8ca6-6281e004bb76',
+                    'DummyBox'
+                ).serialize()],
+                'modules': [Module(
+                    'f0c5da15-d1f3-43b9-bbc0-423a6d5bcd8f',
+                    '9168d87f-72cc-4dff-90d5-ad30e3e28958',
+                    'DummyModule'
+                ).serialize()]
+            })
+            self.write_message(res)
 
 
 @pytest.mark.usefixtures('class_wide_mysql')
 class TestReplicationMaster(AsyncHTTPTestCase):
     def get_app(self):
         return Application([
+            ('/replication/', DummyReplicationMaster),
             ('/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', ReplicationMaster),
             ('/ws/(?P<module_uuid>[0-9A-Fa-f-]+)', SensorHandler)
         ], cr_metadata=DummyMetadata())
@@ -47,8 +88,11 @@ class TestReplicationMaster(AsyncHTTPTestCase):
 
     def setUp(self):
         super(TestReplicationMaster, self).setUp()
+        schema.metadata = DummyMetadata
+        module.metadata = DummyMetadata
         message.metadata = DummyMetadata
         replication_master.metadata = DummyMetadata
+        replication_slave.metadata = DummyMetadata
         message_box.metadata = DummyMetadata
 
         @coroutine
@@ -203,3 +247,40 @@ class TestReplicationMaster(AsyncHTTPTestCase):
         assert resp['count'] == 0
         assert UUID(resp['module_uuid']) == UUID('8e654793-5c46-4721-911e-b9d19f0779f9')
         assert resp['payload'] == {'hoge': 543}
+
+    @pytest.mark.timeout(2)
+    @gen_test
+    def test_receive_count_seeding_chain(self):
+        """CircleCoreに別のCircleCoreから同期されたModule/MessageBox/Schemaが保存されていた場合に
+        それをまた別のCircleCoreと同期しない"""
+        def start_dummy_slave():
+            replication_slave.get_uuid = lambda: ''
+            slave = ReplicationSlave(DummyMetadata, 'localhost:%s' % self.get_http_port())
+            req = json.dumps({
+                'command': 'MIGRATE'
+            })
+            # 中でDummyReplicationMasterにアクセスしようとするが
+            # その間IOLoopがブロックされてDummyReplicationMasterが何も返せなくなるので別スレッドで
+            slave.ws.send(req)
+            slave.migrate()
+
+        Thread(target=start_dummy_slave).start()
+        yield sleep(1)
+
+        req = json.dumps({'command': 'MIGRATE'})
+        yield self.dummy_crcr.write_message(req)
+        res = yield self.dummy_crcr.read_message()
+        res = json.loads(res)
+
+        assert not any(
+            UUID(schema['uuid']) == UUID('3038b66a-9ebd-4f1b-8ca6-6281e004bb76')
+            for schema in res['schemas']
+        )
+        assert not any(
+            UUID(box['uuid']) == UUID('9168d87f-72cc-4dff-90d5-ad30e3e28958')
+            for box in res['message_boxes']
+        )
+        assert not any(
+            UUID(module['uuid']) == UUID('f0c5da15-d1f3-43b9-bbc0-423a6d5bcd8f')
+            for module in res['modules']
+        )
