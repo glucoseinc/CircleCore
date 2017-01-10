@@ -7,7 +7,7 @@ machine:
   environment:
     LD_LIBRARY_PATH: /usr/local/lib/x86_64-linux-gnu/
   post:
-    - pyenv global 2.7.12 3.5.2
+    - pyenv global 3.5.2
 
 dependencies:
   cache_directories:
