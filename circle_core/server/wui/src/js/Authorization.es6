@@ -76,16 +76,13 @@ export async function checkAuthorization() {
 
   if(oauthToken.load()) {
     // tokenがある -> 死活チェック(...はしない、API使った時の認証エラーでなんとかすればええねん)
-    // let resp
 
-    // resp = await CCAPI._get('/oauth/scope_test/user')
-    // console.log(resp)
-    // resp = await CCAPI._get('/oauth/scope_test/schema+r')
-    // console.log(resp)
-    // resp = await CCAPI._get('/oauth/scope_test/schema+rw')
-    // console.log(resp)
-    // resp = await CCAPI._get('/oauth/scope_test/bad-scope')
-    // console.log(resp)
+    // token tests
+    // try{let resp = await CCAPI._get('/oauth/scope_test/user');     console.log(resp)} catch(e) {console.log('failed')}
+    // try{let resp = await CCAPI._get('/oauth/scope_test/schema+r');     console.log(resp)} catch(e) {console.log('failed')}
+    // try{let resp = await CCAPI._get('/oauth/scope_test/schema+rw');     console.log(resp)} catch(e) {console.log('failed')}
+    // try{let resp = await CCAPI._get('/oauth/scope_test/bad-scope');     console.log(resp)} catch(e) {console.log('failed')}
+
     return true
   } else {
     // tokenがない ->
@@ -113,7 +110,11 @@ export async function checkAuthorization() {
   return false
 }
 
-export function logout() {
+export async function logout() {
+  try {
+    await CCAPI.revokeToken()
+  } catch(e) {
+  }
   oauthToken.clear()
   location.href = '/'
 }

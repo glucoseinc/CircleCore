@@ -17,15 +17,8 @@
   <div id="app"></div>
 
   <script type="text/javascript">
-{#-汚いけど、楽なのでここでJSONでhiddenフィールド用のパラメータを渡してしまう #}
-var CRCR_AUTH_FORM_VALUES = {{ {
-  'client_id': client_id,
-  'response_type': response_type,
-  'redirect_uri': redirect_uri,
-  'scope': ' '.join(scopes),
-  'response_mode': 'fragment',
-  'nonce': nonce,
-}|tojson }}
+var CRCR_LOGIN_REDIRECT_TO = {{ redirect_to|tojson }}
+var CRCR_LOGIN_IS_FAILED = {{ is_failed|d(False)|tojson }}
   </script>
   <script type="text/javascript" src="{{ url_for('static', filename='public.bundle.js') }}"></script>
 

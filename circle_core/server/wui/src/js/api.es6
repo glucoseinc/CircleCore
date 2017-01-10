@@ -178,6 +178,16 @@ class CCAPI extends APICaller {
     return res.body
   }
 
+  /**
+   * oauthでもらったcodeからtokenを得る
+   */
+  async revokeToken() {
+    // form-url-encodedで送らないといけないので...
+    let res = await request.get('/oauth/revoke')
+      .set('Accept', 'application/json')
+    return res.body
+  }
+
 
   // schemas
   /**

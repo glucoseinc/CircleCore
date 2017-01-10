@@ -80,7 +80,6 @@ class OAuthGrant(object):
         return REDIS_GRANT_KEY_PREFIX + '{}:{}'.format(client_id, code)
 
     def delete(self):
-        print('!! delete grant', self.client_id, self.code)
         from .core import _get_redis_client
         redis_client = _get_redis_client()
         redis_client.delete(self.make_key(self.client_id, self.code))

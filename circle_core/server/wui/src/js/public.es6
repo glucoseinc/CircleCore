@@ -13,7 +13,7 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme'
 import AppBar from 'material-ui/AppBar'
 import FlatButton from 'material-ui/FlatButton'
 import TextField from 'material-ui/TextField'
-
+import {colorError} from './colors'
 
 
 injectTapEventPlugin()
@@ -52,35 +52,98 @@ class PublicFrame extends React.Component {
 }
 
 
+class OAuthLogin extends React.Component {
+  constructor(...args) {
+    super(...args)
+
+    this.state = {
+      errors: {}
+    }
+  }
+
+  render() {
+    const redirectTo = CRCR_LOGIN_REDIRECT_TO
+    const isFailed = CRCR_LOGIN_IS_FAILED
+    const {errors} = this.state
+
+    return (
+      <div className="logoinForm" style={{margin: '0px auto', width: '320px'}}>
+
+        <form action="/oauth/login" method="POST" onSubmit={::this.onSubmit}>
+          <input type="hidden" name="redirect" value={redirectTo} />
+
+          {isFailed && (
+            <div style={{color: colorError}}>
+              認証できませんでした。<br />
+              アカウント、パスワードを確認してください。
+            </div>
+          )}
+
+          <TextField
+            ref="account"
+            name="account"
+            hintText="アカウント"
+            floatingLabelText="アカウント"
+            errorText={errors.account}
+            style={{width: '100%'}}
+          /><br />
+
+          <TextField
+            ref="password"
+            name="password"
+            hintText="パスワード"
+            floatingLabelText="パスワード"
+            type="password"
+            errorText={errors.password}
+            style={{width: '100%'}}
+            /><br />
+
+          <div className="loginForm-actions" style={{textAlign: 'right'}}>
+            <FlatButton label="ログイン" primary={true} type="submit" />
+          </div>
+        </form>
+      </div>
+    )
+  }
+
+  onSubmit(e) {
+    let errors = {}
+
+    if(!this.refs.account.getValue()) {
+      errors['account'] = 'アカウント名は必須です'
+    }
+    if(!this.refs.password.getValue()) {
+      errors['password'] = 'パスワードは必須です'
+    }
+
+    if(Object.keys(errors).length) {
+      // has error
+      e.preventDefault()
+    }
+
+    this.setState({errors})
+  }
+}
+
 class OAuthAuthorize extends React.Component {
+  componentDidMount() {
+    const form = this.refs.form
+
+    form.submit()
+  }
+
   render() {
     const hiddenValues = CRCR_AUTH_FORM_VALUES
 
     return (
-      <div className="authorizeForm" style={{margin: '0px auto', width: '320px'}}>
+      <div className="authorizeForm" style={{display: 'none'}}>
 
-        <form action="/oauth/authorize" method="POST">
-
+        <form action="/oauth/authorize" method="POST" ref="form">
           {Object.entries(hiddenValues).map(([k, v]) => {
             return (
               <input type="hidden" name={k} value={v} key={k} />
             )
           })}
-
-          <TextField
-            hintText="アカウント"
-            floatingLabelText="アカウント"
-          /><br />
-
-          <TextField
-            hintText="パスワード"
-            floatingLabelText="パスワード"
-            type="password"
-            /><br />
-
-          <div className="authorizeForm-actions" style={{textAlign: 'right'}}>
-            <FlatButton label="ログイン" primary={true} type="submit" />
-          </div>
         </form>
       </div>
     )
@@ -92,6 +155,7 @@ render(
   <MuiThemeProvider muiTheme={getMuiTheme()}>
     <Router history={browserHistory}>
       <Route path="/oauth" component={PublicFrame}>
+        <Route path="login" component={OAuthLogin} />
         <Route path="authorize" component={OAuthAuthorize} />
       </Route>
     </Router>

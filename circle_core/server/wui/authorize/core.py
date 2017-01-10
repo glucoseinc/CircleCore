@@ -3,7 +3,7 @@
 import datetime
 
 # community module
-from flask import Blueprint, current_app
+from flask import Blueprint, current_app, g
 from flask_oauthlib.provider import OAuth2Provider
 
 from .models import OAuthClient, OAuthGrant, OAuthToken
@@ -40,41 +40,46 @@ def load_client(client_id):
 
 @oauth.grantgetter
 def load_grant(client_id, code):
-    # return Grant.query.filter_by(client_id=client_id, code=code).first()
-    print('!!!! load_grant', client_id, code)
-
     grant = OAuthGrant.load(_get_redis_client(), client_id, code)
-    print(' > ', grant)
     return grant
 
 
 @oauth.grantsetter
 def save_grant(client_id, code, request, *args, **kwargs):
-    print('!!!! save_grant', client_id, code, request)
+    assert g.user
+
+    scopes = request.scopes[:]
+
+    if not g.user.is_admin():
+        # adminでなければ`user` scopeを落とす
+        try:
+            scopes.remove('user')
+        except ValueError:
+            pass
 
     grant = OAuthGrant(
         client_id,
         code['code'],
         request.redirect_uri,
-        request.scopes,
-        '1',
+        scopes,
+        str(g.user.uuid),
     )
     grant.save(_get_redis_client(), 120)  # 2minsでexpire
 
 
 @oauth.tokengetter
 def load_token(access_token=None, refresh_token=None):
-    print('!load_token', access_token, refresh_token)
-
+    token = None
     if access_token:
-        return OAuthToken.load_token_by_access_token(_get_redis_client(), access_token)
+        token = OAuthToken.load_token_by_access_token(_get_redis_client(), access_token)
     elif refresh_token:
-        return OAuthToken.load_token_by_refresh_token(_get_redis_client(), refresh_token)
+        token = OAuthToken.load_token_by_refresh_token(_get_redis_client(), refresh_token)
+
+    return token
 
 
 @oauth.tokensetter
 def save_token(token, request, *args, **kwargs):
-    print('!save token', token)
     # TODO: 古いTokenを消したいけどRedisではダルい
     expires_in = token.get('expires_in')
     expires = datetime.datetime.utcnow() + datetime.timedelta(seconds=expires_in)
@@ -84,7 +89,7 @@ def save_token(token, request, *args, **kwargs):
         request.client.client_id,
         token['scope'],
         expires,
-        '1')
+        request.user)
     token_obj.save(_get_redis_client())
 
 
