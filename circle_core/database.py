@@ -158,10 +158,15 @@ class Database(object):
         session = self._session()
         with session.begin():
             table = self.find_table_for_message_box(box)
-            created_at, counter = session.query(table) \
+            identifier = session.query(table) \
                 .with_entities(table.columns._created_at, table.columns._counter) \
                 .order_by(table.columns._created_at.desc(), table.columns._counter.desc()) \
                 .first()
+
+            if identifier is None:
+                return 0, 0
+            else:
+                created_at, counter = identifier
 
         return mktime(created_at.timetuple()), counter
 
