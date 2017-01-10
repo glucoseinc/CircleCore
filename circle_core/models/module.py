@@ -9,6 +9,8 @@ from uuid import UUID
 # community module
 from six import PY3
 
+from ..helpers.metadata import metadata
+
 if PY3:
     from typing import List, Optional, Union
 
@@ -108,3 +110,10 @@ class Module(object):
             'tags': ','.join(self.tags),
             'description': self.description
         }
+
+    @property
+    def of_master(self):
+        """
+        :return bool:
+        """
+        return any(metadata().find_message_box(box_uuid).of_master for box_uuid in self.message_box_uuids)

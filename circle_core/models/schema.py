@@ -9,6 +9,8 @@ from uuid import UUID
 # community module
 from six import PY3
 
+from ..helpers.metadata import metadata
+
 if PY3:
     from typing import Dict, List, Optional, Union
 
@@ -164,3 +166,10 @@ class Schema(object):
             'display_name': self.display_name,
             'dictified_properties': self.dictified_properties
         }
+
+    @property
+    def of_master(self):
+        """
+        :rtype bool:
+        """
+        return any(box.of_master for box in metadata().message_boxes if box.schema_uuid == self.uuid)

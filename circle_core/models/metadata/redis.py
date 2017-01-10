@@ -187,6 +187,7 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         mapping = {
             'uuid': message_box.uuid,
             'schema_uuid': message_box.schema_uuid,
+            'of_master': message_box.of_master
         }
         if message_box.display_name is not None:
             mapping['display_name'] = message_box.display_name

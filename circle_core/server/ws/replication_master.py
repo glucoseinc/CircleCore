@@ -39,7 +39,8 @@ class ReplicationMaster(WebSocketHandler):
 
             for box_uuid, value in json_msg['payload'].items():
                 box = metadata().find_message_box(box_uuid)
-                self.seed_messages(box, value['timestamp'], value['count'])
+                if box is not None:
+                    self.seed_messages(box, value['timestamp'], value['count'])
 
         logger.debug('message from another circlecore: %r' % json_msg)
 
@@ -56,9 +57,9 @@ class ReplicationMaster(WebSocketHandler):
         """自分に登録されているDataSourceとSchemaを通知."""
         metadata = self.application.settings['cr_metadata']
         resp = json.dumps({
-            'modules': [module.serialize() for module in metadata.modules],
-            'message_boxes': [box.serialize() for box in metadata.message_boxes],
-            'schemas': [schema.serialize() for schema in metadata.schemas]
+            'modules': [module.serialize() for module in metadata.modules if not module.of_master],
+            'message_boxes': [box.serialize() for box in metadata.message_boxes if not box.of_master],
+            'schemas': [schema.serialize() for schema in metadata.schemas if not schema.of_master]
         })
         self.write_message(resp)
 

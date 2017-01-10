@@ -43,7 +43,7 @@ class ReplicationSlave(object):
         for schema in schemas:
             metadata().register_schema(schema)
 
-        boxes = [MessageBox(**box) for box in res['message_boxes']]
+        boxes = [MessageBox(of_master=True, **box) for box in res['message_boxes']]
         for box in boxes:
             metadata().register_message_box(box)
 

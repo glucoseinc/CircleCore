@@ -32,13 +32,14 @@ class MessageBox(object):
     :param Optional[str] display_name: 表示名
     :param Optional[str] description: 説明
     """
-    def __init__(self, uuid, schema_uuid, display_name=None, description=None):
+    def __init__(self, uuid, schema_uuid, display_name=None, description=None, of_master=False):
         """init.
 
         :param Union[str, UUID] uuid: MessageBox UUID
         :param Union[str, UUID] schema_uuid: Schema UUID
         :param Optional[str] display_name: 表示名
         :param Optional[str] description: 説明
+        :param Bool of_master:
         """
         if not isinstance(uuid, UUID):
             try:
@@ -56,6 +57,7 @@ class MessageBox(object):
         self.schema_uuid = schema_uuid
         self.display_name = display_name
         self.description = description
+        self.of_master = of_master
 
     @property
     def storage_key(self):
