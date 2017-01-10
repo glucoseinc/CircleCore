@@ -17,7 +17,7 @@ if PY3:
     from typing import Optional, Union
 
 
-logger = get_stream_logger()
+logger = get_stream_logger(__name__)
 
 
 class MessageBoxError(Exception):
