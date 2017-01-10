@@ -2,15 +2,12 @@ import React, {Component, PropTypes} from 'react'
 import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
-import {Card, CardActions, CardHeader, CardMedia} from 'material-ui/Card'
-import {GridList, GridTile} from 'material-ui/GridList'
 import RaisedButton from 'material-ui/RaisedButton'
-import Subheader from 'material-ui/Subheader'
-import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
 
 import actions from '../actions'
 import Fetching from '../components/Fetching'
-import ModuleInfo from '../components/ModuleInfo'
+import ModuleDeleteDialog from '../components/ModuleDeleteDialog'
+import {ModuleGeneralInfo, ModuleMetadataInfo, ModuleMessageBoxesInfo} from '../components/ModuleInfos'
 
 
 /**
@@ -18,8 +15,13 @@ import ModuleInfo from '../components/ModuleInfo'
 class Module extends Component {
   static propTypes = {
     isFetching: PropTypes.bool.isRequired,
+    isUpdating: PropTypes.bool.isRequired,
     isDeleteAsking: PropTypes.bool.isRequired,
-    modules: PropTypes.array.isRequired,
+    schemas: PropTypes.object.isRequired,
+    modules: PropTypes.object.isRequired,
+    tempModule: PropTypes.object.isRequired,
+    moduleEditingArea: PropTypes.string.isRequired,
+    inputText: PropTypes.string.isRequired,
     params: PropTypes.object.isRequired,
     actions: PropTypes.object.isRequired,
   }
@@ -29,9 +31,11 @@ class Module extends Component {
    */
   componentWillMount() {
     const {
+      params,
       actions,
     } = this.props
-    actions.modules.fetchRequest()
+    actions.module.fetchRequest(params.moduleId)
+    actions.schemas.fetchRequest()
   }
 
   /**
@@ -40,18 +44,24 @@ class Module extends Component {
   render() {
     const {
       isFetching,
+      isUpdating,
+      isDeleteAsking,
+      schemas,
       modules,
+      tempModule,
+      moduleEditingArea,
+      inputText,
       params,
       actions,
     } = this.props
 
-    if (isFetching) {
+    if (isFetching || isUpdating) {
       return (
         <Fetching />
       )
     }
 
-    const module = modules.find((_module) => _module.uuid === params.moduleId)
+    const module = modules.get(params.moduleId)
 
     if (module === undefined) {
       return (
@@ -61,87 +71,50 @@ class Module extends Component {
       )
     }
 
+    const isEditingGeneral = moduleEditingArea === 'general'
+    const isEditingMetadata = moduleEditingArea === 'metadata'
+    const isEditingMessageBox = moduleEditingArea === 'messageBox'
+
     return (
       <div>
         <RaisedButton
           label="Create Shared Link"
           primary={true}
-          onTouchTap={actions.createLinkTouchTap}
+          onTouchTap={() => actions.shareLinks.createRequest()}
         />
-        <GridList
-          cellHeight="auto"
-        >
-          <GridTile cols={2}>
-            <ModuleInfo module={module} />
-          </GridTile>
-          {module.messageBoxes.map((messageBox) =>
-            <GridTile key={messageBox.uuid}>
-              <Card style={{margin: 4}}>
-                <CardHeader
-                  title={messageBox.displayName}
-                />
-                <CardMedia style={{paddingLeft: 16, paddingRight: 16}}>
-                  <Card>
-                    <CardMedia style={{paddingLeft: 16, paddingRight: 16}}>
-                      <div>
-                        Graph
-                      </div>
-                    </CardMedia>
-                  </Card>
-                  <Card>
-                    <CardHeader
-                      title="Message schema"
-                      subtitle={messageBox.schema.displayName}
-                    />
-                    <CardMedia style={{paddingLeft: 16, paddingRight: 16}}>
-                      <div>
-                        <Table selectable={false}>
-                          <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
-                            <TableRow>
-                              <TableHeaderColumn>Name</TableHeaderColumn>
-                              <TableHeaderColumn>Type</TableHeaderColumn>
-                            </TableRow>
-                          </TableHeader>
-
-                          <TableBody displayRowCheckbox={false}>
-                            {messageBox.schema.properties.map((property, index) =>
-                              <TableRow key={index}>
-                                <TableRowColumn>{property.name}</TableRowColumn>
-                                <TableRowColumn>{property.type}</TableRowColumn>
-                              </TableRow>
-                            )}
-                          </TableBody>
-                        </Table>
-                      </div>
-                      <div>
-                        <Subheader>Memo</Subheader>
-                        <div style={{paddingLeft: 16}}>
-                          {messageBox.schema.memo}
-                        </div>
-                      </div>
-                    </CardMedia>
-                  </Card>
-                </CardMedia>
-                <CardActions>
-                  <RaisedButton
-                    label="Edit"
-                  />
-                  <RaisedButton
-                    label="Download"
-                  />
-                  <RaisedButton
-                    label="Delete"
-                    secondary={true}
-                  />
-                </CardActions>
-              </Card>
-            </GridTile>
-          )}
-        </GridList>
         <RaisedButton
           label="Delete this module"
           secondary={true}
           onTouchTap={() => actions.modules.deleteAsk(module)}
+        />
+
+        <ModuleGeneralInfo
+          editable={isEditingGeneral}
+          module={isEditingGeneral ? tempModule : module}
+          actions={actions}
+          hiddenUuid={false}
+          hiddenActionsArea={false}
+        />
+        <ModuleMetadataInfo
+          editable={isEditingMetadata}
+          module={isEditingMetadata ? tempModule : module}
+          inputText={inputText}
+          actions={actions}
+          hiddenActionsArea={false}
+        />
+        <ModuleMessageBoxesInfo
+          editable={isEditingMessageBox}
+          module={isEditingMessageBox ? tempModule : module}
+          schemas={schemas}
+          actions={actions}
+          hiddenActionsArea={false}
+        />
+
+        <ModuleDeleteDialog
+          isActive={isDeleteAsking}
+          module={module}
+          onOkTouchTap={actions.modules.deleteRequest}
+          onCancelTouchTap={actions.modules.deleteCancel}
         />
       </div>
     )
@@ -156,9 +129,14 @@ class Module extends Component {
  */
 function mapStateToProps(state) {
   return {
-    isFetching: state.asyncs.isModulesFetching,
+    isFetching: state.asyncs.isModuleFetching,
+    isUpdating: state.asyncs.isModulesUpdating,
     isDeleteAsking: state.asyncs.isModulesDeleteAsking,
+    schemas: state.entities.schemas,
     modules: state.entities.modules,
+    tempModule: state.misc.module,
+    moduleEditingArea: state.misc.moduleEditingArea,
+    inputText: state.misc.inputText,
   }
 }
 
@@ -170,7 +148,11 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     actions: {
+      schemas: bindActionCreators(actions.schemas, dispatch),
       modules: bindActionCreators(actions.modules, dispatch),
+      module: bindActionCreators(actions.module, dispatch),
+      shareLinks: bindActionCreators(actions.shareLinks, dispatch),
+      misc: bindActionCreators(actions.misc, dispatch),
     },
   }
 }

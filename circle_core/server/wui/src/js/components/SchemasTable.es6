@@ -13,7 +13,8 @@ import {urls} from '../routes'
  */
 class SchemasTable extends Component {
   static propTypes = {
-    schemas: PropTypes.array.isRequired,
+    schemas: PropTypes.object.isRequired,
+    modules: PropTypes.object.isRequired,
     onDeleteTouchTap: PropTypes.func.isRequired,
   }
 
@@ -27,6 +28,7 @@ class SchemasTable extends Component {
   render() {
     const {
       schemas,
+      modules,
       onDeleteTouchTap,
     } = this.props
     const {
@@ -41,6 +43,19 @@ class SchemasTable extends Component {
         color: blueGrey600,
         fontSize: 10,
       },
+    }
+
+    const sortComparator = (a, b) => {
+      if (a.displayName !== '' && b.displayName === '') {
+        return -1
+      }
+      if (a.displayName === '' && b.displayName !== '') {
+        return 1
+      }
+      if (a.displayName !== '' && b.displayName !== '') {
+        return a.displayName < b.displayName ? -1 : 1
+      }
+      return a.uuid < b.uuid ? -1 : 1
     }
 
     return (
@@ -59,7 +74,7 @@ class SchemasTable extends Component {
         <TableBody
           displayRowCheckbox={false}
         >
-          {schemas.map((schema) =>
+          {schemas.sort(sortComparator).valueSeq().map((schema) =>
             <TableRow key={schema.uuid}>
               <TableRowColumn>
                 <CCLink
@@ -71,20 +86,23 @@ class SchemasTable extends Component {
                 </CCLink>
               </TableRowColumn>
               <TableRowColumn>
-                {schema.modules.map((module) =>
-                  <CCLink
-                    key={module.uuid}
-                    url={urls.module}
-                    params={{moduleId: module.uuid}}
-                  >
-                    <FlatButton
+                {schema.modules.map((moduleId) => {
+                  const module = modules.get(moduleId)
+                  return (
+                    <CCLink
                       key={module.uuid}
-                      style={style.moduleButton}
-                      label={module.label}
-                      labelStyle={module.displayName ? {} : style.subtext}
-                    />
-                  </CCLink>
-                )}
+                      url={urls.module}
+                      params={{moduleId: moduleId}}
+                    >
+                      <FlatButton
+                        key={module.uuid}
+                        style={style.moduleButton}
+                        label={module.label}
+                        labelStyle={module.displayName ? {} : style.subtext}
+                      />
+                    </CCLink>
+                  )
+                })}
               </TableRowColumn>
               <TableRowColumn>
                 <RaisedButton

@@ -1,9 +1,5 @@
 import request from 'superagent'
 
-import Schema from './models/Schema'
-import SchemaPropertyType from './models/SchemaPropertyType'
-import Module from './models/Module'
-
 
 /**
  * superagentのリクエストをリセットする
@@ -65,6 +61,21 @@ class APICaller {
   _post(path, params) {
     return this._wrapRequestWithAuthorization(request
       .post(path)
+      .use(this.prefixer)
+      .set('Accept', 'application/json')
+      .send(params || {})
+    )
+  }
+
+  /**
+   * PUTクエリを発行する
+   * @param {String} path APIのパス
+   * @param {Object} [params] パラメータ
+   * @return {Object} 戻り値
+   */
+  _put(path, params) {
+    return this._wrapRequestWithAuthorization(request
+      .put(path)
       .use(this.prefixer)
       .set('Accept', 'application/json')
       .send(params || {})
@@ -203,7 +214,7 @@ class CCAPI extends APICaller {
    */
   async getSchemas() {
     const res = await this._get('/schemas/')
-    return res.body.schemas.map(Schema.fromObject)
+    return res.body
   }
 
   /**
@@ -213,7 +224,7 @@ class CCAPI extends APICaller {
    */
   async getSchema(schema) {
     const res = await this._get(`/schemas/${schema.uuid}`)
-    return Schema.fromObject(res.body.schema)
+    return res.body
   }
 
   /**
@@ -242,7 +253,7 @@ class CCAPI extends APICaller {
    */
   async getSchemaPropertyTypes() {
     const res = await this._get('/schemas/propertytypes')
-    return res.body.propertyTypes.map(SchemaPropertyType.fromObject)
+    return res.body
   }
 
   // modules
@@ -252,7 +263,7 @@ class CCAPI extends APICaller {
    */
   async getModules() {
     const res = await this._get('/modules/')
-    return res.body.modules.map(Module.fromObject)
+    return res.body
   }
 
   /**
@@ -275,6 +286,15 @@ class CCAPI extends APICaller {
     return res.body
   }
 
+  /**
+   * Moduleを更新する
+   * @param {Module} module Module
+   * @return {Object} Result
+   */
+  async putModule(module) {
+    const res = await this._put(`/modules/${module.uuid}`, module.toJS())
+    return res.body
+  }
 
   /**
    * Moduleを削除する

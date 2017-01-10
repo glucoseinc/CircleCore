@@ -27,8 +27,8 @@ function* createSchema(action) {
  */
 function* fetchSchemas(action) {
   try {
-    const schemas = yield call(::CCAPI.getSchemas)
-    yield put(actions.schemas.fetchSucceeded(schemas))
+    const response = yield call(::CCAPI.getSchemas)
+    yield put(actions.schemas.fetchSucceeded(response))
   } catch (e) {
     yield put(actions.schemas.fetchFailed(e.message))
   }
@@ -55,8 +55,8 @@ function* deleteSchema(action) {
  */
 function* fetchSchemaPropertyTypes(action) {
   try {
-    const schemaPropertyTypes = yield call(::CCAPI.getSchemaPropertyTypes)
-    yield put(actions.schemaPropertyTypes.fetchSucceeded(schemaPropertyTypes))
+    const response = yield call(::CCAPI.getSchemaPropertyTypes)
+    yield put(actions.schemaPropertyTypes.fetchSucceeded(response))
   } catch (e) {
     yield put(actions.schemaPropertyTypes.fetchFailed(e.message))
   }

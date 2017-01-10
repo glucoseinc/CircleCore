@@ -61,14 +61,12 @@ export default class Schema extends SchemaRecord {
    * @return {Schema}
    */
   static fromObject(rawSchema) {
-    const Module = require('../models/Module').default
     const properties = rawSchema.properties ? rawSchema.properties.map(SchemaProperty.fromObject) : []
-    const modules = rawSchema.modules ? rawSchema.modules.map(Module.fromObject) : []
     return new Schema({
       uuid: rawSchema.uuid || '',
       displayName: rawSchema.displayName || '',
       properties: List(properties),
-      modules: List(modules),
+      modules: List(rawSchema.modules || []),
       memo: rawSchema.memo || '',
     })
   }

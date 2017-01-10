@@ -27,12 +27,28 @@ function* createModule(action) {
  */
 function* fetchModules(action) {
   try {
-    const modules = yield call(::CCAPI.getModules)
-    yield put(actions.modules.fetchSucceeded(modules))
+    const response = yield call(::CCAPI.getModules)
+    yield put(actions.modules.fetchSucceeded(response))
   } catch (e) {
     yield put(actions.modules.fetchFailed(e.message))
   }
 }
+
+
+/**
+ * [updateModule description]
+ * @param  {[type]}    action [description]
+ */
+function* updateModule(action) {
+  const module = Module.fromObject(action.payload)
+  try {
+    const response = yield call(::CCAPI.putModule, module)
+    yield put(actions.modules.updateSucceeded(response))
+  } catch (e) {
+    yield put(actions.modules.updateFailed(e.message))
+  }
+}
+
 
 /**
  * [deleteModule description]
@@ -63,9 +79,17 @@ function* handleModulesFetchRequest() {
   const triggerActionTypes = [
     actionTypes.modules.fetchRequest,
     actionTypes.modules.createSucceeded,
+    actionTypes.modules.updateSucceeded,
     actionTypes.modules.deleteSucceeded,
   ]
   yield takeLatest(triggerActionTypes, fetchModules)
+}
+
+/**
+   * [handleModulesUpdateRequest description]
+ */
+function* handleModulesUpdateRequest() {
+  yield takeLatest(actionTypes.modules.updateRequest, updateModule)
 }
 
 /**
@@ -83,5 +107,6 @@ function* handleModulesDeleteRequest() {
 export default function* modulesSaga(...args) {
   yield fork(handleModulesCreateRequest, ...args)
   yield fork(handleModulesFetchRequest, ...args)
+  yield fork(handleModulesUpdateRequest, ...args)
   yield fork(handleModulesDeleteRequest, ...args)
 }

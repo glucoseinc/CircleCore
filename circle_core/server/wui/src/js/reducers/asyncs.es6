@@ -14,8 +14,13 @@ const initialState = {
   isModulesFetching: false,
   isModulesUpdating: false,
   isModulesDeleteAsking: false,
+
+  isSchemaFetching: false,
+
+  isModuleFetching: false,
 }
 
+// Schemas
 const setSchemasCreating = (newState) => (state, action) => ({
   ...state,
   isSchemasCreating: newState,
@@ -36,15 +41,34 @@ const setSchemaPropertyTypesFetching = (newState) => (state, action) => ({
   isSchemaPropertyTypesFetching: newState,
 })
 
+// Modules
 const setModulesFetching = (newState) => (state, action) => ({
   ...state,
   isModulesFetching: newState,
+})
+
+const setModulesUpdating = (newState) => (state, action) => ({
+  ...state,
+  isModulesUpdating: newState,
 })
 
 const setModulesDeleteAsking = (newState) => (state, action) => ({
   ...state,
   isModulesDeleteAsking: newState,
 })
+
+// Schema
+const setSchemaFetching = (newState) => (state, action) => ({
+  ...state,
+  isSchemaFetching: newState,
+})
+
+// Module
+const setModuleFetching = (newState) => (state, action) => ({
+  ...state,
+  isModuleFetching: newState,
+})
+
 
 const asyncs = handleActions({
   // Create Schemas
@@ -72,10 +96,25 @@ const asyncs = handleActions({
   [actionTypes.modules.fetchSucceeded]: setModulesFetching(false),
   [actionTypes.modules.fetchFailed]: setModulesFetching(false),
 
+  // Update Modules
+  [actionTypes.modules.updateRequest]: setModulesUpdating(true),
+  [actionTypes.modules.updateSucceeded]: (setModulesUpdating(false)),
+  [actionTypes.modules.updateFailed]: setModulesUpdating(false),
+
   // Delete Modules
   [actionTypes.modules.deleteAsk]: setModulesDeleteAsking(true),
   [actionTypes.modules.deleteRequest]: setModulesDeleteAsking(false),
   [actionTypes.modules.deleteCancel]: setModulesDeleteAsking(false),
+
+  // Fetch Schema
+  [actionTypes.schema.fetchRequest]: setSchemaFetching(true),
+  [actionTypes.schema.fetchSucceeded]: setSchemaFetching(false),
+  [actionTypes.schema.fetchFailed]: setSchemaFetching(false),
+
+  // Fetch Module
+  [actionTypes.module.fetchRequest]: setModuleFetching(true),
+  [actionTypes.module.fetchSucceeded]: setModuleFetching(false),
+  [actionTypes.module.fetchFailed]: setModuleFetching(false),
 }, initialState)
 
 export default asyncs

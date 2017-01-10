@@ -18,7 +18,7 @@ class Schema extends Component {
   static propTypes = {
     isFetching: PropTypes.bool.isRequired,
     isDeleteAsking: PropTypes.bool.isRequired,
-    schemas: PropTypes.array.isRequired,
+    schemas: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,
     actions: PropTypes.object.isRequired,
   }
@@ -28,9 +28,10 @@ class Schema extends Component {
    */
   componentWillMount() {
     const {
+      params,
       actions,
     } = this.props
-    actions.schemas.fetchRequest()
+    actions.schema.fetchRequest(params.schemaId)
   }
 
   /**
@@ -51,7 +52,7 @@ class Schema extends Component {
       )
     }
 
-    const schema = schemas.find((_schema) => _schema.uuid === params.schemaId)
+    const schema = schemas.get(params.schemaId)
 
     if (schema === undefined) {
       return (
@@ -136,7 +137,7 @@ class Schema extends Component {
  */
 function mapStateToProps(state) {
   return {
-    isFetching: state.asyncs.isSchemasFetching,
+    isFetching: state.asyncs.isSchemaFetching,
     isDeleteAsking: state.asyncs.isSchemasDeleteAsking,
     schemas: state.entities.schemas,
   }
@@ -151,6 +152,7 @@ function mapDispatchToProps(dispatch) {
   return {
     actions: {
       schemas: bindActionCreators(actions.schemas, dispatch),
+      schema: bindActionCreators(actions.schema, dispatch),
     },
   }
 }

@@ -20,7 +20,7 @@ class Modules extends Component {
   static propTypes = {
     isFetching: PropTypes.bool.isRequired,
     isDeleteAsking: PropTypes.bool.isRequired,
-    modules: PropTypes.array.isRequired,
+    modules: PropTypes.object.isRequired,
     module: PropTypes.object.isRequired,
     inputText: PropTypes.string.isRequired,
     actions: PropTypes.object.isRequired,

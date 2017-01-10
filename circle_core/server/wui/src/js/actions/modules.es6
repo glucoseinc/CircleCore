@@ -7,8 +7,12 @@ const payloadCreators = {
   createFailed: (message) => message,
 
   fetchRequest: nullPayloadCreator,
-  fetchSucceeded: (modules) => modules.map((module) => module.toJS()),
+  fetchSucceeded: (response) => response,
   fetchFailed: (message) => message,
+
+  updateRequest: (module) => module.toJS(),
+  updateSucceeded: (response) => response,
+  updateFailed: (message) => message,
 
   deleteAsk: (module) => module.toJS(),
   deleteCancel: nullPayloadCreator,

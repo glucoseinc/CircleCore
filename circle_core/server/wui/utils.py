@@ -42,6 +42,16 @@ def api_jsonify(*args, **kwargs):
         mimetype='application/json; charset=utf-8')
 
 
+def api_response_failure(reason):
+    response = {
+        'result': 'failure',
+        'detail': {
+            'reason': reason
+        }
+    }
+    return api_jsonify(**convert_dict_key_camel_case(response))
+
+
 def get_metadata():
     """Metadataを返す.
 
