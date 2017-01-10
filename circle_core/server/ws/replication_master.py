@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """他のCircleCoreとの同期."""
 import json
+from uuid import UUID
 
 from tornado.ioloop import IOLoop
 from tornado.websocket import WebSocketHandler
@@ -33,7 +34,7 @@ class ReplicationMaster(WebSocketHandler):
         """
         json_msg = json.loads(plain_msg)
         if json_msg['command'] == 'MIGRATE':
-            self.send_modules()
+            self.send_modules(json_msg['module_uuids'])
         elif json_msg['command'] == 'RECEIVE':
             self.pass_messages()
 
@@ -53,13 +54,19 @@ class ReplicationMaster(WebSocketHandler):
         # wsta等テストツールから投げる場合はTrueにしておく
         return True
 
-    def send_modules(self):
+    def send_modules(self, module_uuids):
         """自分に登録されているDataSourceとSchemaを通知."""
-        metadata = self.application.settings['cr_metadata']
+        self.subscribing_modules = [metadata().find_module(module_uuid) for module_uuid in module_uuids]
+        boxes = [
+            metadata().find_message_box(box_uuid)
+            for module in self.subscribing_modules
+            for box_uuid in module.message_box_uuids
+        ]
+        schemas = [metadata().find_schema(box.schema_uuid) for box in boxes]
         resp = json.dumps({
-            'modules': [module.serialize() for module in metadata.modules if not module.of_master],
-            'message_boxes': [box.serialize() for box in metadata.message_boxes if not box.of_master],
-            'schemas': [schema.serialize() for schema in metadata.schemas if not schema.of_master]
+            'modules': [module.serialize() for module in self.subscribing_modules if not module.of_master],
+            'message_boxes': [box.serialize() for box in boxes if not box.of_master],
+            'schemas': [schema.serialize() for schema in schemas if not schema.of_master]
         })
         self.write_message(resp)
 
@@ -81,8 +88,9 @@ class ReplicationMaster(WebSocketHandler):
 
             :param ModuleMessage msg:
             """
-            logger.debug('Received from nanomsg: %s', msg.encode())
-            self.write_message(msg.encode())
+            if any(module.uuid == msg.module.uuid for module in self.subscribing_modules):
+                logger.debug('Received from nanomsg: %s', msg.encode())
+                self.write_message(msg.encode())
 
         logger.debug('Replication Master %s', SensorDataTopic().topic)
         receiver = Receiver(SensorDataTopic())

@@ -111,10 +111,7 @@ class TestReplicationMaster(AsyncHTTPTestCase):
     @pytest.mark.timeout(2)
     @gen_test
     def test_migrate(self):
-        """レプリケーション親が自身に登録されているModule/MessageBox/Schemaをすべて返すか
-
-        TODO: レプリケーション親がまた別のCircleCoreのレプリケーション子になっていた場合、それらの情報は除く
-        """
+        """レプリケーション親が自身に登録されているModule/MessageBox/Schemaをすべて返すか"""
         yield self.dummy_crcr.write_message('{"command": "MIGRATE"}')
         resp = yield self.dummy_crcr.read_message()
         resp = json.loads(resp)

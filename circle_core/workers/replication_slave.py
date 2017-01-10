@@ -27,10 +27,11 @@ def get_uuid():  # テスト時には上書きする
 
 
 class ReplicationSlave(object):
-    def __init__(self, metadata, master_addr):
+    def __init__(self, metadata, master_addr, module_uuids):
         self.ws = create_connection('ws://' + master_addr + '/replication/' + get_uuid())
         self.db = Database(metadata.database_url)
         self.metadata = metadata
+        self.module_uuids = module_uuids
 
     def migrate(self):
         if not metadata().writable:
@@ -47,8 +48,9 @@ class ReplicationSlave(object):
         for box in boxes:
             metadata().register_message_box(box)
 
-        for module in res['modules']:
-            metadata().register_module(Module(**module))
+        modules = [Module(**module) for module in res['modules']]
+        for module in modules:
+            metadata().register_module(module)
 
         self.db.register_message_boxes(boxes, schemas)
         self.db.migrate()
@@ -82,7 +84,8 @@ class ReplicationSlave(object):
 
     def run(self):
         req = json.dumps({
-            'command': 'MIGRATE'
+            'command': 'MIGRATE',
+            'module_uuids': self.module_uuids
         })
         self.ws.send(req)
         logger.debug('Send request: %s', req)
@@ -90,12 +93,15 @@ class ReplicationSlave(object):
 
         db = Database(metadata().database_url)
         payload = {}
-        for box in metadata().message_boxes:
-            last_timestamp, last_count = db.last_message_identifier_for_box(box)
-            payload[box.uuid.hex] = {
-                'timestamp': last_timestamp,
-                'count': last_count
-            }
+        for module_uuid in self.module_uuids:
+            module = metadata().find_module(module_uuid)
+            for box_uuid in module.message_box_uuids:
+                box = metadata().find_message_box(box_uuid)
+                last_timestamp, last_count = db.last_message_identifier_for_box(box)
+                payload[box.uuid.hex] = {
+                    'timestamp': last_timestamp,
+                    'count': last_count
+                }
 
         req = json.dumps({
             'command': 'RECEIVE',

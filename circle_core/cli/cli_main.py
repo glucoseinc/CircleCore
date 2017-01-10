@@ -4,7 +4,7 @@
 
 from __future__ import absolute_import, print_function
 
-from itertools import cycle
+from itertools import cycle, groupby
 from multiprocessing import Process
 from signal import SIGINT, signal, SIGTERM
 import sys
@@ -77,7 +77,8 @@ def cli_main_env(ctx):
 @click.option('--wui-port', type=click.INT, envvar='CRCR_WUIPORT', default=5000)
 @click.option('--ipc-socket', type=click.Path(resolve_path=True), envvar='CRCR_IPCSOCK', default='/tmp/circlecore.ipc')
 @click.option('workers', '--worker', type=click.STRING, envvar='CRCR_WORKERS', multiple=True)
-@click.option('replicate_from', '--replicate', type=click.STRING, envvar='CRCR_REPLICATION', multiple=True)
+@click.option('replicate_from', '--replicate', type=click.STRING, envvar='CRCR_REPLICATION', multiple=True,
+              help='module_uuid@hostname:port')
 @click.option('database_url', '--database', envvar='CRCR_DATABASE')
 @click.pass_context
 def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, workers, replicate_from, database_url):
@@ -86,8 +87,9 @@ def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, workers, replicate
     metadata = ctx.obj.metadata
     metadata.database_url = database_url  # とりあえず...
 
-    for addr in replicate_from:
-        RestartableProcess(target=lambda: ReplicationSlave(metadata, addr).run()).start()
+    for addr, value in groupby([module_and_addr.split('@') for module_and_addr in replicate_from], lambda x: x[1]):
+        modules = [module_and_addr[0] for module_and_addr in value]
+        RestartableProcess(target=lambda: ReplicationSlave(metadata, addr, modules).run()).start()
 
     for worker in workers:
         RestartableProcess(target=get_worker(worker).run, args=[metadata]).start()
