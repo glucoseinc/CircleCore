@@ -112,7 +112,7 @@ class TestReplicationSlave:
 
         self.run_dummy_server(DummyReplicationMaster)
 
-        slave = ReplicationSlave(DummyMetadata, 'localhost:5001')
+        slave = ReplicationSlave(DummyMetadata, 'localhost:5001', [])
         req = json.dumps({
             'command': 'MIGRATE'
         })
@@ -146,7 +146,6 @@ class TestReplicationSlave:
 
         class DummyReplicationMaster(WebSocketHandler):
             def on_message(self, req):
-                print('COMING')
                 req = json.loads(req)
                 if req['command'] == 'RECEIVE':
                     resp = json.dumps({
@@ -162,7 +161,7 @@ class TestReplicationSlave:
 
         self.run_dummy_server(DummyReplicationMaster)
 
-        slave = ReplicationSlave(DummyMetadata, 'localhost:5001')
+        slave = ReplicationSlave(DummyMetadata, 'localhost:5001', [])
         req = json.dumps({
             'command': 'RECEIVE'
         })

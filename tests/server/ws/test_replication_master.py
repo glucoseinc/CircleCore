@@ -111,8 +111,12 @@ class TestReplicationMaster(AsyncHTTPTestCase):
     @pytest.mark.timeout(2)
     @gen_test
     def test_migrate(self):
-        """レプリケーション親が自身に登録されているModule/MessageBox/Schemaをすべて返すか"""
-        yield self.dummy_crcr.write_message('{"command": "MIGRATE"}')
+        """レプリケーション親が指定されたModule及びそれに関連するSchema/MessageBoxを返すかどうか"""
+        req = json.dumps({
+            'command': 'MIGRATE',
+            'module_uuids': ['8e654793-5c46-4721-911e-b9d19f0779f9']
+        })
+        yield self.dummy_crcr.write_message(req)
         resp = yield self.dummy_crcr.read_message()
         resp = json.loads(resp)
 
@@ -136,6 +140,12 @@ class TestReplicationMaster(AsyncHTTPTestCase):
     @gen_test
     def test_receive(self):
         """新着メッセージがレプリケーション子にたらい回せているか"""
+        req = json.dumps({
+            'command': 'MIGRATE',
+            'module_uuids': ['8e654793-5c46-4721-911e-b9d19f0779f9']
+        })
+        yield self.dummy_crcr.write_message(req)
+        yield self.dummy_crcr.read_message()
         yield self.dummy_crcr.write_message('{"command": "RECEIVE", "payload": {}}')
         yield sleep(1)
         yield self.dummy_module.write_message('{"hoge": 123}')
@@ -147,11 +157,16 @@ class TestReplicationMaster(AsyncHTTPTestCase):
             'hoge': 123
         }
 
-    @pytest.mark.skip
     @pytest.mark.timeout(120)  # 遅い...
     @gen_test
     def test_receive_count(self):
         # setUpとtearDownはメソッド毎に実行されてる？
+        req = json.dumps({
+            'command': 'MIGRATE',
+            'module_uuids': ['8e654793-5c46-4721-911e-b9d19f0779f9']
+        })
+        yield self.dummy_crcr.write_message(req)
+        yield self.dummy_crcr.read_message()
         yield self.dummy_crcr.write_message('{"command": "RECEIVE", "payload": {}}')
         yield sleep(1)
 
@@ -248,7 +263,11 @@ class TestReplicationMaster(AsyncHTTPTestCase):
         それをまた別のCircleCoreと同期しない"""
         def start_dummy_slave():
             replication_slave.get_uuid = lambda: ''
-            slave = ReplicationSlave(DummyMetadata, 'localhost:%s' % self.get_http_port())
+            slave = ReplicationSlave(
+                DummyMetadata,
+                'localhost:%s' % self.get_http_port(),
+                ['f0c5da15-d1f3-43b9-bbc0-423a6d5bcd8f']
+            )
             req = json.dumps({
                 'command': 'MIGRATE'
             })
@@ -260,7 +279,10 @@ class TestReplicationMaster(AsyncHTTPTestCase):
         Thread(target=start_dummy_slave).start()
         yield sleep(1)
 
-        req = json.dumps({'command': 'MIGRATE'})
+        req = json.dumps({
+            'command': 'MIGRATE',
+            'module_uuids': ['8e654793-5c46-4721-911e-b9d19f0779f9', 'f0c5da15-d1f3-43b9-bbc0-423a6d5bcd8f']
+        })
         yield self.dummy_crcr.write_message(req)
         res = yield self.dummy_crcr.read_message()
         res = json.loads(res)
