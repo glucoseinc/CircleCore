@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 import json
-from time import time
-from threading import Thread
-from uuid import UUID
 from multiprocessing import Process
+from threading import Thread
+from time import time
+from uuid import UUID
 
 import pytest
 from tornado.gen import coroutine, sleep
@@ -13,10 +13,10 @@ from tornado.web import Application
 from tornado.websocket import websocket_connect, WebSocketHandler
 
 from circle_core.database import Database
-from circle_core.models import schema
-from circle_core.models import module
 from circle_core.models import message
 from circle_core.models import message_box
+from circle_core.models import module
+from circle_core.models import schema
 from circle_core.models.message_box import MessageBox
 from circle_core.models.metadata.base import MetadataReader
 from circle_core.models.module import Module
@@ -174,7 +174,6 @@ class TestReplicationMaster(AsyncHTTPTestCase):
             'hoge': 123
         }
 
-    @pytest.mark.skip
     @pytest.mark.timeout(120)  # 遅い...
     @gen_test
     def test_receive_count(self):

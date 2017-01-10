@@ -12,8 +12,8 @@ import pytest
 from sqlalchemy import create_engine, Table
 from sqlalchemy.engine.reflection import Inspector
 from sqlalchemy.types import INTEGER, TIMESTAMP
-from tornado.ioloop import IOLoop
 from tornado.httpserver import HTTPServer
+from tornado.ioloop import IOLoop
 from tornado.testing import AsyncHTTPTestCase, gen_test
 from tornado.web import Application
 from tornado.websocket import websocket_connect, WebSocketHandler
