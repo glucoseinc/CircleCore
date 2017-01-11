@@ -1,8 +1,25 @@
 import {call, fork, put, takeEvery, takeLatest} from 'redux-saga/effects'
 
 import CCAPI from '../api'
-import actionTypes from '../constants/ActionTypes'
+import actionTypes from '../actions/actionTypes'
+import actions from '../actions'
 
+import Schema from '../models/Schema'
+
+
+/**
+ * [createSchema description]
+ * @param  {[type]}    action [description]
+ */
+function* createSchema(action) {
+  const schema = Schema.fromObject(action.payload)
+  try {
+    const response = yield call(::CCAPI.postSchema, schema)
+    yield put(actions.schemas.createSucceeded(response))
+  } catch (e) {
+    yield put(actions.schemas.createFailed(e.message))
+  }
+}
 
 /**
  * [fetchSchemas description]
@@ -11,17 +28,10 @@ import actionTypes from '../constants/ActionTypes'
 function* fetchSchemas(action) {
   try {
     const schemas = yield call(::CCAPI.getSchemas)
-    yield put({type: actionTypes.schemas.fetchSucceeded, schemas: schemas})
+    yield put(actions.schemas.fetchSucceeded(schemas))
   } catch (e) {
-    yield put({type: actionTypes.schemas.fetchFailed, message: e.message})
+    yield put(actions.schemas.fetchFailed(e.message))
   }
-}
-
-/**
- * [handleSchemasFetchRequest description]
- */
-function* handleSchemasFetchRequest() {
-  yield takeEvery(actionTypes.schemas.fetchRequested, fetchSchemas)
 }
 
 /**
@@ -29,39 +39,13 @@ function* handleSchemasFetchRequest() {
  * @param  {[type]}    action [description]
  */
 function* deleteSchema(action) {
+  const schema = Schema.fromObject(action.payload)
   try {
-    const response = yield call(::CCAPI.deleteSchema, action.schema.uuid)
-    yield put({type: actionTypes.schema.deleteSucceeded, response: response})
+    const response = yield call(::CCAPI.deleteSchema, schema)
+    yield put(actions.schemas.deleteSucceeded(response))
   } catch (e) {
-    yield put({type: actionTypes.schema.deleteFailed, message: e.message})
+    yield put(actions.schemas.deleteFailed(e.message))
   }
-}
-
-/**
- * [handleSchemaDeleteRequest description]
- */
-function* handleSchemaDeleteRequest() {
-  yield takeEvery(actionTypes.schema.deleteRequested, deleteSchema)
-}
-
-/**
- * [createSchema description]
- * @param  {[type]}    action [description]
- */
-function* createSchema(action) {
-  try {
-    const response = yield call(::CCAPI.postSchema, action.schema)
-    yield put({type: actionTypes.schema.createSucceeded, response: response})
-  } catch (e) {
-    yield put({type: actionTypes.schema.createFailed, message: e.message})
-  }
-}
-
-/**
- * [handleSchemaCreateRequest description]
- */
-function* handleSchemaCreateRequest() {
-  yield takeEvery(actionTypes.schema.createRequested, createSchema)
 }
 
 
@@ -72,17 +56,45 @@ function* handleSchemaCreateRequest() {
 function* fetchSchemaPropertyTypes(action) {
   try {
     const schemaPropertyTypes = yield call(::CCAPI.getSchemaPropertyTypes)
-    yield put({type: actionTypes.schema.propertyTypes.fetchSucceeded, schemaPropertyTypes: schemaPropertyTypes})
+    yield put(actions.schemaPropertyTypes.fetchSucceeded(schemaPropertyTypes))
   } catch (e) {
-    yield put({type: actionTypes.schema.propertyTypes.fetchFailed, message: e.message})
+    yield put(actions.schemaPropertyTypes.fetchFailed(e.message))
   }
 }
 
+
 /**
- * [handleSchemaPropertyTypeFetchRequest description]
+ * [handleSchemasCreateRequest description]
  */
-function* handleSchemaPropertyTypeFetchRequest() {
-  yield takeLatest(actionTypes.schema.propertyTypes.fetchRequested, fetchSchemaPropertyTypes)
+function* handleSchemasCreateRequest() {
+  yield takeEvery(actionTypes.schemas.createRequest, createSchema)
+}
+
+/**
+ * [handleSchemasFetchRequest description]
+ */
+function* handleSchemasFetchRequest() {
+  const triggerActionTypes = [
+    actionTypes.schemas.fetchRequest,
+    actionTypes.schemas.createSucceeded,
+    actionTypes.schemas.deleteSucceeded,
+  ]
+  yield takeLatest(triggerActionTypes, fetchSchemas)
+}
+
+/**
+ * [handleSchemasDeleteRequest description]
+ */
+function* handleSchemasDeleteRequest() {
+  yield takeEvery(actionTypes.schemas.deleteRequest, deleteSchema)
+}
+
+
+/**
+ * [handleSchemaPropertyTypesFetchRequest description]
+ */
+function* handleSchemaPropertyTypesFetchRequest() {
+  yield takeLatest(actionTypes.schemaPropertyTypes.fetchRequest, fetchSchemaPropertyTypes)
 }
 
 
@@ -91,8 +103,9 @@ function* handleSchemaPropertyTypeFetchRequest() {
  * @param  {[type]}    args [description]
  */
 export default function* schemasSaga(...args) {
+  yield fork(handleSchemasCreateRequest, ...args)
   yield fork(handleSchemasFetchRequest, ...args)
-  yield fork(handleSchemaCreateRequest, ...args)
-  yield fork(handleSchemaDeleteRequest, ...args)
-  yield fork(handleSchemaPropertyTypeFetchRequest, ...args)
+  yield fork(handleSchemasDeleteRequest, ...args)
+
+  yield fork(handleSchemaPropertyTypesFetchRequest, ...args)
 }

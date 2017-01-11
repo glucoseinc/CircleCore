@@ -1,3 +1,11 @@
+import {handleActions} from 'redux-actions'
+
+import actionTypes from '../actions/actionTypes'
+import Schema from '../models/Schema'
+import SchemaPropertyType from '../models/SchemaPropertyType'
+import Module from '../models/Module'
+
+
 const initialState = {
   schemas: [],
   schemaPropertyTypes: [],
@@ -5,33 +13,34 @@ const initialState = {
   modules: [],
 }
 
-import actionTypes from '../constants/ActionTypes'
 
-/**
- * [schemas description]
- * @param  {[type]} [state=initialState] [description]
- * @param  {[type]} action               [description]
- * @return {[type]}                      [description]
- */
-export default function entities(state = initialState, action) {
-  switch (action.type) {
-  case actionTypes.schemas.fetchSucceeded:
+const entities = handleActions({
+  // Fetched Schemas
+  [actionTypes.schemas.fetchSucceeded]: (state, action) => {
+    const rawSchemas = action.payload
     return {
       ...state,
-      schemas: action.schemas,
+      schemas: rawSchemas.map(Schema.fromObject),
     }
-  case actionTypes.schema.propertyTypes.fetchSucceeded:
-    return {
-      ...state,
-      schemaPropertyTypes: action.schemaPropertyTypes,
-    }
+  },
 
-  case actionTypes.modules.fetchSucceeded:
+  // Fetched Schema property types
+  [actionTypes.schemaPropertyTypes.fetchSucceeded]: (state, action) => {
+    const rawSchemaPropertyTypes = action.payload
     return {
       ...state,
-      modules: action.modules,
+      schemaPropertyTypes: rawSchemaPropertyTypes.map(SchemaPropertyType.fromObject),
     }
-  default:
-    return state
-  }
-}
+  },
+
+  // Fetched Modules
+  [actionTypes.modules.fetchSucceeded]: (state, action) => {
+    const rawModules = action.payload
+    return {
+      ...state,
+      modules: rawModules.map(Module.fromObject),
+    }
+  },
+}, initialState)
+
+export default entities

@@ -2,11 +2,11 @@ import {createCcActions, nullPayloadCreator} from './utils'
 
 
 const payloadCreators = {
-  update: (schema) => schema.toJS(),
-  createInit: nullPayloadCreator,
+  changeRequest: (pathname) => pathname,
+  changeCancel: nullPayloadCreator,
 }
 
-const ccActions = createCcActions('schema', payloadCreators)
+const ccActions = createCcActions('location', payloadCreators)
 
 export default ccActions.actions
 export const actionTypes = ccActions.actionTypes

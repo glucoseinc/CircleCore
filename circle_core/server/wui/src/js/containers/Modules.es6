@@ -6,12 +6,13 @@ import {GridList, GridTile} from 'material-ui/GridList'
 import RaisedButton from 'material-ui/RaisedButton'
 import TextField from 'material-ui/TextField'
 
-import actions from '../actions/modules'
+import actions from '../actions'
 import {urls} from '../routes'
-import Fetching from '../components/Fetching'
 import CCLink from '../components/CCLink'
-import ModulesTable from '../components/ModulesTable'
+import Fetching from '../components/Fetching'
 import ModuleDeleteDialog from '../components/ModuleDeleteDialog'
+import ModulesTable from '../components/ModulesTable'
+
 
 /**
  */
@@ -21,8 +22,18 @@ class Modules extends Component {
     isDeleteAsking: PropTypes.bool.isRequired,
     modules: PropTypes.array.isRequired,
     module: PropTypes.object.isRequired,
-    searchText: PropTypes.string.isRequired,
+    inputText: PropTypes.string.isRequired,
     actions: PropTypes.object.isRequired,
+  }
+
+  /**
+   * @override
+   */
+  componentWillMount() {
+    const {
+      actions,
+    } = this.props
+    actions.modules.fetchRequest()
   }
 
   /**
@@ -34,7 +45,7 @@ class Modules extends Component {
       isDeleteAsking,
       modules,
       module,
-      searchText,
+      inputText,
       actions,
     } = this.props
 
@@ -44,8 +55,8 @@ class Modules extends Component {
       )
     }
 
-    const filteredModules = searchText === '' ? modules : modules.filter((module) => (
-      module.metadata.tags.filter((tag) => tag.includes(searchText)).size > 0
+    const filteredModules = inputText === '' ? modules : modules.filter((module) => (
+      module.tags.filter((tag) => tag.includes(inputText)).size > 0
     ))
 
     return (
@@ -55,8 +66,8 @@ class Modules extends Component {
             <TextField
               hintText="Search by tag"
               fullWidth={true}
-              value={searchText}
-              onChange={(e) => actions.searchTextChange(e.target.value)}
+              value={inputText}
+              onChange={(e) => actions.misc.inputTextChange(e.target.value)}
             />
           </GridTile>
           <GridTile cols={2}>
@@ -71,14 +82,14 @@ class Modules extends Component {
 
         <ModulesTable
           modules={filteredModules}
-          onTagTouchTap={actions.tagTouchTap}
-          onDeleteTouchTap={actions.deleteTouchTap}
+          onTagTouchTap={actions.misc.inputTextChange}
+          onDeleteTouchTap={actions.modules.deleteAsk}
         />
         <ModuleDeleteDialog
           isActive={isDeleteAsking}
           module={module}
-          onOkTouchTap={actions.deleteExecuteTouchTap}
-          onCancelTouchTap={actions.deleteCancelTouchTap}
+          onOkTouchTap={actions.modules.deleteRequest}
+          onCancelTouchTap={actions.modules.deleteCancel}
         />
       </div>
     )
@@ -94,10 +105,10 @@ class Modules extends Component {
 function mapStateToProps(state) {
   return {
     isFetching: state.asyncs.isModulesFetching,
-    isDeleteAsking: state.asyncs.isModuleDeleteAsking,
+    isDeleteAsking: state.asyncs.isModulesDeleteAsking,
     modules: state.entities.modules,
-    module: state.miscs.module,
-    searchText: state.miscs.searchText,
+    module: state.misc.module,
+    inputText: state.misc.inputText,
   }
 }
 
@@ -108,7 +119,10 @@ function mapStateToProps(state) {
  */
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(actions, dispatch),
+    actions: {
+      modules: bindActionCreators(actions.modules, dispatch),
+      misc: bindActionCreators(actions.misc, dispatch),
+    },
   }
 }
 

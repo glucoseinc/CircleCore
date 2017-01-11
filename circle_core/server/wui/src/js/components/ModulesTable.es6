@@ -90,7 +90,7 @@ class ModulesTable extends Component {
                 )}
               </TableRowColumn>
               <TableRowColumn>
-                {module.metadata.tags.map((tag) =>
+                {module.tags.map((tag) =>
                   <Chip
                     style={style.chip}
                     key={tag}

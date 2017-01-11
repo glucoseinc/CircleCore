@@ -3,12 +3,13 @@ import {routerReducer as routing} from 'react-router-redux'
 
 import entities from './entities'
 import asyncs from './asyncs'
-import miscs from './miscs'
+import misc from './misc'
+
 
 const rootReducer = combineReducers({
   entities,
   asyncs,
-  miscs,
+  misc,
   routing,
 })
 

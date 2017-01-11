@@ -45,7 +45,7 @@ def _post_schemas():
         properties = dic['properties']
         properties = [prop for prop in properties
                       if len(prop['name']) != 0 and len(prop['type']) != 0]
-        memo = dic['metadata']['memo']
+        memo = dic['memo']
         if len(memo) == 0:
             memo = None
     except KeyError:
@@ -127,17 +127,15 @@ def _dictify(schema):
     """
     metadata = get_metadata()
     dic = {
-        'display_name': schema.display_name,
         'uuid': str(schema.uuid),
+        'display_name': schema.display_name,
         'properties': schema.dictified_properties,
-        'metadata': {
-            'memo': schema.memo
-        }
+        'memo': schema.memo,
     }
     modules = metadata.find_modules_by_schema(schema.uuid)
     dic['modules'] = [{
-        'display_name': module.display_name,
         'uuid': str(module.uuid),
+        'display_name': module.display_name,
     } for module in modules]
     return dic
 

@@ -1,12 +1,23 @@
-import {createAction} from 'redux-actions'
-
-import actionTypes from '../constants/ActionTypes'
+import {createCcActions, nullPayloadCreator} from './utils'
 
 
-export default {
-  searchTextChange: createAction(actionTypes.miscs.searchTextChange),
-  tagTouchTap: createAction(actionTypes.modules.filterByTag),
-  deleteTouchTap: createAction(actionTypes.module.deleteAsked),
-  deleteExecuteTouchTap: createAction(actionTypes.module.deleteRequested),
-  deleteCancelTouchTap: createAction(actionTypes.module.deleteCanceled, () => null),
+const payloadCreators = {
+  createRequest: (module) => module.toJS(),
+  createSucceeded: (response) => response,
+  createFailed: (message) => message,
+
+  fetchRequest: nullPayloadCreator,
+  fetchSucceeded: (modules) => modules.map((module) => module.toJS()),
+  fetchFailed: (message) => message,
+
+  deleteAsk: (module) => module.toJS(),
+  deleteCancel: nullPayloadCreator,
+  deleteRequest: (module) => module.toJS(),
+  deleteSucceeded: (response) => response,
+  deleteFailed: (message) => message,
 }
+
+const ccActions = createCcActions('modules', payloadCreators)
+
+export default ccActions.actions
+export const actionTypes = ccActions.actionTypes

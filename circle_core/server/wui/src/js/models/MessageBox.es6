@@ -6,7 +6,7 @@ import Schema from '../models/Schema'
 
 const MessageBoxRecord = Record({
   uuid: '',
-  schema: null,
+  schema: new Schema(),
   displayName: '',
   description: '',
 })
@@ -29,7 +29,7 @@ export default class MessageBox extends MessageBoxRecord {
   static fromObject(rawMessageBox) {
     return new MessageBox({
       uuid: rawMessageBox.uuid || '',
-      schema: Schema.fromObject(rawMessageBox.schema),
+      schema: Schema.fromObject(rawMessageBox.schema || {}),
       displayName: rawMessageBox.displayName || '',
       description: rawMessageBox.description || '',
     })

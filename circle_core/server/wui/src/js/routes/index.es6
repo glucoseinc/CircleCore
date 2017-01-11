@@ -24,12 +24,10 @@ const createURLs = (route, parentPath = '') => {
   }
 
   if (route.childRoutes !== undefined) {
-    route.childRoutes.map((childRoute) => {
-      urls = {
-        ...urls,
-        ...createURLs(childRoute, route.path),
-      }
-    })
+    urls = route.childRoutes.reduce((_urls, childRoute) => ({
+      ..._urls,
+      ...createURLs(childRoute, route.path),
+    }), urls)
   }
   return urls
 }

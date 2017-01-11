@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import {Link, formatPattern} from 'react-router'
 
+
 /**
  */
 class CCLink extends Component {
@@ -10,6 +11,7 @@ class CCLink extends Component {
     style: PropTypes.object,
     children: PropTypes.node,
   }
+
   /**
    * @override
    */

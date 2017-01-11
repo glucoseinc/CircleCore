@@ -1,8 +1,25 @@
-import {call, fork, put, takeEvery} from 'redux-saga/effects'
+import {call, fork, put, takeEvery, takeLatest} from 'redux-saga/effects'
 
 import CCAPI from '../api'
-import actionTypes from '../constants/ActionTypes'
+import actionTypes from '../actions/actionTypes'
+import actions from '../actions'
 
+import Module from '../models/Module'
+
+
+/**
+ * [createModule description]
+ * @param  {[type]}    action [description]
+ */
+function* createModule(action) {
+  const module = Module.fromObject(action.payload)
+  try {
+    const response = yield call(::CCAPI.postModule, module)
+    yield put(actions.modules.createSucceeded(response))
+  } catch (e) {
+    yield put(actions.modules.createFailed(e.message))
+  }
+}
 
 /**
  * [fetchModules description]
@@ -11,17 +28,10 @@ import actionTypes from '../constants/ActionTypes'
 function* fetchModules(action) {
   try {
     const modules = yield call(::CCAPI.getModules)
-    yield put({type: actionTypes.modules.fetchSucceeded, modules: modules})
+    yield put(actions.modules.fetchSucceeded(modules))
   } catch (e) {
-    yield put({type: actionTypes.modules.fetchFailed, message: e.message})
+    yield put(actions.modules.fetchFailed(e.message))
   }
-}
-
-/**
- * [handleModulesFetchRequest description]
- */
-function* handleModulesFetchRequest() {
-  yield takeEvery(actionTypes.modules.fetchRequested, fetchModules)
 }
 
 /**
@@ -29,40 +39,40 @@ function* handleModulesFetchRequest() {
  * @param  {[type]}    action [description]
  */
 function* deleteModule(action) {
-  const module = action.payload
+  const module = Module.fromObject(action.payload)
   try {
-    const response = yield call(::CCAPI.deleteModule, module.uuid)
-    yield put({type: actionTypes.module.deleteSucceeded, response: response})
+    const response = yield call(::CCAPI.deleteModule, module)
+    yield put(actions.modules.deleteSucceeded(response))
   } catch (e) {
-    yield put({type: actionTypes.module.deleteFailed, message: e.message})
+    yield put(actions.modules.deleteFailed(e.message))
   }
 }
 
+
 /**
- * [handleModuleDeleteRequest description]
+ * [handleModulesCreateRequest description]
  */
-function* handleModuleDeleteRequest() {
-  yield takeEvery(actionTypes.module.deleteRequested, deleteModule)
+function* handleModulesCreateRequest() {
+  yield takeEvery(actionTypes.modules.createRequest, createModule)
 }
 
 /**
- * [createModule description]
- * @param  {[type]}    action [description]
+ * [handleModulesFetchRequest description]
  */
-function* createModule(action) {
-  try {
-    const response = yield call(::CCAPI.postModule, action.module)
-    yield put({type: actionTypes.module.createSucceeded, response: response})
-  } catch (e) {
-    yield put({type: actionTypes.module.createFailed, message: e.message})
-  }
+function* handleModulesFetchRequest() {
+  const triggerActionTypes = [
+    actionTypes.modules.fetchRequest,
+    actionTypes.modules.createSucceeded,
+    actionTypes.modules.deleteSucceeded,
+  ]
+  yield takeLatest(triggerActionTypes, fetchModules)
 }
 
 /**
- * [handleModuleCreateRequest description]
+ * [handleModulesDeleteRequest description]
  */
-function* handleModuleCreateRequest() {
-  yield takeEvery(actionTypes.module.createRequested, createModule)
+function* handleModulesDeleteRequest() {
+  yield takeEvery(actionTypes.modules.deleteRequest, deleteModule)
 }
 
 
@@ -71,7 +81,7 @@ function* handleModuleCreateRequest() {
  * @param  {[type]}    args [description]
  */
 export default function* modulesSaga(...args) {
+  yield fork(handleModulesCreateRequest, ...args)
   yield fork(handleModulesFetchRequest, ...args)
-  yield fork(handleModuleCreateRequest, ...args)
-  yield fork(handleModuleDeleteRequest, ...args)
+  yield fork(handleModulesDeleteRequest, ...args)
 }

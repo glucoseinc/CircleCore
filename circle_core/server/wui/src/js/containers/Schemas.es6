@@ -4,12 +4,13 @@ import {connect} from 'react-redux'
 
 import RaisedButton from 'material-ui/RaisedButton'
 
-import * as actions from '../actions/schemas'
+import actions from '../actions'
 import {urls} from '../routes'
-import Fetching from '../components/Fetching'
 import CCLink from '../components/CCLink'
-import SchemasTable from '../components/SchemasTable'
+import Fetching from '../components/Fetching'
 import SchemaDeleteDialog from '../components/SchemaDeleteDialog'
+import SchemasTable from '../components/SchemasTable'
+
 
 /**
  */
@@ -20,6 +21,16 @@ class Schemas extends Component {
     schemas: PropTypes.array.isRequired,
     schema: PropTypes.object.isRequired,
     actions: PropTypes.object.isRequired,
+  }
+
+  /**
+   * @override
+   */
+  componentWillMount() {
+    const {
+      actions,
+    } = this.props
+    actions.schemas.fetchRequest()
   }
 
   /**
@@ -51,13 +62,13 @@ class Schemas extends Component {
 
         <SchemasTable
           schemas={schemas}
-          onDeleteTouchTap={actions.deleteTouchTap}
+          onDeleteTouchTap={actions.schemas.deleteAsk}
         />
         <SchemaDeleteDialog
           isActive={isDeleteAsking}
           schema={schema}
-          onOkTouchTap={actions.deleteExecuteTouchTap}
-          onCancelTouchTap={actions.deleteCancelTouchTap}
+          onOkTouchTap={actions.schemas.deleteRequest}
+          onCancelTouchTap={actions.schemas.deleteCancel}
         />
       </div>
     )
@@ -73,9 +84,9 @@ class Schemas extends Component {
 function mapStateToProps(state) {
   return {
     isFetching: state.asyncs.isSchemasFetching,
-    isDeleteAsking: state.asyncs.isSchemaDeleteAsking,
+    isDeleteAsking: state.asyncs.isSchemasDeleteAsking,
     schemas: state.entities.schemas,
-    schema: state.miscs.schema,
+    schema: state.misc.schema,
   }
 }
 
@@ -86,7 +97,9 @@ function mapStateToProps(state) {
  */
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(actions, dispatch),
+    actions: {
+      schemas: bindActionCreators(actions.schemas, dispatch),
+    },
   }
 }
 
