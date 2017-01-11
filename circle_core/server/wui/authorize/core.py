@@ -7,6 +7,7 @@ from flask import Blueprint, current_app, g
 from flask_oauthlib.provider import OAuth2Provider
 
 from .models import OAuthClient, OAuthGrant, OAuthToken
+from circle_core.constants import CRScope
 
 
 authorize = Blueprint('authorize', __name__)
@@ -21,7 +22,7 @@ webui_client = OAuthClient(
     '6ff76df5d2e72489b30d07ce81a273a6ea4128f98412f4b6027245c76cd0a098',
     ['http://localhost:5000'],
     'http://localhost:5000',
-    ['user', 'schema+rw'],
+    [s.value for s in CRScope],
     ['password', 'authorization_code', 'refresh_token'],
     ['code']
 )
@@ -53,7 +54,7 @@ def save_grant(client_id, code, request, *args, **kwargs):
     if not g.user.is_admin():
         # adminでなければ`user` scopeを落とす
         try:
-            scopes.remove('user')
+            scopes.remove(CRScope.USER_RW.value)
         except ValueError:
             pass
 

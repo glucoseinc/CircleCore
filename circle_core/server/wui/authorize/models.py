@@ -2,6 +2,11 @@
 import json
 import datetime
 
+from werkzeug import cached_property
+
+from circle_core.constants import CRScope
+
+
 REDIS_GRANT_KEY_PREFIX = '_oauth:grant:'
 REDIS_TOKEN_KEY_PREFIX = '_oauth:token:'
 
@@ -40,8 +45,12 @@ class OAuthGrant(object):
         self.client_id = client_id
         self.code = code
         self.redirect_uri = redirect_uri
-        self.scopes = scopes
+        self._scopes = [CRScope(s) for s in scopes]
         self.user = user
+
+    @property
+    def scopes(self):
+        return [s.value for s in self._scopes]
 
     def save(self, redis_client, expires):
         key = self.make_key(self.client_id, self.code)
@@ -102,9 +111,13 @@ class OAuthToken(object):
         self.access_token = access_token
         self.refresh_token = refresh_token
         self.client_id = client_id
-        self.scopes = scopes
+        self._scopes = [CRScope(s) for s in scopes]
         self.expires = expires
         self.user = user
+
+    @property
+    def scopes(self):
+        return [s.value for s in self._scopes]
 
     def save(self, redis_client):
         data = self.to_json()

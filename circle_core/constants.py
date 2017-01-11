@@ -37,3 +37,17 @@ DATATYPE_TO_TEXT_MAP = {
     CRDataType.TEXT: 'text',
 }
 DATATYPE_FROM_TEXT_MAP = dict(((v, k) for k, v in DATATYPE_TO_TEXT_MAP.items()))
+
+
+@enum.unique
+class CRScope(enum.Enum):
+    """
+    circle_core APIのscopeを定義する
+    """
+
+    # ユーザ情報の管理
+    USER_RW = 'user+rw'
+    # モジュール、メッセージスキーマなどの管理
+    SCHEMA_RW = 'schema+rw'
+    # モジュール、メッセージスキーマなどを閲覧するだけ
+    SCHEMA_R = 'schema+r'
