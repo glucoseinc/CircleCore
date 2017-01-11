@@ -41,9 +41,15 @@ function* onLocationChange(action) {
     yield put({type: actionTypes.schema.createInit})
     yield put({type: actionTypes.schema.propertyTypes.fetchRequested})
     break
+  case pathnames.modules:
+    yield put({type: actionTypes.modules.fetchRequested})
+    break
   default: {
     if (matched(pathnames.schema, pathname)) {
       yield put({type: actionTypes.schemas.fetchRequested})
+    }
+    if (matched(pathnames.module, pathname)) {
+      yield put({type: actionTypes.modules.fetchRequested})
     }
     yield
   }
@@ -99,6 +105,26 @@ function* handleLocationChangetoSchemas() {
 
 
 /**
+ * [locationChangetoModules description]
+ * @param  {[type]}    action [description]
+ */
+function* locationChangetoModules(action) {
+  yield put(routerActions.push(pathnames.modules))
+}
+
+/**
+ * [handleLocationChangetoModules description]
+ */
+function* handleLocationChangetoModules() {
+  const triggerActionTypes = [
+    actionTypes.module.createSucceeded,
+    actionTypes.module.deleteSucceeded,
+  ]
+  yield takeEvery(triggerActionTypes, locationChangetoModules)
+}
+
+
+/**
  * [locationSaga description]
  * @param  {[type]}    args [description]
  */
@@ -106,4 +132,5 @@ export default function* locationSaga(...args) {
   yield fork(handleLocationChangeExecuted, ...args)
   yield fork(handleLocationChangeRequet, ...args)
   yield fork(handleLocationChangetoSchemas, ...args)
+  yield fork(handleLocationChangetoModules, ...args)
 }

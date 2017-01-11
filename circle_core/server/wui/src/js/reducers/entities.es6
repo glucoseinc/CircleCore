@@ -25,6 +25,12 @@ export default function entities(state = initialState, action) {
       ...state,
       schemaPropertyTypes: action.schemaPropertyTypes,
     }
+
+  case actionTypes.modules.fetchSucceeded:
+    return {
+      ...state,
+      modules: action.modules,
+    }
   default:
     return state
   }

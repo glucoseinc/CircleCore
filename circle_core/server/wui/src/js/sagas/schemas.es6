@@ -33,7 +33,7 @@ function* deleteSchema(action) {
     const response = yield call(::CCAPI.deleteSchema, action.schema.uuid)
     yield put({type: actionTypes.schema.deleteSucceeded, response: response})
   } catch (e) {
-    yield put({type: actionTypes.schema.deleteSucceeded, message: e.message})
+    yield put({type: actionTypes.schema.deleteFailed, message: e.message})
   }
 }
 

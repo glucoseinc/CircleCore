@@ -5,10 +5,10 @@ import OkCancelDialog from '../components/OkCancelDialog'
 
 /**
  */
-class SchemaDeleteDialog extends Component {
+class ModuleDeleteDialog extends Component {
   static propTypes = {
     isActive: PropTypes.bool.isRequired,
-    schema: PropTypes.object.isRequired,
+    module: PropTypes.object.isRequired,
     onOkTouchTap: PropTypes.func.isRequired,
     onCancelTouchTap: PropTypes.func.isRequired,
   }
@@ -19,24 +19,24 @@ class SchemaDeleteDialog extends Component {
   render() {
     const {
       isActive,
-      schema,
+      module,
       onOkTouchTap,
       onCancelTouchTap,
     } = this.props
 
     return (
       <OkCancelDialog
-        title="メッセージスキーマを削除しますか？"
+        title="モジュールを削除しますか？"
         okLabel="削除"
-        onOkTouchTap={() => onOkTouchTap(schema)}
+        onOkTouchTap={() => onOkTouchTap(module)}
         cancelLabel="キャンセル"
         onCancelTouchTap={onCancelTouchTap}
         open={isActive ? true : false}
       >
-        <p>{schema.label}</p>
+        <p>{module.label}</p>
       </OkCancelDialog>
     )
   }
 }
 
-export default SchemaDeleteDialog
+export default ModuleDeleteDialog

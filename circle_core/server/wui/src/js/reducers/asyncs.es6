@@ -5,6 +5,11 @@ const initialState = {
   isSchemaPropertyFetching: false,
   isSchemaCreating: false,
   isSchemaDeleteAsking: false,
+
+  isModulesFetching: false,
+  isModuleCreating: false,
+  isModuleUpdating: false,
+  isModuleDeleteAsking: false,
 }
 
 /**
@@ -32,7 +37,6 @@ export default function asyncs(state = initialState, action) {
       ...state,
       isSchemaCreating: true,
     }
-
   case actionTypes.schema.createSucceeded:
   case actionTypes.schema.createFailed:
     return {
@@ -62,6 +66,30 @@ export default function asyncs(state = initialState, action) {
     return {
       ...state,
       isSchemaPropertyFetching: false,
+    }
+
+  case actionTypes.modules.fetchRequested:
+    return {
+      ...state,
+      isModulesFetching: true,
+    }
+  case actionTypes.modules.fetchSucceeded:
+  case actionTypes.modules.fetchFailed:
+    return {
+      ...state,
+      isModulesFetching: false,
+    }
+
+  case actionTypes.module.deleteAsked:
+    return {
+      ...state,
+      isModuleDeleteAsking: true,
+    }
+  case actionTypes.module.deleteRequested:
+  case actionTypes.module.deleteCanceled:
+    return {
+      ...state,
+      isModuleDeleteAsking: false,
     }
 
   default:

@@ -8,6 +8,7 @@ import {blueGrey600} from 'material-ui/styles/colors'
 import CCLink from '../components/CCLink'
 import {urls} from '../routes'
 
+
 /**
  */
 class SchemasTable extends Component {
@@ -49,7 +50,7 @@ class SchemasTable extends Component {
           adjustForCheckbox={false}
         >
           <TableRow>
-            <TableHeaderColumn tooltip="Schema's name">Name</TableHeaderColumn>
+            <TableHeaderColumn tooltip="Schema name">Name</TableHeaderColumn>
             <TableHeaderColumn tooltip="Modules using schema">Modules</TableHeaderColumn>
             <TableHeaderColumn></TableHeaderColumn>
           </TableRow>
@@ -58,45 +59,43 @@ class SchemasTable extends Component {
         <TableBody
           displayRowCheckbox={false}
         >
-          {schemas.map((schema) => {
-            return (
-              <TableRow key={schema.uuid}>
-                <TableRowColumn>
+          {schemas.map((schema) =>
+            <TableRow key={schema.uuid}>
+              <TableRowColumn>
+                <CCLink
+                  url={urls.schema}
+                  params={{schemaId: schema.uuid}}
+                >
+                  {schema.displayName}<br/>
+                  <span style={style.subtext}>{schema.uuid}</span>
+                </CCLink>
+              </TableRowColumn>
+              <TableRowColumn>
+                {schema.modules.map((module) =>
                   <CCLink
-                    url={urls.schema}
-                    params={{schemaId: schema.uuid}}
+                    key={module.uuid}
+                    url={urls.module}
+                    params={{moduleId: module.uuid}}
                   >
-                    {schema.display_name}<br/>
-                    <span style={style.subtext}>{schema.uuid}</span>
-                  </CCLink>
-                </TableRowColumn>
-                <TableRowColumn>
-                  {schema.modules.map((module) =>
-                    <CCLink
+                    <FlatButton
                       key={module.uuid}
-                      url={urls.module}
-                      params={{moduleId: module.uuid}}
-                    >
-                      <FlatButton
-                        key={module.uuid}
-                        style={style.moduleButton}
-                        label={module.display_name ? module.display_name : module.uuid}
-                        labelStyle={module.display_name ? {} : style.subtext}
-                      />
-                    </CCLink>
-                  )}
-                </TableRowColumn>
-                <TableRowColumn>
-                  <RaisedButton
-                    label="Delete"
-                    secondary={true}
-                    disabled={schema.modules.size === 0 ? false : true}
-                    onTouchTap={() => onDeleteTouchTap(schema)}
-                  />
-                </TableRowColumn>
-              </TableRow>
-            )
-          })}
+                      style={style.moduleButton}
+                      label={module.label}
+                      labelStyle={module.displayName ? {} : style.subtext}
+                    />
+                  </CCLink>
+                )}
+              </TableRowColumn>
+              <TableRowColumn>
+                <RaisedButton
+                  label="Delete"
+                  secondary={true}
+                  disabled={schema.modules.size === 0 ? false : true}
+                  onTouchTap={() => onDeleteTouchTap(schema)}
+                />
+              </TableRowColumn>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     )
