@@ -3,12 +3,12 @@
 """認証関連APIの実装."""
 import time
 
-from flask import abort, g, request, redirect, render_template, session, url_for
+from flask import abort, g, redirect, render_template, request, session, url_for
 
-from .core import authorize, oauth
-from ..utils import api_jsonify, get_metadata
 from circle_core.constants import CRScope
 from circle_core.exceptions import AuthorizationError
+from .core import authorize, oauth
+from ..utils import api_jsonify, get_metadata
 
 
 SESSION_KEY_USER = 'user'

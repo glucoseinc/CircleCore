@@ -6,16 +6,20 @@ import datetime
 from flask import Blueprint, current_app, g
 from flask_oauthlib.provider import OAuth2Provider
 
-from .models import OAuthClient, OAuthGrant, OAuthToken
 from circle_core.constants import CRScope
+from .models import OAuthClient, OAuthGrant, OAuthToken
 
 
 authorize = Blueprint('authorize', __name__)
 oauth = OAuth2Provider()
 oauth_clients = {}
-
-
 WEBUICLIENT_CLIENT_ID = '8F9A5449-F219-4BC4-9EA6-5F4C3100CD25'
+
+
+def register_client(client):
+    oauth_clients[client.client_id] = client
+
+
 webui_client = OAuthClient(
     WEBUICLIENT_CLIENT_ID,
     '3f82ad86ff167cebc39bf735533efe080b596f4ce343e4f51fd6c760a9835ccb' +
@@ -26,10 +30,6 @@ webui_client = OAuthClient(
     ['password', 'authorization_code', 'refresh_token'],
     ['code']
 )
-
-
-def register_client(client):
-    oauth_clients[client.client_id] = client
 register_client(webui_client)
 
 
