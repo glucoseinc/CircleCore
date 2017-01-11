@@ -13,6 +13,8 @@ if PY3:
 
 
 class CCWebApp(Flask):
+    """Web管理インタフェース用のFlask Application
+    """
     def __init__(self, metadata=None):
         super(CCWebApp, self).__init__(__name__)
 

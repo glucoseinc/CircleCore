@@ -12,7 +12,8 @@ REDIS_TOKEN_KEY_PREFIX = '_oauth:token:'
 
 
 class OAuthClient(object):
-    '''
+    """OAuthのClient
+
     client_id: A random string
     client_secret: A random string
     client_type: A string represents if it is confidential
@@ -26,8 +27,7 @@ class OAuthClient(object):
     validate_scopes: A function to validate scopes
 
     Response Typeについては http://oauth.jp/blog/2015/01/06/oauth2-multiple-response-type/ を参照
-
-    '''
+    """
     def __init__(
             self, client_id, client_secret, redirect_uris, default_redirect_uri, default_scopes,
             allowed_grant_types, allowed_response_types):
@@ -41,6 +41,8 @@ class OAuthClient(object):
 
 
 class OAuthGrant(object):
+    """OAuthのToken手前のGrant
+    """
     def __init__(self, client_id, code, redirect_uri, scopes, user):
         self.client_id = client_id
         self.code = code
@@ -50,21 +52,25 @@ class OAuthGrant(object):
 
     @property
     def scopes(self):
+        """scopeを(CRScopeではなく)文字列で返す"""
         return [s.value for s in self._scopes]
 
     def save(self, redis_client, expires):
-        key = self.make_key(self.client_id, self.code)
+        """grantの情報をredisに保存する"""
+        key = self._make_redis_key(self.client_id, self.code)
         redis_client.set(key, self.to_json())
         redis_client.expire(key, expires)
 
     @classmethod
     def load(cls, redis_client, client_id, code):
-        key = cls.make_key(client_id, code)
+        """grantの情報をredisから読み込む"""
+        key = cls._make_redis_key(client_id, code)
         data = redis_client.get(key)
         if data:
             return cls.from_json(data)
 
     def to_json(self):
+        """GRANTのJSON用表現を返す"""
         return json.dumps({
             'client_id': self.client_id,
             'code': self.code,
@@ -75,6 +81,7 @@ class OAuthGrant(object):
 
     @classmethod
     def from_json(cls, data):
+        """GRANTのJSON用表現からGrantを復元する"""
         d = json.loads(data)
         return cls(
             d['client_id'],
@@ -85,17 +92,20 @@ class OAuthGrant(object):
         )
 
     @classmethod
-    def make_key(cls, client_id, code):
+    def _make_redis_key(cls, client_id, code):
+        """Redis向けのKeyを返す"""
         return REDIS_GRANT_KEY_PREFIX + '{}:{}'.format(client_id, code)
 
     def delete(self):
+        """Grantをストレージ(Redisから)削除する"""
         from .core import _get_redis_client
         redis_client = _get_redis_client()
-        redis_client.delete(self.make_key(self.client_id, self.code))
+        redis_client.delete(self._make_redis_key(self.client_id, self.code))
 
 
 class OAuthToken(object):
-    '''
+    """OAuthのToken
+
     access_token: A string token
     refresh_token: A string token
     client_id: ID of the client
@@ -103,7 +113,7 @@ class OAuthToken(object):
     expires: A datetime.datetime object
     user: The user object
     delete: A function to delete itself
-    '''
+    """
 
     def __init__(self, access_token, refresh_token, client_id, scopes, expires, user):
         if isinstance(scopes, str):
@@ -117,20 +127,24 @@ class OAuthToken(object):
 
     @property
     def scopes(self):
+        """scopeを(CRScopeではなく)文字列で返す"""
         return [s.value for s in self._scopes]
 
     def save(self, redis_client):
+        """tokenの情報をredisに保存する"""
         data = self.to_json()
-        redis_client.set(self.make_key_by_access_token(self.access_token), data)
-        redis_client.set(self.make_key_by_refresh_token(self.refresh_token), data)
+        redis_client.set(self._make_redis_key_by_access_token(self.access_token), data)
+        redis_client.set(self._make_redis_key_by_refresh_token(self.refresh_token), data)
 
     def delete(self):
+        """tokenの情報をredisから削除する"""
         from .core import _get_redis_client
         redis_client = _get_redis_client()
-        redis_client.delete(self.make_key_by_access_token(self.access_token))
-        redis_client.delete(self.make_key_by_refresh_token(self.refresh_token))
+        redis_client.delete(self._make_redis_key_by_access_token(self.access_token))
+        redis_client.delete(self._make_redis_key_by_refresh_token(self.refresh_token))
 
     def to_json(self):
+        """tokenのJSON表現を返す"""
         return json.dumps({
             'access_token': self.access_token,
             'refresh_token': self.refresh_token,
@@ -142,6 +156,7 @@ class OAuthToken(object):
 
     @classmethod
     def from_json(cls, data):
+        """tokenのJSON表現からTokenを復元"""
         d = json.loads(data)
         return cls(
             d['access_token'],
@@ -154,20 +169,22 @@ class OAuthToken(object):
 
     @classmethod
     def load_token_by_access_token(cls, redis_client, access_token):
-        data = redis_client.get(cls.make_key_by_access_token(access_token))
+        """accessTokenからTokenを読み込む"""
+        data = redis_client.get(cls._make_redis_key_by_access_token(access_token))
         if data:
             return cls.from_json(data)
 
     @classmethod
     def load_token_by_refresh_token(cls, redis_client, refresh_token):
-        data = redis_client.get(cls.make_key_by_refresh_token(refresh_token))
+        """refreshTokenからTokenを読み込む"""
+        data = redis_client.get(cls._make_redis_key_by_refresh_token(refresh_token))
         if data:
             return cls.from_json(data)
 
     @classmethod
-    def make_key_by_access_token(cls, access_token):
+    def _make_redis_key_by_access_token(cls, access_token):
         return REDIS_TOKEN_KEY_PREFIX + 'access_token:{}'.format(access_token)
 
     @classmethod
-    def make_key_by_refresh_token(cls, refresh_token):
+    def _make_redis_key_by_refresh_token(cls, refresh_token):
         return REDIS_TOKEN_KEY_PREFIX + 'refresh_token:{}'.format(refresh_token)

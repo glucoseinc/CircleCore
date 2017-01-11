@@ -33,6 +33,10 @@ class APICaller {
     this.token = null
   }
 
+  /**
+   * OAuty用のTokenを設定する
+   * @param {OAuthToken} token OAuth token
+   */
   setToken(token) {
     this.token = token
   }
@@ -168,6 +172,8 @@ class CCAPI extends APICaller {
   // auth
   /**
    * oauthでもらったcodeからtokenを得る
+   * @param {Object} query query
+   * @return {Object} token?
    */
   async oauthToken(query) {
     // form-url-encodedで送らないといけないので...
@@ -180,6 +186,7 @@ class CCAPI extends APICaller {
 
   /**
    * oauthでもらったcodeからtokenを得る
+   * @return {object} token?
    */
   async revokeToken() {
     // form-url-encodedで送らないといけないので...

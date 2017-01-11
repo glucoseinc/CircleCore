@@ -1,3 +1,4 @@
+/* global CRCR_LOGIN_REDIRECT_TO:false CRCR_LOGIN_IS_FAILED:false CRCR_AUTH_FORM_VALUES:false */
 /**
  * 認証がないページ用のReact
  *
@@ -5,7 +6,7 @@
  */
 import React from 'react'
 import {render} from 'react-dom'
-import {Router, Route, Link, browserHistory} from 'react-router'
+import {Router, Route, browserHistory} from 'react-router'
 import injectTapEventPlugin from 'react-tap-event-plugin'
 import Title from 'react-title-component'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
@@ -19,7 +20,13 @@ import {colorError} from './colors'
 injectTapEventPlugin()
 
 
+/**
+ * 公開画面用の枠。ロゴがでてるくぐらい
+ */
 class PublicFrame extends React.Component {
+  /**
+   * @override
+   */
   render() {
     const {
     //   navDrawerOpen,
@@ -52,15 +59,24 @@ class PublicFrame extends React.Component {
 }
 
 
+/**
+ * ログイン画面
+ */
 class OAuthLogin extends React.Component {
+  /**
+   * @constructor
+   */
   constructor(...args) {
     super(...args)
 
     this.state = {
-      errors: {}
+      errors: {},
     }
   }
 
+  /**
+   * @override
+   */
   render() {
     const redirectTo = CRCR_LOGIN_REDIRECT_TO
     const isFailed = CRCR_LOGIN_IS_FAILED
@@ -106,6 +122,10 @@ class OAuthLogin extends React.Component {
     )
   }
 
+  /**
+   * Form送信前のエラーチェック
+   * @param {Event} e イベントオブジェクト
+   */
   onSubmit(e) {
     let errors = {}
 
@@ -125,13 +145,23 @@ class OAuthLogin extends React.Component {
   }
 }
 
+
+/**
+ * OAuth認証画面。 UIすっとばして強制的にPOSTしてしまう
+ */
 class OAuthAuthorize extends React.Component {
+  /**
+   * @override
+   */
   componentDidMount() {
     const form = this.refs.form
 
     form.submit()
   }
 
+  /**
+   * @override
+   */
   render() {
     const hiddenValues = CRCR_AUTH_FORM_VALUES
 

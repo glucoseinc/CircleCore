@@ -2,8 +2,10 @@ import CCAPI from './api'
 
 const TOKEN_KEY = 'crcr:session'
 const CLIENT_ID = '8F9A5449-F219-4BC4-9EA6-5F4C3100CD25'
-const CLIENT_SECRET = '3f82ad86ff167cebc39bf735533efe080b596f4ce343e4f51fd6c760a9835ccb6ff76df5d2e72489b30d07ce81a273a6ea4128f98412f4b6027245c76cd0a098'
-
+const CLIENT_SECRET = (
+  '3f82ad86ff167cebc39bf735533efe080b596f4ce343e4f51fd6c760a9835ccb' +
+  '6ff76df5d2e72489b30d07ce81a273a6ea4128f98412f4b6027245c76cd0a098'
+)
 
 /**
  * CRCR用のOAuthToken
@@ -11,6 +13,10 @@ const CLIENT_SECRET = '3f82ad86ff167cebc39bf735533efe080b596f4ce343e4f51fd6c760a
 class OAuthToken {
   /**
    * @constructor
+   * @param {string} storage storage
+   * @param {string} storageKey storageKey
+   * @param {string} clientID clientID
+   * @param {string} clientSecret clientSecret
    * @param {string} accessToken accessToken
    * @param {string} refreshToken refreshToken
    */
@@ -23,6 +29,10 @@ class OAuthToken {
     this.refreshToken = refreshToken
   }
 
+  /**
+   * tokenをストレージから読み込む
+   * @return {bool} 読み込めればtrue, 読み込めなければfalse
+   */
   load() {
     let raw = this._storage.getItem(this._storageKey)
     if(!raw)
@@ -33,6 +43,9 @@ class OAuthToken {
     return true
   }
 
+  /**
+   * tokenをストレージに保存する
+   */
   save() {
     this._storage.setItem(
       this._storageKey,
@@ -40,6 +53,9 @@ class OAuthToken {
     )
   }
 
+  /**
+   * tokenをクリアし、ストレージからも消す
+   */
   clear() {
     this.accessToken = null
     this.refreshToken = null
@@ -54,13 +70,18 @@ class OAuthToken {
     return this.accessToken && this.accessToken.length && this.refreshToken && this.refreshToken.length
   }
 
+  /**
+   * tokenを更新する
+   * @param {string} accessToken 新しいAccess Token
+   * @param {string} refreshToken 新しいRefresh Token
+   */
   update(accessToken, refreshToken) {
     this.accessToken = accessToken
     this.refreshToken = refreshToken
   }
 }
 
-var oauthToken = new OAuthToken(localStorage, TOKEN_KEY, CLIENT_ID, CLIENT_SECRET)
+let oauthToken = new OAuthToken(localStorage, TOKEN_KEY, CLIENT_ID, CLIENT_SECRET)
 
 
 /**
@@ -70,6 +91,7 @@ var oauthToken = new OAuthToken(localStorage, TOKEN_KEY, CLIENT_ID, CLIENT_SECRE
  * B. access_tokenがない →
  *    B-1. 返りfragmentにcodeがある → codeの確認
  *    B-2. ない → 認証フロー開始
+ * @return {bool} 認証OK
  */
 export async function checkAuthorization() {
   CCAPI.setToken(oauthToken)
@@ -78,11 +100,14 @@ export async function checkAuthorization() {
     // tokenがある -> 死活チェック(...はしない、API使った時の認証エラーでなんとかすればええねん)
 
     // token tests
-    // try{let resp = await CCAPI._get('/oauth/scope_test/user');     console.log(resp)} catch(e) {console.log('failed')}
-    // try{let resp = await CCAPI._get('/oauth/scope_test/schema+r');     console.log(resp)} catch(e) {console.log('failed')}
-    // try{let resp = await CCAPI._get('/oauth/scope_test/schema+rw');     console.log(resp)} catch(e) {console.log('failed')}
-    // try{let resp = await CCAPI._get('/oauth/scope_test/bad-scope');     console.log(resp)} catch(e) {console.log('failed')}
-
+    // function test_scope(scope) {
+    //   try{
+    //     let resp = await CCAPI._get(`/oauth/scope_test/${scope}`); console.log(resp)
+    //   } catch(e) {
+    //     console.log('failed')
+    //   }
+    // }
+    // for(scope of ['user+rw', 'schema+r', 'schema+rw', 'bad-scope']) { test_scope(scope) }
     return true
   } else {
     // tokenがない ->
@@ -95,7 +120,7 @@ export async function checkAuthorization() {
 
     if(authCode) {
       // authCodeの死活チェック
-      let tokenData = await _checkAuthorizationCode(authCode)
+      let tokenData = await _fetchTokenByAuthorizationCode(authCode)
       if(tokenData) {
         let {accessToken, refreshToken} = tokenData
         oauthToken.update(accessToken, refreshToken)
@@ -110,15 +135,26 @@ export async function checkAuthorization() {
   return false
 }
 
+
+/**
+ * ログアウトする。画面遷移あり
+ */
 export async function logout() {
   try {
     await CCAPI.revokeToken()
   } catch(e) {
+    // pass error
   }
   oauthToken.clear()
   location.href = '/'
 }
 
+
+/**
+ * ?key=val&key=val 形式のクエリをParseする
+ * @param {string} queryString クエリ文字列
+ * @return {Object} Parse済クエリ
+ */
 function _parseQuery(queryString) {
   let query = {}
   queryString.forEach((part) => {
@@ -133,6 +169,10 @@ function _parseQuery(queryString) {
 }
 
 
+/**
+ * AuthorizationCodeが返ってきているかどうかをチェックする
+ * @return {bool} AuthCodeが返ってきている
+ */
 function _checkHasAuthCodeReceived() {
   const hash = location.hash
 
@@ -153,7 +193,12 @@ function _checkHasAuthCodeReceived() {
 }
 
 
-async function _checkAuthorizationCode(authorizationCode) {
+/**
+ * 受け取ったauthorization codeをtokenに変える
+ * @param {string} authorizationCode AuthorizationCode
+ * @return {Object} accessToken, refreshToken
+ */
+async function _fetchTokenByAuthorizationCode(authorizationCode) {
   let response
   try {
     response = await CCAPI.oauthToken({
@@ -179,9 +224,12 @@ async function _checkAuthorizationCode(authorizationCode) {
 }
 
 
+/**
+ * OAuth認証を始める
+ * ページ遷移がおこります
+ */
 function _startAuthorization() {
   let url = `/oauth/authorize?client_id=${CLIENT_ID}&response_type=code`
 
   location.href = url
 }
-

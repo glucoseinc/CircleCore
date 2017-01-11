@@ -21,8 +21,9 @@ store.runSaga(rootSaga)
 const history = syncHistoryWithStore(browserHistory, store)
 
 
-
-// 認証チェックが有るので非同期に...
+/**
+ * 起動ハンドラ。認証済かチェックして、必要あらば認証を行う
+ */
 async function checkAndStart() {
   // 認証を確認して、必要あらばそっちに行く
   let canContinue = await checkAuthorization()

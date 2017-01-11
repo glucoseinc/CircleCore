@@ -43,6 +43,7 @@ def before_request():
 @authorize.route('/oauth/authorize', methods=['GET', 'POST'])
 @oauth.authorize_handler
 def oauth_authorize(*args, **kwargs):
+    """OAuth認証の確認を行う"""
     if not g.user:
         return redirect(url_for('.oauth_login', redirect=request.full_path))
 
@@ -64,6 +65,7 @@ def oauth_authorize(*args, **kwargs):
 
 @authorize.route('/oauth/login', methods=['GET', 'POST'])
 def oauth_login():
+    """oauthと永津いているが、通常のWebログイン"""
     if request.method == 'GET':
         redirect_to = request.args['redirect']
         if not redirect_to.startswith('/'):
