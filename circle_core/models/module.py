@@ -9,6 +9,8 @@ from uuid import UUID
 # community module
 from six import PY3
 
+from ..helpers.metadata import metadata
+
 if PY3:
     from typing import List, Optional, Union
 
@@ -95,3 +97,23 @@ class Module(object):
         """
         pattern = r'^module_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
         return re.match(pattern, key) is not None
+
+    def serialize(self):
+        """このインスタンスをslaveが再構築できるだけの情報.
+
+        レプリケーション時に使用.
+        """
+        return {
+            'uuid': self.uuid.hex,
+            'message_box_uuids': ','.join(uuid.hex for uuid in self.message_box_uuids),
+            'display_name': self.display_name,
+            'tags': ','.join(self.tags),
+            'description': self.description
+        }
+
+    @property
+    def of_master(self):
+        """
+        :return bool:
+        """
+        return any(metadata().find_message_box(box_uuid).of_master for box_uuid in self.message_box_uuids)

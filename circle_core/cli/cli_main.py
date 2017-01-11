@@ -4,7 +4,7 @@
 
 from __future__ import absolute_import, print_function
 
-from itertools import cycle
+from itertools import cycle, groupby
 from multiprocessing import Process
 from signal import SIGINT, signal, SIGTERM
 import sys
@@ -19,6 +19,7 @@ from click.core import Context
 from circle_core import server
 from circle_core.server import ws, wui
 from circle_core.workers import get_worker
+from circle_core.workers.replication_slave import ReplicationSlave
 from .context import ContextObject, ContextObjectError
 from .utils import RestartableProcess
 
@@ -76,13 +77,19 @@ def cli_main_env(ctx):
 @click.option('--wui-port', type=click.INT, envvar='CRCR_WUIPORT', default=5000)
 @click.option('--ipc-socket', type=click.Path(resolve_path=True), envvar='CRCR_IPCSOCK', default='/tmp/circlecore.ipc')
 @click.option('workers', '--worker', type=click.STRING, envvar='CRCR_WORKERS', multiple=True)
+@click.option('replicate_from', '--replicate', type=click.STRING, envvar='CRCR_REPLICATION', multiple=True,
+              help='module_uuid@hostname:port')
 @click.option('database_url', '--database', envvar='CRCR_DATABASE')
 @click.pass_context
-def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, workers, database_url):
+def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, workers, replicate_from, database_url):
     """CircleCoreの起動."""
     ctx.obj.ipc_socket = 'ipc://' + ipc_socket
     metadata = ctx.obj.metadata
     metadata.database_url = database_url  # とりあえず...
+
+    for addr, value in groupby([module_and_addr.split('@') for module_and_addr in replicate_from], lambda x: x[1]):
+        modules = [module_and_addr[0] for module_and_addr in value]
+        RestartableProcess(target=lambda: ReplicationSlave(metadata, addr, modules).run()).start()
 
     for worker in workers:
         RestartableProcess(target=get_worker(worker).run, args=[metadata]).start()
@@ -90,7 +97,7 @@ def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, workers, database_
     if ws_port == wui_port:
         RestartableProcess(target=server.run, args=[wui_port, metadata]).start()
     else:
-        RestartableProcess(target=ws.run, args=[ws_path, ws_port]).start()
+        RestartableProcess(target=ws.run, args=[metadata, ws_path, ws_port]).start()
         RestartableProcess(target=wui.create_app(metadata).run, kwargs={'port': wui_port}).start()
 
     click.echo('Websocket : ws://{host}:{port}{path}'.format(path=ws_path, port=ws_port, host='127.0.0.1'), err=True)
@@ -120,7 +127,7 @@ def cli_main_migrate(ctx, dry_run, database_url):
     metadata = ctx.obj.metadata
 
     db = Database(database_url)
-    db.register_schemas_and_modules(metadata.schemas, metadata.modules)
+    db.register_message_boxes(metadata.message_boxes, metadata.schemas)
 
     # check meta tables
     if dry_run:

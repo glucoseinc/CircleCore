@@ -27,6 +27,12 @@ Temporary Items
 .apdisk
 
 
+### https://raw.github.com/github/gitignore/a8a9744a6f51864e184fb2441bac59af66bbc385/Global/redis.gitignore
+
+# Ignore redis binary dump (dump.rdb) files
+
+*.rdb
+
 
 # Created by https://www.gitignore.io/api/python
 

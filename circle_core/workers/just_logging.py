@@ -12,6 +12,6 @@ logger = get_stream_logger(__name__)
 def run(config):
     """clickから起動される."""
     topic = JustLogging()
-    receiver = Receiver()
-    for msg in receiver.incoming_messages(topic):
+    receiver = Receiver(topic)
+    for msg in receiver.incoming_messages():
         logger.debug('received a message %r in topic %s', msg, topic)

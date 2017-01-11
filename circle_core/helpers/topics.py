@@ -4,86 +4,80 @@ import json
 import re
 from uuid import UUID
 
-import base58
+from base58 import b58decode, b58encode
 from werkzeug import cached_property
+
+from circle_core.models.message import ModuleMessage
 
 
 TOPIC_LENGTH = 48  # Topic name must be shorter than this value
 
 
-class TopicBase(object):
-    """全てのTopicの基底クラス."""
+class BaseTopic(object):
+    """nanomsgのTopicを表す.
 
-    @property
+    受け取ったデータをnanomsgで送れるテキストに変換する責務を持つ。
+    受信後の復元、その後の取り回しはMessageの役割。
+    """
+
+    @cached_property
     def topic(self):
-        """Topic名をTOPIC_LENGTHに揃えた値."""
-        return self.__class__.__name__.ljust(TOPIC_LENGTH)
+        """Topic名."""
+        return self.__class__.__name__
 
-    def with_json(self, jsondata):
-        """Topic名と引数を繋げて返す.
+    def encode(self, text):
+        """Topicとtextを繋げて返す.
 
-        特定のTopicに向けてメッセージを送る際に有用
+        Senderに使われる
 
-        :param unicode jsondata: 送りたいJSON
+        :param unicode text: 送りたいプレーンテキスト
         :return unicode:
         """
-        return self.topic + jsondata
+        return self.topic.ljust(TOPIC_LENGTH) + text
 
-    def encode_json(self, data):
-        """Topic名と引数を繋げて返す.
+    def decode(self, plain_msg):
+        """encodeの対.
 
-        特定のTopicに向けてメッセージを送る際に有用
+        Receiverに使われる
 
-        :param dict data: JSONにして送りたいデータ
-        :return unicode:
+        :param str plain_msg:
+        :return List[ModuleMessage]:
         """
-        return self.topic + json.dumps(data, ensure_ascii=False)
-
-    def decode_json(self, data):
-        """nanomsgで送られてきたJSONからトピック名を取り除いて返す.
-
-        :param unicode data:
-        :return dict:
-        """
-        return json.loads(re.sub('^' + self.topic, '', data))
+        raise NotImplementedError
 
 
-class JustLogging(TopicBase):
+class JustLogging(BaseTopic):
     """特に意味のないTopic."""
 
-    pass
+    @cached_property
+    def topic(self):
+        return ''
 
 
-class SensorDataTopic(TopicBase):
-    """センサデータの送受信Topic
-    送受信わけるべきでは?"""
+class SensorDataTopic(BaseTopic):
+    """センサデータの送受信Topic."""
 
-    topic_prefix = 'module:'
+    prefix = 'module:'
 
     def __init__(self, module=None):
+        """constructor."""
         self.module = module
-
-    @classmethod
-    def topic_for_module(cls, module):
-        return '{}{}'.format(
-            cls.topic_prefix,
-            base58.b58encode(module.uuid.bytes)
-        ).ljust(TOPIC_LENGTH)
 
     @cached_property
     def topic(self):
         if self.module:
-            return self.topic_for_module(self.module)
+            return self.prefix + b58encode(self.module.uuid.bytes)
         else:
-            return self.topic_prefix
+            return self.prefix
 
-    def decode_json(self, data):
-        """nanomsgで送られてきたJSONからトピック名を取り除いて返す.
+    def encode(self, json_msg):
+        return self.topic.ljust(TOPIC_LENGTH) + json.dumps(json_msg)
 
-        :param unicode data:
-        :return dict:
+    def decode(self, plain_msg):
+        """nanomsgで送られてきたメッセージがJSONだとしてデシリアライズ.
+
+        :param str plain_msg:
+        :return [ModuleMessage]:
         """
-        topic, jsondata = data[:TOPIC_LENGTH], data[TOPIC_LENGTH:]
-        module_uuid = UUID(bytes=base58.b58decode(topic[len(self.topic_prefix):].rstrip()))
-
-        return module_uuid, json.loads(jsondata)
+        payload = json.loads(plain_msg[TOPIC_LENGTH:])
+        return [ModuleMessage.decode(i) for i in payload]

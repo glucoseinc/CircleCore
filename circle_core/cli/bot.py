@@ -30,7 +30,8 @@ def echo(receive_from, send_to):
     while True:
         i += 1
         msg = receiver.recv()
-        sender.send(msg)
+        for dic in json.loads(msg):
+            sender.send(json.dumps(dic))
         # click.echo('I sent a message {} times'.format(i))
 
 

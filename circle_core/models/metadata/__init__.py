@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # community module
+from click import get_current_context
 from six import PY3
 from six.moves.urllib.parse import urlparse
 
