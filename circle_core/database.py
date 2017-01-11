@@ -71,7 +71,7 @@ class Database(object):
 
             # define columns
             columns = [
-                sa.Column('_created_at', mysql.TIMESTAMP(fsp=6), nullable=False),
+                sa.Column('_created_at', sa.Numeric(16, 6, asdecimal=True), nullable=False),
                 sa.Column('_counter', sa.Integer(), nullable=False, default=0),
             ]
             for prop in schema.properties:
