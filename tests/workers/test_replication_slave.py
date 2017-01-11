@@ -55,6 +55,7 @@ class DummyMetadata(MetadataReader):
 
 
 @pytest.mark.usefixtures('class_wide_mysql')
+@pytest.mark.skip
 class TestReplicationSlave:
     @classmethod
     def setup_class(cls):
