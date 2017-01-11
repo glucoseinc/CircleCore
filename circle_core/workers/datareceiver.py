@@ -69,7 +69,11 @@ def run(metadata):
 
                     for packet in payload:
                         # TODO: packetチェック
-                        conn.execute(table.insert().values(_counter=counter, **packet))
+                        conn.execute(table.insert().values(
+                            _created_at=now,
+                            _counter=counter,
+                            **packet
+                        ))
                         counter += 1
                 except:
                     import traceback
