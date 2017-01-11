@@ -107,18 +107,18 @@ def convert_dict_key_snake_case(obj):
 
 
 def oauth_require_user_scope(f):
-    """user管理Scope"""
+    """user情報の読み書きが行えるScope"""
     from .authorize import oauth
     return oauth.require_oauth('user')(f)
 
 
 def oauth_require_read_schema_scope(f):
-    """Schema読むだけScope"""
+    """(User以外の）メタデータを読むだけのScope"""
     from .authorize import oauth
     return oauth.require_oauth('schema+r', 'schema+rw')(f)
 
 
 def oauth_require_write_schema_scope(f):
-    """Schema管理Scope"""
+    """(User以外の）メタデータを読み書きするためのScope"""
     from .authorize import oauth
     return oauth.require_oauth('schema+rw')(f)
