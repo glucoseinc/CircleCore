@@ -11,7 +11,7 @@ from click.testing import CliRunner
 import pytest
 from sqlalchemy import create_engine, Table
 from sqlalchemy.engine.reflection import Inspector
-from sqlalchemy.types import INTEGER, TIMESTAMP
+from sqlalchemy.types import INTEGER, NUMERIC
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado.testing import AsyncHTTPTestCase, gen_test
@@ -131,7 +131,7 @@ class TestReplicationSlave:
         table_name = db.make_table_name_for_message_box(box)
         columns = inspector.get_columns(table_name)
         types = {
-            '_created_at': TIMESTAMP,
+            '_created_at': NUMERIC,
             '_counter': INTEGER,
             'hoge': INTEGER
         }
@@ -176,6 +176,6 @@ class TestReplicationSlave:
         with session.begin():
             rows = session.query(table).all()
             assert len(rows) == 1
-            assert datetime.timestamp(rows[0]._created_at) == now
+            assert rows[0]._created_at == now
             assert rows[0]._counter == 0
             assert rows[0].hoge == 123

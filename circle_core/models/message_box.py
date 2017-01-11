@@ -109,7 +109,7 @@ class MessageBox(object):
         table = db.find_table_for_message_box(self)
         session = db._session()
         with session.begin():
-            created_at = datetime.fromtimestamp(timestamp)  # TODO: Python側ではdatetimeを使うよう統一
+            created_at = timestamp
             query = session.query(table).filter(
                 (created_at < table.columns._created_at) |
                 ((table.columns._created_at == created_at) & (count < table.columns._counter))
@@ -124,6 +124,6 @@ class MessageBox(object):
                     for key, value in zip(row.keys(), row)
                     if not key.startswith('_')
                 }
-                timestamp = row._created_at.timestamp()  # timetupleを使うとmicrosecondの情報が切り捨てられる...
+                timestamp = row._created_at  # timetupleを使うとmicrosecondの情報が切り捨てられる...
 
                 yield ModuleMessage(self.module.uuid, payload=payload, timestamp=timestamp, count=row._counter)

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """デバイスからのメッセージ."""
+import decimal
 import json
 import re
 from time import time
@@ -15,6 +16,7 @@ from ..logger import get_stream_logger
 
 
 logger = get_stream_logger(__name__)
+message_timestamp_context = decimal.Context(16, decimal.ROUND_DOWN)
 
 
 class ModuleMessageFactory(object):
@@ -63,16 +65,32 @@ class ModuleMessage(object):
         decoded = json.loads(plain_msg)
         return cls(**decoded)
 
+    @classmethod
+    def make_timestamp(cls, timestamp):
+        assert isinstance(timestamp, (float, decimal.Decimal))
+
+        if isinstance(timestamp, float):
+            return message_timestamp_context.create_decimal_from_float(timestamp)
+        else:
+            return message_timestamp_context.create_decimal(timestamp)
+
+    @classmethod
+    def is_equal_timestamp(cls, x, y):
+        return message_timestamp_context.compare(
+            cls.make_timestamp(x),
+            cls.make_timestamp(y)
+        ).is_zero()
+
     def __init__(self, module_uuid, payload, timestamp, count):
         """timestampとcountをMessageの識別子とする.
 
         :param UUID module_uuid:
         :param dict payload:
-        :param int timestamp:
+        :param float_or_Deciaml timestamp:
         :param int count:
         """
         self.payload = payload
-        self.timestamp = timestamp
+        self.timestamp = self.make_timestamp(timestamp)
         self.count = count
 
         if not isinstance(module_uuid, UUID):
@@ -100,7 +118,7 @@ class ModuleMessage(object):
         :return str:
         """
         return json.dumps({
-            'timestamp': self.timestamp,
+            'timestamp': float(self.timestamp),
             'count': self.count,
             'module_uuid': self.module.uuid.hex,
             'payload': self.payload

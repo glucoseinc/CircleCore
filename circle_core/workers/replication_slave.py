@@ -70,7 +70,7 @@ class ReplicationSlave(object):
 
                 table = self.db.find_table_for_message(msg)
                 query = table.insert().values(
-                    _created_at=datetime.fromtimestamp(msg.timestamp),
+                    _created_at=msg.timestamp,
                     _counter=msg.count,
                     **msg.payload
                 )
