@@ -88,6 +88,13 @@ class User(object):
         """
         return self.encrypted_password == encrypt_password(password, self.uuid.hex)
 
+    def is_admin(self):
+        """ユーザがadmin権限をもっているかどうか
+        :return: adminであればTrue
+        :rtype: bool
+        """
+        return 'admin' in self.permissions
+
 
 def encrypt_password(password, salt):
     """パスワードを暗号化する.

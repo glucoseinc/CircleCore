@@ -32,11 +32,13 @@ def dumps(obj, **kwargs):
 def api_jsonify(*args, **kwargs):
     """flask.json.jsonify"""
     indent = None
+    _status = kwargs.pop('_status', None)
     if current_app.config['JSONIFY_PRETTYPRINT_REGULAR'] \
        and not request.is_xhr:
         indent = 2
     return current_app.response_class(
         dumps(dict(*args, **kwargs), indent=indent),
+        status=_status,
         mimetype='application/json; charset=utf-8')
 
 
@@ -102,3 +104,21 @@ def convert_dict_key_snake_case(obj):
         return [convert_dict_key_snake_case(item) for item in obj]
 
     return obj
+
+
+def oauth_require_user_scope(f):
+    """user情報の読み書きが行えるScope"""
+    from .authorize import oauth
+    return oauth.require_oauth('user')(f)
+
+
+def oauth_require_read_schema_scope(f):
+    """(User以外の）メタデータを読むだけのScope"""
+    from .authorize import oauth
+    return oauth.require_oauth('schema+r', 'schema+rw')(f)
+
+
+def oauth_require_write_schema_scope(f):
+    """(User以外の）メタデータを読み書きするためのScope"""
+    from .authorize import oauth
+    return oauth.require_oauth('schema+rw')(f)

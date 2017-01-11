@@ -4,6 +4,7 @@ import DefinePlugin from 'webpack/lib/DefinePlugin'
 module.exports = {
   entry: {
     'main': ['babel-polyfill', './circle_core/server/wui/src/js/main.es6'],
+    'public': ['babel-polyfill', './circle_core/server/wui/src/js/public.es6'],
   },
   output: {
     publicPath: '/styles/',

@@ -25,3 +25,10 @@ class ModuleNotFoundError(CircleCoreException):
 class SchemaNotFoundError(CircleCoreException):
     """Schemaが見つからない時の例外"""
     pass
+
+
+class AuthorizationError(CircleCoreException):
+    """認証失敗時のエラー
+
+    エラー詳細はユーザには掲示しないこと"""
+    pass

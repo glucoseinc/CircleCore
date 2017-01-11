@@ -12,6 +12,7 @@ install_requires = [
     'base58',
     'click>=6',
     'flask',
+    'Flask-OAuthlib',
     'nnpy',
     'redis',
     'six',
