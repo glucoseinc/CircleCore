@@ -28,9 +28,9 @@ import actions from '../actions'
 function* fetchUsers(action) {
   try {
     const users = yield call(::CCAPI.getUsers)
-    yield put(actions.modules.fetchSucceeded(users))
+    yield put(actions.users.fetchSucceeded(users))
   } catch (e) {
-    yield put(actions.modules.fetchFailed(e.message))
+    yield put(actions.users.fetchFailed(e.message))
   }
 }
 

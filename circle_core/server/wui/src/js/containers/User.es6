@@ -1,19 +1,16 @@
-import React, {Component, PropTypes} from 'react'
+import React, {PropTypes} from 'react'
 import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
-
-import RaisedButton from 'material-ui/RaisedButton'
 
 import actions from '../actions'
 // import {urls} from '../routes'
 // import CCLink from '../components/CCLink'
 import Fetching from '../components/Fetching'
-import UsersTable from '../components/UsersTable'
 
 
 /**
  */
-class Users extends Component {
+class User extends React.Component {
   static propTypes = {
     isFetching: PropTypes.bool.isRequired,
     // isDeleteAsking: PropTypes.bool.isRequired,
@@ -37,8 +34,8 @@ class Users extends Component {
   render() {
     const {
       isFetching,
-      // isDeleteAsking,
       users,
+      params,
       // actions,
     } = this.props
 
@@ -48,17 +45,11 @@ class Users extends Component {
       )
     }
 
+    const user = users.find((x) => x.uuid === params.userId)
+
     return (
       <div>
-        <RaisedButton
-          label="ユーザー招待リンクを生成する"
-          primary={true}
-        />
-
-        <UsersTable
-          users={users}
-          onDeleteTouchTap={() => {}}
-        />
+        {user.mailAddress}
       </div>
     )
   }
@@ -93,4 +84,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(Users)
+)(User)

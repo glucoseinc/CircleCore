@@ -1,19 +1,9 @@
 import {createCcActions, nullPayloadCreator} from './utils'
 
-const ccActions = createCcActions('schemas', {
-  // createRequest: (schema) => schema.toJS(),
-  // createSucceeded: (response) => response,
-  // createFailed: (message) => message,
-
+const ccActions = createCcActions('users', {
   fetchRequest: nullPayloadCreator,
-  fetchSucceeded: (users) => users.map((users) => users.toJS()),
+  fetchSucceeded: (users) => users.map((user) => user.toJS()),
   fetchFailed: (message) => message,
-
-  // deleteAsk: (schema) => schema.toJS(),
-  // deleteCancel: nullPayloadCreator,
-  // deleteRequest: (schema) => schema.toJS(),
-  // deleteSucceeded: (response) => response,
-  // deleteFailed: (message) => message,
 })
 
 export default ccActions.actions

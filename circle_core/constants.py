@@ -44,10 +44,11 @@ class CRScope(enum.Enum):
     """
     circle_core APIのscopeを定義する
     """
-
+    # ユーザ情報の読み込み
+    USER_R = 'user+r'
     # ユーザ情報の管理
     USER_RW = 'user+rw'
-    # モジュール、メッセージスキーマなどの管理
-    SCHEMA_RW = 'schema+rw'
     # モジュール、メッセージスキーマなどを閲覧するだけ
     SCHEMA_R = 'schema+r'
+    # モジュール、メッセージスキーマなどの管理
+    SCHEMA_RW = 'schema+rw'

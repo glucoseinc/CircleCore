@@ -80,7 +80,7 @@ const entities = handleActions({
     const rawUsers = action.payload
     return {
       ...state,
-      modules: rawUsers.map(User.fromObject),
+      users: rawUsers.map(User.fromObject),
     }
   },
 }, initialState)

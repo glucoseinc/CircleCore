@@ -4,12 +4,12 @@ import {Record} from 'immutable'
 
 const UserRecord = Record({
   uuid: '',
-  // schema: new Schema(),
-  // displayName: '',
-  // description: '',
+  mailAddress: '',
+  permissions: [],
 })
 
 /**
+ * Userモデル
  */
 export default class User extends UserRecord {
   /**
@@ -26,9 +26,24 @@ export default class User extends UserRecord {
   static fromObject(rawUser) {
     return new User({
       uuid: rawUser.uuid,
-      // schema: Schema.fromObject(rawMessageBox.schema || {}),
-      // displayName: rawMessageBox.displayName || '',
-      // description: rawMessageBox.description || '',
+      mailAddress: rawUser.mailAddress,
+      permissions: rawUser.permissions,
     })
+  }
+
+  /**
+   * 表示用の名称
+   * @return {string}
+   */
+  get displayName() {
+    return this.mailAddress || this.uuid
+  }
+
+  /**
+   * 管理者であるか？
+   * @return {bool}
+   */
+  get isAdmin() {
+    return this.permissions.indexOf('admin') >= 0
   }
 }

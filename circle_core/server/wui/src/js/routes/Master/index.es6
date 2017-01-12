@@ -2,20 +2,20 @@ import Master from '../../containers/Master'
 
 
 const children = [
-  // 認証、自分関連
   'ChangeProfile',
   'Logout',
-
   'Modules',
   'ModulesNew',
   'Module',
   'Schemas',
   'SchemasNew',
   'Schema',
+  'User',
   'Users',
+
+  // 必ず最後
   'NotFound',
 ]
-console.log(children.map((child) => require(`./${child}`).default))
 
 const masterRoute = {
   key: 'root',
@@ -24,5 +24,6 @@ const masterRoute = {
   indexRoute: {component: require('./Modules').default.component},
   childRoutes: children.map((child) => require(`./${child}`).default),
 }
+
 
 export default masterRoute

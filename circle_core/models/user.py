@@ -95,6 +95,18 @@ class User(object):
         """
         return 'admin' in self.permissions
 
+    def to_json(self):
+        """このモデルのJSON表現を返す
+
+        :return: json表現のdict
+        :rtype: dict
+        """
+        return {
+            'uuid': str(self.uuid),
+            'mailAddress': self.mail_address,
+            'permissions': self.permissions
+        }
+
 
 def encrypt_password(password, salt):
     """パスワードを暗号化する.

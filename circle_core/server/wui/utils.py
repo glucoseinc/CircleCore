@@ -10,6 +10,7 @@ from six import PY3
 
 # project module
 from circle_core.models.metadata import MetadataIniFile, MetadataRedis
+from circle_core.constants import CRScope
 
 if PY3:
     from typing import Any, Dict, Union
@@ -116,19 +117,25 @@ def convert_dict_key_snake_case(obj):
     return obj
 
 
-def oauth_require_user_scope(f):
-    """user情報の読み書きが行えるScope"""
+def oauth_require_read_users_scope(f):
+    """user情報の読み込みが行えるScope"""
     from .authorize import oauth
-    return oauth.require_oauth('user')(f)
+    return oauth.require_oauth(CRScope.USER_R.value, CRScope.USER_RW.value)(f)
+
+
+def oauth_require_write_users_scope(f):
+    """user情報の変更が行えるScope"""
+    from .authorize import oauth
+    return oauth.require_oauth(CRScope.USER_RW.value)(f)
 
 
 def oauth_require_read_schema_scope(f):
     """(User以外の）メタデータを読むだけのScope"""
     from .authorize import oauth
-    return oauth.require_oauth('schema+r', 'schema+rw')(f)
+    return oauth.require_oauth(CRScope.SCHEMA_R.value, CRScope.SCHEMA_RW.value)(f)
 
 
 def oauth_require_write_schema_scope(f):
     """(User以外の）メタデータを読み書きするためのScope"""
     from .authorize import oauth
-    return oauth.require_oauth('schema+rw')(f)
+    return oauth.require_oauth(CRScope.SCHEMA_RW.value)(f)
