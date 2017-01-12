@@ -2,7 +2,7 @@
 
 from datetime import datetime, timedelta
 
-from flask import Flask, render_template
+from flask import abort, Flask, render_template, request
 from six import PY3
 
 # project module
@@ -35,4 +35,7 @@ class CCWebApp(Flask):
         @self.route('/<path:path>')
         def _index(path):
             """WUI root."""
+            # ここにAPIのリクエストが来たら、それはPathを間違えている
+            if request.path.startswith('/api/'):
+                raise abort(404)
             return render_template('index.html')
