@@ -1,31 +1,28 @@
 import Master from '../../containers/Master'
 
-import ChangeProfile from './ChangeProfile'
-import Logout from './Logout'
-import Modules from './Modules'
-import ModulesNew from './ModulesNew'
-import Module from './Module'
-import Schemas from './Schemas'
-import SchemasNew from './SchemasNew'
-import Schema from './Schema'
-import NotFound from './NotFound'
+
+const children = [
+  // 認証、自分関連
+  'ChangeProfile',
+  'Logout',
+
+  'Modules',
+  'ModulesNew',
+  'Module',
+  'Schemas',
+  'SchemasNew',
+  'Schema',
+  'Users',
+  'NotFound',
+]
+console.log(children.map((child) => require(`./${child}`).default))
 
 const masterRoute = {
   key: 'root',
   path: '/',
   component: Master,
-  indexRoute: {component: Modules.component},
-  childRoutes: [
-    ChangeProfile,
-    Logout,
-    Modules,
-    ModulesNew,
-    Module,
-    Schemas,
-    SchemasNew,
-    Schema,
-    NotFound,
-  ],
+  indexRoute: {component: require('./Modules').default.component},
+  childRoutes: children.map((child) => require(`./${child}`).default),
 }
 
 export default masterRoute

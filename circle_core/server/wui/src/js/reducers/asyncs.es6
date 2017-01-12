@@ -4,20 +4,21 @@ import actionTypes from '../actions/actionTypes'
 
 
 const initialState = {
-  isSchemasCreating: false,
-  isSchemasFetching: false,
-  isSchemasDeleteAsking: false,
-
-  isSchemaPropertyTypesFetching: false,
-
   isModulesCreating: false,
   isModulesFetching: false,
   isModulesUpdating: false,
   isModulesDeleteAsking: false,
 
+  isSchemasCreating: false,
+  isSchemasFetching: false,
+  isSchemasDeleteAsking: false,
+  isSchemaPropertyTypesFetching: false,
+
   isSchemaFetching: false,
 
   isModuleFetching: false,
+
+  isUsersFetching: false,
 }
 
 // Schemas
@@ -69,6 +70,10 @@ const setModuleFetching = (newState) => (state, action) => ({
   isModuleFetching: newState,
 })
 
+const setUsersFetching = (newState) => (state, action) => ({
+  ...state,
+  isUsersFetching: newState,
+})
 
 const asyncs = handleActions({
   // Create Schemas
@@ -115,6 +120,11 @@ const asyncs = handleActions({
   [actionTypes.module.fetchRequest]: setModuleFetching(true),
   [actionTypes.module.fetchSucceeded]: setModuleFetching(false),
   [actionTypes.module.fetchFailed]: setModuleFetching(false),
+
+  // Fetch Users
+  [actionTypes.users.fetchRequest]: setUsersFetching(true),
+  [actionTypes.users.fetchSucceeded]: setUsersFetching(false),
+  [actionTypes.users.fetchFailed]: setUsersFetching(false),
 }, initialState)
 
 export default asyncs

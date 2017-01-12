@@ -56,12 +56,12 @@ class NavDrawer extends Component {
         //     mapURLToMenuItem(urls.dumps),
         //   ],
         // },
-        // {
-        //   title: 'ユーザ管理',
-        //   items: [
-        //     mapURLToMenuItem(urls.users),
-        //   ],
-        // },
+        {
+          title: 'ユーザ管理',
+          items: [
+            mapURLToMenuItem(urls.users),
+          ],
+        },
       ],
       [
         {

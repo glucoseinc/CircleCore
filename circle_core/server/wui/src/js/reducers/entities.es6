@@ -3,15 +3,18 @@ import {Map} from 'immutable'
 import {normalize} from 'normalizr'
 
 import actionTypes from '../actions/actionTypes'
+import Module from '../models/Module'
 import Schema from '../models/Schema'
 import SchemaPropertyType from '../models/SchemaPropertyType'
-import Module from '../models/Module'
+import User from '../models/User'
 import normalizerSchema from '../models/normalizerSchema'
+
 
 const initialState = {
   schemas: new Map(),
   schemaPropertyTypes: new Map(),
   modules: new Map(),
+  users: [],
 }
 
 const convertValues = (obj, converter) => {
@@ -71,6 +74,15 @@ const entities = handleActions({
   // Fetched Modules
   [actionTypes.modules.fetchSucceeded]: mergeByFetchingModules(true),
   [actionTypes.module.fetchSucceeded]: mergeByFetchingModules(false),
+
+  // Fetched Users
+  [actionTypes.users.fetchSucceeded]: (state, action) => {
+    const rawUsers = action.payload
+    return {
+      ...state,
+      modules: rawUsers.map(User.fromObject),
+    }
+  },
 }, initialState)
 
 export default entities

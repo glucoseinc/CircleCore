@@ -1,5 +1,7 @@
 import request from 'superagent'
 
+import User from './models/User'
+
 
 /**
  * superagentのリクエストをリセットする
@@ -254,6 +256,16 @@ class CCAPI extends APICaller {
   async getSchemaPropertyTypes() {
     const res = await this._get('/schemas/propertytypes')
     return res.body
+  }
+
+  // users
+  /**
+   * Userのリストを得る
+   * @return {Array<User>} Userのリスト
+   */
+  async getUsers() {
+    const res = await this._get('/users/')
+    return res.body.users.map(User.fromObject)
   }
 
   // modules
