@@ -129,7 +129,7 @@ def revoke_token():
 @oauth.invalid_response
 def invalid_require_oauth(req):
     status = 401
-    if req.error_message == 'Bearer token not found.':
+    if req.error_message in ('Bearer token not found.', 'Bearer token is expired.'):
         status = 403
     return api_jsonify(message=req.error_message, _status=status)
 
