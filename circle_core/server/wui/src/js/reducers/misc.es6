@@ -12,6 +12,7 @@ const initialState = {
   navDrawerOpen: false,
   inputText: '',
   moduleEditingArea: '',
+  errorMessage: null,
 }
 
 
@@ -113,10 +114,12 @@ const misc = handleActions({
   // misc
   [actionTypes.misc.navDrawerToggleOpen]: toggleNavDrawerOpen(),
   [actionTypes.misc.inputTextChange]: updateInputText(),
+
   [actionTypes.misc.startModuleEdit]: startModuleEdit(),
   [actionTypes.misc.cancelModuleEdit]: endModuleEdit(),
   [actionTypes.misc.executeModuleEdit]: endModuleEdit(),
 
+  [actionTypes.misc.clearErrorMessage]: (state, action) => {return {...state, errorMessage: action.payload}},
 }, initialState)
 
 export default misc

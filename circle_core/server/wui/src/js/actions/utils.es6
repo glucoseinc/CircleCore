@@ -2,11 +2,21 @@ import {createAction} from 'redux-actions'
 
 
 /**
- * nullPayloadCreator description
+ * NULLを返す Payload Creator
  * @return {null} returns null
  */
 export function nullPayloadCreator() {
   return null
+}
+
+
+/**
+ * 引数をそのまま返す Payload Creator
+ * @param {Object} val
+ * @return {Object} returns argument
+ */
+export function passPayloadCreator(val) {
+  return val
 }
 
 /**

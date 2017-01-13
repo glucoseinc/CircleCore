@@ -1,15 +1,16 @@
-import {createCcActions, nullPayloadCreator} from './utils'
+import {createCcActions, nullPayloadCreator, passPayloadCreator} from './utils'
 
 
 const payloadCreators = {
-  navDrawerToggleOpen: (value) => value,
-  inputTextChange: (inputText) => inputText,
+  navDrawerToggleOpen: passPayloadCreator,
+  inputTextChange: passPayloadCreator,
   startModuleEdit: ({module, editingArea}) => ({
     rawModule: module.toJS(),
     editingArea,
   }),
   cancelModuleEdit: nullPayloadCreator,
   executeModuleEdit: (module) => module.toJS(),
+  clearErrorMessage: nullPayloadCreator,
 }
 
 const ccActions = createCcActions('misc', payloadCreators)
