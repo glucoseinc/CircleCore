@@ -20,7 +20,7 @@ class SchemasNew extends Component {
   static propTypes = {
     isSchemaPropertyTypesFetching: PropTypes.bool.isRequired,
     schema: PropTypes.object.isRequired,
-    schemaPropertyTypes: PropTypes.array.isRequired,
+    schemaPropertyTypes: PropTypes.object.isRequired,
     actions: PropTypes.object.isRequired,
   }
 
@@ -96,7 +96,7 @@ class SchemasNew extends Component {
                               schema.updateSchemaProperty(index, 'type', v)
                             )}
                           >
-                            {schemaPropertyTypes.map((schemaPropertyType) =>
+                            {schemaPropertyTypes.valueSeq().map((schemaPropertyType) =>
                               <MenuItem
                                 key={schemaPropertyType.name}
                                 value={schemaPropertyType.name}

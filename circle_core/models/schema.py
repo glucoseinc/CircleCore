@@ -35,6 +35,15 @@ class SchemaProperty(object):
         self.name = name
         self.type = property_type
 
+    def __eq__(self, other):
+        """return equality.
+
+        :param SchemaProperty other: other SchemaProperty
+        :return: equality
+        :rtype: bool
+        """
+        return all([self.name == other.name, self.type == other.type])
+
     @property
     def dictified(self):
         return {
@@ -75,6 +84,17 @@ class Schema(object):
                 if _name is not None and _type is not None:
                     self.properties.append(SchemaProperty(_name.strip(), _type.strip()))
         self.memo = memo
+
+    def __eq__(self, other):
+        """return equality.
+
+        :param Schema other: other Schema
+        :return: equality
+        :rtype: bool
+        """
+        return all([self.uuid == other.uuid, self.display_name == other.display_name,
+                    self.properties == other.properties,
+                    self.memo == other.memo])
 
     @property
     def stringified_properties(self):

@@ -47,11 +47,12 @@ class Module(object):
 
         _message_box_uuids = []
         for message_box_uuid in message_box_uuids.split(','):
-            try:
-                message_box_uuid = UUID(message_box_uuid)
-            except ValueError:
-                raise ModuleError('Invalid message_box_uuid : {}'.format(message_box_uuids))
-            _message_box_uuids.append(message_box_uuid)
+            if message_box_uuid != '':
+                try:
+                    message_box_uuid = UUID(message_box_uuid)
+                except ValueError:
+                    raise ModuleError('Invalid message_box_uuid : {}'.format(message_box_uuids))
+                _message_box_uuids.append(message_box_uuid)
 
         self.uuid = uuid
         self.message_box_uuids = _message_box_uuids
@@ -59,6 +60,17 @@ class Module(object):
         _tags = tags.split(',') if tags is not None else []
         self.tags = [tag for tag in _tags if tag != '']
         self.description = description
+
+    def __eq__(self, other):
+        """return equality.
+
+        :param Module other: other Module
+        :return: equality
+        :rtype: bool
+        """
+        return all([self.uuid == other.uuid, self.message_box_uuids == other.message_box_uuids,
+                    self.display_name == other.display_name, self.tags == other.tags,
+                    self.description == other.description])
 
     @property
     def stringified_tags(self):

@@ -59,6 +59,16 @@ class MessageBox(object):
         self.description = description
         self.of_master = of_master
 
+    def __eq__(self, other):
+        """return equality.
+
+        :param MessageBox other: other MessageBox
+        :return: equality
+        :rtype: bool
+        """
+        return all([self.uuid == other.uuid, self.schema_uuid == other.schema_uuid,
+                    self.display_name == other.display_name, self.description == other.description])
+
     @property
     def storage_key(self):
         """ストレージキー.

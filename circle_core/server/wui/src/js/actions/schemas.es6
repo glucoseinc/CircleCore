@@ -7,7 +7,7 @@ const payloadCreators = {
   createFailed: (message) => message,
 
   fetchRequest: nullPayloadCreator,
-  fetchSucceeded: (schemas) => schemas.map((schema) => schema.toJS()),
+  fetchSucceeded: (response) => response,
   fetchFailed: (message) => message,
 
   deleteAsk: (schema) => schema.toJS(),

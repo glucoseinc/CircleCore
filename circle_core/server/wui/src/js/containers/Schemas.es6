@@ -18,7 +18,8 @@ class Schemas extends Component {
   static propTypes = {
     isFetching: PropTypes.bool.isRequired,
     isDeleteAsking: PropTypes.bool.isRequired,
-    schemas: PropTypes.array.isRequired,
+    schemas: PropTypes.object.isRequired,
+    modules: PropTypes.object.isRequired,
     schema: PropTypes.object.isRequired,
     actions: PropTypes.object.isRequired,
   }
@@ -41,6 +42,7 @@ class Schemas extends Component {
       isFetching,
       isDeleteAsking,
       schemas,
+      modules,
       schema,
       actions,
     } = this.props
@@ -62,6 +64,7 @@ class Schemas extends Component {
 
         <SchemasTable
           schemas={schemas}
+          modules={modules}
           onDeleteTouchTap={actions.schemas.deleteAsk}
         />
         <SchemaDeleteDialog
@@ -86,6 +89,7 @@ function mapStateToProps(state) {
     isFetching: state.asyncs.isSchemasFetching,
     isDeleteAsking: state.asyncs.isSchemasDeleteAsking,
     schemas: state.entities.schemas,
+    modules: state.entities.modules,
     schema: state.misc.schema,
   }
 }

@@ -11,7 +11,7 @@ from circle_core.cli.utils import generate_uuid
 from circle_core.models import Schema
 from .api import api
 from ..utils import (
-    api_jsonify, convert_dict_key_camel_case, convert_dict_key_snake_case, get_metadata,
+    api_jsonify, api_response_failure, convert_dict_key_camel_case, convert_dict_key_snake_case, get_metadata,
     oauth_require_read_schema_scope, oauth_require_write_schema_scope
 )
 
@@ -54,11 +54,7 @@ def _post_schemas():
         if len(memo) == 0:
             memo = None
     except KeyError:
-        response['result'] = 'failure'
-        response['detail'] = {
-            'reason': 'key error'
-        }
-        return api_jsonify(**convert_dict_key_camel_case(response))
+        return api_response_failure('key error')
 
     metadata = get_metadata()
     schema_uuid = generate_uuid(existing=[schema.uuid for schema in metadata.schemas])
@@ -100,22 +96,15 @@ def _delete_schema(schema_uuid):
     response = {}  # TODO: response形式の統一
     schema = metadata.find_schema(schema_uuid)
     if schema is None:
-        response['result'] = 'failure'
-        response['detail'] = {
-            'reason': 'not found'
-        }
-        return api_jsonify(**convert_dict_key_camel_case(response))
+        return api_response_failure('not found')
 
     attached_modules = metadata.find_modules_by_schema(schema_uuid)
     if len(attached_modules) != 0:
-        response['result'] = 'failure'
-        response['detail'] = {
-            'reason': 'module {uuids} {verb} attached'.format(
-                uuids=', '.join([str(module.uuid) for module in attached_modules]),
-                verb='is' if len(attached_modules) == 1 else 'are'
-            )
-        }
-        return api_jsonify(**convert_dict_key_camel_case(response))
+        reason = 'module {uuids} {verb} attached'.format(
+            uuids=', '.join([str(module.uuid) for module in attached_modules]),
+            verb='is' if len(attached_modules) == 1 else 'are'
+        )
+        return api_response_failure(reason)
 
     metadata.unregister_schema(schema)
     response['result'] = 'success'
@@ -152,7 +141,7 @@ def _dictify(schema):
 def api_get_property_types():
     # TODO: constants.pyから引っ張ってくる
     response = {
-        'property_types': [
+        'schema_property_types': [
             {'name': 'int'},
             {'name': 'float'},
             {'name': 'text'},

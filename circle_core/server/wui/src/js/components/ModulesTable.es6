@@ -13,7 +13,7 @@ import {urls} from '../routes'
  */
 class ModulesTable extends Component {
   static propTypes = {
-    modules: PropTypes.array.isRequired,
+    modules: PropTypes.object.isRequired,
     onTagTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
   }
@@ -31,14 +31,8 @@ class ModulesTable extends Component {
       onTagTouchTap,
       onDeleteTouchTap,
     } = this.props
-    const {
-      muiTheme,
-    } = this.context
 
     const style = {
-      messageBoxButton: {
-        maxWidth: muiTheme.button.minWidth + 32,
-      },
       chip: {
         display: 'inline-flex',
         margin: 2,
@@ -47,6 +41,19 @@ class ModulesTable extends Component {
         color: blueGrey600,
         fontSize: 10,
       },
+    }
+
+    const sortComparator = (a, b) => {
+      if (a.displayName !== '' && b.displayName === '') {
+        return -1
+      }
+      if (a.displayName === '' && b.displayName !== '') {
+        return 1
+      }
+      if (a.displayName !== '' && b.displayName !== '') {
+        return a.displayName < b.displayName ? -1 : 1
+      }
+      return a.uuid < b.uuid ? -1 : 1
     }
 
     return (
@@ -68,7 +75,7 @@ class ModulesTable extends Component {
         <TableBody
           displayRowCheckbox={false}
         >
-          {modules.map((module) =>
+          {modules.sort(sortComparator).valueSeq().map((module) =>
             <TableRow key={module.uuid}>
               <TableRowColumn>
                 <CCLink

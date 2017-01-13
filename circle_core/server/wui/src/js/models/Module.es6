@@ -1,7 +1,38 @@
 /* eslint-disable new-cap */
 import {Record, List} from 'immutable'
 
-import MessageBox from '../models/MessageBox'
+
+const MessageBoxRecord = Record({
+  uuid: '',
+  schema: '',
+  displayName: '',
+  description: '',
+})
+
+/**
+ */
+export class MessageBox extends MessageBoxRecord {
+  /**
+   * @override
+   */
+  constructor(...args) {
+    super(...args)
+    this.label = this.displayName || this.uuid
+  }
+
+  /**
+   * @param {object} rawMessageBox
+   * @return {MessageBox}
+   */
+  static fromObject(rawMessageBox) {
+    return new MessageBox({
+      uuid: rawMessageBox.uuid || '',
+      schema: rawMessageBox.schema || '',
+      displayName: rawMessageBox.displayName || '',
+      description: rawMessageBox.description || '',
+    })
+  }
+}
 
 
 const ModuleRecord = Record({
@@ -28,13 +59,12 @@ export default class Module extends ModuleRecord {
    * @return {Module}
    */
   static fromObject(rawModule) {
-    const messageBoxes = rawModule.messageBoxes ? rawModule.messageBoxes.map(MessageBox.fromObject) : null
-    const tags = rawModule.tags || []
+    const messageBoxes = rawModule.messageBoxes ? rawModule.messageBoxes.map(MessageBox.fromObject) : []
     return new Module({
       uuid: rawModule.uuid || '',
       displayName: rawModule.displayName || '',
       messageBoxes: List(messageBoxes),
-      tags: List(tags),
+      tags: List(rawModule.tags || []),
       description: rawModule.description || '',
     })
   }
@@ -53,8 +83,8 @@ export default class Module extends ModuleRecord {
    * @return {Module}
    */
   pushMessageBox(rawMessageBox = {}) {
-    const messageBox = MessageBox.fromObject(rawMessageBox)
-    const newMessageBoxes = this.messageBoxes.push(messageBox)
+    const newMessageBox = MessageBox.fromObject(rawMessageBox)
+    const newMessageBoxes = this.messageBoxes.push(newMessageBox)
     return this.set('messageBoxes', newMessageBoxes)
   }
 
@@ -99,7 +129,7 @@ export default class Module extends ModuleRecord {
    * @return {bool}
    */
   isReadytoCreate() {
-    if (this.messageBoxes.filter((messageBox) => messageBox.schema.uuid === '').size !== 0) {
+    if (this.messageBoxes.filter((messageBox) => messageBox.schema === '').size !== 0) {
       return false
     }
     return true

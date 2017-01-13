@@ -7,26 +7,20 @@ import Module from '../models/Module'
 
 
 const initialState = {
-  navDrawerOpen: false,
   schema: new Schema(),
   module: new Module(),
+  navDrawerOpen: false,
   inputText: '',
+  moduleEditingArea: '',
 }
+
 
 const initialize = () => (state, action) => ({
   ...initialState,
 })
 
-const setNavDrawerOpen = (newState) => (state, action) => ({
-  ...state,
-  navDrawerOpen: newState,
-})
 
-const toggleNavDrawerOpen = () => (state, action) => ({
-  ...state,
-  navDrawerOpen: !state.navDrawerOpen,
-})
-
+// schema
 const setSchema = (schema = new Schema()) => (state, action) => ({
   ...state,
   schema,
@@ -40,6 +34,8 @@ const updateSchema = () => (state, action) => {
   }
 }
 
+
+// module
 const setModule = (module = new Module()) => (state, action) => ({
   ...state,
   module,
@@ -53,10 +49,47 @@ const updateModule = () => (state, action) => {
   }
 }
 
+
+// navDrawer
+const setNavDrawerOpen = (newState) => (state, action) => ({
+  ...state,
+  navDrawerOpen: newState,
+})
+
+const toggleNavDrawerOpen = () => (state, action) => ({
+  ...state,
+  navDrawerOpen: !state.navDrawerOpen,
+})
+
+
+// inputText
 const updateInputText = () => (state, action) => ({
   ...state,
   inputText: action.payload,
 })
+
+
+// moduleEditingArea
+const startModuleEdit = () => (state, action) => {
+  const {
+    rawModule,
+    editingArea,
+  } = action.payload
+  return {
+    ...state,
+    module: Module.fromObject(rawModule),
+    moduleEditingArea: editingArea,
+  }
+}
+
+const endModuleEdit = () => (state, action) => {
+  return {
+    ...state,
+    module: new Module(),
+    moduleEditingArea: '',
+  }
+}
+
 
 const misc = handleActions({
   // Location change
@@ -79,8 +112,11 @@ const misc = handleActions({
 
   // misc
   [actionTypes.misc.navDrawerToggleOpen]: toggleNavDrawerOpen(),
-
   [actionTypes.misc.inputTextChange]: updateInputText(),
+  [actionTypes.misc.startModuleEdit]: startModuleEdit(),
+  [actionTypes.misc.cancelModuleEdit]: endModuleEdit(),
+  [actionTypes.misc.executeModuleEdit]: endModuleEdit(),
+
 }, initialState)
 
 export default misc

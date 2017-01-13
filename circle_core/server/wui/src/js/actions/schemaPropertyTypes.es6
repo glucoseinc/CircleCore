@@ -3,7 +3,7 @@ import {createCcActions, nullPayloadCreator} from './utils'
 
 const payloadCreators = {
   fetchRequest: nullPayloadCreator,
-  fetchSucceeded: (schemaPropertyTypes) => schemaPropertyTypes.map((schemaPropertyType) => schemaPropertyType.toJS()),
+  fetchSucceeded: (response) => response,
   fetchFailed: (message) => message,
 }
 

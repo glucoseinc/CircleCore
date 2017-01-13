@@ -214,8 +214,8 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         :return: 成功/失敗
         :rtype: bool
         """
-        if self.unregister_module(message_box) is True:
-            return self.register_module(message_box)
+        if self.unregister_message_box(message_box) is True:
+            return self.register_message_box(message_box)
         return False
 
     def register_module(self, module):
