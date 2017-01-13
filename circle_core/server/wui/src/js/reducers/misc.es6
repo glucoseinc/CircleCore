@@ -4,6 +4,7 @@ import {LOCATION_CHANGE} from 'react-router-redux'
 import actionTypes from '../actions/actionTypes'
 import Schema from '../models/Schema'
 import Module from '../models/Module'
+import User from '../models/User'
 
 
 const initialState = {
@@ -111,6 +112,14 @@ const misc = handleActions({
   [actionTypes.modules.deleteCancel]: setModule(),
   [actionTypes.modules.deleteRequest]: setModule(),
 
+  // User
+  [actionTypes.users.deleteRequest]: clearDeleteTargetUser,
+  [actionTypes.users.deleteComplete]: {
+    throw(state, {payload: error}) {
+      return {...state, errorMessage: error.message}
+    },
+  },
+
   // misc
   [actionTypes.misc.navDrawerToggleOpen]: toggleNavDrawerOpen(),
   [actionTypes.misc.inputTextChange]: updateInputText(),
@@ -119,7 +128,12 @@ const misc = handleActions({
   [actionTypes.misc.cancelModuleEdit]: endModuleEdit(),
   [actionTypes.misc.executeModuleEdit]: endModuleEdit(),
 
-  [actionTypes.misc.clearErrorMessage]: (state, action) => {return {...state, errorMessage: action.payload}},
+  [actionTypes.misc.clearErrorMessage]: (state, action) => {
+    return {
+      ...state,
+      errorMessage: action.payload,
+    }
+  },
 }, initialState)
 
 export default misc

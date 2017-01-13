@@ -268,6 +268,16 @@ class CCAPI extends APICaller {
     return res.body.users.map(User.fromObject)
   }
 
+  /**
+   * Userを削除する
+   * @param {User} user User
+   * @return {Object} Result
+   */
+  async deleteUser(user) {
+    const res = await this._delete(`/users/${user.uuid}`)
+    return res.body
+  }
+
   // modules
   /**
    * Moduleのリストを得る

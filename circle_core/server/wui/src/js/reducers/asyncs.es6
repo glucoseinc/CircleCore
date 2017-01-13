@@ -19,6 +19,7 @@ const initialState = {
   isModuleFetching: false,
 
   isUsersFetching: false,
+  isUserDeleteAsking: false,
 }
 
 // Schemas
@@ -75,6 +76,13 @@ const setUsersFetching = (newState) => (state, action) => ({
   isUsersFetching: newState,
 })
 
+const setUserDeleteAsking = (newState) => (state, action) => {
+  return {
+    ...state,
+    isUserDeleteAsking: newState,
+  }
+}
+
 const asyncs = handleActions({
   // Create Schemas
   [actionTypes.schemas.createRequest]: setSchemasCreating(true),
@@ -125,6 +133,11 @@ const asyncs = handleActions({
   [actionTypes.users.fetchRequest]: setUsersFetching(true),
   [actionTypes.users.fetchSucceeded]: setUsersFetching(false),
   [actionTypes.users.fetchFailed]: setUsersFetching(false),
+
+  // Delete user
+  [actionTypes.users.deleteAsk]: setUserDeleteAsking(true),
+  [actionTypes.users.deleteRequest]: setUserDeleteAsking(false),
+  [actionTypes.users.deleteCancel]: setUserDeleteAsking(false),
 }, initialState)
 
 export default asyncs

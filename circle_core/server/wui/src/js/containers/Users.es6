@@ -1,24 +1,34 @@
-import React, {Component, PropTypes} from 'react'
+import React, {PropTypes} from 'react'
 import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
 import RaisedButton from 'material-ui/RaisedButton'
 
 import actions from '../actions'
-// import {urls} from '../routes'
-// import CCLink from '../components/CCLink'
 import Fetching from '../components/Fetching'
 import UsersTable from '../components/UsersTable'
+import OkCancelDialog from '../components/OkCancelDialog'
 
 
 /**
  */
-class Users extends Component {
+class Users extends React.Component {
   static propTypes = {
     isFetching: PropTypes.bool.isRequired,
-    // isDeleteAsking: PropTypes.bool.isRequired,
     users: PropTypes.array.isRequired,
     actions: PropTypes.object.isRequired,
+  }
+
+  /**
+   * @constructor
+   */
+  constructor(...args) {
+    super(...args)
+
+    this.state = {
+      // 削除対象のユーザ
+      deleteTargetUser: null,
+    }
   }
 
   /**
@@ -37,10 +47,10 @@ class Users extends Component {
   render() {
     const {
       isFetching,
-      // isDeleteAsking,
       users,
-      // actions,
     } = this.props
+
+    const {deleteTargetUser} = this.state
 
     if (isFetching) {
       return (
@@ -57,10 +67,41 @@ class Users extends Component {
 
         <UsersTable
           users={users}
-          onDeleteTouchTap={() => {}}
+          onDeleteUser={::this.onDeleteUser}
         />
+
+        {deleteTargetUser &&
+          <OkCancelDialog
+            title="ユーザを削除しますか？"
+            okLabel="削除する"
+            onOkTouchTap={::this.onDeleteUserConfirmed}
+            cancelLabel="キャンセル"
+            onCancelTouchTap={() => this.setState({deleteTargetUser: null})}
+            open={true}
+          >
+            <p>{`${deleteTargetUser.displayName} を削除しますか？`}</p>
+          </OkCancelDialog>
+        }
       </div>
     )
+  }
+
+  /**
+   * ユーザの削除ボタンが押されたら呼ばれる
+   * @param {User} user 削除対象ユーザ
+   */
+  onDeleteUser(user) {
+    this.setState({
+      deleteTargetUser: user,
+    })
+  }
+
+  /**
+   * ユーザーの削除確認でOKが押されたら呼ばれる
+   */
+  onDeleteUserConfirmed() {
+    this.props.actions.users.deleteRequest(this.state.deleteTargetUser)
+    this.setState({deleteTargetUser: null})
   }
 }
 

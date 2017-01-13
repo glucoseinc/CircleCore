@@ -16,6 +16,7 @@ class OkCancelDialog extends Component {
     open: PropTypes.bool.isRequired,
     children: PropTypes.node,
   }
+
   /**
    * @override
    */

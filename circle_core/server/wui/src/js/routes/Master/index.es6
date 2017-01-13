@@ -10,7 +10,6 @@ const children = [
   'Schemas',
   'SchemasNew',
   'Schema',
-  'User',
   'Users',
 
   // 必ず最後
@@ -22,8 +21,12 @@ const masterRoute = {
   path: '/',
   component: Master,
   indexRoute: {component: require('./Modules').default.component},
-  childRoutes: children.map((child) => require(`./${child}`).default),
+  childRoutes: [].concat(...children.map((child) => {
+    let routes = require(`./${child}`).default
+    if(!Array.isArray(routes))
+      routes = Array(routes)
+    return routes
+  })),
 }
-
 
 export default masterRoute

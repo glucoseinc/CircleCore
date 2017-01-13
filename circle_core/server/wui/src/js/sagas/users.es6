@@ -1,25 +1,10 @@
-import {call, fork, put, takeLatest} from 'redux-saga/effects'
+import {call, fork, put, takeEvery, takeLatest} from 'redux-saga/effects'
 
 import CCAPI from '../api'
 import actionTypes from '../actions/actionTypes'
 import actions from '../actions'
+import User from '../models/User'
 
-// import User from '../models/User'
-
-
-// /**
-//  * [createModule description]
-//  * @param  {[type]}    action [description]
-//  */
-// function* createModule(action) {
-//   const module = Module.fromObject(action.payload)
-//   try {
-//     const response = yield call(::CCAPI.postModule, module)
-//     yield put(actions.modules.createSucceeded(response))
-//   } catch (e) {
-//     yield put(actions.modules.createFailed(e.message))
-//   }
-// }
 
 /**
  * [fetchUsers description]
@@ -34,46 +19,40 @@ function* fetchUsers(action) {
   }
 }
 
-// /**
-//  * [deleteModule description]
-//  * @param  {[type]}    action [description]
-//  */
-// function* deleteModule(action) {
-//   const module = Module.fromObject(action.payload)
-//   try {
-//     const response = yield call(::CCAPI.deleteModule, module)
-//     yield put(actions.modules.deleteSucceeded(response))
-//   } catch (e) {
-//     yield put(actions.modules.deleteFailed(e.message))
-//   }
-// }
 
+/**
+ * [deleteUser description]
+ * @param  {[type]}    action [description]
+ */
+function* deleteUser(action) {
+  const user = User.fromObject(action.payload)
 
-// /**
-//  * [handleModulesCreateRequest description]
-//  */
-// function* handleModulesCreateRequest() {
-//   yield takeEvery(actionTypes.modules.createRequest, createModule)
-// }
+  try {
+    const response = yield call(::CCAPI.deleteUser, user)
+    yield put(actions.users.deleteComplete(response))
+  } catch (e) {
+    yield put(actions.users.deleteComplete(new Error(e.response.body.detail.reason || e.message)))
+  }
+}
 
+// handlers
 /**
  * [handleUsersFetchRequest description]
  */
 function* handleUsersFetchRequest() {
   const triggerActionTypes = [
     actionTypes.users.fetchRequest,
-    actionTypes.users.createSucceeded,
-    actionTypes.users.deleteSucceeded,
+    actionTypes.users.deleteComplete,
   ]
   yield takeLatest(triggerActionTypes, fetchUsers)
 }
 
-// /**
-//  * [handleModulesDeleteRequest description]
-//  */
-// function* handleModulesDeleteRequest() {
-//   yield takeEvery(actionTypes.modules.deleteRequest, deleteModule)
-// }
+/**
+ * [handleUserssDeleteRequest description]
+ */
+function* handleUsersDeleteRequest() {
+  yield takeEvery(actionTypes.users.deleteRequest, deleteUser)
+}
 
 
 /**
@@ -81,7 +60,6 @@ function* handleUsersFetchRequest() {
  * @param  {[type]}    args [description]
  */
 export default function* usersSaga(...args) {
-  // yield fork(handleModulesCreateRequest, ...args)
   yield fork(handleUsersFetchRequest, ...args)
-  // yield fork(handleModulesDeleteRequest, ...args)
+  yield fork(handleUsersDeleteRequest, ...args)
 }

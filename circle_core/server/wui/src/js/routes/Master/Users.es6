@@ -1,10 +1,17 @@
+import User from '../../containers/User'
 import Users from '../../containers/Users'
 
-const usersRoute = {
-  key: 'users',
-  path: 'users/',
-  label: 'ユーザー一覧',
-  component: Users,
-}
-
-export default usersRoute
+export default [
+  {
+    key: 'users',
+    path: 'users/',
+    label: 'ユーザー一覧',
+    component: Users,
+  },
+  {
+    key: 'user',
+    path: 'users/:userId',
+    label: 'ユーザー詳細',
+    component: User,
+  },
+]

@@ -1,8 +1,8 @@
 import React, {PropTypes} from 'react'
 
 // import FlatButton from 'material-ui/FlatButton'
-// import RaisedButton from 'material-ui/RaisedButton'
 import Checkbox from 'material-ui/Checkbox'
+import RaisedButton from 'material-ui/RaisedButton'
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
 import {colorUUID} from '../colors'
 
@@ -17,6 +17,7 @@ import User from '../models/User'
 class UsersTableRow extends React.Component {
   static propTypes = {
     user: PropTypes.instanceOf(User).isRequired,
+    onDeleteUser: PropTypes.func.isRequired,
   }
 
   /**
@@ -44,6 +45,13 @@ class UsersTableRow extends React.Component {
         </TableRowColumn>
         <TableRowColumn>{user.mailAddress}</TableRowColumn>
         <TableRowColumn><Checkbox label="" checked={user.isAdmin} disabled={true} /></TableRowColumn>
+        <TableRowColumn>
+          <RaisedButton
+            label="削除"
+            secondary={true}
+            onTouchTap={(e) => this.props.onDeleteUser(user, e)}
+          />
+        </TableRowColumn>
       </TableRow>
     )
   }
@@ -55,7 +63,7 @@ class UsersTableRow extends React.Component {
 export default class UsersTable extends React.Component {
   static propTypes = {
     users: PropTypes.array.isRequired,
-    onDeleteTouchTap: PropTypes.func.isRequired,
+    onDeleteUser: PropTypes.func.isRequired,
   }
 
   static contextTypes = {
@@ -68,7 +76,7 @@ export default class UsersTable extends React.Component {
   render() {
     const {
       users,
-      // onDeleteTouchTap,
+      onDeleteUser,
     } = this.props
 
     return (
@@ -81,13 +89,14 @@ export default class UsersTable extends React.Component {
             <TableHeaderColumn tooltip="User account">アカウント</TableHeaderColumn>
             <TableHeaderColumn tooltip="メールアドレス">メールアドレス</TableHeaderColumn>
             <TableHeaderColumn tooltip="管理者であればチェック">管理者</TableHeaderColumn>
+            <TableHeaderColumn tooltip="ユーザが最後にアクセスした時刻">最終ログイン</TableHeaderColumn>
           </TableRow>
         </TableHeader>
 
         <TableBody
           displayRowCheckbox={false}
         >
-          {users.map((user) => <UsersTableRow key={user.uuid} user={user} />)}
+          {users.map((user) => <UsersTableRow key={user.uuid} user={user} onDeleteUser={onDeleteUser} />)}
         </TableBody>
       </Table>
     )

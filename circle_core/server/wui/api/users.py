@@ -12,7 +12,7 @@ from circle_core.models import MessageBox, Module
 from .api import api
 from ..utils import (
     api_jsonify, convert_dict_key_camel_case, convert_dict_key_snake_case, get_metadata,
-    oauth_require_read_users_scope
+    oauth_require_read_users_scope, oauth_require_write_users_scope
 )
 
 if PY3:
@@ -102,15 +102,15 @@ def _get_users():
 #     return api_jsonify(**convert_dict_key_camel_case(response))
 
 
-# @api.route('/modules/<module_uuid>', methods=['GET', 'DELETE'])
-# def api_module(module_uuid):
-#     if request.method == 'GET':
-#         return _get_module(module_uuid)
-#     if request.method == 'PUT':
-#         return _put_module(module_uuid)
-#     if request.method == 'DELETE':
-#         return _delete_module(module_uuid)
-#     abort(405)
+@api.route('/users/<user_uuid>', methods=['GET', 'DELETE'])
+def api_user(user_uuid):
+    # if request.method == 'GET':
+    #     return _get_module(module_uuid)
+    # if request.method == 'PUT':
+    #     return _put_module(module_uuid)
+    if request.method == 'DELETE':
+        return _delete_user(user_uuid)
+    abort(405)
 
 
 # @oauth_require_read_schema_scope
@@ -137,22 +137,32 @@ def _get_users():
 #     return api_jsonify(**convert_dict_key_camel_case(response))
 
 
-# @oauth_require_write_schema_scope
-# def _delete_module(module_uuid):
-#     metadata = get_metadata()
-#     response = {}  # TODO: response形式の統一
-#     module = metadata.find_module(module_uuid)
-#     if module is None:
-#         response['result'] = 'failure'
-#         response['detail'] = {
-#             'reason': 'not found'
-#         }
-#         return api_jsonify(**convert_dict_key_camel_case(response))
+@oauth_require_write_users_scope
+def _delete_user(user_uuid):
+    # 自分は削除できない
+    metadata = get_metadata()
+    user = metadata.find_user(user_uuid)
+    if user is None:
+        return _respond_failure('User not found.')
 
-#     metadata.unregister_module(module)
-#     # TODO: messageBoxも消す -> unregister_moduleで一緒にやる
-#     response['result'] = 'success'
-#     response['detail'] = {
-#         'uuid': module_uuid
-#     }
-#     return api_jsonify(**convert_dict_key_camel_case(response))
+    if str(user.uuid) == request.oauth.user:
+        return _respond_failure('Cannot delete yourself.')
+
+    metadata.unregister_user(user)
+    return _respond_success({'user': user.uuid})
+
+
+def _respond_failure(reason):
+    response = {}
+    response['result'] = 'failure'
+    response['detail'] = {
+        'reason': reason,
+    }
+    return api_jsonify(_status=400, **convert_dict_key_camel_case(response))
+
+
+def _respond_success(detail):
+    response = {}
+    response['result'] = 'success'
+    response['detail'] = detail
+    return api_jsonify(**convert_dict_key_camel_case(response))
