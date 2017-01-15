@@ -1,10 +1,9 @@
 import {handleActions} from 'redux-actions'
 import {LOCATION_CHANGE} from 'react-router-redux'
 
-import actionTypes from '../actions/actionTypes'
+import {actionTypes} from '../actions'
 import Schema from '../models/Schema'
 import Module from '../models/Module'
-import User from '../models/User'
 
 
 const initialState = {
@@ -113,7 +112,6 @@ const misc = handleActions({
   [actionTypes.modules.deleteRequest]: setModule(),
 
   // User
-  [actionTypes.users.deleteRequest]: clearDeleteTargetUser,
   [actionTypes.users.deleteComplete]: {
     throw(state, {payload: error}) {
       return {...state, errorMessage: error.message}

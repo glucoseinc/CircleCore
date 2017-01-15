@@ -17,12 +17,37 @@ if PY3:
     from typing import List, Union
 
 
-class Invitation(object):
+class UUIDBasedObject(object):
+    @classmethod
+    def make_storage_key(cls, uuid):
+        return '{}_{}'.format(cls.key_prefix, uuid)
+
+    @property
+    def storage_key(self):
+        return self.make_storage_key(self.uuid)
+
+    @classmethod
+    def is_key_matched(cls, key):
+        """指定のキーがストレージキーの形式にマッチしているか.
+
+        :param str key:
+        :return: マッチしているか
+        :rtype: bool
+        """
+        pattern = '^{}_{}'.format(
+            cls.key_prefix,
+            r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+        )
+        return re.match(pattern, key) is not None
+
+
+class Invitation(UUIDBasedObject):
     """User招待オブジェクト.
 
     :param UUID uuid: User UUID
     :param int max_invites: 招待可能人数. 0は無制限
     """
+    key_prefix = 'invitation'
 
     def __init__(self, uuid, max_invites, date_created=None, current_invites=0):
         """init.
@@ -31,7 +56,7 @@ class Invitation(object):
         :param int max_invites: 招待可能人数. 0は無制限
         :param datetime.datetime date_created: 招待作成日 なければNone
         """
-        if not isinstance(uuid, UUID):
+        if uuid and not isinstance(uuid, UUID):
             uuid = UUID(uuid)
         if isinstance(max_invites, str):
             max_invites = int(max_invites, 10)
@@ -46,26 +71,6 @@ class Invitation(object):
         self.current_invites = current_invites
         self.date_created = date_created
 
-    @property
-    def storage_key(self):
-        """ストレージキー.
-
-        :return: ストレージキー
-        :rtype: str
-        """
-        return 'invitation_{}'.format(self.uuid)
-
-    @classmethod
-    def is_key_matched(cls, key):
-        """指定のキーがストレージキーの形式にマッチしているか.
-
-        :param str key:
-        :return: マッチしているか
-        :rtype: bool
-        """
-        pattern = r'^invitation_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-        return re.match(pattern, key) is not None
-
     def to_json(self):
         """このモデルのJSON表現を返す
 
@@ -75,6 +80,7 @@ class Invitation(object):
         return {
             'uuid': str(self.uuid),
             'maxInvites': self.max_invites,
+            'currentInvites': self.current_invites,
             'dateCreated': self.date_created.isoformat('T') if self.date_created else None
         }
 

@@ -1,5 +1,6 @@
 import request from 'superagent'
 
+import Invitation from './models/Invitation'
 import User from './models/User'
 
 
@@ -206,6 +207,36 @@ class CCAPI extends APICaller {
     let res = await request.get('/oauth/revoke')
       .set('Accept', 'application/json')
     return res.body
+  }
+
+  // invitation
+  /**
+   * Invitationのリストを得る
+   * @return {List<Invitation>} Result
+   */
+  async listInvitations() {
+    const res = await this._get('/invitations/')
+    return res.body.invitations.map(Invitation.fromObject)
+  }
+
+  /**
+   * Invitationを作成する
+   * @param {Object} payload 新しく作りたいInvitationの値
+   * @return {Object} Result
+   */
+  async postInvitation(payload) {
+    const res = await this._post('/invitations/', payload)
+    return Invitation.fromObject(res.body.response)
+  }
+
+  /**
+   * Invitationを削除する
+   * @param {Invitation} invitation Invtation
+   * @return {Object} Result
+   */
+  async deleteInvitation(invitation) {
+    const res = await this._delete(`/invitations/${invitation.uuid}`)
+    return res.body.invitation
   }
 
 

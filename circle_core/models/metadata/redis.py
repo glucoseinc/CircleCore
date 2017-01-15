@@ -6,8 +6,10 @@ from __future__ import absolute_import
 # community module
 from redis import ConnectionError, Redis
 from six import PY3
+import uuid
 
 # project module
+# TODO: cli.utilsから外に移す
 from .base import MetadataError, MetadataReader, MetadataWriter
 from ..invitation import Invitation
 from ..message_box import MessageBox
@@ -153,14 +155,16 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         return users
 
     # invitation
-    def register_invitation(self, invitation):
+    def register_invitation(self, obj):
         """Invitationオブジェクトをストレージに登録する.
 
-        :param Invitation invitation: Invitationオブジェクト
+        :param Invitation obj: Invitationオブジェクト
         :return: 成功/失敗
         :rtype: bool
         """
-        self.redis_client.hmset(invitation.storage_key, invitation.to_json())
+        if not obj.uuid:
+            obj.uuid = self._generate_uuid(Invitation)
+        self.redis_client.hmset(obj.storage_key, obj.to_json())
         return True
 
     def unregister_invitation(self, invitation):
@@ -336,3 +340,10 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         """
         self.redis_client.delete(user.storage_key)
         return True
+
+    def _generate_uuid(self, model_class):
+        while True:
+            generated = uuid.uuid4()
+            if not self.redis_client.exists(model_class.make_storage_key(generated)):
+                break
+        return generated

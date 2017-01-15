@@ -10,6 +10,7 @@ from six import PY3
 from circle_core.cli.utils import generate_uuid
 from circle_core.models import MessageBox, Module
 from .api import api
+from .utils import respond_failure, respond_success
 from ..utils import (
     api_jsonify, convert_dict_key_camel_case, convert_dict_key_snake_case, get_metadata,
     oauth_require_read_users_scope, oauth_require_write_users_scope
@@ -143,26 +144,10 @@ def _delete_user(user_uuid):
     metadata = get_metadata()
     user = metadata.find_user(user_uuid)
     if user is None:
-        return _respond_failure('User not found.')
+        return respond_failure('User not found.')
 
     if str(user.uuid) == request.oauth.user:
-        return _respond_failure('Cannot delete yourself.')
+        return respond_failure('Cannot delete yourself.')
 
     metadata.unregister_user(user)
-    return _respond_success({'user': user.uuid})
-
-
-def _respond_failure(reason):
-    response = {}
-    response['result'] = 'failure'
-    response['detail'] = {
-        'reason': reason,
-    }
-    return api_jsonify(_status=400, **convert_dict_key_camel_case(response))
-
-
-def _respond_success(detail):
-    response = {}
-    response['result'] = 'success'
-    response['detail'] = detail
-    return api_jsonify(**convert_dict_key_camel_case(response))
+    return respond_success({'user': user.uuid})

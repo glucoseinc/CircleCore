@@ -1,6 +1,7 @@
 import {handleActions} from 'redux-actions'
 import {Map} from 'immutable'
 import {normalize} from 'normalizr'
+import update from 'immutability-helper'
 
 import {actionTypes} from '../actions'
 import Module from '../models/Module'
@@ -14,6 +15,8 @@ const initialState = {
   schemas: new Map(),
   schemaPropertyTypes: new Map(),
   modules: new Map(),
+
+  invitations: [],
   users: [],
 }
 
@@ -82,6 +85,31 @@ const entities = handleActions({
       ...state,
       users: rawUsers.map(User.fromObject),
     }
+  },
+
+  // Fetched Invitations
+  [actionTypes.invitations.fetchComplete]: (state, {payload: {invitations, error}}) => {
+    if(invitations) {
+      return update(state, {invitations: {$set: invitations}})
+    }
+    return state
+  },
+
+  [actionTypes.invitations.createComplete]: (state, {payload: {invitation, error}}) => {
+    if(invitation) {
+      return update(state, {invitations: {$push: [invitation]}})
+    }
+    return state
+  },
+
+  [actionTypes.invitations.deleteComplete]: (state, {payload: {invitation, error}}) => {
+    if(invitation) {
+      const idx = state.invitations.findIndex((obj) => obj.uuid === invitation.uuid)
+      if(idx >= 0) {
+        return update(state, {invitations: {$splice: [[idx, 1]]}})
+      }
+    }
+    return state
   },
 }, initialState)
 

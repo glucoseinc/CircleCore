@@ -37,6 +37,7 @@
     "gulp-eslint": "^3.0.1",
     "gulp-plumber": "^1.1.0",
     "gulp-postcss": "^6.2.0",
+    "immutability-helper": "^2.1.1",
     "immutable": "^3.8.1",
     "material-ui": "^0.16.6",
     "node-notifier": "^4.6.1",

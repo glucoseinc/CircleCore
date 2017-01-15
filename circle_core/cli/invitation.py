@@ -105,9 +105,7 @@ def invitation_add(ctx, max_invites):
         click.echo('Cannot register to {}.'.format(metadata.stringified_type))
         ctx.exit(code=-1)
 
-    invitation_uuid = generate_uuid(existing=[invitation.uuid for invitation in metadata.invitations])
-    invitation = Invitation(invitation_uuid, max_invites, datetime.datetime.utcnow())
-
+    invitation = Invitation(None, max_invites, datetime.datetime.utcnow())
     metadata.register_invitation(invitation)
     context_object.log_info('Invitation add', uuid=invitation.uuid)
     click.echo('Invitation "{}" is added.'.format(invitation.uuid))

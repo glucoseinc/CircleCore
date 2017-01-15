@@ -2,8 +2,6 @@ import React, {PropTypes} from 'react'
 import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
-import RaisedButton from 'material-ui/RaisedButton'
-
 import actions from '../actions'
 import Fetching from '../components/Fetching'
 import UsersTable from '../components/UsersTable'
@@ -45,26 +43,22 @@ class Users extends React.Component {
    * @override
    */
   render() {
-    const {
-      isFetching,
-      users,
-    } = this.props
-
-    const {deleteTargetUser} = this.state
-
-    if (isFetching) {
+    if(this.props.isFetching) {
       return (
         <Fetching />
       )
     }
 
+    const {
+      users,
+    } = this.props
+
+    const {
+      deleteTargetUser,
+    } = this.state
+
     return (
       <div>
-        <RaisedButton
-          label="ユーザー招待リンクを生成する"
-          primary={true}
-        />
-
         <UsersTable
           users={users}
           onDeleteUser={::this.onDeleteUser}
@@ -118,6 +112,7 @@ function mapStateToProps(state) {
   }
 }
 
+
 /**
  * [mapDispatchToProps description]
  * @param  {[type]} dispatch [description]
@@ -130,6 +125,7 @@ function mapDispatchToProps(dispatch) {
     },
   }
 }
+
 
 export default connect(
   mapStateToProps,

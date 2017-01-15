@@ -20,9 +20,15 @@ export function passPayloadCreator(val) {
 }
 
 
+/**
+ * 引数のtoJS()を呼び出す Payload Creator
+ * @param {Object} val
+ * @return {Object} action payload
+ */
 export function toJSPayloadCreator(val) {
   return val.toJS()
 }
+
 
 /**
  * toUpperSnakeCase description
@@ -32,6 +38,7 @@ export function toJSPayloadCreator(val) {
 function toUpperSnakeCase(str) {
   return str.replace(/[A-Z]/g, (s) => '_' + s).toUpperCase()
 }
+
 
 /**
  * createActionType description
