@@ -19,6 +19,11 @@ export function passPayloadCreator(val) {
   return val
 }
 
+
+export function toJSPayloadCreator(val) {
+  return val.toJS()
+}
+
 /**
  * toUpperSnakeCase description
  * @param {string} str string to convert

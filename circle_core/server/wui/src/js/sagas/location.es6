@@ -1,8 +1,7 @@
 import {fork, put, select, takeEvery} from 'redux-saga/effects'
 import {routerActions, LOCATION_CHANGE} from 'react-router-redux'
 
-import actionTypes from '../actions/actionTypes'
-import actions from '../actions'
+import actions, {actionTypes} from '../actions'
 import {urls} from '../routes'
 import * as selectors from '../selectors'
 

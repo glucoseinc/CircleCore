@@ -2,7 +2,7 @@ import {handleActions} from 'redux-actions'
 import {Map} from 'immutable'
 import {normalize} from 'normalizr'
 
-import actionTypes from '../actions/actionTypes'
+import {actionTypes} from '../actions'
 import Module from '../models/Module'
 import Schema from '../models/Schema'
 import SchemaPropertyType from '../models/SchemaPropertyType'

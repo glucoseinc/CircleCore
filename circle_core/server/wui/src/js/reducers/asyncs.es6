@@ -1,6 +1,6 @@
 import {handleActions} from 'redux-actions'
 
-import actionTypes from '../actions/actionTypes'
+import {actionTypes} from '../actions'
 
 
 const initialState = {
