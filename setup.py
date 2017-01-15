@@ -14,6 +14,7 @@ install_requires = [
     'flask',
     'Flask-OAuthlib',
     'nnpy',
+    'python-dateutil',
     'redis',
     'six',
     'sqlalchemy>=1.1.4',

@@ -10,6 +10,7 @@ from six.moves.urllib.parse import urlparse
 
 # project module
 from .base import MetadataError, MetadataReader
+from ..invitation import Invitation
 from ..message_box import MessageBox
 from ..module import Module
 from ..schema import Schema
@@ -48,6 +49,26 @@ class MetadataIniFile(MetadataReader):
             raise MetadataError('INI file "{}" not found.'.format(ini_file_path))
 
         return MetadataIniFile(ini_file_path)
+
+    @property
+    def invitations(self):
+        """全てのInvitationオブジェクト.
+
+        :return: Invitationオブジェクトリスト
+        :rtype: List[Invitation]
+        """
+        parser = configparser.ConfigParser()
+        parser.read(self.ini_file_path)
+
+        invitations = []
+        for section in parser.sections():
+            if not Invitation.is_key_matched(section):
+                continue
+
+            d = dict(parser.items(section))
+            # iniファイルからの招待リンクは常に無制限招待
+            invitations.append(Invitation(d['uuid'], 0, None))
+        return invitations
 
     @property
     def schemas(self):

@@ -48,6 +48,7 @@ class DummyMetadata(MetadataReader):
         'DummyModule2',
         'fooo,baar'
     )]
+    invitations = []
     users = []
     parse_url_scheme = None
     writable = True

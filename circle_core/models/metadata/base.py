@@ -37,7 +37,7 @@ class MetadataBase(object):
         pass
 
     @abstractclassmethod
-    def parse_url_scheme(cls, url_scheme):
+    def parse_url_scheme(cls, url_scheme):  # noqa
         """URLスキームからMetadataオブジェクトを生成する.
 
         :param str url_scheme: URLスキーム
@@ -78,6 +78,15 @@ class MetadataReader(MetadataBase):
         return True
 
     @abstractproperty
+    def invitations(self):
+        """全てのInvitationオブジェクト.
+
+        :return: Invitationオブジェクトリスト
+        :rtype: List[Invitation]
+        """
+        raise NotImplementedError
+
+    @abstractproperty
     def schemas(self):
         """全てのSchemaオブジェクト.
 
@@ -112,6 +121,24 @@ class MetadataReader(MetadataBase):
         :rtype: List[User]
         """
         raise NotImplementedError
+
+    def find_invitation(self, uuid):
+        """InvitationリストからUUIDがマッチするものを取得する.
+
+        :param Union[str, UUID] uuid: 取得するInvitationのUUID
+        :return: マッチしたSchema
+        :rtype: Optional[Schema]
+        """
+        if not isinstance(uuid, UUID):
+            try:
+                uuid = UUID(uuid)
+            except ValueError:
+                return None
+
+        for invitation in self.invitations:
+            if invitation.uuid == uuid:
+                return invitation
+        return None
 
     def find_schema(self, schema_uuid):
         """SchemaリストからUUIDがマッチするものを取得する.
@@ -234,6 +261,37 @@ class MetadataWriter(MetadataBase):
     def writable(self):
         return True
 
+    # Invitation
+    @abstractmethod
+    def register_invitation(self, invitation):
+        """Invitationオブジェクトをストレージに登録する.
+
+        :param Invitation invitation: Invitationオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def unregister_invitation(self, invitation):
+        """Invitationオブジェクトをストレージから削除する.
+
+        :param Invitation invitation: Invitationオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def update_invitation(self, invitation):
+        """ストレージ上のInvitationオブジェクトを更新する.
+
+        :param Invitation invitation: Invitationオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
+        """
+
+    # Schema
     @abstractmethod
     def register_schema(self, schema):
         """Schemaオブジェクトをストレージに登録する.

@@ -9,6 +9,7 @@ from six import PY3
 
 # project module
 from .base import MetadataError, MetadataReader, MetadataWriter
+from ..invitation import Invitation
 from ..message_box import MessageBox
 from ..module import Module
 from ..schema import Schema
@@ -70,6 +71,23 @@ class MetadataRedis(MetadataReader, MetadataWriter):
             raise MetadataError('Cannot connect to Redis server.')
 
         return MetadataRedis(redis_client)
+
+    @property
+    def invitations(self):
+        """全てのInvitationオブジェクト.
+
+        :return: Schemaオブジェクトリスト
+        :rtype: List[Schema]
+        """
+        invitations = []
+        for key in self.redis_client.keys():
+            if not Invitation.is_key_matched(key):
+                continue
+
+            if self.redis_client.type(key) == 'hash':
+                d = self.redis_client.hgetall(key)  # type: Dict[str, Any]
+                invitations.append(Invitation.from_json(d))
+        return invitations
 
     @property
     def schemas(self):
@@ -134,6 +152,38 @@ class MetadataRedis(MetadataReader, MetadataWriter):
                 users.append(User(**fields))
         return users
 
+    # invitation
+    def register_invitation(self, invitation):
+        """Invitationオブジェクトをストレージに登録する.
+
+        :param Invitation invitation: Invitationオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
+        """
+        self.redis_client.hmset(invitation.storage_key, invitation.to_json())
+        return True
+
+    def unregister_invitation(self, invitation):
+        """Invitationオブジェクトをストレージから削除する.
+
+        :param Invitation invitation: Invitationオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
+        """
+        return True if self.redis_client.delete(invitation.storage_key) > 0 else False
+
+    def update_invitation(self, invitation):
+        """ストレージ上のInvitationオブジェクトを更新する.
+
+        :param Invitation invitation: Invitationオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
+        """
+        if self.unregister_schema(invitation) is True:
+            return self.register_schema(invitation)
+        return False
+
+    # Schema
     def register_schema(self, schema):
         """Schemaオブジェクトをストレージに登録する.
 
