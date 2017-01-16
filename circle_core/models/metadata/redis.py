@@ -3,10 +3,11 @@
 # system module
 from __future__ import absolute_import
 
+import uuid
+
 # community module
 from redis import ConnectionError, Redis
 from six import PY3
-import uuid
 
 # project module
 # TODO: cli.utilsから外に移す

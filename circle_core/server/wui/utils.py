@@ -9,8 +9,8 @@ from flask.json import _dump_arg_defaults, _json, JSONEncoder as BaseJSONEncoder
 from six import PY3
 
 # project module
-from circle_core.models.metadata import MetadataIniFile, MetadataRedis
 from circle_core.constants import CRScope
+from circle_core.models.metadata import MetadataIniFile, MetadataRedis
 
 if PY3:
     from typing import Any, Dict, Union

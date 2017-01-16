@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
+
 import pytest
 
 from circle_core.models import Invitation
