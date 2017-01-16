@@ -273,9 +273,9 @@ class User extends React.Component {
    * 自動生成パスワードのコピーボタンが押されたら呼ばれる
    */
   onTapCopyGeneratedPassword() {
-    const r = document.createRange()
-    r.selectNode(this.refs.generatedPassword.input)
-    window.getSelection().addRange(r)
+    const node = this.refs.generatedPassword.input
+    node.focus()
+    node.setSelectionRange(0, node.value.length)
     document.execCommand('copy')
 
     this.setState({openPasswordCopiedSnackbar: true})
