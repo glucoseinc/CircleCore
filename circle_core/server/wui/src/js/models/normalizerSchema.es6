@@ -58,6 +58,7 @@ const response = {
   schemaPropertyTypes: [schemaPropertyType],
   module,
   modules: [module],
+  user,
   users: [user],
 }
 

@@ -11,10 +11,10 @@ import {makeError} from './utils'
  */
 function* fetchUsers(action) {
   try {
-    const response = yield call(::CCAPI.getUsers)
-    yield put(actions.users.fetchSucceeded(response))
+    const response = yield call(::CCAPI.listUsers)
+    yield put(actions.users.fetchComplete({response}))
   } catch (e) {
-    yield put(actions.users.fetchFailed(e.message))
+    yield put(actions.users.fetchComplete({error: makeError(e)}))
   }
 }
 

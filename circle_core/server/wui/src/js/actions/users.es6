@@ -1,11 +1,10 @@
-import {createCcActions, nullPayloadCreator, passPayloadCreator} from './utils'
+import {createCcActions, nullPayloadCreator, passPayloadCreator, toJSPayloadCreator} from './utils'
 
 const ccActions = createCcActions('users', {
   fetchRequest: nullPayloadCreator,
-  fetchSucceeded: (users) => users.map((user) => user.toJS()),
-  fetchFailed: (message) => message,
+  fetchComplete: passPayloadCreator,
 
-  deleteRequest: (user) => user.toJS(),
+  deleteRequest: toJSPayloadCreator,
   deleteComplete: passPayloadCreator,
 })
 

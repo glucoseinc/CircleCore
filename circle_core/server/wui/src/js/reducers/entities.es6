@@ -78,12 +78,27 @@ const entities = handleActions({
   [actionTypes.module.fetchSucceeded]: mergeByFetchingModules(false),
 
   // Fetched Users
-  [actionTypes.users.fetchSucceeded]: (state, action) => {
-    const rawUsers = action.payload
-    return {
-      ...state,
-      users: rawUsers.map(User.fromObject),
+  [actionTypes.users.fetchComplete]: (state, {payload: {response, error}}) => {
+    if(response) {
+      const {entities} = normalize(response, normalizerSchema)
+      const users = new Map(convertValues(entities.users, User.fromObject))
+
+      return {...state, users}
     }
+    return state
+  },
+
+  [actionTypes.users.deleteComplete]: (state, {payload: {response, error}}) => {
+    if(response) {
+      // 削除されるUserはたかだか1個なのでこの実装で問題ないと思う
+      const {entities} = normalize(response, normalizerSchema)
+      let users = state.users
+      Object.entries(entities.users).forEach(([uuid, obj]) => {
+        users = users.delete(uuid)
+      })
+      return {...state, users}
+    }
+    return state
   },
 
   // Fetched Invitations

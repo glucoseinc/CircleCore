@@ -87,11 +87,6 @@ const setModuleFetching = (newState) => (state, action) => ({
   isModuleFetching: newState,
 })
 
-const setUsersFetching = (newState) => (state, action) => ({
-  ...state,
-  isUsersFetching: newState,
-})
-
 
 const asyncs = handleActions({
   // Create Schemas
@@ -140,9 +135,8 @@ const asyncs = handleActions({
   [actionTypes.module.fetchFailed]: setModuleFetching(false),
 
   // Fetch Users
-  [actionTypes.users.fetchRequest]: setUsersFetching(true),
-  [actionTypes.users.fetchSucceeded]: setUsersFetching(false),
-  [actionTypes.users.fetchFailed]: setUsersFetching(false),
+  [actionTypes.users.fetchRequest]: changeFlagAction('isUsersFetching', true),
+  [actionTypes.users.fetchComplete]: changeFlagAction('isUsersFetching', false),
 
   // Fetch Invitations
   [actionTypes.invitations.fetchRequest]: changeFlagAction('isInvitationsFetching', true),

@@ -62,7 +62,7 @@ class UsersTableRow extends React.Component {
  */
 export default class UsersTable extends React.Component {
   static propTypes = {
-    users: PropTypes.array.isRequired,
+    users: PropTypes.object.isRequired,
     onDeleteUser: PropTypes.func.isRequired,
   }
 
@@ -96,7 +96,9 @@ export default class UsersTable extends React.Component {
         <TableBody
           displayRowCheckbox={false}
         >
-          {users.map((user) => <UsersTableRow key={user.uuid} user={user} onDeleteUser={onDeleteUser} />)}
+          {users.valueSeq().sortBy((v) => v.dateCreated).map((user) =>
+            <UsersTableRow key={user.uuid} user={user} onDeleteUser={onDeleteUser} />
+          )}
         </TableBody>
       </Table>
     )

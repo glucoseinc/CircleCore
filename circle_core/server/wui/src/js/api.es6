@@ -291,7 +291,7 @@ class CCAPI extends APICaller {
    * Userのリストを得る
    * @return {Array<User>} Userのリスト
    */
-  async getUsers() {
+  async listUsers() {
     const res = await this._get('/users/')
     return res.body
   }

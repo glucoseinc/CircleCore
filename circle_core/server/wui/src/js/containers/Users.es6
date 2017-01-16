@@ -13,7 +13,7 @@ import OkCancelDialog from '../components/OkCancelDialog'
 class Users extends React.Component {
   static propTypes = {
     isFetching: PropTypes.bool.isRequired,
-    users: PropTypes.array.isRequired,
+    users: PropTypes.object.isRequired,
     actions: PropTypes.object.isRequired,
   }
 
