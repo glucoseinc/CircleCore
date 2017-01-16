@@ -11,6 +11,7 @@ from click import get_current_context
 
 from .module import Module
 from .schema import Schema
+from ..exceptions import SchemaNotFoundError
 from ..helpers.metadata import metadata
 from ..logger import get_stream_logger
 
@@ -110,7 +111,7 @@ class ModuleMessage(object):
                 'Schema of the received message: %r',
                 {key: type(value) for key, value in payload.items()}
             )
-            raise ValueError('Received message has unknown schema')
+            raise SchemaNotFoundError()
 
     def encode(self):
         """slaveのCircleCoreに送られる際に使われる.
