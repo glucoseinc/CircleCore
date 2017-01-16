@@ -93,7 +93,7 @@ class TestReplicationMaster(AsyncHTTPTestCase):
         return Application([
             ('/replication/', DummyReplicationMaster),
             ('/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', ReplicationMaster),
-            ('/ws/(?P<module_uuid>[0-9A-Fa-f-]+)', ModuleHandler)
+            ('/module/(?P<module_uuid>[0-9A-Fa-f-]+)', ModuleHandler)
         ], cr_metadata=DummyMetadata())
 
     def get_protocol(self):
@@ -115,7 +115,7 @@ class TestReplicationMaster(AsyncHTTPTestCase):
                 self.io_loop
             )
             self.dummy_module = yield websocket_connect(
-                self.get_url('/ws/8e654793-5c46-4721-911e-b9d19f0779f9'),
+                self.get_url('/module/8e654793-5c46-4721-911e-b9d19f0779f9'),
                 self.io_loop
             )
 
@@ -163,7 +163,7 @@ class TestReplicationMaster(AsyncHTTPTestCase):
         yield sleep(1)
 
         # MIGRATE時に要求しなかったのでたらい回されない
-        dummy_module2 = yield websocket_connect(self.get_url('/ws/a1956117-bf4e-4ddb-b840-5cd3d9708b49'), self.io_loop)
+        dummy_module2 = yield websocket_connect(self.get_url('/module/a1956117-bf4e-4ddb-b840-5cd3d9708b49'), self.io_loop)
         yield dummy_module2.write_message('{"piyo": 12.3}')
 
         # MIGRATE時に要求したのでたらい回される

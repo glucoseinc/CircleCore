@@ -29,7 +29,7 @@ class DummyMetadata(MetadataReader):
 class TestModuleHandler(AsyncHTTPTestCase):
     def get_app(self):
         return Application([
-            ('/ws/(?P<module_uuid>[0-9A-Fa-f-]+)', ModuleHandler)
+            ('/module/(?P<module_uuid>[0-9A-Fa-f-]+)', ModuleHandler)
         ], cr_metadata=DummyMetadata())
 
     def get_protocol(self):
@@ -49,7 +49,7 @@ class TestModuleHandler(AsyncHTTPTestCase):
     @gen_test
     def test_pass_to_nanomsg(self):
         """WebSocketで受け取ったModuleからのMessageに適切なtimestamp/countを付与してnanomsgに流せているかどうか."""
-        dummy_module = yield websocket_connect(self.get_url('/ws/4ffab839-cf56-478a-8614-6003a5980855'), self.io_loop)
+        dummy_module = yield websocket_connect(self.get_url('/module/4ffab839-cf56-478a-8614-6003a5980855'), self.io_loop)
         req = json.dumps({
             'hoge': 'piyo'
         })

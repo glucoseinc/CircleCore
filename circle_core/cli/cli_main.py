@@ -73,7 +73,7 @@ def cli_main_env(ctx):
 
 @cli_main.command('run')
 @click.option('--ws-port', type=click.INT, envvar='CRCR_WSPORT', default=5000)
-@click.option('--ws-path', type=click.STRING, envvar='CRCR_WSPATH', default='/ws/?')
+@click.option('--ws-path', type=click.STRING, envvar='CRCR_WSPATH', default='/module/?')
 @click.option('--wui-port', type=click.INT, envvar='CRCR_WUIPORT', default=5000)
 @click.option('--ipc-socket', type=click.Path(resolve_path=True), envvar='CRCR_IPCSOCK', default='/tmp/circlecore.ipc')
 @click.option('workers', '--worker', type=click.STRING, envvar='CRCR_WORKERS', multiple=True)

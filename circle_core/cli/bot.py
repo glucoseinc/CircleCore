@@ -15,7 +15,7 @@ def cli_bot():
 
 @cli_bot.command()
 @click.option('receive_from', '--from', type=click.STRING, default='ws://api.coi.bodic.org/websocket')
-@click.option('send_to', '--to', type=click.STRING, default='ws://localhost:5000/ws')
+@click.option('send_to', '--to', type=click.STRING, default='ws://localhost:5000/module')
 def echo(receive_from, send_to):
     """--fromから--toへメッセージをたらい回し.
 
@@ -36,7 +36,7 @@ def echo(receive_from, send_to):
 
 
 @cli_bot.command()
-@click.option('send_to', '--to', type=click.STRING, default='ws://localhost:5000/ws')
+@click.option('send_to', '--to', type=click.STRING, default='ws://localhost:5000/module')
 def dummy(send_to):
     """ダミーのデータを投げる.
 
