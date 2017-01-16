@@ -11,7 +11,7 @@ from click.testing import CliRunner
 import pytest
 from sqlalchemy import create_engine, Table
 from sqlalchemy.engine.reflection import Inspector
-from sqlalchemy.types import INTEGER, NUMERIC
+from sqlalchemy.types import DECIMAL, INTEGER
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado.testing import AsyncHTTPTestCase, gen_test
@@ -22,11 +22,12 @@ from circle_core import database
 from circle_core.cli.cli_main import cli_main
 from circle_core.database import Database
 from circle_core.models import message
+from circle_core.models.message import ModuleMessage
 from circle_core.models.message_box import MessageBox
 from circle_core.models.metadata.base import MetadataReader
 from circle_core.models.module import Module
 from circle_core.models.schema import Schema
-from circle_core.server.ws import ReplicationMaster, SensorHandler
+from circle_core.server.ws import ModuleHandler, ReplicationMaster
 from circle_core.workers import replication_slave
 from circle_core.workers.replication_slave import ReplicationSlave
 
@@ -56,7 +57,6 @@ class DummyMetadata(MetadataReader):
 
 
 @pytest.mark.usefixtures('class_wide_mysql')
-@pytest.mark.skip
 class TestReplicationSlave:
     @classmethod
     def setup_class(cls):
@@ -133,7 +133,7 @@ class TestReplicationSlave:
         table_name = db.make_table_name_for_message_box(box)
         columns = inspector.get_columns(table_name)
         types = {
-            '_created_at': NUMERIC,
+            '_created_at': DECIMAL,
             '_counter': INTEGER,
             'hoge': INTEGER
         }
@@ -178,6 +178,6 @@ class TestReplicationSlave:
         with session.begin():
             rows = session.query(table).all()
             assert len(rows) == 1
-            assert rows[0]._created_at == now
+            assert ModuleMessage.is_equal_timestamp(rows[0]._created_at, now)
             assert rows[0]._counter == 0
             assert rows[0].hoge == 123

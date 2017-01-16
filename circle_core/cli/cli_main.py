@@ -6,6 +6,7 @@ from __future__ import absolute_import, print_function
 
 from itertools import cycle, groupby
 from multiprocessing import Process
+import re
 from signal import SIGINT, signal, SIGTERM
 import sys
 from time import time
@@ -71,14 +72,22 @@ def cli_main_env(ctx):
     click.echo(context_object.log_file_path)
 
 
+def validate_replication_master_addr(ctx, param, values):
+    for addr in values:
+        if re.search(r'^[0-9A-Fa-f-]+@.+\:\d+$', addr) is None:
+            raise click.BadParameter('You must specify --replicate like module_uuid@hostname:port')
+
+    return values
+
+
 @cli_main.command('run')
 @click.option('--ws-port', type=click.INT, envvar='CRCR_WSPORT', default=5000)
-@click.option('--ws-path', type=click.STRING, envvar='CRCR_WSPATH', default='/ws/?')
+@click.option('--ws-path', type=click.STRING, envvar='CRCR_WSPATH', default='/module/?')
 @click.option('--wui-port', type=click.INT, envvar='CRCR_WUIPORT', default=5000)
 @click.option('--ipc-socket', type=click.Path(resolve_path=True), envvar='CRCR_IPCSOCK', default='/tmp/circlecore.ipc')
 @click.option('workers', '--worker', type=click.STRING, envvar='CRCR_WORKERS', multiple=True)
 @click.option('replicate_from', '--replicate', type=click.STRING, envvar='CRCR_REPLICATION', multiple=True,
-              help='module_uuid@hostname:port')
+              help='module_uuid@hostname:port', callback=validate_replication_master_addr)
 @click.option('database_url', '--database', envvar='CRCR_DATABASE')
 @click.pass_context
 def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, workers, replicate_from, database_url):

@@ -85,7 +85,8 @@ class Receiver(object):
                 raise
 
             try:
-                yield from self.topic.decode(plain_msg)
+                for msg in self.topic.decode(plain_msg):
+                    yield msg
             except JSONDecodeError:
                 logger.warning('Received an non-JSON message. Ignore it.')
 

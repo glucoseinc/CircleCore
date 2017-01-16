@@ -22,8 +22,8 @@ from circle_core.models.message_box import MessageBox
 from circle_core.models.metadata.base import MetadataReader
 from circle_core.models.module import Module
 from circle_core.models.schema import Schema
-from circle_core.server.ws import replication_master
-from circle_core.server.ws import ReplicationMaster, SensorHandler
+from circle_core.server.ws import module as module_handler, replication_master
+from circle_core.server.ws import ModuleHandler, ReplicationMaster
 from circle_core.workers import replication_slave
 from circle_core.workers.replication_slave import ReplicationSlave
 
@@ -93,20 +93,22 @@ class TestReplicationMaster(AsyncHTTPTestCase):
         return Application([
             ('/replication/', DummyReplicationMaster),
             ('/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', ReplicationMaster),
-            ('/ws/(?P<module_uuid>[0-9A-Fa-f-]+)', SensorHandler)
-        ], cr_metadata=DummyMetadata())
+            ('/module/(?P<module_uuid>[0-9A-Fa-f-]+)', ModuleHandler)
+        ])
 
     def get_protocol(self):
         return 'ws'
 
     def setUp(self):
         super(TestReplicationMaster, self).setUp()
+        # 汚い...
         schema.metadata = DummyMetadata
         module.metadata = DummyMetadata
         message.metadata = DummyMetadata
         replication_master.metadata = DummyMetadata
         replication_slave.metadata = DummyMetadata
         message_box.metadata = DummyMetadata
+        module_handler.metadata = DummyMetadata
 
         @coroutine
         def connect():
@@ -115,7 +117,7 @@ class TestReplicationMaster(AsyncHTTPTestCase):
                 self.io_loop
             )
             self.dummy_module = yield websocket_connect(
-                self.get_url('/ws/8e654793-5c46-4721-911e-b9d19f0779f9'),
+                self.get_url('/module/8e654793-5c46-4721-911e-b9d19f0779f9'),
                 self.io_loop
             )
 
@@ -163,7 +165,10 @@ class TestReplicationMaster(AsyncHTTPTestCase):
         yield sleep(1)
 
         # MIGRATE時に要求しなかったのでたらい回されない
-        dummy_module2 = yield websocket_connect(self.get_url('/ws/a1956117-bf4e-4ddb-b840-5cd3d9708b49'), self.io_loop)
+        dummy_module2 = yield websocket_connect(
+            self.get_url('/module/a1956117-bf4e-4ddb-b840-5cd3d9708b49'),
+            self.io_loop
+        )
         yield dummy_module2.write_message('{"piyo": 12.3}')
 
         # MIGRATE時に要求したのでたらい回される
@@ -203,7 +208,10 @@ class TestReplicationMaster(AsyncHTTPTestCase):
     @pytest.mark.timeout(2)
     @gen_test
     def test_receive_count_seeding(self):  # メソッド名で実行順が決まってる？
-        """何のテストか説明を書いて..."""
+        """過去に蓄えたデータの送信。
+
+        指定した時点以降のデータのみ送られてくるか。
+        """
         DummyMetadata.database_url = self.mysql.url
         now = round(time(), 6)
 

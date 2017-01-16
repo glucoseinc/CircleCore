@@ -8,7 +8,7 @@ from tornado.websocket import WebSocketHandler
 
 from ...helpers.metadata import metadata
 from ...helpers.nanomsg import Receiver
-from ...helpers.topics import SensorDataTopic
+from ...helpers.topics import ModuleMessageTopic
 from ...logger import get_stream_logger
 from ...models.message_box import MessageBox
 
@@ -48,6 +48,9 @@ class ReplicationMaster(WebSocketHandler):
     def on_close(self):
         """センサーとの接続が切れた際に呼ばれる."""
         logger.debug('connection closed: %s', self)
+
+        if hasattr(self, 'receiver'):  # Stop passing messages to slave
+            IOLoop.current().remove_handler(self.receiver)
 
     def check_origin(self, origin):
         """CORSチェック."""
@@ -92,6 +95,6 @@ class ReplicationMaster(WebSocketHandler):
                 logger.debug('Received from nanomsg: %s', msg.encode())
                 self.write_message(msg.encode())
 
-        logger.debug('Replication Master %s', SensorDataTopic().topic)
-        receiver = Receiver(SensorDataTopic())
-        receiver.register_ioloop(pass_message)
+        logger.debug('Replication Master %s', ModuleMessageTopic().topic)
+        self.receiver = Receiver(ModuleMessageTopic())
+        self.receiver.register_ioloop(pass_message)

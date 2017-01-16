@@ -58,6 +58,8 @@ class MessageBox(object):
         self.display_name = display_name
         self.description = description
         self.of_master = of_master
+        if isinstance(self.of_master, str):
+            self.of_master = eval(of_master)  # RedisにBoolはない...
 
     def __eq__(self, other):
         """return equality.

@@ -4,8 +4,8 @@ from tornado.ioloop import IOLoop
 from tornado.web import Application, FallbackHandler
 from tornado.wsgi import WSGIContainer
 
+from .ws.module import ModuleHandler
 from .ws.replication_master import ReplicationMaster
-from .ws.sensor import SensorHandler
 from .wui import create_app
 
 
@@ -19,14 +19,9 @@ def run(port=5000, metadata=None, debug=True):
     flask_app = create_app(metadata)
     tornado_app = Application([
         (r'/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', ReplicationMaster),
-        (r'/ws/(?P<module_uuid>[0-9A-Fa-f-]+)', SensorHandler),
+        (r'/module/(?P<module_uuid>[0-9A-Fa-f-]+)', ModuleHandler),
         (r'.*', FallbackHandler, {'fallback': WSGIContainer(flask_app)})
-    ],
-        cr_metadata=metadata,
-        debug=debug
-    )
-    # パフォーマンスの問題があるので別々のサーバーとして立てることも可能にする
-    # http://www.tornadoweb.org/en/stable/wsgi.html#tornado.wsgi.WSGIContainer
+    ], debug=debug)  # tornado/autoreload.pyがエラーを吐くので本番では切る
 
     tornado_app.listen(port)
     IOLoop.current().start()
