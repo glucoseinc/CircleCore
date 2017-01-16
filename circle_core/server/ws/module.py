@@ -26,6 +26,7 @@ class ModuleHandler(WebSocketHandler):
         """センサーとの接続が開いた際に呼ばれる."""
         self.module = metadata().find_module(module_uuid)
         if not self.module:
+            self.close(reason='Module not found')
             raise ModuleNotFoundError('module {} not found'.format(module_uuid))
 
         # TODO: 認証を行う
@@ -58,6 +59,6 @@ class ModuleHandler(WebSocketHandler):
 
     def check_origin(self, origin):
         """CORSチェック."""
-        # FIXME: 本番環境でどうするか
+        # TODO: 本番環境でどうするか
         # wsta等テストツールから投げる場合はTrueにしておく
         return True

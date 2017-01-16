@@ -6,7 +6,7 @@ import pytest
 from tornado.gen import sleep
 from tornado.testing import AsyncHTTPTestCase, gen_test
 from tornado.web import Application
-from tornado.websocket import websocket_connect
+from tornado.websocket import websocket_connect, WebSocketClosedError
 
 from circle_core.helpers.nanomsg import Receiver
 from circle_core.helpers.topics import ModuleMessageTopic
@@ -46,6 +46,17 @@ class TestModuleHandler(AsyncHTTPTestCase):
     def tearDown(self):
         super().tearDown()
         del self.receiver
+
+    @pytest.mark.timeout(2)
+    @gen_test
+    def test_module_not_found(self):
+        """登録されていないModuleから接続された際は切断."""
+        unknown_module = yield websocket_connect(
+            self.get_url('/module/eaf8c6d5-1ce0-4a45-848f-9c80b0fbb2d7'),
+            self.io_loop
+        )
+        res = yield unknown_module.read_message()
+        assert res is None
 
     @pytest.mark.timeout(2)
     @gen_test
