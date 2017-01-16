@@ -1,16 +1,17 @@
 import {combineReducers} from 'redux'
 import {routerReducer as routing} from 'react-router-redux'
 
-import entities from './entities'
-import asyncs from './asyncs'
-import misc from './misc'
 
+// load action groups
+let reducers = {routing}
+const reducerFiles = [
+  'asyncs',
+  'auth',
+  'entities',
+  'misc',
+]
+reducerFiles.forEach((reducerFile) => reducers[reducerFile] = require(`./${reducerFile}`).default)
 
-const rootReducer = combineReducers({
-  entities,
-  asyncs,
-  misc,
-  routing,
-})
+const rootReducer = combineReducers(reducers)
 
 export default rootReducer

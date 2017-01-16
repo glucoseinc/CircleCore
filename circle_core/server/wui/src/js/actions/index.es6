@@ -4,6 +4,7 @@ let actionTypes = {}
 
 // load action groups
 const groupNames = [
+  'auth',
   'invitations',
   'location',
   'misc',
