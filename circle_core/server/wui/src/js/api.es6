@@ -206,6 +206,36 @@ class CCAPI extends APICaller {
     return res.body
   }
 
+  // invitation
+  /**
+   * Invitationのリストを得る
+   * @return {Object} Result
+   */
+  async listInvitations() {
+    const res = await this._get('/invitations/')
+    return res.body
+  }
+
+  /**
+   * Invitationを作成する
+   * @param {Object} payload 新しく作りたいInvitationの値
+   * @return {Object} Result
+   */
+  async postInvitation(payload) {
+    const res = await this._post('/invitations/', payload)
+    return res.body
+  }
+
+  /**
+   * Invitationを削除する
+   * @param {Invitation} invitation Invtation
+   * @return {Object} Result
+   */
+  async deleteInvitation(invitation) {
+    const res = await this._delete(`/invitations/${invitation.uuid}`)
+    return res.body
+  }
+
 
   // schemas
   /**
@@ -253,6 +283,26 @@ class CCAPI extends APICaller {
    */
   async getSchemaPropertyTypes() {
     const res = await this._get('/schemas/propertytypes')
+    return res.body
+  }
+
+  // users
+  /**
+   * Userのリストを得る
+   * @return {Array<User>} Userのリスト
+   */
+  async listUsers() {
+    const res = await this._get('/users/')
+    return res.body
+  }
+
+  /**
+   * Userを削除する
+   * @param {User} user User
+   * @return {Object} Result
+   */
+  async deleteUser(user) {
+    const res = await this._delete(`/users/${user.uuid}`)
     return res.body
   }
 

@@ -33,12 +33,33 @@ const schemaPropertyType = new normalizerSchema.Entity(
   }
 )
 
+const user = new normalizerSchema.Entity(
+  'users',
+  {},
+  {
+    idAttribute: 'uuid',
+  }
+)
+
+const invitation = new normalizerSchema.Entity(
+  'invitations',
+  {},
+  {
+    idAttribute: 'uuid',
+  }
+)
+
+
 const response = {
+  invitation,
+  invitations: [invitation],
   schema,
   schemas: [schema],
   schemaPropertyTypes: [schemaPropertyType],
   module,
   modules: [module],
+  user,
+  users: [user],
 }
 
 export default response

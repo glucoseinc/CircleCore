@@ -40,3 +40,6 @@ async function checkAndStart() {
   )
 }
 checkAndStart()
+
+
+export {store}

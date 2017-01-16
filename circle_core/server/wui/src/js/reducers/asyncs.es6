@@ -1,23 +1,41 @@
 import {handleActions} from 'redux-actions'
 
-import actionTypes from '../actions/actionTypes'
+import {actionTypes} from '../actions'
 
 
 const initialState = {
-  isSchemasCreating: false,
-  isSchemasFetching: false,
-  isSchemasDeleteAsking: false,
-
-  isSchemaPropertyTypesFetching: false,
-
   isModulesCreating: false,
   isModulesFetching: false,
   isModulesUpdating: false,
   isModulesDeleteAsking: false,
 
+  isSchemasCreating: false,
+  isSchemasFetching: false,
+  isSchemasDeleteAsking: false,
+  isSchemaPropertyTypesFetching: false,
+
   isSchemaFetching: false,
 
   isModuleFetching: false,
+
+  isUsersFetching: false,
+
+  isInvitationsFetching: false,
+}
+
+
+/**
+ * 固定ステートに固定値をいれるActionのReducer
+ * @param {str} stateName
+ * @param {Object} newState
+ * @return {Object} 新しいstate
+ */
+function changeFlagAction(stateName, newState) {
+  return (state, action) => {
+    let up = {}
+    up[stateName] = newState
+    return Object.assign({}, state, up)
+  }
 }
 
 // Schemas
@@ -115,6 +133,15 @@ const asyncs = handleActions({
   [actionTypes.module.fetchRequest]: setModuleFetching(true),
   [actionTypes.module.fetchSucceeded]: setModuleFetching(false),
   [actionTypes.module.fetchFailed]: setModuleFetching(false),
+
+  // Fetch Users
+  [actionTypes.users.fetchRequest]: changeFlagAction('isUsersFetching', true),
+  [actionTypes.users.fetchComplete]: changeFlagAction('isUsersFetching', false),
+
+  // Fetch Invitations
+  [actionTypes.invitations.fetchRequest]: changeFlagAction('isInvitationsFetching', true),
+  [actionTypes.invitations.fetchComplete]: changeFlagAction('isInvitationsFetching', false),
+
 }, initialState)
 
 export default asyncs

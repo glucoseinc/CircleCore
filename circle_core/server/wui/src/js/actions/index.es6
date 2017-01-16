@@ -1,22 +1,26 @@
-import schemas from './schemas'
-import schemaPropertyTypes from './schemaPropertyTypes'
-import modules from './modules'
-import shareLinks from './shareLinks'
-import schema from './schema'
-import module from './module'
-import location from './location'
-import misc from './misc'
+let actions = {}
+let actionTypes = {}
 
 
-const actions = {
-  schemas,
-  schemaPropertyTypes,
-  modules,
-  shareLinks,
-  schema,
-  module,
-  location,
-  misc,
-}
+// load action groups
+const groupNames = [
+  'invitations',
+  'location',
+  'misc',
+  'module',
+  'modules',
+  'schema',
+  'schemas',
+  'schemaPropertyTypes',
+  'shareLinks',
+  'user',
+  'users',
+]
+groupNames.forEach((group) => {
+  let mod = require(`./${group}`)
 
-export default actions
+  actions[group] = mod.default
+  actionTypes[group] = mod.actionTypes
+})
+
+export {actions as default, actionTypes}

@@ -86,6 +86,9 @@ def create_row_strings(rows):
 
     assert len(rows) > 0
 
+    # 全てstrに変換
+    rows = [[str(c) for c in row] for row in rows]
+
     # Calculate columns size.
     sizes = [0] * max(len(x) for x in rows)
     for row in rows:
