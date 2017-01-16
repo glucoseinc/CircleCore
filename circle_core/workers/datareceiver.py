@@ -13,7 +13,7 @@ from circle_core.logger import get_stream_logger
 from ..database import Database
 from ..exceptions import ModuleNotFoundError, SchemaNotFoundError
 from ..helpers.nanomsg import Receiver
-from ..helpers.topics import SensorDataTopic
+from ..helpers.topics import ModuleMessageTopic
 from ..models.metadata import MetadataIniFile, MetadataRedis
 
 if PY3:
@@ -33,7 +33,7 @@ def run(metadata):
     metadata.data_receiver_cycle_time = 10 * 1000
     metadata.data_receiver_cycle_count = 10
 
-    receiver = Receiver(SensorDataTopic())
+    receiver = Receiver(ModuleMessageTopic())
     receiver.set_timeout(metadata.data_receiver_cycle_time)
 
     db = Database(metadata.database_url)
@@ -51,7 +51,7 @@ def run(metadata):
     while True:
         try:
             for msg in receiver.incoming_messages():
-                logger.debug('received a sensor data for %s : %r', msg.module.uuid, msg.payload)
+                logger.debug('received a module data for %s : %r', msg.module.uuid, msg.payload)
 
                 try:
                     table = db.find_table_for_message(msg)

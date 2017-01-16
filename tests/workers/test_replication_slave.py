@@ -27,7 +27,7 @@ from circle_core.models.message_box import MessageBox
 from circle_core.models.metadata.base import MetadataReader
 from circle_core.models.module import Module
 from circle_core.models.schema import Schema
-from circle_core.server.ws import ReplicationMaster, SensorHandler
+from circle_core.server.ws import ReplicationMaster, ModuleHandler
 from circle_core.workers import replication_slave
 from circle_core.workers.replication_slave import ReplicationSlave
 

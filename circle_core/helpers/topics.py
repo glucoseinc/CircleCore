@@ -54,7 +54,7 @@ class JustLogging(BaseTopic):
         return ''
 
 
-class SensorDataTopic(BaseTopic):
+class ModuleMessageTopic(BaseTopic):
     """センサデータの送受信Topic."""
 
     prefix = 'module:'

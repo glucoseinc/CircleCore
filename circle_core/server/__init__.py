@@ -5,7 +5,7 @@ from tornado.web import Application, FallbackHandler
 from tornado.wsgi import WSGIContainer
 
 from .ws.replication_master import ReplicationMaster
-from .ws.sensor import SensorHandler
+from .ws.module import ModuleHandler
 from .wui import create_app
 
 
@@ -19,7 +19,7 @@ def run(port=5000, metadata=None, debug=True):
     flask_app = create_app(metadata)
     tornado_app = Application([
         (r'/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', ReplicationMaster),
-        (r'/ws/(?P<module_uuid>[0-9A-Fa-f-]+)', SensorHandler),
+        (r'/ws/(?P<module_uuid>[0-9A-Fa-f-]+)', ModuleHandler),
         (r'.*', FallbackHandler, {'fallback': WSGIContainer(flask_app)})
     ],
         cr_metadata=metadata,

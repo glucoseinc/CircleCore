@@ -8,7 +8,7 @@ from tornado.websocket import WebSocketHandler
 
 from ...helpers.metadata import metadata
 from ...helpers.nanomsg import Receiver
-from ...helpers.topics import SensorDataTopic
+from ...helpers.topics import ModuleMessageTopic
 from ...logger import get_stream_logger
 from ...models.message_box import MessageBox
 
@@ -92,6 +92,6 @@ class ReplicationMaster(WebSocketHandler):
                 logger.debug('Received from nanomsg: %s', msg.encode())
                 self.write_message(msg.encode())
 
-        logger.debug('Replication Master %s', SensorDataTopic().topic)
-        receiver = Receiver(SensorDataTopic())
+        logger.debug('Replication Master %s', ModuleMessageTopic().topic)
+        receiver = Receiver(ModuleMessageTopic())
         receiver.register_ioloop(pass_message)

@@ -6,14 +6,14 @@ from tornado.websocket import WebSocketHandler
 
 from circle_core.exceptions import ModuleNotFoundError
 from circle_core.helpers.nanomsg import Sender
-from circle_core.helpers.topics import SensorDataTopic
+from circle_core.helpers.topics import ModuleMessageTopic
 from circle_core.logger import get_stream_logger
 from ...models.message import ModuleMessageFactory
 
 logger = get_stream_logger(__name__)
 
 
-class SensorHandler(WebSocketHandler):
+class ModuleHandler(WebSocketHandler):
     """ここからワーカー達にnanomsg経由で命令を送る.
 
     接続毎にインスタンスが生成されている
@@ -30,7 +30,7 @@ class SensorHandler(WebSocketHandler):
 
         # TODO: 認証を行う
         # Senderはシングルトンだがインスタンス生成の直後にsendできないので予め作っておく
-        self._sender = Sender(SensorDataTopic(self.module))
+        self._sender = Sender(ModuleMessageTopic(self.module))
         logger.debug('connection opened: %s', self)
 
     def on_message(self, plain_msg):

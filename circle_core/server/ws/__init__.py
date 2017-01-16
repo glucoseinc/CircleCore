@@ -5,7 +5,7 @@ from tornado.ioloop import IOLoop
 from tornado.web import Application
 
 from circle_core.server.ws.replication_master import ReplicationMaster
-from circle_core.server.ws.sensor import SensorHandler
+from circle_core.server.ws.module import ModuleHandler
 from ...models.metadata import MetadataIniFile, MetadataRedis
 
 if PY3:
@@ -21,7 +21,7 @@ def run(metadata, path, port):
     """
     routes = [
         (path, ReplicationMaster),
-        (path + '/(?P<module_uuid>[0-9A-Fa-f-]+)', SensorHandler)
+        (path + '/(?P<module_uuid>[0-9A-Fa-f-]+)', ModuleHandler)
     ]
     Application(routes, cr_metadata=metadata).listen(port)
     IOLoop.current().start()
