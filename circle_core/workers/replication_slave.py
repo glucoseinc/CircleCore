@@ -10,6 +10,7 @@ from base58 import b58encode
 import click
 from websocket import create_connection, WebSocketConnectionClosedException
 
+from circle_core.exceptions import MigrationError
 from circle_core.logger import get_stream_logger
 from ..database import Database
 from ..helpers.metadata import metadata
@@ -53,7 +54,12 @@ class ReplicationSlave(object):
             metadata().register_module(module)
 
         self.db.register_message_boxes(boxes, schemas)
-        self.db.migrate()
+        try:
+            self.db.migrate()
+        except MigrationError:
+            click.echo("A schema of the master's module was changed", err=True)
+            click.get_current_context().abort()
+            raise
 
     def receive(self):
         dbconn = self.db._engine.connect()
