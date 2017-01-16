@@ -22,8 +22,8 @@ from circle_core.models.message_box import MessageBox
 from circle_core.models.metadata.base import MetadataReader
 from circle_core.models.module import Module
 from circle_core.models.schema import Schema
-from circle_core.server.ws import replication_master
-from circle_core.server.ws import ReplicationMaster, ModuleHandler
+from circle_core.server.ws import module as module_handler, replication_master
+from circle_core.server.ws import ModuleHandler, ReplicationMaster
 from circle_core.workers import replication_slave
 from circle_core.workers.replication_slave import ReplicationSlave
 
@@ -94,19 +94,21 @@ class TestReplicationMaster(AsyncHTTPTestCase):
             ('/replication/', DummyReplicationMaster),
             ('/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', ReplicationMaster),
             ('/module/(?P<module_uuid>[0-9A-Fa-f-]+)', ModuleHandler)
-        ], cr_metadata=DummyMetadata())
+        ])
 
     def get_protocol(self):
         return 'ws'
 
     def setUp(self):
         super(TestReplicationMaster, self).setUp()
+        # 汚い...
         schema.metadata = DummyMetadata
         module.metadata = DummyMetadata
         message.metadata = DummyMetadata
         replication_master.metadata = DummyMetadata
         replication_slave.metadata = DummyMetadata
         message_box.metadata = DummyMetadata
+        module_handler.metadata = DummyMetadata
 
         @coroutine
         def connect():
@@ -163,7 +165,10 @@ class TestReplicationMaster(AsyncHTTPTestCase):
         yield sleep(1)
 
         # MIGRATE時に要求しなかったのでたらい回されない
-        dummy_module2 = yield websocket_connect(self.get_url('/module/a1956117-bf4e-4ddb-b840-5cd3d9708b49'), self.io_loop)
+        dummy_module2 = yield websocket_connect(
+            self.get_url('/module/a1956117-bf4e-4ddb-b840-5cd3d9708b49'),
+            self.io_loop
+        )
         yield dummy_module2.write_message('{"piyo": 12.3}')
 
         # MIGRATE時に要求したのでたらい回される

@@ -5,6 +5,7 @@ import json
 from tornado.websocket import WebSocketHandler
 
 from circle_core.exceptions import ModuleNotFoundError
+from circle_core.helpers.metadata import metadata
 from circle_core.helpers.nanomsg import Sender
 from circle_core.helpers.topics import ModuleMessageTopic
 from circle_core.logger import get_stream_logger
@@ -23,8 +24,7 @@ class ModuleHandler(WebSocketHandler):
 
     def open(self, module_uuid):
         """センサーとの接続が開いた際に呼ばれる."""
-        # TODO: cr_metadata周りは作り直す
-        self.module = self.application.settings['cr_metadata'].find_module(module_uuid)
+        self.module = metadata().find_module(module_uuid)
         if not self.module:
             raise ModuleNotFoundError('module {} not found'.format(module_uuid))
 

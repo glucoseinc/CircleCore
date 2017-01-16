@@ -21,12 +21,7 @@ def run(port=5000, metadata=None, debug=True):
         (r'/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', ReplicationMaster),
         (r'/module/(?P<module_uuid>[0-9A-Fa-f-]+)', ModuleHandler),
         (r'.*', FallbackHandler, {'fallback': WSGIContainer(flask_app)})
-    ],
-        cr_metadata=metadata,
-        debug=debug
-    )
-    # パフォーマンスの問題があるので別々のサーバーとして立てることも可能にする
-    # http://www.tornadoweb.org/en/stable/wsgi.html#tornado.wsgi.WSGIContainer
+    ], debug=debug)
 
     tornado_app.listen(port)
     IOLoop.current().start()
