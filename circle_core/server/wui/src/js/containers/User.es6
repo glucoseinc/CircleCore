@@ -21,6 +21,7 @@ class User extends React.Component {
     isFetching: PropTypes.bool.isRequired,
     // isDeleteAsking: PropTypes.bool.isRequired,
     users: PropTypes.object.isRequired,
+    token: PropTypes.object.isRequired,
     actions: PropTypes.object.isRequired,
   }
 
@@ -85,6 +86,7 @@ class User extends React.Component {
     const {
       errors,
     } = this.state
+    const isReadOnly = this.props.token.hasScope('user+rw') ? false : true
 
     return (
       <div className="metadataForm">
@@ -101,6 +103,7 @@ class User extends React.Component {
             floatingLabelText="アカウント"
             floatingLabelFixed={true}
             defaultValue={user.account}
+            readOnly={isReadOnly}
             errorText={errors.account}
           /><br />
 
@@ -110,6 +113,7 @@ class User extends React.Component {
             floatingLabelText="所属"
             floatingLabelFixed={true}
             defaultValue={user.work}
+            readOnly={isReadOnly}
             errorText={errors.work}
           /><br />
 
@@ -119,6 +123,7 @@ class User extends React.Component {
             floatingLabelText="メールアドレス"
             floatingLabelFixed={true}
             defaultValue={user.mailAddress}
+            readOnly={isReadOnly}
             errorText={errors.mailAddress}
           /><br />
 
@@ -128,25 +133,27 @@ class User extends React.Component {
             floatingLabelText="電話番号"
             floatingLabelFixed={true}
             defaultValue={user.telephone}
+            readOnly={isReadOnly}
             errorText={errors.telephone}
           /><br />
 
           <div style={{margin: '2rem 0'}}>
-            <Checkbox name="isAdmin" label="管理者" defaultChecked={user.isAdmin} />
+            <Checkbox name="isAdmin" label="管理者" defaultChecked={user.isAdmin} disabled={isReadOnly} />
             {errors.permission && <p>{errors.permissions}</p>}
           </div>
 
-          {this.state.passwordForm === PASSWORD_FORM_MANUAL
+          {!isReadOnly && (this.state.passwordForm === PASSWORD_FORM_MANUAL
             ? this.renderManualPasswordForm()
-            : this.renderGeneratedPasswordForm()}
+            : this.renderGeneratedPasswordForm())}
 
+          {!isReadOnly &&
           <div className="metadataForm-actions">
             <RaisedButton
               label="保存する"
               primary={true}
               onTouchTap={::this.onTapSave}
             />
-          </div>
+          </div>}
         </form>
 
         <Snackbar
@@ -400,6 +407,7 @@ function mapStateToProps(state) {
   return {
     isFetching: state.asyncs.isUsersFetching,
     users: state.entities.users,
+    token: state.auth.token,
   }
 }
 

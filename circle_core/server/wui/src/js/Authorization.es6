@@ -19,14 +19,16 @@ class OAuthToken {
    * @param {string} clientSecret clientSecret
    * @param {string} accessToken accessToken
    * @param {string} refreshToken refreshToken
+   * @param {scope} scope scope
    */
-  constructor(storage, storageKey, clientID, clientSecret, accessToken, refreshToken) {
+  constructor(storage, storageKey, clientID, clientSecret, accessToken, refreshToken, scope) {
     this._storage = storage
     this._storageKey = storageKey
     this.clientID = clientID,
     this.clientSecret = clientSecret
     this.accessToken = accessToken
     this.refreshToken = refreshToken
+    this.scopes = scope !== undefined ? scope.split(' ') : null
   }
 
   /**
@@ -38,8 +40,8 @@ class OAuthToken {
     if(!raw)
       return false
 
-    let [accessToken, refreshToken] = raw.split(':')
-    this.update(accessToken, refreshToken)
+    let [accessToken, refreshToken, scope] = raw.split(':')
+    this.update(accessToken, refreshToken, decodeURIComponent(scope))
     return true
   }
 
@@ -47,9 +49,11 @@ class OAuthToken {
    * tokenをストレージに保存する
    */
   save() {
+    let vals = [this.accessToken, this.refreshToken, this.scopes.join(' ')]
+
     this._storage.setItem(
       this._storageKey,
-      `${encodeURIComponent(this.accessToken)}:${encodeURIComponent(this.refreshToken)}`
+      vals.map((s) => encodeURIComponent(s)).join(':')
     )
   }
 
@@ -59,6 +63,7 @@ class OAuthToken {
   clear() {
     this.accessToken = null
     this.refreshToken = null
+    this.scopes = null
     this._storage.removeItem(this._storageKey)
   }
 
@@ -74,10 +79,27 @@ class OAuthToken {
    * tokenを更新する
    * @param {string} accessToken 新しいAccess Token
    * @param {string} refreshToken 新しいRefresh Token
+   * @param {string} scope 新しいScope
    */
-  update(accessToken, refreshToken) {
+  update(accessToken, refreshToken, scope) {
     this.accessToken = accessToken
     this.refreshToken = refreshToken
+
+    if(scope !== undefined) {
+      this.scopes = scope.split(' ')
+    }
+  }
+
+  /**
+   * scopeをもっているか確認
+   * @param {string} scope
+   * @return {bool}
+   */
+  hasScope(scope) {
+    if(this.scopes === null) {
+      throw new Error('scope is not initialized')
+    }
+    return this.scopes.indexOf(scope) >= 0 ? true : false
   }
 }
 
@@ -163,11 +185,7 @@ export async function fetchTokenByAuthorizationCode(authorizationCode) {
     return null
   }
 
-  let {access_token, refresh_token} = response
-  return {
-    accessToken: access_token,
-    refreshToken: refresh_token,
-  }
+  return response
 }
 
 

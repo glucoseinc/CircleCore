@@ -18,13 +18,21 @@ class UsersTableRow extends React.Component {
   static propTypes = {
     user: PropTypes.instanceOf(User).isRequired,
     onDeleteUser: PropTypes.func.isRequired,
+    readOnly: PropTypes.bool,
+  }
+
+  static defaultProps = {
+    readOnly: true,
   }
 
   /**
    * @override
    */
   render() {
-    const {user} = this.props
+    const {
+      user,
+      readOnly,
+    } = this.props
     const style = {
       subtext: {
         color: colorUUID,
@@ -46,9 +54,10 @@ class UsersTableRow extends React.Component {
         <TableRowColumn>{user.mailAddress}</TableRowColumn>
         <TableRowColumn><Checkbox label="" checked={user.isAdmin} disabled={true} /></TableRowColumn>
         <TableRowColumn>
+          {!readOnly &&
           <RemoveButton
             onTouchTap={(e) => this.props.onDeleteUser(user, e)}
-          />
+          />}
         </TableRowColumn>
       </TableRow>
     )
@@ -62,10 +71,15 @@ export default class UsersTable extends React.Component {
   static propTypes = {
     users: PropTypes.object.isRequired,
     onDeleteUser: PropTypes.func.isRequired,
+    readOnly: PropTypes.bool,
   }
 
   static contextTypes = {
     muiTheme: PropTypes.object.isRequired,
+  }
+
+  static defaultProps = {
+    readOnly: 4,
   }
 
   /**
@@ -95,7 +109,7 @@ export default class UsersTable extends React.Component {
           displayRowCheckbox={false}
         >
           {users.valueSeq().sortBy((v) => v.dateCreated).map((user) =>
-            <UsersTableRow key={user.uuid} user={user} onDeleteUser={onDeleteUser} />
+            <UsersTableRow key={user.uuid} user={user} onDeleteUser={onDeleteUser} readOnly={this.props.readOnly} />
           )}
         </TableBody>
       </Table>

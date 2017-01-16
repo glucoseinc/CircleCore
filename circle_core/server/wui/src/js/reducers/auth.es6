@@ -23,8 +23,8 @@ const entities = handleActions({
   },
 
   [actionTypes.auth.loginSucceeded]: (state, action) => {
-    let {accessToken, refreshToken} = action.payload
-    state.token.update(accessToken, refreshToken)
+    let {access_token, refresh_token, scope} = action.payload
+    state.token.update(access_token, refresh_token, scope)
     state.token.save()
     let tokenIsValid = state.token.isValid()
 

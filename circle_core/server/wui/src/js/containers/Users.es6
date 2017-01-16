@@ -14,6 +14,7 @@ class Users extends React.Component {
   static propTypes = {
     isFetching: PropTypes.bool.isRequired,
     users: PropTypes.object.isRequired,
+    token: PropTypes.object.isRequired,
     actions: PropTypes.object.isRequired,
   }
 
@@ -51,17 +52,21 @@ class Users extends React.Component {
 
     const {
       users,
+      token,
     } = this.props
 
     const {
       deleteTargetUser,
     } = this.state
 
+    const isReadOnly = token.hasScope('user+rw') ? false : true
+
     return (
       <div>
         <UsersTable
           users={users}
           onDeleteUser={::this.onDeleteUser}
+          readOnly={isReadOnly}
         />
 
         {deleteTargetUser &&
@@ -109,6 +114,7 @@ function mapStateToProps(state) {
   return {
     isFetching: state.asyncs.isUsersFetching,
     users: state.entities.users,
+    token: state.auth.token,
   }
 }
 
