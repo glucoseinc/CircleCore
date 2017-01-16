@@ -168,7 +168,7 @@ class Database(object):
             else:
                 created_at, counter = identifier
 
-        return mktime(created_at.timetuple()), counter
+        return float(created_at), counter
 
 
 class DiffResult(object):
