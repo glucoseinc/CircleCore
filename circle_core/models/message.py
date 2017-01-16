@@ -82,6 +82,9 @@ class ModuleMessage(object):
             cls.make_timestamp(y)
         ).is_zero()
 
+    def __repr__(self):
+        return '<circle_core.models.message.ModuleMessage %s>' % self.encode()
+
     def __init__(self, module_uuid, payload, timestamp, count):
         """timestampとcountをMessageの識別子とする.
 
