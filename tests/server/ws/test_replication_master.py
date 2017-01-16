@@ -203,7 +203,10 @@ class TestReplicationMaster(AsyncHTTPTestCase):
     @pytest.mark.timeout(2)
     @gen_test
     def test_receive_count_seeding(self):  # メソッド名で実行順が決まってる？
-        """何のテストか説明を書いて..."""
+        """過去に蓄えたデータの送信。
+
+        指定した時点以降のデータのみ送られてくるか。
+        """
         DummyMetadata.database_url = self.mysql.url
         now = round(time(), 6)
 
