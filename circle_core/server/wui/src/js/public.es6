@@ -10,11 +10,11 @@ import {Router, Route, browserHistory} from 'react-router'
 import injectTapEventPlugin from 'react-tap-event-plugin'
 import Title from 'react-title-component'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
-import getMuiTheme from 'material-ui/styles/getMuiTheme'
 import AppBar from 'material-ui/AppBar'
 import FlatButton from 'material-ui/FlatButton'
 import TextField from 'material-ui/TextField'
 import {colorError} from './colors'
+import muiTheme from './muiTheme'
 
 
 injectTapEventPlugin()
@@ -114,7 +114,7 @@ class OAuthLogin extends React.Component {
             style={{width: '100%'}}
             /><br />
 
-          <div className="loginForm-actions" style={{textAlign: 'right'}}>
+          <div className="loginForm-actions" style={{textAlign: 'center'}}>
             <FlatButton label="ログイン" primary={true} type="submit" />
           </div>
         </form>
@@ -182,7 +182,7 @@ class OAuthAuthorize extends React.Component {
 
 
 render(
-  <MuiThemeProvider muiTheme={getMuiTheme()}>
+  <MuiThemeProvider muiTheme={muiTheme}>
     <Router history={browserHistory}>
       <Route path="/oauth" component={PublicFrame}>
         <Route path="login" component={OAuthLogin} />

@@ -2,13 +2,13 @@ import React, {PropTypes} from 'react'
 
 // import FlatButton from 'material-ui/FlatButton'
 import Checkbox from 'material-ui/Checkbox'
-import RaisedButton from 'material-ui/RaisedButton'
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
-import {colorUUID} from '../colors'
 
+import {colorUUID} from '../colors'
+import {RemoveButton} from '../components/buttons'
 import CCLink from '../components/CCLink'
-import {urls} from '../routes'
 import User from '../models/User'
+import {urls} from '../routes'
 
 
 /**
@@ -46,9 +46,7 @@ class UsersTableRow extends React.Component {
         <TableRowColumn>{user.mailAddress}</TableRowColumn>
         <TableRowColumn><Checkbox label="" checked={user.isAdmin} disabled={true} /></TableRowColumn>
         <TableRowColumn>
-          <RaisedButton
-            label="削除"
-            secondary={true}
+          <RemoveButton
             onTouchTap={(e) => this.props.onDeleteUser(user, e)}
           />
         </TableRowColumn>

@@ -2,14 +2,12 @@ import React, {Component, PropTypes} from 'react'
 import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
-import RaisedButton from 'material-ui/RaisedButton'
-
 import actions from '../actions'
-import {urls} from '../routes'
+import {CancelButton, CreateButton} from '../components/buttons'
 import CCLink from '../components/CCLink'
 import Fetching from '../components/Fetching'
-
 import {ModuleGeneralInfo, ModuleMetadataInfo, ModuleMessageBoxesInfo} from '../components/ModuleInfos'
+import {urls} from '../routes'
 
 
 /**
@@ -79,14 +77,9 @@ class ModulesNew extends Component {
         <CCLink
           url={urls.modules}
         >
-          <RaisedButton
-            label="Cancel"
-            secondary={true}
-          />
+          <CancelButton />
         </CCLink>
-        <RaisedButton
-          label="Create"
-          primary={true}
+        <CreateButton
           disabled={module.isReadytoCreate() ? false : true}
           onTouchTap={() => actions.modules.createRequest(module)}
         />

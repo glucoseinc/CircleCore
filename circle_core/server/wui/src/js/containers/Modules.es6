@@ -3,15 +3,16 @@ import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
 import {GridList, GridTile} from 'material-ui/GridList'
-import RaisedButton from 'material-ui/RaisedButton'
+import {Tabs, Tab} from 'material-ui/Tabs'
 import TextField from 'material-ui/TextField'
 
 import actions from '../actions'
-import {urls} from '../routes'
+import {AddButton} from '../components/buttons'
 import CCLink from '../components/CCLink'
 import Fetching from '../components/Fetching'
 import ModuleDeleteDialog from '../components/ModuleDeleteDialog'
 import ModulesTable from '../components/ModulesTable'
+import {urls} from '../routes'
 
 
 /**
@@ -49,6 +50,15 @@ class Modules extends Component {
       actions,
     } = this.props
 
+    const style = {
+      tab: {
+        paddingTop: 16,
+        paddingLeft: 24,
+        paddingRight: 24,
+        paddingbottom: 16,
+      },
+    }
+
     if (isFetching) {
       return (
         <Fetching />
@@ -60,38 +70,45 @@ class Modules extends Component {
     ))
 
     return (
-      <div>
-        <GridList cols={12} cellHeight="auto">
-          <GridTile cols={10}>
-            <TextField
-              hintText="Search by tag"
-              fullWidth={true}
-              value={inputText}
-              onChange={(e) => actions.misc.inputTextChange(e.target.value)}
-            />
-          </GridTile>
-          <GridTile cols={2}>
-            <CCLink url={urls.modulesNew}>
-              <RaisedButton
-                label="Add"
-                primary={true}
+      <Tabs
+        contentContainerStyle={style.tab}
+      >
+        <Tab
+          label="カード表示"
+        >
+        </Tab>
+        <Tab
+          label="リスト表示"
+        >
+          <GridList cols={12} cellHeight="auto">
+            <GridTile cols={10}>
+              <TextField
+                hintText="タグで検索"
+                fullWidth={true}
+                value={inputText}
+                onChange={(e) => actions.misc.inputTextChange(e.target.value)}
               />
-            </CCLink>
-          </GridTile>
-        </GridList>
+            </GridTile>
+            <GridTile cols={2}>
+              <CCLink url={urls.modulesNew}>
+                <AddButton />
+              </CCLink>
+            </GridTile>
+          </GridList>
 
-        <ModulesTable
-          modules={filteredModules}
-          onTagTouchTap={actions.misc.inputTextChange}
-          onDeleteTouchTap={actions.modules.deleteAsk}
-        />
-        <ModuleDeleteDialog
-          isActive={isDeleteAsking}
-          module={module}
-          onOkTouchTap={actions.modules.deleteRequest}
-          onCancelTouchTap={actions.modules.deleteCancel}
-        />
-      </div>
+          <ModulesTable
+            modules={filteredModules}
+            onTagTouchTap={actions.misc.inputTextChange}
+            onDeleteTouchTap={actions.modules.deleteAsk}
+          />
+          <ModuleDeleteDialog
+            isActive={isDeleteAsking}
+            module={module}
+            onOkTouchTap={actions.modules.deleteRequest}
+            onCancelTouchTap={actions.modules.deleteCancel}
+          />
+        </Tab>
+      </Tabs>
     )
   }
 }

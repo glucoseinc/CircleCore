@@ -51,7 +51,7 @@ class Master extends Component {
         paddingLeft: navDrawerAlwaysOpen ? muiTheme.drawer.width : 0,
       },
       children: {
-        padding: 20,
+        padding: 32,
       },
     }
 

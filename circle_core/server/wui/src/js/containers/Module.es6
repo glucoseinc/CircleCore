@@ -2,13 +2,11 @@ import React, {Component, PropTypes} from 'react'
 import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
-import RaisedButton from 'material-ui/RaisedButton'
-
 import actions from '../actions'
+import {AddButton, RemoveButton} from '../components/buttons'
 import Fetching from '../components/Fetching'
 import ModuleDeleteDialog from '../components/ModuleDeleteDialog'
 import {ModuleGeneralInfo, ModuleMetadataInfo, ModuleMessageBoxesInfo} from '../components/ModuleInfos'
-
 
 /**
  */
@@ -55,6 +53,16 @@ class Module extends Component {
       actions,
     } = this.props
 
+    const style = {
+      contentHeader: {
+        display: 'flex',
+        justifyContent: 'flex-end',
+      },
+      contentFooter: {
+        display: 'flex',
+        justifyContent: 'center',
+      },
+    }
     if (isFetching || isUpdating) {
       return (
         <Fetching />
@@ -77,16 +85,12 @@ class Module extends Component {
 
     return (
       <div>
-        <RaisedButton
-          label="Create Shared Link"
-          primary={true}
-          onTouchTap={() => actions.shareLinks.createRequest()}
-        />
-        <RaisedButton
-          label="Delete this module"
-          secondary={true}
-          onTouchTap={() => actions.modules.deleteAsk(module)}
-        />
+        <div style={style.contentHeader}>
+          <AddButton
+            label="共有リンクを作成する"
+            onOkTouchTap={() => actions.shareLinks.createRequest()}
+          />
+        </div>
 
         <ModuleGeneralInfo
           editable={isEditingGeneral}
@@ -116,6 +120,13 @@ class Module extends Component {
           onOkTouchTap={actions.modules.deleteRequest}
           onCancelTouchTap={actions.modules.deleteCancel}
         />
+
+        <div style={style.contentFooter}>
+          <RemoveButton
+            label="このモジュールを削除する"
+            onTouchTap={() => actions.modules.deleteAsk(module)}
+          />
+        </div>
       </div>
     )
   }

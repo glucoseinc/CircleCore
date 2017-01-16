@@ -23,21 +23,29 @@ class OkCancelDialog extends Component {
   render() {
     const {
       title,
-      okLabel,
+      okLabel = 'OK',
       onOkTouchTap,
-      cancelLabel,
+      cancelLabel = 'Cancel',
       onCancelTouchTap,
       open,
       children,
     } = this.props
 
+    const style = {
+      actions: {
+        paddingLeft: 16,
+        paddingRight: 16,
+      },
+    }
+
     return (
       <Dialog
         title={title}
         actions={[
-          <FlatButton label={cancelLabel || 'Cancel'} secondary={true} onTouchTap={onCancelTouchTap} />,
-          <FlatButton label={okLabel || 'OK'} primary={true} onTouchTap={onOkTouchTap}/>,
+          <FlatButton label={cancelLabel} secondary={true} onTouchTap={onCancelTouchTap} />,
+          <FlatButton label={okLabel} primary={true} onTouchTap={onOkTouchTap}/>,
         ]}
+        actionsContainerStyle={style.actions}
         modal={true}
         open={open}
       >

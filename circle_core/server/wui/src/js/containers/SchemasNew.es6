@@ -3,15 +3,15 @@ import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
 import MenuItem from 'material-ui/MenuItem'
-import RaisedButton from 'material-ui/RaisedButton'
 import SelectField from 'material-ui/SelectField'
 import {Table, TableBody, TableRow, TableRowColumn} from 'material-ui/Table'
 import TextField from 'material-ui/TextField'
 
 import actions from '../actions'
-import {urls} from '../routes'
+import {AddButton, CancelButton, CreateButton, RemoveButton} from '../components/buttons'
 import CCLink from '../components/CCLink'
 import Fetching from '../components/Fetching'
+import {urls} from '../routes'
 
 
 /**
@@ -62,7 +62,7 @@ class SchemasNew extends Component {
               <TableRowColumn>
                 <TextField
                   name="displayName"
-                  hintText="Option"
+                  hintText="オプション"
                   fullWidth={true}
                   value={schema.displayName}
                   onChange={(e) => actions.schema.update(
@@ -81,7 +81,7 @@ class SchemasNew extends Component {
                         <TableRowColumn>
                           <TextField
                             name="proparty-name"
-                            floatingLabelText="name"
+                            floatingLabelText="属性名"
                             value={property.name}
                             onChange={(e) => actions.schema.update(
                               schema.updateSchemaProperty(index, 'name', e.target.value)
@@ -90,7 +90,7 @@ class SchemasNew extends Component {
                         </TableRowColumn>
                         <TableRowColumn>
                           <SelectField
-                            floatingLabelText="type"
+                            floatingLabelText="属性タイプ"
                             value={property.type}
                             onChange={(e, i, v) => actions.schema.update(
                               schema.updateSchemaProperty(index, 'type', v)
@@ -106,9 +106,7 @@ class SchemasNew extends Component {
                           </SelectField>
                         </TableRowColumn>
                         <TableRowColumn>
-                          <RaisedButton
-                            label="Remove"
-                            secondary={true}
+                          <RemoveButton
                             disabled={schema.properties.size === 1 ? true : false}
                             onTouchTap={() => actions.schema.update(
                               schema.removeSchemaProperty(index)
@@ -119,9 +117,7 @@ class SchemasNew extends Component {
                     )}
                     <TableRow>
                       <TableRowColumn colSpan="3">
-                        <RaisedButton
-                          label="Add New Property"
-                          primary={true}
+                        <AddButton
                           onTouchTap={() => actions.schema.update(
                             schema.pushSchemaProperty()
                           )}
@@ -137,7 +133,7 @@ class SchemasNew extends Component {
               <TableRowColumn>
                 <TextField
                   name="memo"
-                  floatingLabelText="memo"
+                  floatingLabelText="メモ"
                   hintText="Option"
                   fullWidth={true}
                   multiLine={true}
@@ -152,17 +148,10 @@ class SchemasNew extends Component {
             </TableRow>
           </TableBody>
         </Table>
-        <CCLink
-          url={urls.schemas}
-        >
-          <RaisedButton
-            label="Cancel"
-            secondary={true}
-          />
+        <CCLink url={urls.schemas}>
+          <CancelButton />
         </CCLink>
-        <RaisedButton
-          label="Create"
-          primary={true}
+        <CreateButton
           disabled={schema.isReadytoCreate() ? false : true}
           onTouchTap={() => actions.schemas.createRequest(schema)}
         />

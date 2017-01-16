@@ -1,10 +1,10 @@
 import React, {Component, PropTypes} from 'react'
 
 import FlatButton from 'material-ui/FlatButton'
-import RaisedButton from 'material-ui/RaisedButton'
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
 import {blueGrey600} from 'material-ui/styles/colors'
 
+import {RemoveButton} from '../components/buttons'
 import CCLink from '../components/CCLink'
 import {urls} from '../routes'
 
@@ -65,8 +65,8 @@ class SchemasTable extends Component {
           adjustForCheckbox={false}
         >
           <TableRow>
-            <TableHeaderColumn tooltip="Schema name">Name</TableHeaderColumn>
-            <TableHeaderColumn tooltip="Modules using schema">Modules</TableHeaderColumn>
+            <TableHeaderColumn tooltip="Schema name">名前</TableHeaderColumn>
+            <TableHeaderColumn tooltip="Modules using schema">モジュール</TableHeaderColumn>
             <TableHeaderColumn></TableHeaderColumn>
           </TableRow>
         </TableHeader>
@@ -105,9 +105,7 @@ class SchemasTable extends Component {
                 })}
               </TableRowColumn>
               <TableRowColumn>
-                <RaisedButton
-                  label="Delete"
-                  secondary={true}
+                <RemoveButton
                   disabled={schema.modules.size === 0 ? false : true}
                   onTouchTap={() => onDeleteTouchTap(schema)}
                 />

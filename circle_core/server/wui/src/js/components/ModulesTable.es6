@@ -1,10 +1,10 @@
 import React, {Component, PropTypes} from 'react'
 
 import Chip from 'material-ui/Chip'
-import RaisedButton from 'material-ui/RaisedButton'
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
 import {blueGrey600} from 'material-ui/styles/colors'
 
+import {RemoveButton} from '../components/buttons'
 import CCLink from '../components/CCLink'
 import {urls} from '../routes'
 
@@ -65,9 +65,9 @@ class ModulesTable extends Component {
           adjustForCheckbox={false}
         >
           <TableRow>
-            <TableHeaderColumn tooltip="Module name">Name</TableHeaderColumn>
-            <TableHeaderColumn tooltip="Attached message boxes">Message boxes</TableHeaderColumn>
-            <TableHeaderColumn tooltip="Tags name">Tags</TableHeaderColumn>
+            <TableHeaderColumn tooltip="Module name">名前</TableHeaderColumn>
+            <TableHeaderColumn tooltip="Attached message boxes">メッセージボックス</TableHeaderColumn>
+            <TableHeaderColumn tooltip="Tags name">タグ</TableHeaderColumn>
             <TableHeaderColumn></TableHeaderColumn>
           </TableRow>
         </TableHeader>
@@ -108,9 +108,7 @@ class ModulesTable extends Component {
                 )}
               </TableRowColumn>
               <TableRowColumn>
-                <RaisedButton
-                  label="Delete"
-                  secondary={true}
+                <RemoveButton
                   onTouchTap={() => onDeleteTouchTap(module)}
                 />
               </TableRowColumn>

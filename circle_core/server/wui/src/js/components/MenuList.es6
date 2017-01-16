@@ -18,9 +18,22 @@ class MenuBlock extends Component {
    * @override
    */
   render() {
-    const {block} = this.props
+    const {
+      block,
+    } = this.props
 
-    const title = block.title !== null ? <Subheader>{block.title}</Subheader> : null
+    const style = {
+      title: {
+        paddingLeft: 24,
+        paddingRight: 24,
+      },
+      item: {
+        paddingLeft: 8,
+        paddingRight: 24,
+      },
+    }
+
+    const title = block.title !== null ? <Subheader style={style.title}>{block.title}</Subheader> : null
 
     return (
       <div>
@@ -28,6 +41,7 @@ class MenuBlock extends Component {
         {block.items.map((item, itemIndex) =>
           <ListItem
             key={itemIndex}
+            style={style.item}
             primaryText={item.text}
             onTouchTap={() => ::this.handleOnTouchTap(item.value)}
           />
