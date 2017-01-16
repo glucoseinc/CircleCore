@@ -257,6 +257,8 @@ class DatabaseDiff(SchemaVisitor):
                     diff = True
                 else:
                     col_db = db_table.c[col_me.key]
+                    if isinstance(col_db.type, sa.DECIMAL):
+                        col_db.type = sa.NUMERIC(col_db.type.precision, col_db.type.scale)
 
                     # 本当はdialectつけて比較すべきだと思うのだけど、autoloadでそこまで読み込まないらしく、必ず差が出てしまう
                     # col_me_str = str(CreateColumn(col_me).compile(dialect=self.dialect))
