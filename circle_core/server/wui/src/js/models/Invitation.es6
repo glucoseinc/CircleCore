@@ -1,5 +1,6 @@
 /* eslint-disable new-cap */
 import {Record} from 'immutable'
+import moment from 'moment'
 
 
 const InvitationRecord = Record({
@@ -29,7 +30,7 @@ export default class Invitation extends InvitationRecord {
       uuid: rawInvitation.uuid,
       maxInvites: rawInvitation.maxInvites,
       currentInvites: rawInvitation.currentInvites,
-      dateCreated: rawInvitation.dateCreated,
+      dateCreated: moment(rawInvitation.dateCreated),
     })
   }
 

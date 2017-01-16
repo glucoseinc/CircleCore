@@ -44,7 +44,7 @@ def _post_invitation():
     metadata = get_metadata()
     metadata.register_invitation(obj)
 
-    return api_jsonify(result='success', response=obj.to_json())
+    return api_jsonify(result='success', invitation=obj.to_json())
 
 
 @api.route('/invitations/<obj_uuid>', methods=['DELETE'])

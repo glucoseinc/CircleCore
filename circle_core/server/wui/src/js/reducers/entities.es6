@@ -1,9 +1,9 @@
 import {handleActions} from 'redux-actions'
 import {Map} from 'immutable'
 import {normalize} from 'normalizr'
-import update from 'immutability-helper'
 
 import {actionTypes} from '../actions'
+import Invitation from '../models/Invitation'
 import Module from '../models/Module'
 import Schema from '../models/Schema'
 import SchemaPropertyType from '../models/SchemaPropertyType'
@@ -12,12 +12,11 @@ import normalizerSchema from '../models/normalizerSchema'
 
 
 const initialState = {
+  invitations: new Map(),
+  modules: new Map(),
   schemas: new Map(),
   schemaPropertyTypes: new Map(),
-  modules: new Map(),
-
-  invitations: [],
-  users: [],
+  users: new Map(),
 }
 
 const convertValues = (obj, converter) => {
@@ -88,26 +87,35 @@ const entities = handleActions({
   },
 
   // Fetched Invitations
-  [actionTypes.invitations.fetchComplete]: (state, {payload: {invitations, error}}) => {
-    if(invitations) {
-      return update(state, {invitations: {$set: invitations}})
+  [actionTypes.invitations.fetchComplete]: (state, {payload: {response, error}}) => {
+    if(response) {
+      const {entities} = normalize(response, normalizerSchema)
+      const invitations = new Map(convertValues(entities.invitations, Invitation.fromObject))
+
+      return {...state, invitations}
     }
     return state
   },
 
-  [actionTypes.invitations.createComplete]: (state, {payload: {invitation, error}}) => {
-    if(invitation) {
-      return update(state, {invitations: {$push: [invitation]}})
+  [actionTypes.invitations.createComplete]: (state, {payload: {response, error}}) => {
+    if(response) {
+      const {entities} = normalize(response, normalizerSchema)
+      const invitations = state.invitations.merge(
+        new Map(convertValues(entities.invitations, Invitation.fromObject))
+      )
+      return {...state, invitations}
     }
     return state
   },
 
-  [actionTypes.invitations.deleteComplete]: (state, {payload: {invitation, error}}) => {
-    if(invitation) {
-      const idx = state.invitations.findIndex((obj) => obj.uuid === invitation.uuid)
-      if(idx >= 0) {
-        return update(state, {invitations: {$splice: [[idx, 1]]}})
-      }
+  [actionTypes.invitations.deleteComplete]: (state, {payload: {response, error}}) => {
+    if(response) {
+      const {entities} = normalize(response, normalizerSchema)
+      let invitations = state.invitations
+      Object.entries(entities.invitations).forEach(([uuid, obj]) => {
+        invitations = invitations.delete(uuid)
+      })
+      return {...state, invitations}
     }
     return state
   },

@@ -12,6 +12,7 @@ import Fetching from '../components/Fetching'
 import InvitationsTable from '../components/InvitationsTable'
 import OkCancelDialog from '../components/OkCancelDialog'
 import {store} from '../main'
+import Invitation from '../models/Invitation'
 
 
 /**
@@ -19,7 +20,7 @@ import {store} from '../main'
 class Invitations extends Component {
   static propTypes = {
     isFetching: PropTypes.bool.isRequired,
-    invitations: PropTypes.array.isRequired,
+    invitations: PropTypes.object.isRequired,
     actions: PropTypes.object.isRequired,
   }
 
@@ -112,10 +113,9 @@ class Invitations extends Component {
     // TODO(絶対使い方間違ってる.  create -> completeまで一貫性を持たせる方法が分からん...)
     store.runSaga(function* () {
       yield put(actions.invitations.createRequest({maxInvites: 1}))
-      let {payload: {invitation, error}} = yield take(actionTypes.invitations.createComplete)
-
-      if(invitation) {
-        self.setState({newInvitation: invitation})
+      let {payload: {response, error}} = yield take(actionTypes.invitations.createComplete)
+      if(response) {
+        self.setState({newInvitation: Invitation.fromObject(response.invitation)})
       } else {
         alert(error.message)
       }

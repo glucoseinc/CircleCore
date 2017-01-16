@@ -2,7 +2,7 @@ import {call, fork, put, takeEvery, takeLatest} from 'redux-saga/effects'
 
 import CCAPI from '../api'
 import actions, {actionTypes} from '../actions'
-import User from '../models/User'
+import {makeError} from './utils'
 
 
 /**
@@ -11,8 +11,8 @@ import User from '../models/User'
  */
 function* fetchUsers(action) {
   try {
-    const users = yield call(::CCAPI.getUsers)
-    yield put(actions.users.fetchSucceeded(users))
+    const response = yield call(::CCAPI.getUsers)
+    yield put(actions.users.fetchSucceeded(response))
   } catch (e) {
     yield put(actions.users.fetchFailed(e.message))
   }
@@ -24,13 +24,11 @@ function* fetchUsers(action) {
  * @param  {[type]}    action [description]
  */
 function* deleteUser(action) {
-  const user = User.fromObject(action.payload)
-
   try {
-    const response = yield call(::CCAPI.deleteUser, user)
-    yield put(actions.users.deleteComplete(response))
+    const response = yield call(::CCAPI.deleteUser, action.payload)
+    yield put(actions.users.deleteComplete({response}))
   } catch (e) {
-    yield put(actions.users.deleteComplete(new Error(e.response.body.detail.reason || e.message)))
+    yield put(actions.users.deleteComplete({error: makeError(e)}))
   }
 }
 

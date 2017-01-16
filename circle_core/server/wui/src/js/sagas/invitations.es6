@@ -2,18 +2,7 @@ import {call, fork, put, takeEvery} from 'redux-saga/effects'
 
 import CCAPI from '../api'
 import actions, {actionTypes} from '../actions'
-
-
-/**
- * 例外オブジェから、Actionの返り値用のErrorを作り直す
- * @param {Error} e
- * @return {Error} new error
- */
-function _makeError(e) {
-  let msg = (e.response && e.response.body && e.response.body.detail && e.response.body.detail.reason) || e.message
-  return new Error(msg)
-}
-
+import {makeError} from './utils'
 
 /**
  * [fetchInvitations description]
@@ -21,11 +10,10 @@ function _makeError(e) {
  */
 function* fetchInvitations(action) {
   try {
-    const invitations = yield call(::CCAPI.listInvitations, action.payload)
-
-    yield put(actions.invitations.fetchComplete({invitations}))
+    const response = yield call(::CCAPI.listInvitations, action.payload)
+    yield put(actions.invitations.fetchComplete({response}))
   } catch (e) {
-    yield put(actions.invitations.fetchComplete({error: _makeError(e)}))
+    yield put(actions.invitations.fetchComplete({error: makeError(e)}))
   }
 }
 
@@ -36,11 +24,10 @@ function* fetchInvitations(action) {
  */
 function* createInvitation(action) {
   try {
-    const invitation = yield call(::CCAPI.postInvitation, action.payload)
-
-    yield put(actions.invitations.createComplete({invitation}))
+    const response = yield call(::CCAPI.postInvitation, action.payload)
+    yield put(actions.invitations.createComplete({response}))
   } catch (e) {
-    yield put(actions.invitations.createComplete({error: _makeError(e)}))
+    yield put(actions.invitations.createComplete({error: makeError(e)}))
   }
 }
 
@@ -50,11 +37,10 @@ function* createInvitation(action) {
  */
 function* deleteInvitation(action) {
   try {
-    const invitation = yield call(::CCAPI.deleteInvitation, action.payload)
-
-    yield put(actions.invitations.deleteComplete({invitation}))
+    const response = yield call(::CCAPI.deleteInvitation, action.payload)
+    yield put(actions.invitations.deleteComplete({response}))
   } catch (e) {
-    yield put(actions.invitations.deleteComplete({error: _makeError(e)}))
+    yield put(actions.invitations.deleteComplete({error: makeError(e)}))
   }
 }
 

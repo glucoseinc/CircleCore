@@ -7,6 +7,16 @@ import {colorUUID} from '../colors'
 import Invitation from '../models/Invitation'
 
 
+const styles = {
+  subtext: {
+    color: colorUUID,
+    fontSize: 10,
+  },
+  columnInvites: {
+    width: '4em',
+  },
+}
+
 /**
  * 招待一覧の各行
  */
@@ -21,21 +31,19 @@ class InvitationsTableRow extends React.Component {
    */
   render() {
     const {invitation} = this.props
-    const style = {
-      subtext: {
-        color: colorUUID,
-        fontSize: 10,
-      },
-    }
+
 
     return (
       <TableRow>
         <TableRowColumn>
           <a target="_blank" href={invitation.link}>{invitation.link}</a><br />
-          <span style={style.subtext}>{invitation.uuid}</span>
+          <span style={styles.subtext}>{invitation.uuid}</span>
+        </TableRowColumn>
+        <TableRowColumn style={styles.columnInvites}>
+          {invitation.maxInvites == 0 ? '∞' : invitation.maxInvites - invitation.currentInvites}
         </TableRowColumn>
         <TableRowColumn>
-          {invitation.maxInvites == 0 ? '∞' : invitation.maxInvites - invitation.currentInvites}
+          {invitation.dateCreated.format('LLL')}
         </TableRowColumn>
         <TableRowColumn>
           <RaisedButton
@@ -55,7 +63,7 @@ class InvitationsTableRow extends React.Component {
  */
 export default class InvitationsTable extends React.Component {
   static propTypes = {
-    invitations: PropTypes.array.isRequired,
+    invitations: PropTypes.object.isRequired,
     onDeleteInvitation: PropTypes.func.isRequired,
   }
 
@@ -80,7 +88,10 @@ export default class InvitationsTable extends React.Component {
         >
           <TableRow>
             <TableHeaderColumn tooltip="招待ページのURL">リンク</TableHeaderColumn>
-            <TableHeaderColumn tooltip="このリンクから作成できるユーザーの残り数">残招待数</TableHeaderColumn>
+            <TableHeaderColumn tooltip="このリンクから作成できるユーザーの残り数" style={styles.columnInvites}>
+              残招待数
+            </TableHeaderColumn>
+            <TableHeaderColumn tooltip="招待を作成した日">作成日</TableHeaderColumn>
             <TableHeaderColumn tooltip=""></TableHeaderColumn>
           </TableRow>
         </TableHeader>
@@ -88,7 +99,7 @@ export default class InvitationsTable extends React.Component {
         <TableBody
           displayRowCheckbox={false}
         >
-          {invitations.map((invitation) =>
+          {invitations.valueSeq().sortBy((v) => v.dateCreated).reverse().map((invitation) =>
             <InvitationsTableRow
               key={invitation.uuid}
               invitation={invitation}

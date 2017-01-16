@@ -1,8 +1,5 @@
 import request from 'superagent'
 
-import Invitation from './models/Invitation'
-import User from './models/User'
-
 
 /**
  * superagentのリクエストをリセットする
@@ -212,11 +209,11 @@ class CCAPI extends APICaller {
   // invitation
   /**
    * Invitationのリストを得る
-   * @return {List<Invitation>} Result
+   * @return {Object} Result
    */
   async listInvitations() {
     const res = await this._get('/invitations/')
-    return res.body.invitations.map(Invitation.fromObject)
+    return res.body
   }
 
   /**
@@ -226,7 +223,7 @@ class CCAPI extends APICaller {
    */
   async postInvitation(payload) {
     const res = await this._post('/invitations/', payload)
-    return Invitation.fromObject(res.body.response)
+    return res.body
   }
 
   /**
@@ -236,7 +233,7 @@ class CCAPI extends APICaller {
    */
   async deleteInvitation(invitation) {
     const res = await this._delete(`/invitations/${invitation.uuid}`)
-    return res.body.invitation
+    return res.body
   }
 
 
@@ -296,7 +293,7 @@ class CCAPI extends APICaller {
    */
   async getUsers() {
     const res = await this._get('/users/')
-    return res.body.users.map(User.fromObject)
+    return res.body
   }
 
   /**
