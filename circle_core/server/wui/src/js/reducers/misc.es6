@@ -112,10 +112,10 @@ const misc = handleActions({
   [actionTypes.modules.deleteRequest]: setModule(),
 
   // User
-  [actionTypes.users.deleteComplete]: {
-    throw(state, {payload: error}) {
+  [actionTypes.users.deleteComplete]: (state, {payload: {error}}) => {
+    if(error)
       return {...state, errorMessage: error.message}
-    },
+    return state
   },
 
   // misc
