@@ -9,10 +9,10 @@ __all__ = (
 )
 
 
-def respond_failure(reason):
+def respond_failure(reason, _status=400):
     response = {}
     response['result'] = 'failure'
     response['detail'] = {
         'reason': reason,
     }
-    return api_jsonify(_status=400, **convert_dict_key_camel_case(response))
+    return api_jsonify(_status=_status, **convert_dict_key_camel_case(response))

@@ -22,12 +22,18 @@ class User(object):
     """Userオブジェクト.
 
     :param UUID uuid: User UUID
-    :param str mail_address: メールアドレス
-    :param str encrypted_password: 暗号化パスワード
+    :param str account: メールアドレス
     :param List[str] permissions: 権限
+    :param str work: 所属
+    :param str mail_address: メールアドレス
+    :param str telephone: 電話番号
+    :param str mail_address: メールアドレス
+    :param str password: パスワード
+    :param str encrypted_password: 暗号化パスワード
     """
 
-    def __init__(self, uuid, mail_address, encrypted_password, permissions=''):
+    def __init__(
+            self, uuid, account, permissions, work, mail_address, telephone, encrypted_password=None, password=None):
         """init.
 
         :param Union[str, UUID] uuid: User UUID
@@ -35,20 +41,30 @@ class User(object):
         :param str encrypted_password: 暗号化パスワード
         :param str permissions: 権限
         """
+        assert uuid
+        assert (password or encrypted_password) and not (password and encrypted_password)
+
         if not isinstance(uuid, UUID):
             try:
                 uuid = UUID(uuid)
             except ValueError:
                 raise UserError('Invalid uuid : {}'.format(uuid))
 
+        if isinstance(permissions, str):
+            permissions = permissions.split(',') if permissions else []
+            permissions = list(set(x.strip() for x in permissions))
+
+        if password:
+            encrypted_password = encrypt_password(password, uuid.hex)
+
         self.uuid = uuid
+        self.account = account
         self.mail_address = mail_address
         self.encrypted_password = encrypted_password
-        self.permissions = []
-        for permission in permissions.split(','):
-            stripped = permission.strip()
-            if len(stripped):
-                self.permissions.append(stripped)
+        self.permissions = permissions
+        self.work = work
+        self.mail_address = mail_address
+        self.telephone = telephone
 
     @property
     def stringified_permissions(self):
@@ -95,17 +111,40 @@ class User(object):
         """
         return 'admin' in self.permissions
 
-    def to_json(self):
+    def set_password(self, new_password):
+        assert self.uuid
+        self.encrypted_password = encrypt_password(new_password, self.uuid.hex)
+
+    def to_json(self, full=False):
         """このモデルのJSON表現を返す
 
         :return: json表現のdict
         :rtype: dict
         """
-        return {
+        d = {
             'uuid': str(self.uuid),
+            'account': self.account,
+            'work': self.work,
             'mailAddress': self.mail_address,
-            'permissions': self.permissions
+            'telephone': self.telephone,
+            'permissions': self.permissions,
         }
+        if full:
+            d['encrypted_password'] = self.encrypted_password
+
+        return d
+
+    @classmethod
+    def from_json(cls, jsonobj):
+        return cls(
+            jsonobj['uuid'],
+            jsonobj['account'],
+            jsonobj['permissions'],
+            jsonobj['work'],
+            jsonobj['mailAddress'],
+            jsonobj['telephone'],
+            encrypted_password=jsonobj['encrypted_password'],
+        )
 
 
 def encrypt_password(password, salt):

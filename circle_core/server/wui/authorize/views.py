@@ -97,7 +97,7 @@ def _find_user_by_password(account, password):
     metadata = get_metadata()
 
     for user in metadata.users:
-        if user.mail_address == account:
+        if user.account == account:
             break
     else:
         raise AuthorizationError('user not found', account)
