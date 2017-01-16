@@ -11,7 +11,7 @@ from click.testing import CliRunner
 import pytest
 from sqlalchemy import create_engine, Table
 from sqlalchemy.engine.reflection import Inspector
-from sqlalchemy.types import INTEGER, DECIMAL
+from sqlalchemy.types import DECIMAL, INTEGER
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado.testing import AsyncHTTPTestCase, gen_test
@@ -27,7 +27,7 @@ from circle_core.models.message_box import MessageBox
 from circle_core.models.metadata.base import MetadataReader
 from circle_core.models.module import Module
 from circle_core.models.schema import Schema
-from circle_core.server.ws import ReplicationMaster, ModuleHandler
+from circle_core.server.ws import ModuleHandler, ReplicationMaster
 from circle_core.workers import replication_slave
 from circle_core.workers.replication_slave import ReplicationSlave
 
