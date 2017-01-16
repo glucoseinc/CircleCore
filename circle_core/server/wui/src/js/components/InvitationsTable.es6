@@ -1,9 +1,9 @@
 import React, {PropTypes} from 'react'
 
-import RaisedButton from 'material-ui/RaisedButton'
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
-import {colorUUID} from '../colors'
 
+import {colorUUID} from '../colors'
+import {RemoveButton} from '../components/buttons'
 import Invitation from '../models/Invitation'
 
 
@@ -46,9 +46,7 @@ class InvitationsTableRow extends React.Component {
           {invitation.dateCreated.format('LLL')}
         </TableRowColumn>
         <TableRowColumn>
-          <RaisedButton
-            label="削除"
-            secondary={true}
+          <RemoveButton
             onTouchTap={(e) => this.props.onDeleteInvitation(invitation, e)}
           />
         </TableRowColumn>

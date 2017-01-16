@@ -27,7 +27,7 @@ class ModuleDeleteDialog extends Component {
     return (
       <OkCancelDialog
         title="モジュールを削除しますか？"
-        okLabel="削除"
+        okLabel="削除する"
         onOkTouchTap={() => onOkTouchTap(module)}
         cancelLabel="キャンセル"
         onCancelTouchTap={onCancelTouchTap}

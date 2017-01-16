@@ -2,12 +2,11 @@ import React from 'react'
 
 import MenuItem from 'material-ui/MenuItem'
 import Paper from 'material-ui/Paper'
-import RaisedButton from 'material-ui/RaisedButton'
 import SelectField from 'material-ui/SelectField'
 import TextField from 'material-ui/TextField'
 
+import {AddButton, RemoveButton} from '../../components/buttons'
 import {EditableActionsArea, NotEditableActionsArea, NullComponent} from './commons'
-
 
 const EditableDisplayNameData = ({module, index, actions}) => {
   const messageBox = module.messageBoxes.get(index)
@@ -15,7 +14,7 @@ const EditableDisplayNameData = ({module, index, actions}) => {
     <td>
       <TextField
         name="displayName"
-        hintText="Option"
+        hintText="オプション"
         fullWidth={true}
         value={messageBox.displayName}
         onChange={(e) => actions.module.update(
@@ -56,7 +55,7 @@ const EditableSchemaData = ({module, index, schemas, actions}) => {
       <table>
         <thead>
           <tr>
-            <th colSpan={2}>Properties</th>
+            <th colSpan={2}>プロパティ</th>
           </tr>
         </thead>
         <tbody>
@@ -81,7 +80,7 @@ const NotEditableSchemaData = ({module, index, schemas}) => {
       <table>
         <thead>
           <tr>
-            <th colSpan={2}>Properties</th>
+            <th colSpan={2}>プロパティ</th>
           </tr>
         </thead>
         <tbody>
@@ -104,7 +103,7 @@ const EditableMemoData = ({module, index, actions}) => {
     <td>
       <TextField
         name="memo"
-        hintText="Option"
+        hintText="オプション"
         fullWidth={true}
         multiLine={true}
         rows={4}
@@ -131,9 +130,8 @@ const MessageBoxInfo = ({editable, module, index, schemas, actions}) => {
   const SchemaData = editable ? EditableSchemaData : NotEditableSchemaData
   const MemoData = editable ? EditableMemoData : NotEditableMemoData
   const DeleteButton = editable ? ({module, index, actions}) => (
-    <RaisedButton
-      label="Delete this Message box"
-      secondary={true}
+    <RemoveButton
+      label="このメッセージボックスを削除する"
       onTouchTap={() => actions.module.update(
         module.removeMessageBox(index)
       )}
@@ -142,10 +140,10 @@ const MessageBoxInfo = ({editable, module, index, schemas, actions}) => {
 
   return (
     <Paper>
-      <table>
+      <table className="props">
         <tbody>
           <tr>
-            <td>Name</td>
+            <th>名前</th>
             <DisplayNameData
               module={module}
               index={index}
@@ -153,7 +151,7 @@ const MessageBoxInfo = ({editable, module, index, schemas, actions}) => {
             />
           </tr>
           <tr>
-            <td>Message schema</td>
+            <th>メッセージスキーマ</th>
             <SchemaData
               module={module}
               index={index}
@@ -162,7 +160,7 @@ const MessageBoxInfo = ({editable, module, index, schemas, actions}) => {
             />
           </tr>
           <tr>
-            <td>memo</td>
+            <th>メモ</th>
             <MemoData
               module={module}
               index={index}
@@ -182,9 +180,8 @@ const MessageBoxInfo = ({editable, module, index, schemas, actions}) => {
 
 const ModuleMessageBoxesInfo = ({editable, module, schemas, actions, hiddenActionsArea}) => {
   const NewMessageButton = editable ? ({module, actions}) => (
-    <RaisedButton
-      label="Add New Message box"
-      primary={true}
+    <AddButton
+      label="メッセージボックスを追加する"
       onTouchTap={() => actions.module.update(
         module.pushMessageBox()
       )}
@@ -193,7 +190,7 @@ const ModuleMessageBoxesInfo = ({editable, module, schemas, actions, hiddenActio
   const ActionsArea = hiddenActionsArea ? NullComponent : (editable ? EditableActionsArea : NotEditableActionsArea)
   return (
     <Paper>
-      <h3>Message box</h3>
+      <p>メッセージボックス</p>
       {module.messageBoxes.map((messageBox, index) =>
         <MessageBoxInfo
           key={index}

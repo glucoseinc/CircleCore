@@ -6,12 +6,12 @@ import {syncHistoryWithStore} from 'react-router-redux'
 import injectTapEventPlugin from 'react-tap-event-plugin'
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
-import getMuiTheme from 'material-ui/styles/getMuiTheme'
 
 import configureStore from './store/configureStore'
 import rootSaga from './sagas'
 import rootRoute from './routes'
 import {checkAuthorization} from './Authorization'
+import muiTheme from './muiTheme'
 
 injectTapEventPlugin()
 
@@ -32,7 +32,7 @@ async function checkAndStart() {
 
   render(
     <Provider store={store}>
-      <MuiThemeProvider muiTheme={getMuiTheme()}>
+      <MuiThemeProvider muiTheme={muiTheme}>
         <Router history={history} routes={rootRoute} />
       </MuiThemeProvider>
     </Provider>,

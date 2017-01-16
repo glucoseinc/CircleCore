@@ -27,7 +27,7 @@ class SchemaDeleteDialog extends Component {
     return (
       <OkCancelDialog
         title="メッセージスキーマを削除しますか？"
-        okLabel="削除"
+        okLabel="削除する"
         onOkTouchTap={() => onOkTouchTap(schema)}
         cancelLabel="キャンセル"
         onCancelTouchTap={onCancelTouchTap}

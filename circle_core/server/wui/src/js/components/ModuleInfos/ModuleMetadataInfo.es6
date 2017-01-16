@@ -22,7 +22,7 @@ const EditableTagData = ({module, inputText, actions}) => (
       </Chip>
     )}
     <TextField
-      hintText="Add new tag"
+      hintText="タグを追加"
       value={inputText}
       onChange={(e) => actions.misc.inputTextChange(e.target.value)}
       onKeyUp={(e) => {
@@ -37,19 +37,35 @@ const EditableTagData = ({module, inputText, actions}) => (
   </td>
 )
 
-const NotEditableTagData = ({module}) => (
-  <td>
-    {module.tags.map((tag, index) =>
-      <Chip key={index}>{tag}</Chip>
-    )}
-  </td>
-)
+const NotEditableTagData = ({module}) => {
+  const style = {
+    tags: {
+      display: 'flex',
+    },
+    tag: {
+      margin: 4,
+    },
+  }
+  return (
+    <td>
+      <div style={style.tags}>
+        {module.tags.map((tag, index) =>
+          <Chip
+            key={index}
+            style={style.tag}>
+            {tag}
+          </Chip>
+        )}
+      </div>
+    </td>
+  )
+}
 
 const EditableMemoData = ({module, actions}) => (
   <td>
     <TextField
       name="memo"
-      hintText="Option"
+      hintText="オプション"
       fullWidth={true}
       multiLine={true}
       rows={4}
@@ -73,11 +89,11 @@ const ModuleMetadataInfo = ({editable, module, inputText, actions, hiddenActions
   const ActionsArea = hiddenActionsArea ? NullComponent : (editable ? EditableActionsArea : NotEditableActionsArea)
   return (
     <Paper>
-      <h3>Metadata</h3>
-      <table>
+      <p>メタデータ</p>
+      <table className="props">
         <tbody>
           <tr>
-            <td>Tag</td>
+            <th>タグ</th>
             <TagData
               module={module}
               inputText={inputText}
@@ -85,7 +101,7 @@ const ModuleMetadataInfo = ({editable, module, inputText, actions, hiddenActions
             />
           </tr>
           <tr>
-            <td>memo</td>
+            <th>メモ</th>
             <MemoData
               module={module}
               actions={actions}

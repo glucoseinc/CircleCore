@@ -2,7 +2,6 @@ import React, {Component, PropTypes} from 'react'
 import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
-import RaisedButton from 'material-ui/RaisedButton'
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
 
 import actions from '../actions'
@@ -10,6 +9,7 @@ import {urls} from '../routes'
 import CCLink from '../components/CCLink'
 import Fetching from '../components/Fetching'
 import SchemaDeleteDialog from '../components/SchemaDeleteDialog'
+import {BackButton, RemoveButton} from '../components/buttons'
 
 
 /**
@@ -108,13 +108,9 @@ class Schema extends Component {
         <CCLink
           url={urls.schemas}
         >
-          <RaisedButton
-            label="Back"
-          />
+          <BackButton />
         </CCLink>
-        <RaisedButton
-          label="Delete"
-          secondary={true}
+        <RemoveButton
           disabled={schema.modules.size === 0 ? false : true}
           onTouchTap={() => actions.schemas.deleteAsk(schema)}
         />

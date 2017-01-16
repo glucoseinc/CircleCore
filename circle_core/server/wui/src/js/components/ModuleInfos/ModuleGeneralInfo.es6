@@ -10,7 +10,7 @@ const EditableDisplayNameData = ({module, actions}) => (
   <td>
     <TextField
       name="displayName"
-      hintText="Option"
+      hintText="オプション"
       fullWidth={true}
       value={module.displayName}
       onChange={(e) => actions.module.update(
@@ -30,18 +30,17 @@ const ModuleGeneralInfo = ({editable, module, actions, hiddenUuid, hiddenActions
   const ActionsArea = hiddenActionsArea ? NullComponent : (editable ? EditableActionsArea : NotEditableActionsArea)
   const UuidRow = hiddenUuid ? NullComponent : ({module}) => (
     <tr>
-      <td>UUID</td>
+      <th>UUID</th>
       <td>{module.uuid}</td>
     </tr>
   )
 
   return (
     <Paper>
-      <h3>General</h3>
-      <table>
+      <table className="props">
         <tbody>
           <tr>
-            <td>Name</td>
+            <th>名前</th>
             <DisplayNameData
               module={module}
               actions={actions}

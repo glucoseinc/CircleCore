@@ -2,14 +2,13 @@ import React, {Component, PropTypes} from 'react'
 import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
-import RaisedButton from 'material-ui/RaisedButton'
-
 import actions from '../actions'
-import {urls} from '../routes'
+import {AddButton} from '../components/buttons'
 import CCLink from '../components/CCLink'
 import Fetching from '../components/Fetching'
 import SchemaDeleteDialog from '../components/SchemaDeleteDialog'
 import SchemasTable from '../components/SchemasTable'
+import {urls} from '../routes'
 
 
 /**
@@ -56,10 +55,7 @@ class Schemas extends Component {
     return (
       <div>
         <CCLink url={urls.schemasNew}>
-          <RaisedButton
-            label="Add"
-            primary={true}
-          />
+          <AddButton />
         </CCLink>
 
         <SchemasTable

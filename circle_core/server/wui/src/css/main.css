@@ -2,3 +2,10 @@ body {
   margin: 0;
   padding: 0;
 }
+
+table.props th {
+  width: 192px;
+  font-weight: normal;
+  color: #9E9E9E;
+  text-align: left;
+}

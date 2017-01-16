@@ -5,9 +5,9 @@ import {put, take} from 'redux-saga/effects'
 
 import Dialog from 'material-ui/Dialog'
 import FlatButton from 'material-ui/FlatButton'
-import RaisedButton from 'material-ui/RaisedButton'
 
 import actions, {actionTypes} from '../actions'
+import {CreateButton} from '../components/buttons'
 import Fetching from '../components/Fetching'
 import InvitationsTable from '../components/InvitationsTable'
 import OkCancelDialog from '../components/OkCancelDialog'
@@ -65,9 +65,8 @@ class Invitations extends Component {
 
     return (
       <div>
-        <RaisedButton
+        <CreateButton
           label="ユーザー招待リンクを生成する"
-          primary={true}
           onTouchTap={::this.onTouchTapCreateInvitation}
         />
 

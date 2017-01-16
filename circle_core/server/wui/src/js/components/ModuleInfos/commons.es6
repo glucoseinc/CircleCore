@@ -1,27 +1,20 @@
 import React from 'react'
 
-import RaisedButton from 'material-ui/RaisedButton'
-
+import {CancelButton, EditButton, UpdateButton} from '../../components/buttons'
 
 export const EditableActionsArea = ({module, actions}) => (
   <div>
-    <RaisedButton
-      label="Cancel"
-      secondary={true}
+    <CancelButton
       onTouchTap={actions.misc.cancelModuleEdit}
     />
-    <RaisedButton
-      label="Update"
-      primary={true}
+    <UpdateButton
       onTouchTap={() => actions.misc.executeModuleEdit(module)}
     />
   </div>
 )
 
 export const NotEditableActionsArea = ({module, editingArea, actions}) => (
-  <RaisedButton
-    label="Edit"
-    primary={true}
+  <EditButton
     onTouchTap={() => actions.misc.startModuleEdit({
       module,
       editingArea,
