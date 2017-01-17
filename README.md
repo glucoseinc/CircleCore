@@ -7,6 +7,9 @@
     - https://github.com/nanomsg/nanomsg
 - MySQL
 
+## Getting Strarted
+- [Mac](forMac.md)
+
 ## Installation
 ### Setup virtualenv
 - Python2
