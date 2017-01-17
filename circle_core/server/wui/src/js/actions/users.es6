@@ -6,6 +6,9 @@ const ccActions = createCcActions('users', {
 
   deleteRequest: toJSPayloadCreator,
   deleteComplete: passPayloadCreator,
+
+  fetchMeRequest: nullPayloadCreator,
+  fetchMeComplete: passPayloadCreator,
 })
 
 export default ccActions.actions

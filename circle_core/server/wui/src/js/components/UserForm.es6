@@ -15,11 +15,15 @@ export default class UserForm extends React.Component {
   static propTypes = {
     errors: PropTypes.object,
     readOnly: PropTypes.bool.isRequired,
+    showCurrentPasswordFiled: PropTypes.bool,
+    showPermissionFields: PropTypes.bool,
     user: PropTypes.object.isRequired,
   }
   static defaultProps = {
     errors: {},
     readOnly: true,
+    showCurrentPasswordFiled: false,
+    showPermissionFields: false,
   }
 
   /**
@@ -90,14 +94,13 @@ export default class UserForm extends React.Component {
             errorText={errors.telephone}
           /><br />
 
+          {this.props.showPermissionFields &&
           <div style={{margin: '2rem 0'}}>
             <Checkbox name="isAdmin" label="管理者" defaultChecked={user.isAdmin} disabled={readOnly} />
             {errors.permission && <p>{errors.permissions}</p>}
-          </div>
+          </div>}
 
-          {!readOnly && (this.state.passwordForm === PASSWORD_FORM_MANUAL
-            ? this.renderManualPasswordForm(errors)
-            : this.renderGeneratedPasswordForm(errors))}
+          {!readOnly && this.renderPasswordForm(errors)}
 
           {!readOnly &&
           <div className="metadataForm-actions">
@@ -113,6 +116,33 @@ export default class UserForm extends React.Component {
   }
 
   /**
+   * パスワード設定フォームを描画する
+   * @param {Object} errors
+   * @return {React.Component}
+   */
+  renderPasswordForm(errors) {
+    return (
+      <div>
+        {this.props.showCurrentPasswordFiled &&
+          <div>
+            <TextField
+              name="currentPassword"
+              hintText="現在のパスワード"
+              floatingLabelText="現在のパスワード"
+              floatingLabelFixed={true}
+              type="password"
+              errorText={errors.currentPassword}
+            /><br />
+          </div>}
+
+        {this.state.passwordForm === PASSWORD_FORM_MANUAL
+          ? this.renderManualPasswordForm(errors)
+          : this.renderGeneratedPasswordForm(errors)}
+      </div>
+    )
+  }
+
+  /**
    * パスワード手動設定フォームを描画する
    * @param {Object} errors
    * @return {React.Component}
@@ -120,15 +150,6 @@ export default class UserForm extends React.Component {
   renderManualPasswordForm(errors) {
     return (
       <div>
-        <TextField
-          name="currentPassword"
-          hintText="現在のパスワード"
-          floatingLabelText="現在のパスワード"
-          floatingLabelFixed={true}
-          type="password"
-          errorText={errors.currentPassword}
-        /><br />
-
         <TextField
           name="newPassword"
           hintText="新しいパスワード"
@@ -162,15 +183,6 @@ export default class UserForm extends React.Component {
   renderGeneratedPasswordForm(errors) {
     return (
       <div>
-        <TextField
-          name="currentPassword"
-          hintText="現在のパスワード"
-          floatingLabelText="現在のパスワード"
-          floatingLabelFixed={true}
-          type="password"
-          errorText={errors.currentPassword}
-        /><br />
-
         <TextField
           ref="generatedPassword"
           name="newPassword"
@@ -275,7 +287,7 @@ export default class UserForm extends React.Component {
 
     if(params.newPassword || params.newPasswordRe) {
       // 新しいパスワードを入れようとしている？
-      if(!params.currentPassword)
+      if(this.props.showCurrentPasswordFiled && !params.currentPassword)
         errors['currentPassword'] = '現在のパスワードを入力して下さい'
       if(!params.newPassword)
         errors['newPassword'] = '新しいパスワードを入力して下さい'
@@ -283,7 +295,7 @@ export default class UserForm extends React.Component {
         errors['newPasswordRe'] = '2つのパスワードが異なります'
     } else {
       // 新しいパスワードは無い
-      if(params.currentPassword) {
+      if(this.props.showCurrentPasswordFiled && params.currentPassword) {
         errors['newPassword'] = '新しいパスワードを入力して下さい'
       } else {
         delete params.currentPassword
@@ -292,10 +304,12 @@ export default class UserForm extends React.Component {
       }
     }
 
-    if(params.isAdmin) {
-      params.permissions = ['admin']
-      delete params.isAdmin
-    } else {
+    if(this.props.showPermissionFields) {
+      let permissions = []
+
+      if(params.isAdmin) {
+        permissions.push('admin')
+      }
       params.permissions = []
     }
 

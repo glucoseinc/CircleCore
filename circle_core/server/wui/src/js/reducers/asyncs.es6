@@ -18,6 +18,7 @@ const initialState = {
 
   isModuleFetching: false,
 
+  isMeFetching: false,
   isUsersFetching: false,
 
   isInvitationsFetching: false,
@@ -137,6 +138,10 @@ const asyncs = handleActions({
   // Fetch Users
   [actionTypes.users.fetchRequest]: changeFlagAction('isUsersFetching', true),
   [actionTypes.users.fetchComplete]: changeFlagAction('isUsersFetching', false),
+
+  // Fetch me
+  [actionTypes.users.fetchMeRequest]: changeFlagAction('isMeFetching', true),
+  [actionTypes.users.fetchMeComplete]: changeFlagAction('isMeFetching', false),
 
   // Fetch Invitations
   [actionTypes.invitations.fetchRequest]: changeFlagAction('isInvitationsFetching', true),

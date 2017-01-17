@@ -14,6 +14,8 @@ import normalizerSchema from '../models/normalizerSchema'
 const initialState = {
   invitations: new Map(),
   modules: new Map(),
+  // 自分のUserオブジェクトのuuid
+  myID: null,
   schemas: new Map(),
   schemaPropertyTypes: new Map(),
   users: new Map(),
@@ -110,6 +112,19 @@ const entities = handleActions({
       return {...state, users}
     }
     return state
+  },
+
+  [actionTypes.users.fetchMeComplete]: (state, {payload: {response, error}}) => {
+    if(response) {
+      const normalized = normalize(response, normalizerSchema)
+      const users = state.users.merge(
+        new Map(convertValues(normalized.entities.users, User.fromObject))
+      )
+
+      return {...state, users, myID: normalized.result.user}
+    } else {
+      return {...state, myID: null}
+    }
   },
 
   // Fetched Invitations
