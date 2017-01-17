@@ -65,8 +65,10 @@ class SchemasTable extends Component {
           adjustForCheckbox={false}
         >
           <TableRow>
-            <TableHeaderColumn tooltip="Schema name">名前</TableHeaderColumn>
-            <TableHeaderColumn tooltip="Modules using schema">モジュール</TableHeaderColumn>
+            <TableHeaderColumn>名前</TableHeaderColumn>
+            <TableHeaderColumn>プロパティ</TableHeaderColumn>
+            <TableHeaderColumn tooltip="このスキーマを採用しているモジュール">モジュール</TableHeaderColumn>
+            <TableHeaderColumn>メモ</TableHeaderColumn>
             <TableHeaderColumn></TableHeaderColumn>
           </TableRow>
         </TableHeader>
@@ -86,6 +88,9 @@ class SchemasTable extends Component {
                 </CCLink>
               </TableRowColumn>
               <TableRowColumn>
+                {schema.propertiesToString()}
+              </TableRowColumn>
+              <TableRowColumn>
                 {schema.modules.map((moduleId) => {
                   const module = modules.get(moduleId)
                   return (
@@ -103,6 +108,9 @@ class SchemasTable extends Component {
                     </CCLink>
                   )
                 })}
+              </TableRowColumn>
+              <TableRowColumn>
+                {schema.memo}
               </TableRowColumn>
               <TableRowColumn>
                 <RemoveButton
