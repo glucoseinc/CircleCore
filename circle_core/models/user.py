@@ -105,11 +105,11 @@ class User(object):
 
     @classmethod
     def make_key_for_last_access(cls, uuid):
-        """指定のキーがストレージキーの形式にマッチしているか.
+        """最終アクセス時刻保存用のキーを返す
 
-        :param str key:
-        :return: マッチしているか
-        :rtype: bool
+        :param str uuid: ユーザのID
+        :return: Key
+        :rtype: str
         """
         return 'user_{}:last_access'.format(uuid)
 
