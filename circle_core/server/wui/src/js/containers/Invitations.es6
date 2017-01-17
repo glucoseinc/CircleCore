@@ -22,6 +22,7 @@ class Invitations extends Component {
     isFetching: PropTypes.bool.isRequired,
     invitations: PropTypes.object.isRequired,
     actions: PropTypes.object.isRequired,
+    token: PropTypes.object.isRequired,
   }
 
   /**
@@ -57,22 +58,26 @@ class Invitations extends Component {
 
     const {
       invitations,
+      token,
     } = this.props
     const {
       deleteTargetInvitation,
       newInvitation,
     } = this.state
+    const isReadOnly = token.hasScope('user+rw') ? false : true
 
     return (
       <div>
+        {!isReadOnly &&
         <CreateButton
           label="ユーザー招待リンクを生成する"
           onTouchTap={::this.onTouchTapCreateInvitation}
-        />
+        />}
 
         <InvitationsTable
           invitations={invitations}
           onDeleteInvitation={::this.onDeleteInvitation}
+          readOnly={isReadOnly}
         />
 
         {deleteTargetInvitation &&
@@ -155,6 +160,7 @@ function mapStateToProps(state) {
   return {
     isFetching: state.asyncs.isInvitationsFetching,
     invitations: state.entities.invitations,
+    token: state.auth.token,
   }
 }
 
