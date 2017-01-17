@@ -172,44 +172,6 @@ class Schema(object):
             'memo': self.memo,
         }
 
-    def is_valid(self, dic):  # TODO: Schema専用のJSONDecoderを作ってそこで例外を投げたほうがいいかなあ
-        """nanomsg経由で受け取ったメッセージをデシリアライズしたものがこのSchemaに適合しているか.
-
-        :param dict dic:
-        """
-        if not len(dic) == len(self.properties):
-            return False
-
-        schema_type_map = {
-            'float': float,
-            'int': int,
-            'text': str
-        }
-
-        for msg_key, msg_value in dic.items():
-            for property in self.properties:
-                if msg_key == property.name and (
-                    (property.type == 'float' and isinstance(msg_value, int)) or
-                    # float型の値が0だった場合にintだと判定されてしまう
-                    isinstance(msg_value, schema_type_map[property.type])
-                ):
-                    break
-            else:
-                return False
-
-        return True
-
-    def serialize(self):
-        """このインスタンスをslaveが再構築できるだけの情報.
-
-        レプリケーション時に使用.
-        """
-        return {
-            'uuid': self.uuid.hex,
-            'display_name': self.display_name,
-            'dictified_properties': self.dictified_properties
-        }
-
     @property
     def of_master(self):
         """

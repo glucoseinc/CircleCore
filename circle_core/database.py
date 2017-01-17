@@ -151,16 +151,6 @@ class Database(object):
             autoload_with=self._engine
         )
 
-    def find_table_for_message(self, msg):
-        assert 0, 'deprecated'
-        boxes = [metadata().find_message_box(box_uuid) for box_uuid in msg.module.message_box_uuids]
-        table_name = [
-            self.make_table_name_for_message_box(box)
-            for box in boxes
-            if metadata().find_schema(box.schema_uuid).is_valid(msg.payload)
-        ][0]
-        return sa.Table(table_name, self._metadata, autoload=True, autoload_with=self._engine)
-
     def last_message_identifier_for_box(self, box):  # TODO: MessageBoxのメソッドにする
         session = self._session()
         with session.begin():

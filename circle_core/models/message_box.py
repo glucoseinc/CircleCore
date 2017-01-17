@@ -111,18 +111,6 @@ class MessageBox(object):
             'memo': self.memo,
         }
 
-    def serialize(self):
-        """このインスタンスをslaveが再構築できるだけの情報.
-
-        レプリケーション時に使用.
-        """
-        return {
-            'uuid': self.uuid.hex,
-            'schema_uuid': self.schema_uuid.hex,
-            'display_name': self.display_name,
-            'memo': self.memo
-        }
-
     def messages_since(self, timestamp, count):
         """引数以降、このMessageBoxに蓄えられたModuleMessageを返す.
 

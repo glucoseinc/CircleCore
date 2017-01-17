@@ -123,19 +123,6 @@ class Module(object):
             'memo': self.memo,
         }
 
-    def serialize(self):
-        """このインスタンスをslaveが再構築できるだけの情報.
-
-        レプリケーション時に使用.
-        """
-        return {
-            'uuid': self.uuid.hex,
-            'message_box_uuids': [uuid.hex for uuid in self.message_box_uuids],
-            'display_name': self.display_name,
-            'tags': ','.join(self.tags),
-            'memo': self.memo
-        }
-
     @property
     def of_master(self):
         """

@@ -67,9 +67,9 @@ class ReplicationMaster(WebSocketHandler):
         ]
         schemas = [metadata().find_schema(box.schema_uuid) for box in boxes]
         resp = json.dumps({
-            'modules': [module.serialize() for module in self.subscribing_modules if not module.of_master],
-            'message_boxes': [box.serialize() for box in boxes if not box.of_master],
-            'schemas': [schema.serialize() for schema in schemas if not schema.of_master]
+            'modules': [module.to_json() for module in self.subscribing_modules if not module.of_master],
+            'message_boxes': [box.to_json() for box in boxes if not box.of_master],
+            'schemas': [schema.to_json() for schema in schemas if not schema.of_master]
         })
         self.write_message(resp)
 

@@ -39,7 +39,7 @@ class ModuleMessageFactory(object):
         payload = json_msg.copy()
 
         # primary key(timestmap, count)を決定する
-        timestamp = round(time(), 6)
+        timestamp = time()
         # TODO: このあたり厳密にはCASをしないとならないはず
         last_message = cls.last_message_per_module.get(module_uuid, None)
         if last_message is not None and 32767 > last_message.count:
@@ -77,6 +77,7 @@ class ModuleMessage(object):
     """CircleModuleからのメッセージ.
 
     :param UUID module_uuid:
+    :param MessageBox message_box:
     :param Schema schema:
     :param int timestamp:
     :param int count:
@@ -117,7 +118,8 @@ class ModuleMessage(object):
 
         :param UUID module_uuid:
         :param UUID box_id:
-        :param float_or_Deciaml timestamp:
+        :param dict payload:
+        :param Union[float, Decimal, str] timestamp:
         :param int count:
         :param dict payload:
         """

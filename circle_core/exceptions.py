@@ -26,6 +26,10 @@ class ModuleNotFoundError(CircleCoreException):
     """Moduleが見つからない時の例外"""
     pass
 
+class MessageBoxNotFoundError(CircleCoreException):
+    """MessageBoxが見つからないときの例外."""
+    pass
+
 
 class MessageBoxNotFoundError(CircleCoreException):
     """MessageBoxが見つからない時の例外"""
