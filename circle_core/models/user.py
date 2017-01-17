@@ -22,14 +22,13 @@ class User(object):
     """Userオブジェクト.
 
     :param UUID uuid: User UUID
-    :param str account: メールアドレス
+    :param str account: アカウント
     :param List[str] permissions: 権限
     :param str work: 所属
     :param str mail_address: メールアドレス
     :param str telephone: 電話番号
-    :param str mail_address: メールアドレス
-    :param str password: パスワード
     :param str encrypted_password: 暗号化パスワード
+    :param str password: パスワード
     """
 
     def __init__(
@@ -37,9 +36,13 @@ class User(object):
         """init.
 
         :param Union[str, UUID] uuid: User UUID
+        :param str account: アカウント
+        :param List[str] permissions: 権限
+        :param str work: 所属
         :param str mail_address: メールアドレス
+        :param str telephone: 電話番号
         :param str encrypted_password: 暗号化パスワード
-        :param str permissions: 権限
+        :param str password: パスワード
         """
         assert uuid
         assert (password or encrypted_password) and not (password and encrypted_password)
