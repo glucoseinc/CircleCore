@@ -1,5 +1,6 @@
 /* eslint-disable new-cap */
 import {Record} from 'immutable'
+import moment from 'moment'
 
 
 const UserRecord = Record({
@@ -9,6 +10,7 @@ const UserRecord = Record({
   telephone: '',
   mailAddress: '',
   permissions: [],
+  dateLastAccess: null,
 })
 
 /**
@@ -34,6 +36,7 @@ export default class User extends UserRecord {
       telephone: rawUser.telephone,
       mailAddress: rawUser.mailAddress,
       permissions: rawUser.permissions,
+      dateLastAccess: moment(rawUser.dateLastAccess),
     })
   }
 

@@ -3,6 +3,7 @@
 # system module
 from __future__ import absolute_import
 
+import datetime
 import uuid
 
 # community module
@@ -11,6 +12,7 @@ from six import PY3
 
 # project module
 # TODO: cli.utilsから外に移す
+from circle_core.utils import format_date, prepare_date
 from .base import MetadataError, MetadataReader, MetadataWriter
 from ..invitation import Invitation
 from ..message_box import MessageBox
@@ -152,7 +154,12 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         for key in keys:
             if self.redis_client.type(key) == 'hash':
                 fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]
-                users.append(User.from_json(fields))
+                obj = User.from_json(fields)
+
+                # 最終アクセス時刻
+                obj.date_last_access = self.get_user_last_access(obj.uuid)
+
+                users.append(obj)
         return users
 
     # invitation
@@ -347,3 +354,29 @@ class MetadataRedis(MetadataReader, MetadataWriter):
             if not self.redis_client.exists(model_class.make_storage_key(generated)):
                 break
         return generated
+
+    def update_user_last_access(self, user_id, dt):
+        """Userの最終アクセス時刻を記録する
+
+        :param UUID user_id: UserのID
+        :param datetime datetime.datetime: 最終アクセス時刻(UTC)
+        :return: 成功/失敗
+        :rtype: bool
+        """
+        assert isinstance(dt, datetime.datetime)
+
+        dt = prepare_date(dt)
+        self.redis_client.set(User.make_key_for_last_access(user_id), format_date(dt))
+        print('update date', user_id, dt)
+
+    def get_user_last_access(self, user_id):
+        """Userの最終アクセス時刻を記録する
+
+        :param UUID user_id: UserのID
+        :return: 成功/失敗
+        :rtype: datetime.datetime
+        """
+        val = self.redis_client.get(User.make_key_for_last_access(user_id))
+        if not val:
+            return None
+        return prepare_date(val)

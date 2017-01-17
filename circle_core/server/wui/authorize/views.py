@@ -33,7 +33,8 @@ def before_request():
     if not user_uuid:
         return
 
-    user = get_metadata().find_user(user_uuid)
+    metadata = get_metadata()
+    user = metadata.find_user(user_uuid)
     if not user:
         return
 

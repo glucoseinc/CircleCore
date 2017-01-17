@@ -10,6 +10,9 @@ from uuid import UUID
 # community module
 from six import PY3
 
+from circle_core.utils import format_date, prepare_date
+
+
 if PY3:
     from typing import List, Union
 
@@ -28,11 +31,12 @@ class User(object):
     :param str mail_address: メールアドレス
     :param str telephone: 電話番号
     :param str encrypted_password: 暗号化パスワード
-    :param str password: パスワード
+    :param datetime.datetime date_last_access: 最終アクセス時刻
     """
 
     def __init__(
-            self, uuid, account, permissions, work, mail_address, telephone, encrypted_password=None, password=None):
+            self, uuid, account, permissions, work, mail_address, telephone,
+            encrypted_password=None, password=None, date_last_access=None):
         """init.
 
         :param Union[str, UUID] uuid: User UUID
@@ -68,6 +72,7 @@ class User(object):
         self.work = work
         self.mail_address = mail_address
         self.telephone = telephone
+        self.date_last_access = prepare_date(date_last_access)
 
     @property
     def stringified_permissions(self):
@@ -97,6 +102,16 @@ class User(object):
         """
         pattern = r'^user_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
         return re.match(pattern, key) is not None
+
+    @classmethod
+    def make_key_for_last_access(cls, uuid):
+        """指定のキーがストレージキーの形式にマッチしているか.
+
+        :param str key:
+        :return: マッチしているか
+        :rtype: bool
+        """
+        return 'user_{}:last_access'.format(uuid)
 
     def is_password_matched(self, password):
         """指定のパスワードがマッチしているか.
@@ -131,6 +146,7 @@ class User(object):
             'mailAddress': self.mail_address,
             'telephone': self.telephone,
             'permissions': self.permissions,
+            'dateLastAccess': format_date(self.date_last_access)
         }
         if full:
             d['encrypted_password'] = self.encrypted_password

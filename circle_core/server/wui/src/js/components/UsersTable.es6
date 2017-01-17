@@ -53,6 +53,7 @@ class UsersTableRow extends React.Component {
         </TableRowColumn>
         <TableRowColumn>{user.mailAddress}</TableRowColumn>
         <TableRowColumn><Checkbox label="" checked={user.isAdmin} disabled={true} /></TableRowColumn>
+        <TableRowColumn>{user.dateLastAccess.format('LLL')}</TableRowColumn>
         <TableRowColumn>
           {!readOnly &&
           <RemoveButton
@@ -102,6 +103,7 @@ export default class UsersTable extends React.Component {
             <TableHeaderColumn tooltip="メールアドレス">メールアドレス</TableHeaderColumn>
             <TableHeaderColumn tooltip="管理者であればチェック">管理者</TableHeaderColumn>
             <TableHeaderColumn tooltip="ユーザが最後にアクセスした時刻">最終ログイン</TableHeaderColumn>
+            <TableHeaderColumn></TableHeaderColumn>
           </TableRow>
         </TableHeader>
 
