@@ -1,4 +1,4 @@
-# Getting Starrted for Mac
+# Getting Starrted for Mac OS X
 ## 前提
 - OS X El Capitan以降
 - [Homebrew](http://brew.sh/index_ja.html) インストール済み
