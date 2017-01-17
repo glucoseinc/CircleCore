@@ -1,19 +1,19 @@
 import path from 'path'
 import React from 'react'
-import {Route, IndexRoute} from 'react-router'
+import {Route, IndexRedirect} from 'react-router'
 
 import Master from '../containers/Master'
 import {GuestOnly, UserOnly} from '../containers/AuthDivider'
 import OAuthAuthorize from '../containers/OAuthAuthorize'
 import NotFound from '../components/NotFound'
-import pages from './pages'
+import pages, {defaultPage} from './pages'
 
 
 const rootRoute = (
   <Route path="/">
     <Route component={UserOnly}>
       <Route component={Master}>
-        <IndexRoute component={() => <div></div>} />
+        <IndexRedirect to={defaultPage.path} />
         <Route childRoutes={pages} />
       </Route>
     </Route>

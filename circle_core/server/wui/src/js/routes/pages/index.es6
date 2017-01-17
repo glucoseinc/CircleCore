@@ -22,3 +22,5 @@ const pages = [].concat(...children.map((child) => {
 }))
 
 export default pages
+
+export const defaultPage = require('./Modules').default
