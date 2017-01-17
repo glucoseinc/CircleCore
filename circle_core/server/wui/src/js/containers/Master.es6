@@ -11,7 +11,7 @@ import withWidth, {LARGE} from 'material-ui/utils/withWidth'
 import actions from '../actions'
 import NavDrawer from '../components/NavDrawer'
 import {OAUTH_AUTHORIZATION_URL} from '../Authorization'
-// import DevTools from '../containers/DevTools'
+import DevTools from '../containers/DevTools'
 
 
 /**
@@ -43,6 +43,7 @@ class Master extends React.Component {
     const {
       muiTheme,
     } = this.context
+    const showDevTool = false
 
     const navDrawerAlwaysOpen = (width === LARGE)
     const appBarShowMenuIconButton = navDrawerAlwaysOpen ? false : true
@@ -88,6 +89,8 @@ class Master extends React.Component {
             {errorMessage}
           </Dialog>
         }
+
+        {showDevTool && <DevTools />}
 
       </div>
     )
