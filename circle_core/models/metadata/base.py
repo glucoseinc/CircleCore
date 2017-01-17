@@ -401,3 +401,24 @@ class MetadataWriter(MetadataBase):
         :rtype: bool
         """
         raise NotImplementedError
+
+    @abstractmethod
+    def update_user_last_access(self, user_id, datetime):
+        """Userの最終アクセス時刻を記録する
+
+        :param UUID user_id: UserのID
+        :param datetime datetime.datetime: 最終アクセス時刻(UTC)
+        :return: 成功/失敗
+        :rtype: bool
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_user_last_access(self, user_id):
+        """Userの最終アクセス時刻を記録する
+
+        :param UUID user_id: UserのID
+        :return: 成功/失敗
+        :rtype: datetime.datetime
+        """
+        raise NotImplementedError

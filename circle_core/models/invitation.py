@@ -9,9 +9,9 @@ import re
 from uuid import UUID
 
 # community module
-import dateutil.parser
-import dateutil.tz
 from six import PY3
+
+from circle_core.utils import format_date, prepare_date
 
 if PY3:
     from typing import List, Union
@@ -46,6 +46,7 @@ class Invitation(UUIDBasedObject):
 
     :param UUID uuid: User UUID
     :param int max_invites: 招待可能人数. 0は無制限
+    :param datetime.datetime date_created: 招待作成日 なければNone
     """
     key_prefix = 'invitation'
 
@@ -62,7 +63,7 @@ class Invitation(UUIDBasedObject):
             max_invites = int(max_invites, 10)
         if max_invites < 0:
             raise ValueError('max_invites must be larger than 0')
-        date_created = _prepare_date(date_created)
+        date_created = prepare_date(date_created)
         if date_created and not isinstance(date_created, datetime.datetime):
             raise ValueError('date_created must be datetime.datetime or None, ({!r})'.format(date_created))
 
@@ -81,7 +82,7 @@ class Invitation(UUIDBasedObject):
             'uuid': str(self.uuid),
             'maxInvites': self.max_invites,
             'currentInvites': self.current_invites,
-            'dateCreated': self.date_created.isoformat('T') if self.date_created else None
+            'dateCreated': format_date(self.date_created)
         }
 
     @classmethod
@@ -92,18 +93,3 @@ class Invitation(UUIDBasedObject):
         :rtype: dict
         """
         return cls(jsondict['uuid'], jsondict['maxInvites'], jsondict['dateCreated'])
-
-
-def _prepare_date(v):
-    if not v:
-        return v
-    if isinstance(v, str):
-        v = dateutil.parser.parse(v)
-        if not v:
-            raise ValueError('invalid datet time format {!r}'.format(v))
-    if not v.tzinfo:
-        # naiveな日付は、ローカル日付として扱う
-        v = v.replace(tzinfo=dateutil.tz.tzlocal())
-    # 最終的にUTCにする
-    v = v.astimezone(dateutil.tz.tzutc())
-    return v

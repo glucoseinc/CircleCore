@@ -66,6 +66,21 @@ function* updateUser(action) {
   }
 }
 
+
+/**
+ * [fetchMe description]
+ * @param  {[type]}    action [description]
+ */
+function* fetchMe(action) {
+  try {
+    const response = yield call(::CCAPI.getMe)
+    yield put(actions.users.fetchMeComplete({response}))
+  } catch (e) {
+    yield put(actions.users.fetchMeComplete({error: makeError(e)}))
+  }
+}
+
+
 /**
  * [usersSaga description]
  * @param  {[type]}    args [description]
@@ -77,5 +92,10 @@ export default function* usersSaga(...args) {
   // user update request
   yield fork(function* () {
     yield takeEvery(actionTypes.user.updateRequest, updateUser)
+  })
+
+  // 自分の情報を取得
+  yield fork(function* () {
+    yield takeEvery(actionTypes.users.fetchMeRequest, fetchMe)
   })
 }

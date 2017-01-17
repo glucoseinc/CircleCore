@@ -24,6 +24,11 @@ class InvitationsTableRow extends React.Component {
   static propTypes = {
     invitation: PropTypes.instanceOf(Invitation).isRequired,
     onDeleteInvitation: PropTypes.func.isRequired,
+    readOnly: PropTypes.bool,
+  }
+
+  static defaultProps = {
+    readOnly: true,
   }
 
   /**
@@ -46,9 +51,10 @@ class InvitationsTableRow extends React.Component {
           {invitation.dateCreated.format('LLL')}
         </TableRowColumn>
         <TableRowColumn>
+          {!this.props.readOnly &&
           <RemoveButton
             onTouchTap={(e) => this.props.onDeleteInvitation(invitation, e)}
-          />
+          />}
         </TableRowColumn>
       </TableRow>
     )
