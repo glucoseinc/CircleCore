@@ -8,7 +8,7 @@
 - MySQL
 
 ## Getting Strarted
-- [Mac](forMac.md)
+- [Mac](INSTALL_MACOSX.md)
 
 ## Installation
 ### Setup virtualenv
