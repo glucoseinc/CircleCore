@@ -19,14 +19,16 @@ class OAuthToken {
    * @param {string} clientSecret clientSecret
    * @param {string} accessToken accessToken
    * @param {string} refreshToken refreshToken
+   * @param {scope} scope scope
    */
-  constructor(storage, storageKey, clientID, clientSecret, accessToken, refreshToken) {
+  constructor(storage, storageKey, clientID, clientSecret, accessToken, refreshToken, scope) {
     this._storage = storage
     this._storageKey = storageKey
     this.clientID = clientID,
     this.clientSecret = clientSecret
     this.accessToken = accessToken
     this.refreshToken = refreshToken
+    this.scopes = scope !== undefined ? scope.split(' ') : null
   }
 
   /**
@@ -38,8 +40,8 @@ class OAuthToken {
     if(!raw)
       return false
 
-    let [accessToken, refreshToken] = raw.split(':')
-    this.update(accessToken, refreshToken)
+    let [accessToken, refreshToken, scope] = raw.split(':')
+    this.update(accessToken, refreshToken, decodeURIComponent(scope))
     return true
   }
 
@@ -47,9 +49,11 @@ class OAuthToken {
    * tokenをストレージに保存する
    */
   save() {
+    let vals = [this.accessToken, this.refreshToken, this.scopes.join(' ')]
+
     this._storage.setItem(
       this._storageKey,
-      `${encodeURIComponent(this.accessToken)}:${encodeURIComponent(this.refreshToken)}`
+      vals.map((s) => encodeURIComponent(s)).join(':')
     )
   }
 
@@ -59,6 +63,7 @@ class OAuthToken {
   clear() {
     this.accessToken = null
     this.refreshToken = null
+    this.scopes = null
     this._storage.removeItem(this._storageKey)
   }
 
@@ -67,73 +72,38 @@ class OAuthToken {
    * @return {bool} acess & refresh tokenが有効そうに見えるならTrue
    */
   isValid() {
-    return this.accessToken && this.accessToken.length && this.refreshToken && this.refreshToken.length
+    return this.accessToken && this.accessToken.length && this.refreshToken && this.refreshToken.length ? true : false
   }
 
   /**
    * tokenを更新する
    * @param {string} accessToken 新しいAccess Token
    * @param {string} refreshToken 新しいRefresh Token
+   * @param {string} scope 新しいScope
    */
-  update(accessToken, refreshToken) {
+  update(accessToken, refreshToken, scope) {
     this.accessToken = accessToken
     this.refreshToken = refreshToken
-  }
-}
 
-let oauthToken = new OAuthToken(localStorage, TOKEN_KEY, CLIENT_ID, CLIENT_SECRET)
-
-
-/**
- * 認証系をチェックして必要な動作を行う
- *
- * A. access_tokenがある → Tokenの死活チェック
- * B. access_tokenがない →
- *    B-1. 返りfragmentにcodeがある → codeの確認
- *    B-2. ない → 認証フロー開始
- * @return {bool} 認証OK
- */
-export async function checkAuthorization() {
-  CCAPI.setToken(oauthToken)
-
-  if(oauthToken.load()) {
-    // tokenがある -> 死活チェック(...はしない、API使った時の認証エラーでなんとかすればええねん)
-
-    // token tests
-    // function test_scope(scope) {
-    //   try{
-    //     let resp = await CCAPI._get(`/oauth/scope_test/${scope}`); console.log(resp)
-    //   } catch(e) {
-    //     console.log('failed')
-    //   }
-    // }
-    // for(scope of ['user+rw', 'schema+r', 'schema+rw', 'bad-scope']) { test_scope(scope) }
-    return true
-  } else {
-    // tokenがない ->
-
-    // authorization codeを受け取っている最中である
-    let authCode = _checkHasAuthCodeReceived()
-
-    // clear hash
-    location.hash = ''
-
-    if(authCode) {
-      // authCodeの死活チェック
-      let tokenData = await _fetchTokenByAuthorizationCode(authCode)
-      if(tokenData) {
-        let {accessToken, refreshToken} = tokenData
-        oauthToken.update(accessToken, refreshToken)
-        oauthToken.save()
-        return true
-      }
+    if(scope !== undefined) {
+      this.scopes = scope.split(' ')
     }
   }
 
-  // ここまで来たら、ログインしていないこと確定なので、ログインしていただく
-  _startAuthorization()
-  return false
+  /**
+   * scopeをもっているか確認
+   * @param {string} scope
+   * @return {bool}
+   */
+  hasScope(scope) {
+    if(this.scopes === null) {
+      throw new Error('scope is not initialized')
+    }
+    return this.scopes.indexOf(scope) >= 0 ? true : false
+  }
 }
+
+export let oauthToken = new OAuthToken(localStorage, TOKEN_KEY, CLIENT_ID, CLIENT_SECRET)
 
 
 /**
@@ -171,11 +141,10 @@ function _parseQuery(queryString) {
 
 /**
  * AuthorizationCodeが返ってきているかどうかをチェックする
+ * @param {str} hash '#xxxxx'
  * @return {bool} AuthCodeが返ってきている
  */
-function _checkHasAuthCodeReceived() {
-  const hash = location.hash
-
+export function checkHasAuthCodeReceived(hash) {
   if(!hash.startsWith('#')) {
     // invalid hash string
     return null
@@ -198,13 +167,13 @@ function _checkHasAuthCodeReceived() {
  * @param {string} authorizationCode AuthorizationCode
  * @return {Object} accessToken, refreshToken
  */
-async function _fetchTokenByAuthorizationCode(authorizationCode) {
+export async function fetchTokenByAuthorizationCode(authorizationCode) {
   let response
   try {
     response = await CCAPI.oauthToken({
       grant_type: 'authorization_code',
       code: authorizationCode,
-      redirect_uri: `${location.origin}`,
+      redirect_uri: `${location.origin}/oauth/callback`,
       client_id: CLIENT_ID,
     })
 
@@ -216,20 +185,9 @@ async function _fetchTokenByAuthorizationCode(authorizationCode) {
     return null
   }
 
-  let {access_token, refresh_token} = response
-  return {
-    accessToken: access_token,
-    refreshToken: refresh_token,
-  }
+  return response
 }
 
 
-/**
- * OAuth認証を始める
- * ページ遷移がおこります
- */
-function _startAuthorization() {
-  let url = `/oauth/authorize?client_id=${CLIENT_ID}&response_type=code`
-
-  location.href = url
-}
+// 認証開始URL
+export const OAUTH_AUTHORIZATION_URL = `/oauth/authorize?client_id=${CLIENT_ID}&response_type=code`

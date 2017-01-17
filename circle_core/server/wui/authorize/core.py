@@ -20,12 +20,14 @@ def register_client(client):
     oauth_clients[client.client_id] = client
 
 
+# TODO: crcr run内で登録するようにする
+WEBUI_CLIENT_REDIRECT_URL = 'http://localhost:5000' + '/oauth/callback'
 webui_client = OAuthClient(
     WEBUICLIENT_CLIENT_ID,
     '3f82ad86ff167cebc39bf735533efe080b596f4ce343e4f51fd6c760a9835ccb' +
     '6ff76df5d2e72489b30d07ce81a273a6ea4128f98412f4b6027245c76cd0a098',
-    ['http://localhost:5000'],
-    'http://localhost:5000',
+    [WEBUI_CLIENT_REDIRECT_URL],
+    WEBUI_CLIENT_REDIRECT_URL,
     [s.value for s in CRScope],
     ['password', 'authorization_code', 'refresh_token'],
     ['code']

@@ -28,7 +28,7 @@ class TestCliUser(object):
         (['--metadata', url_scheme_ini_file],  # main_params
          ['3c36ad55-ab76-4027-b86f-0e507656fdaa'],  # user_detail_params test_manager@test.test
          0,  # expected_exit_code
-         3),  # expected_output_length
+         6),  # expected_output_length
 
         (['--metadata', url_scheme_ini_file],  # main_params
          ['00000000-0000-0000-0000-000000000000'],  # user_detail_params 登録なし
@@ -38,18 +38,19 @@ class TestCliUser(object):
     def test_user_detail(self, main_params, user_detail_params, expected_exit_code, expected_output_length):
         runner = CliRunner()
         result = runner.invoke(cli_entry, main_params + ['user', 'detail'] + user_detail_params)
+        print(result.output)
         assert result.exit_code == expected_exit_code
         assert len(result.output.splitlines()) == expected_output_length
 
     @pytest.mark.usefixtures('flushall_redis_server')
     @pytest.mark.parametrize(('main_params', 'user_add_params', 'expected_exit_code', 'expected_output'), [
         (['--metadata', url_scheme_ini_file],  # main_params
-         ['--email', 'test_user@test.test', '--password', 'user'],  # user_add_params
+         ['--account', 'test_user', '--password', 'user'],  # user_add_params
          -1,  # expected_exit_code
          'Cannot register to INI File.\n'),  # expected_output
 
         (['--metadata', 'redis://localhost:65535/16'],  # main_params
-         ['--email', 'test_user@test.test', '--password', 'user'],  # user_add_params
+         ['--account', 'test_user', '--password', 'user'],  # user_add_params
          -1,  # expected_exit_code
          'Invalid metadata url / Cannot connect to Redis server. : redis://localhost:65535/16\n'),  # expected_output
     ])
@@ -61,7 +62,7 @@ class TestCliUser(object):
 
     @pytest.mark.usefixtures('flushall_redis_server')
     @pytest.mark.parametrize(('user_add_params', 'expected_exit_code', 'expected_output_regexp'), [
-        (['--email', 'test_user@test.test', '--password', 'user'],  # user_add_params
+        (['--account', 'test_user', '--password', 'user'],  # user_add_params
          0,
          r'User '
          r'"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"'  # uuid
@@ -95,10 +96,12 @@ class TestCliUser(object):
     def test_user_remove_success(self):
         # setup
         runner = CliRunner()
-        result = runner.invoke(cli_entry, ['user', 'add', '--email', 'test_user@test.test', '--password', 'user'])
+        result = runner.invoke(cli_entry, ['user', 'add', '--account', 'test_user', '--password', 'user'])
         uuid = result.output.split()[1][1:-1]  # User "{uuid}" is added.\n
 
         # test
         result = runner.invoke(cli_entry, ['user', 'remove', uuid])
         assert result.exit_code == 0
         assert result.output == 'User "{}" is removed.\n'.format(uuid)
+
+# TODO: 重複作成 → エラーになる　　のテスト

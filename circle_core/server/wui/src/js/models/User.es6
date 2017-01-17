@@ -4,6 +4,9 @@ import {Record} from 'immutable'
 
 const UserRecord = Record({
   uuid: '',
+  account: '',
+  work: '',
+  telephone: '',
   mailAddress: '',
   permissions: [],
 })
@@ -26,6 +29,9 @@ export default class User extends UserRecord {
   static fromObject(rawUser) {
     return new User({
       uuid: rawUser.uuid,
+      account: rawUser.account,
+      work: rawUser.work,
+      telephone: rawUser.telephone,
       mailAddress: rawUser.mailAddress,
       permissions: rawUser.permissions,
     })
@@ -36,7 +42,7 @@ export default class User extends UserRecord {
    * @return {string}
    */
   get displayName() {
-    return this.mailAddress || this.uuid
+    return this.account || this.uuid
   }
 
   /**

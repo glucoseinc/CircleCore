@@ -53,10 +53,29 @@ function* handleUsersDeleteRequest() {
 
 
 /**
+ * [updateUser description]
+ * @param  {[type]}    action [description]
+ */
+function* updateUser(action) {
+  try {
+    const response = yield call(::CCAPI.updateUser, action.payload)
+    yield put(actions.user.updateComplete({response}))
+  } catch(e) {
+    const detail = e.response && e.response.body ? e.response.body.detail : null
+    yield put(actions.user.updateComplete({error: makeError(e), detail}))
+  }
+}
+
+/**
  * [usersSaga description]
  * @param  {[type]}    args [description]
  */
 export default function* usersSaga(...args) {
   yield fork(handleUsersFetchRequest, ...args)
   yield fork(handleUsersDeleteRequest, ...args)
+
+  // user update request
+  yield fork(function* () {
+    yield takeEvery(actionTypes.user.updateRequest, updateUser)
+  })
 }

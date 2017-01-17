@@ -14,7 +14,6 @@ from six import PY3
 from .context import ContextObject
 from .utils import generate_uuid, output_listing_columns, output_properties
 from ..models import User
-from ..models.user import encrypt_password
 
 if PY3:
     from typing import List, Tuple
@@ -50,10 +49,10 @@ def _format_for_columns(users):
     :return: data: 加工後のスキーマリスト, header: 見出し
     :rtype: Tuple[List[List[str]], List[str]]
     """
-    header = ['UUID', 'EMAIL', 'PERMISSIONS']
+    header = ['UUID', 'ACCOUNT', 'PERMISSIONS']
     data = []  # type: List[List[str]]
     for user in users:
-        data.append([str(user.uuid), user.mail_address, user.stringified_permissions])
+        data.append([str(user.uuid), user.account, user.stringified_permissions])
     return data, header
 
 
@@ -76,7 +75,10 @@ def user_detail(ctx, user_uuid):
 
     data = [
         ('UUID', str(user.uuid)),
-        ('EMAIL', user.mail_address),
+        ('ACCOUNT', user.account),
+        ('WORK', user.work),
+        ('MAIL ADDRESS', user.mail_address),
+        ('TELEPHONE', user.telephone),
     ]
     for i, permission in enumerate(user.permissions):
         data.append(('PERMISSIONS' if i == 0 else '', permission))
@@ -85,11 +87,14 @@ def user_detail(ctx, user_uuid):
 
 
 @cli_user.command('add')
-@click.option('mail_address', '--email', required=True)
-@click.option('--password', required=True)
+@click.option('account', '--account', required=True)
+@click.option('password', '--password', required=True, prompt=True, hide_input=True, confirmation_prompt=True)
+@click.option('work', '--work', default='')
+@click.option('mail_address', '--email', default='')
+@click.option('telephone', '--telephone', default='')
 @click.option('admin_flag', '--admin', is_flag=True, default=False)
 @click.pass_context
-def user_add(ctx, mail_address, password, admin_flag):
+def user_add(ctx, account, password, work, mail_address, telephone, admin_flag):
     """ユーザを登録する.
 
     :param Context ctx: Context
@@ -110,8 +115,9 @@ def user_add(ctx, mail_address, password, admin_flag):
     if admin_flag:
         permissions.append('admin')
 
-    encrypted_password = encrypt_password(password, user_uuid.hex)
-    user = User(user_uuid, mail_address, encrypted_password, ','.join(permissions))
+    user = User(
+        user_uuid, account, ','.join(permissions), work, mail_address, telephone,
+        password=password)
 
     metadata.register_user(user)
     context_object.log_info('user add', uuid=user.uuid)

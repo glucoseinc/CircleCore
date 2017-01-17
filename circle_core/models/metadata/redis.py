@@ -152,7 +152,7 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         for key in keys:
             if self.redis_client.type(key) == 'hash':
                 fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]
-                users.append(User(**fields))
+                users.append(User.from_json(fields))
         return users
 
     # invitation
@@ -315,21 +315,20 @@ class MetadataRedis(MetadataReader, MetadataWriter):
             return self.register_module(module)
         return False
 
-    def register_user(self, user):
+    def register_user(self, new_user):
         """Userオブジェクトをストレージに登録する.
 
-        :param User user: Userオブジェクト
+        :param User new_user: Userオブジェクト
         :return: 成功/失敗
         :rtype: bool
         """
-        mapping = {
-            'uuid': user.uuid,
-            'mail_address': user.mail_address,
-            'encrypted_password': user.encrypted_password,
-            'permissions': user.stringified_permissions,
-        }
-
-        self.redis_client.hmset(user.storage_key, mapping)
+        # TODO: transactionを使う
+        for user in self.users:
+            if user.account == new_user.account:
+                raise ValueError('account is already used')
+        d = new_user.to_json(True)
+        d['permissions'] = ','.join(d['permissions'])
+        self.redis_client.hmset(new_user.storage_key, d)
         return True
 
     def unregister_user(self, user):

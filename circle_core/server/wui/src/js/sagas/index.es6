@@ -2,6 +2,7 @@ import {fork} from 'redux-saga/effects'
 
 
 const sagaset = [
+  'auth',
   'invitations',
   'location',
   'misc',

@@ -297,6 +297,16 @@ class CCAPI extends APICaller {
   }
 
   /**
+   * Userを更新する
+   * @param {Object} payload 更新データ Userオブジェクトではないことに注意
+   * @return {Object} Result
+   */
+  async updateUser(payload) {
+    const res = await this._put(`/users/${payload.uuid}`, payload)
+    return res.body
+  }
+
+  /**
    * Userを削除する
    * @param {User} user User
    * @return {Object} Result

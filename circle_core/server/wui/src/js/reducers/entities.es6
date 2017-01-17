@@ -101,6 +101,17 @@ const entities = handleActions({
     return state
   },
 
+  [actionTypes.user.updateComplete]: (state, {payload: {response, error}}) => {
+    if(response) {
+      const {entities} = normalize(response, normalizerSchema)
+      const users = state.users.merge(
+        new Map(convertValues(entities.users, User.fromObject))
+      )
+      return {...state, users}
+    }
+    return state
+  },
+
   // Fetched Invitations
   [actionTypes.invitations.fetchComplete]: (state, {payload: {response, error}}) => {
     if(response) {

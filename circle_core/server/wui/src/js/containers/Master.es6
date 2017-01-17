@@ -1,4 +1,4 @@
-import React, {Component, PropTypes} from 'react'
+import React, {PropTypes} from 'react'
 import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
@@ -10,12 +10,13 @@ import withWidth, {LARGE} from 'material-ui/utils/withWidth'
 
 import actions from '../actions'
 import NavDrawer from '../components/NavDrawer'
-import DevTools from '../containers/DevTools'
+import {OAUTH_AUTHORIZATION_URL} from '../Authorization'
+// import DevTools from '../containers/DevTools'
 
 
 /**
  */
-class Master extends Component {
+class Master extends React.Component {
   static propTypes = {
     errorMessage: PropTypes.string,
     navDrawerOpen: PropTypes.bool.isRequired,
@@ -88,7 +89,6 @@ class Master extends Component {
           </Dialog>
         }
 
-        <DevTools />
       </div>
     )
   }
