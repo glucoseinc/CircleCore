@@ -34,6 +34,13 @@ export class SchemaProperty extends SchemaPropertyRecord {
   isValid() {
     return this.isFill() || (this.name.length === 0 && this.type.length === 0)
   }
+
+  /**
+   * @return {string}
+   */
+  toString() {
+    return `${this.name}:${this.type}`
+  }
 }
 
 
@@ -119,5 +126,12 @@ export default class Schema extends SchemaRecord {
       return false
     }
     return true
+  }
+
+  /**
+   * @return {string}
+   */
+  propertiesToString() {
+    return this.properties.map((property) => property.toString()).join(', ')
   }
 }

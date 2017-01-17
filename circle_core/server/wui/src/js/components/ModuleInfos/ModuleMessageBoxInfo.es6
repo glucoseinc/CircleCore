@@ -138,8 +138,14 @@ const MessageBoxInfo = ({editable, module, index, schemas, actions}) => {
     />
   ) : NullComponent
 
+  const dummyGraph = '/static/images/dummy_graph.png'
+  const GraphArea = editable ? NullComponent : () => (
+    <img src={dummyGraph} width="50%" height="50%"/>
+  )
+
   return (
     <Paper>
+      <GraphArea />
       <table className="props">
         <tbody>
           <tr>

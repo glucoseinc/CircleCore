@@ -1,12 +1,16 @@
 const children = [
   'ChangeProfile',
+  'Cores',
+  'Dump',
   'Logout',
   'Modules',
   'ModulesNew',
   'Module',
+  'Replicas',
   'Schemas',
   'SchemasNew',
   'Schema',
+  'Setting',
   'Users',
 ]
 
@@ -18,3 +22,5 @@ const pages = [].concat(...children.map((child) => {
 }))
 
 export default pages
+
+export const defaultPage = require('./Modules').default

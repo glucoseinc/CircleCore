@@ -2,17 +2,13 @@ import React, {Component, PropTypes} from 'react'
 import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
-import {GridList, GridTile} from 'material-ui/GridList'
 import {Tabs, Tab} from 'material-ui/Tabs'
-import TextField from 'material-ui/TextField'
 
 import actions from '../actions'
-import {AddButton} from '../components/buttons'
-import CCLink from '../components/CCLink'
 import Fetching from '../components/Fetching'
 import ModuleDeleteDialog from '../components/ModuleDeleteDialog'
-import ModulesTable from '../components/ModulesTable'
-import {urls} from '../routes'
+import ModulesCard from '../components/Modules/ModulesCard'
+import ModulesList from '../components/Modules/ModulesList'
 
 
 /**
@@ -65,50 +61,37 @@ class Modules extends Component {
       )
     }
 
-    const filteredModules = inputText === '' ? modules : modules.filter((module) => (
-      module.tags.filter((tag) => tag.includes(inputText)).size > 0
-    ))
-
     return (
-      <Tabs
-        contentContainerStyle={style.tab}
-      >
-        <Tab
-          label="カード表示"
+      <div>
+        <Tabs
+          contentContainerStyle={style.tab}
         >
-        </Tab>
-        <Tab
-          label="リスト表示"
-        >
-          <GridList cols={12} cellHeight="auto">
-            <GridTile cols={10}>
-              <TextField
-                hintText="タグで検索"
-                fullWidth={true}
-                value={inputText}
-                onChange={(e) => actions.misc.inputTextChange(e.target.value)}
-              />
-            </GridTile>
-            <GridTile cols={2}>
-              <CCLink url={urls.modulesNew}>
-                <AddButton />
-              </CCLink>
-            </GridTile>
-          </GridList>
+          <Tab
+            label="カード表示"
+          >
+            <ModulesCard
+              modules={modules}
+            />
+          </Tab>
+          <Tab
+            label="リスト表示"
+          >
+            <ModulesList
+              modules={modules}
+              inputText={inputText}
+              onModulesTagTouchTap={actions.misc.inputTextChange}
+              onModulesDeleteTouchTap={actions.modules.deleteAsk}
+            />
+          </Tab>
+        </Tabs>
 
-          <ModulesTable
-            modules={filteredModules}
-            onTagTouchTap={actions.misc.inputTextChange}
-            onDeleteTouchTap={actions.modules.deleteAsk}
-          />
-          <ModuleDeleteDialog
-            isActive={isDeleteAsking}
-            module={module}
-            onOkTouchTap={actions.modules.deleteRequest}
-            onCancelTouchTap={actions.modules.deleteCancel}
-          />
-        </Tab>
-      </Tabs>
+        <ModuleDeleteDialog
+          isActive={isDeleteAsking}
+          module={module}
+          onOkTouchTap={actions.modules.deleteRequest}
+          onCancelTouchTap={actions.modules.deleteCancel}
+        />
+      </div>
     )
   }
 }
