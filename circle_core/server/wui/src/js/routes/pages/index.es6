@@ -1,12 +1,16 @@
 const children = [
   'ChangeProfile',
+  'Cores',
+  'Dump',
   'Logout',
   'Modules',
   'ModulesNew',
   'Module',
+  'Replicas',
   'Schemas',
   'SchemasNew',
   'Schema',
+  'Setting',
   'Users',
 ]
 

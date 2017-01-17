@@ -44,18 +44,19 @@ class NavDrawer extends Component {
             mapURLToMenuItem(urls.schemas),
           ],
         },
-        // {
-        //   title: '同期',
-        //   items: [
-        //     mapURLToMenuItem(urls.replicas),
-        //   ],
-        // },
-        // {
-        //   title: 'ダウンロード',
-        //   items: [
-        //     mapURLToMenuItem(urls.dumps),
-        //   ],
-        // },
+        {
+          title: '同期',
+          items: [
+            mapURLToMenuItem(urls.replicas),
+            mapURLToMenuItem(urls.cores),
+          ],
+        },
+        {
+          title: 'ダウンロード',
+          items: [
+            mapURLToMenuItem(urls.dump),
+          ],
+        },
         {
           title: 'ユーザ管理',
           items: [
@@ -68,6 +69,7 @@ class NavDrawer extends Component {
         {
           title: null,
           items: [
+            mapURLToMenuItem(urls.setting),
             mapURLToMenuItem(urls.changeProfile),
             mapURLToMenuItem(urls.logout),
           ],
