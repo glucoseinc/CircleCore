@@ -17,7 +17,7 @@ from ..schema import Schema
 from ..user import User
 
 if PY3:
-    from typing import List
+    from typing import List, Union
 
 
 class MetadataIniFile(MetadataReader):
@@ -111,7 +111,13 @@ class MetadataIniFile(MetadataReader):
         parser = configparser.ConfigParser()
         parser.read(self.ini_file_path)
         module_dicts = [dict(parser.items(section)) for section in parser.sections() if Module.is_key_matched(section)]
-        return [Module(**module_dict) for module_dict in module_dicts]
+        modules = []
+        for module_dict in module_dicts:
+            message_box_uuids = module_dict.pop('message_box_uuids', None)  # type: Union[str, None]
+            if message_box_uuids is not None:
+                module_dict['message_box_uuids'] = message_box_uuids.split(',')
+            modules.append(Module(**module_dict))
+        return modules
 
     @property
     def users(self):

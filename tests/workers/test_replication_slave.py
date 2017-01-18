@@ -37,7 +37,7 @@ class DummyMetadata(MetadataReader):
     message_boxes = [MessageBox('402a7a37-691d-40ed-b0fe-4aeed9d0bba1', '95eef02e-36e5-446e-9fea-aedd10321f6f')]
     modules = [Module(
         '314a578a-6543-4331-90f7-ed80c81d29bf',
-        '402a7a37-691d-40ed-b0fe-4aeed9d0bba1',
+        ['402a7a37-691d-40ed-b0fe-4aeed9d0bba1'],
         'DummyModule',
         'foo,bar'
     )]
@@ -96,7 +96,7 @@ class TestReplicationSlave:
                     res = json.dumps({
                         'modules': [{
                             'uuid': '8e654793-5c46-4721-911e-b9d19f0779f9',
-                            'message_box_uuids': '316720eb-84fe-43b3-88b7-9aad49a93220',
+                            'message_box_uuids': ['316720eb-84fe-43b3-88b7-9aad49a93220'],
                             'display_name': 'DummyModule',
                             'tags': 'foo,bar'
                         }],

@@ -107,16 +107,16 @@ def module_detail(ctx, module_uuid):
 
 @cli_module.command('add')
 @click.option('display_name', '--name')
-@click.option('message_box_uuids', '--box', required=True)
+@click.option('stringified_message_box_uuids', '--box', required=True)
 @click.option('tags', '--tag')
 @click.option('--memo')
 @click.pass_context
-def module_add(ctx, display_name, message_box_uuids, tags, memo):
+def module_add(ctx, display_name, stringified_message_box_uuids, tags, memo):
     """モジュールを登録する.
 
     :param Context ctx: Context
     :param Optional[str] display_name: モジュール表示名
-    :param str message_box_uuids: メッセージボックスUUIDリスト
+    :param str stringified_message_box_uuids: メッセージボックスUUIDリスト(文字列化)
     :param Optional[str] tags: タグ
     :param Optional[str] memo: メモ
     """
@@ -130,7 +130,7 @@ def module_add(ctx, display_name, message_box_uuids, tags, memo):
     module_uuid = generate_uuid(existing=[module.uuid for module in metadata.modules])
 
     message_boxes = []
-    message_box_uuids = message_box_uuids.split(',')
+    message_box_uuids = stringified_message_box_uuids.split(',')
     for message_box_uuid in message_box_uuids:
         message_box = metadata.find_message_box(message_box_uuid)
         if message_box is None:
@@ -140,7 +140,7 @@ def module_add(ctx, display_name, message_box_uuids, tags, memo):
 
     module = Module(
         module_uuid,
-        ','.join([str(_message_box.uuid) for _message_box in message_boxes]),
+        message_box_uuids,
         display_name,
         tags,
         memo

@@ -33,12 +33,11 @@ class Module(object):
         """init.
 
         :param Union[str, UUID] uuid: Module UUID
-        :param str message_box_uuids: MessageBoxのUUIDリスト(文字列化)
+        :param List[Union[str, UUID]] message_box_uuids: MessageBoxのUUIDリスト
         :param Optional[str] display_name: 表示名
         :param Optional[str] tags: タグ
         :param Optional[str] memo: メモ
         """
-        # TODO: 引き渡すmessage_box_uuidsはリスト化
         if not isinstance(uuid, UUID):
             try:
                 uuid = UUID(uuid)
@@ -46,13 +45,13 @@ class Module(object):
                 raise ModuleError('Invalid uuid : {}'.format(uuid))
 
         _message_box_uuids = []
-        for message_box_uuid in message_box_uuids.split(','):
-            if message_box_uuid != '':
+        for message_box_uuid in message_box_uuids:
+            if not isinstance(message_box_uuid, UUID):
                 try:
                     message_box_uuid = UUID(message_box_uuid)
                 except ValueError:
                     raise ModuleError('Invalid message_box_uuid : {}'.format(message_box_uuids))
-                _message_box_uuids.append(message_box_uuid)
+            _message_box_uuids.append(message_box_uuid)
 
         self.uuid = uuid
         self.message_box_uuids = _message_box_uuids
@@ -117,7 +116,7 @@ class Module(object):
         """
         return {
             'uuid': self.uuid.hex,
-            'message_box_uuids': ','.join(uuid.hex for uuid in self.message_box_uuids),
+            'message_box_uuids': [uuid.hex for uuid in self.message_box_uuids],
             'display_name': self.display_name,
             'tags': ','.join(self.tags),
             'memo': self.memo

@@ -21,7 +21,7 @@ test_schemas = [
 ]
 test_modules = [
     Module(
-        TEST_MODULE_UUID_1, TEST_SCHEMA_UUID, 'Test Module 1'
+        TEST_MODULE_UUID_1, [TEST_SCHEMA_UUID], 'Test Module 1'
     )
 ]
 

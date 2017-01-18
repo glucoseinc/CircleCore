@@ -214,8 +214,7 @@ def _create_module_from_request_json(request_json, message_box_uuids):
         module_uuid = generate_uuid(existing=[module.uuid for module in metadata.modules])
     module = Module(
         module_uuid,
-        ','.join([str(message_box_uuid) for message_box_uuid in message_box_uuids]),
-        # TODO: 引き渡すmessage_box_uuidsはリスト化
+        message_box_uuids,
         display_name,
         tags,
         memo)

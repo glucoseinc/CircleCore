@@ -12,7 +12,7 @@ TEST_MESSAGE_BOX_UUID2 = '00000000-0000-0000-0000-000000000002'
 class TestModule(object):
     @pytest.mark.parametrize(('module_uuid', 'message_box_uuids', 'display_name', 'tags', 'expected'), [
         (TEST_MODULE_UUID,
-         ','.join([TEST_MESSAGE_BOX_UUID1, TEST_MESSAGE_BOX_UUID2]),
+         [TEST_MESSAGE_BOX_UUID1, TEST_MESSAGE_BOX_UUID2],
          'DISP_NAME',
          'test_tag1,test_tag2',
          {'module_uuid': TEST_MODULE_UUID,

@@ -33,7 +33,8 @@ class DummyMetadata(MetadataReader):
     ]
     modules = [Module(
         '8e654793-5c46-4721-911e-b9d19f0779f9',
-        '316720eb-84fe-43b3-88b7-9aad49a93220,e2ca248d-5300-4641-830f-97a4dae0d245,50ba26f6-2447-4f6a-93b1-d62051d83026',  # NOQA
+        ['316720eb-84fe-43b3-88b7-9aad49a93220', 'e2ca248d-5300-4641-830f-97a4dae0d245',
+         '50ba26f6-2447-4f6a-93b1-d62051d83026'],
         'DummyModule',
         'foo,bar'
     )]
