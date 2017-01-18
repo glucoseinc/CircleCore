@@ -253,8 +253,8 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         }
         if message_box.display_name is not None:
             mapping['display_name'] = message_box.display_name
-        if message_box.description is not None:
-            mapping['description'] = message_box.description
+        if message_box.memo is not None:
+            mapping['memo'] = message_box.memo
 
         self.redis_client.hmset(message_box.storage_key, mapping)
         return True
@@ -294,8 +294,8 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         }
         if module.display_name is not None:
             mapping['display_name'] = module.display_name
-        if module.description is not None:
-            mapping['description'] = module.description
+        if module.memo is not None:
+            mapping['memo'] = module.memo
 
         self.redis_client.hmset(module.storage_key, mapping)
         return True

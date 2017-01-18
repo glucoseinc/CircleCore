@@ -70,16 +70,16 @@ const EditableMemoData = ({module, actions}) => (
       multiLine={true}
       rows={4}
       rowsMax={4}
-      value={module.description}
+      value={module.memo}
       onChange={(e) => actions.module.update(
-        module.update('description', e.target.value)
+        module.update('memo', e.target.value)
       )}
     />
   </td>
 )
 
 const NotEditableMemoData = ({module, actions}) => (
-  <td>{module.description}</td>
+  <td>{module.memo}</td>
 )
 
 

@@ -26,17 +26,17 @@ class Module(object):
     :param List[UUID] message_box_uuids: MessageBox
     :param Optional[str] display_name: 表示名
     :param List[str] tags: タグ
-    :param Optional[str] description: 説明
+    :param Optional[str] memo: メモ
     """
 
-    def __init__(self, uuid, message_box_uuids, display_name=None, tags=None, description=None):
+    def __init__(self, uuid, message_box_uuids, display_name=None, tags=None, memo=None):
         """init.
 
         :param Union[str, UUID] uuid: Module UUID
         :param str message_box_uuids: MessageBoxのUUIDリスト(文字列化)
         :param Optional[str] display_name: 表示名
         :param Optional[str] tags: タグ
-        :param Optional[str] description: 説明
+        :param Optional[str] memo: メモ
         """
         # TODO: 引き渡すmessage_box_uuidsはリスト化
         if not isinstance(uuid, UUID):
@@ -59,7 +59,7 @@ class Module(object):
         self.display_name = display_name
         _tags = tags.split(',') if tags is not None else []
         self.tags = [tag for tag in _tags if tag != '']
-        self.description = description
+        self.memo = memo
 
     def __eq__(self, other):
         """return equality.
@@ -70,7 +70,7 @@ class Module(object):
         """
         return all([self.uuid == other.uuid, self.message_box_uuids == other.message_box_uuids,
                     self.display_name == other.display_name, self.tags == other.tags,
-                    self.description == other.description])
+                    self.memo == other.memo])
 
     @property
     def stringified_tags(self):
@@ -120,7 +120,7 @@ class Module(object):
             'message_box_uuids': ','.join(uuid.hex for uuid in self.message_box_uuids),
             'display_name': self.display_name,
             'tags': ','.join(self.tags),
-            'description': self.description
+            'memo': self.memo
         }
 
     @property

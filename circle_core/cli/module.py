@@ -89,7 +89,7 @@ def module_detail(ctx, module_uuid):
     for i, tag in enumerate(module.tags):
         data.append(('TAG' if i == 0 else '', tag))
 
-    data.append(('DESCRIPTION', module.description or ''))
+    data.append(('MEMO', module.memo or ''))
 
     output_properties(data)
 
@@ -100,7 +100,7 @@ def module_detail(ctx, module_uuid):
             ('UUID', str(message_box.uuid)),
             ('DISPLAY_NAME', message_box.display_name or ''),
             ('SCHEMA_UUID', str(message_box.schema_uuid)),
-            ('DESCRIPTION', message_box.description or ''),
+            ('MEMO', message_box.memo or ''),
         ]
         output_properties(data)
 
@@ -109,16 +109,16 @@ def module_detail(ctx, module_uuid):
 @click.option('display_name', '--name')
 @click.option('message_box_uuids', '--box', required=True)
 @click.option('tags', '--tag')
-@click.option('--description')
+@click.option('--memo')
 @click.pass_context
-def module_add(ctx, display_name, message_box_uuids, tags, description):
+def module_add(ctx, display_name, message_box_uuids, tags, memo):
     """モジュールを登録する.
 
     :param Context ctx: Context
     :param Optional[str] display_name: モジュール表示名
     :param str message_box_uuids: メッセージボックスUUIDリスト
     :param Optional[str] tags: タグ
-    :param Optional[str] description: 説明
+    :param Optional[str] memo: メモ
     """
     context_object = ctx.obj  # type: ContextObject
     metadata = context_object.metadata
@@ -143,7 +143,7 @@ def module_add(ctx, display_name, message_box_uuids, tags, description):
         ','.join([str(_message_box.uuid) for _message_box in message_boxes]),
         display_name,
         tags,
-        description
+        memo
     )
 
     metadata.register_module(module)

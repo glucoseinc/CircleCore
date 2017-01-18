@@ -166,7 +166,7 @@ def _dictify(module):
         'uuid': str(module.uuid),
         'display_name': module.display_name,
         'tags': module.tags,
-        'description': module.description,
+        'memo': module.memo,
     }
     message_boxes = [message_box for message_box in metadata.message_boxes
                      if message_box.uuid in module.message_box_uuids]
@@ -182,7 +182,7 @@ def _dictify(module):
         dictified_message_box = {
             'uuid': str(message_box.uuid),
             'display_name': message_box.display_name,
-            'description': message_box.description,
+            'memo': message_box.memo,
             'schema': dictified_schema,
         }
         dictified_message_boxes.append(dictified_message_box)
@@ -205,9 +205,9 @@ def _create_module_from_request_json(request_json, message_box_uuids):
     if len(display_name) == 0:
         display_name = None
     tags = ','.join(dic['tags'])
-    description = dic['description']
-    if len(description) == 0:
-        description = None
+    memo = dic['memo']
+    if len(memo) == 0:
+        memo = None
 
     module_uuid = dic['uuid']
     if module_uuid == '':
@@ -218,7 +218,7 @@ def _create_module_from_request_json(request_json, message_box_uuids):
         # TODO: 引き渡すmessage_box_uuidsはリスト化
         display_name,
         tags,
-        description)
+        memo)
 
     return module
 
@@ -240,11 +240,11 @@ def _create_message_boxes_from_request_json(request_json):
         if len(display_name) == 0:
             display_name = None
         schema_uuid = message_box_dic['schema']
-        description = message_box_dic['description']
+        memo = message_box_dic['memo']
         message_box_uuid = message_box_dic['uuid']
         if message_box_uuid == '':
             message_box_uuid = generate_uuid(existing=[_message_box.uuid for _message_box in metadata.message_boxes])
-        message_box = MessageBox(message_box_uuid, schema_uuid, display_name, description)
+        message_box = MessageBox(message_box_uuid, schema_uuid, display_name, memo)
         message_boxes.append(message_box)
 
     return message_boxes

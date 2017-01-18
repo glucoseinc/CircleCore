@@ -108,9 +108,9 @@ const EditableMemoData = ({module, index, actions}) => {
         multiLine={true}
         rows={4}
         rowsMax={4}
-        value={messageBox.description}
+        value={messageBox.memo}
         onChange={(e) => actions.module.update(
-          module.updateMessageBox(index, 'description', e.target.value)
+          module.updateMessageBox(index, 'memo', e.target.value)
         )}
       />
     </td>
@@ -120,7 +120,7 @@ const EditableMemoData = ({module, index, actions}) => {
 const NotEditableMemoData = ({module, index, actions}) => {
   const messageBox = module.messageBoxes.get(index)
   return (
-    <td>{messageBox.description}</td>
+    <td>{messageBox.memo}</td>
   )
 }
 

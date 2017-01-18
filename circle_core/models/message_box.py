@@ -30,15 +30,15 @@ class MessageBox(object):
     :param UUID uuid: MessageBox UUID
     :param UUID schema_uuid: Schema UUID
     :param Optional[str] display_name: 表示名
-    :param Optional[str] description: 説明
+    :param Optional[str] memo: メモ
     """
-    def __init__(self, uuid, schema_uuid, display_name=None, description=None, of_master=False):
+    def __init__(self, uuid, schema_uuid, display_name=None, memo=None, of_master=False):
         """init.
 
         :param Union[str, UUID] uuid: MessageBox UUID
         :param Union[str, UUID] schema_uuid: Schema UUID
         :param Optional[str] display_name: 表示名
-        :param Optional[str] description: 説明
+        :param Optional[str] memo: メモ
         :param Bool of_master:
         """
         if not isinstance(uuid, UUID):
@@ -56,7 +56,7 @@ class MessageBox(object):
         self.uuid = uuid
         self.schema_uuid = schema_uuid
         self.display_name = display_name
-        self.description = description
+        self.memo = memo
         self.of_master = of_master
         if isinstance(self.of_master, str):
             self.of_master = eval(of_master)  # RedisにBoolはない...
@@ -69,7 +69,7 @@ class MessageBox(object):
         :rtype: bool
         """
         return all([self.uuid == other.uuid, self.schema_uuid == other.schema_uuid,
-                    self.display_name == other.display_name, self.description == other.description])
+                    self.display_name == other.display_name, self.memo == other.memo])
 
     @property
     def storage_key(self):
@@ -107,7 +107,7 @@ class MessageBox(object):
             'uuid': self.uuid.hex,
             'schema_uuid': self.schema_uuid.hex,
             'display_name': self.display_name,
-            'description': self.description
+            'memo': self.memo
         }
 
     def messages_since(self, timestamp, count):
