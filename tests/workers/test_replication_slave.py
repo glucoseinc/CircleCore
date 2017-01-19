@@ -45,6 +45,7 @@ class DummyMetadata(MetadataReader):
         'foo,bar'
     )]
     users = []
+    replication_links = []
     invitations = []
     parse_url_scheme = None
     writable = True

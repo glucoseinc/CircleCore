@@ -17,6 +17,7 @@ from .base import MetadataError, MetadataReader, MetadataWriter
 from ..invitation import Invitation
 from ..message_box import MessageBox
 from ..module import Module
+from ..replication_link import ReplicationLink
 from ..schema import Schema
 from ..user import User
 
@@ -164,6 +165,21 @@ class MetadataRedis(MetadataReader, MetadataWriter):
 
                 users.append(obj)
         return users
+
+    @property
+    def replication_links(self):
+        """全てのReplicationLinkオブジェクト.
+
+        :return: ReplicationLinkオブジェクトリスト
+        :rtype: List[ReplicationLink]
+        """
+        replication_links = []
+        keys = [key for key in self.redis_client.keys() if ReplicationLink.is_key_matched(key)]
+        for key in keys:
+            if self.redis_client.type(key) == 'hash':
+                fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]
+                replication_links.append(ReplicationLink(**fields))
+        return replication_links
 
     # invitation
     def register_invitation(self, obj):
