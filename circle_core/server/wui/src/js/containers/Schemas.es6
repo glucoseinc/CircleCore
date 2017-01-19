@@ -3,7 +3,7 @@ import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
 import actions from '../actions'
-import {AddButton} from '../components/buttons'
+import {FloatingAddButton} from '../components/buttons'
 import CCLink from '../components/CCLink'
 import Fetching from '../components/Fetching'
 import SchemaDeleteDialog from '../components/SchemaDeleteDialog'
@@ -54,15 +54,16 @@ class Schemas extends Component {
 
     return (
       <div>
-        <CCLink url={urls.schemasNew}>
-          <AddButton />
-        </CCLink>
-
         <SchemasTable
           schemas={schemas}
           modules={modules}
           onDeleteTouchTap={actions.schemas.deleteAsk}
         />
+
+        <CCLink url={urls.schemasNew}>
+          <FloatingAddButton />
+        </CCLink>
+
         <SchemaDeleteDialog
           isActive={isDeleteAsking}
           schema={schema}

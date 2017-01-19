@@ -5,10 +5,14 @@ import {connect} from 'react-redux'
 import {Tabs, Tab} from 'material-ui/Tabs'
 
 import actions from '../actions'
+import {FloatingAddButton} from '../components/buttons'
+import CCLink from '../components/CCLink'
 import Fetching from '../components/Fetching'
 import ModuleDeleteDialog from '../components/ModuleDeleteDialog'
 import ModulesCard from '../components/Modules/ModulesCard'
 import ModulesList from '../components/Modules/ModulesList'
+import InputTextField from '../containers/InputTextField'
+import {urls} from '../routes'
 
 
 /**
@@ -61,8 +65,16 @@ class Modules extends Component {
       )
     }
 
+    const filteredModules = inputText === '' ? modules : modules.filter((module) => (
+      module.tags.filter((tag) => tag.includes(inputText)).size > 0
+    ))
+
     return (
       <div>
+        <InputTextField
+          hintText="タグで検索"
+          fullWidth={true}
+        />
         <Tabs
           contentContainerStyle={style.tab}
         >
@@ -70,20 +82,23 @@ class Modules extends Component {
             label="カード表示"
           >
             <ModulesCard
-              modules={modules}
+              modules={filteredModules}
             />
           </Tab>
           <Tab
             label="リスト表示"
           >
             <ModulesList
-              modules={modules}
-              inputText={inputText}
+              modules={filteredModules}
               onModulesTagTouchTap={actions.misc.inputTextChange}
               onModulesDeleteTouchTap={actions.modules.deleteAsk}
             />
           </Tab>
         </Tabs>
+
+        <CCLink url={urls.modulesNew}>
+          <FloatingAddButton />
+        </CCLink>
 
         <ModuleDeleteDialog
           isActive={isDeleteAsking}
