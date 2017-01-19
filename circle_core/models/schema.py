@@ -44,8 +44,12 @@ class SchemaProperty(object):
         """
         return all([self.name == other.name, self.type == other.type])
 
-    @property
-    def dictified(self):
+    def to_json(self):
+        """このモデルのJSON表現を返す.
+
+        :return: json表現のdict
+        :rtype: Dict
+        """
         return {
             'name': self.name,
             'type': self.type,
@@ -115,7 +119,7 @@ class Schema(object):
         :return: 辞書化プロパティ
         :rtype: List[Dict[str, str]]
         """
-        return [prop.dictified for prop in self.properties]
+        return [prop.to_json() for prop in self.properties]
 
     @property
     def storage_key(self):
@@ -154,6 +158,19 @@ class Schema(object):
                 'type': _type,
             })
         return dictified_properties
+
+    def to_json(self):
+        """このモデルのJSON表現を返す.
+
+        :return: json表現のdict
+        :rtype: Dict
+        """
+        return {
+            'uuid': str(self.uuid),
+            'display_name': self.display_name,
+            'properties': self.dictified_properties,
+            'memo': self.memo,
+        }
 
     def is_valid(self, dic):  # TODO: Schema専用のJSONDecoderを作ってそこで例外を投げたほうがいいかなあ
         """nanomsg経由で受け取ったメッセージをデシリアライズしたものがこのSchemaに適合しているか.

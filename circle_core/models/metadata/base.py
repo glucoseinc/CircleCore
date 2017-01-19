@@ -9,12 +9,13 @@ from six import add_metaclass, PY3
 
 # project module
 from circle_core import abstractclassmethod
+from ..message_box import MessageBox
 from ..module import Module
 from ..schema import Schema
 from ..user import User
 
 if PY3:
-    from typing import List, Optional, Union
+    from typing import Dict, List, Optional, Union
 
 
 class MetadataError(Exception):
@@ -253,6 +254,53 @@ class MetadataReader(MetadataBase):
             if user.mail_address == mail_address:
                 return user
         return None
+
+    def denormalize_json_message_box(self, message_box_uuid):
+        """MessageBoxに情報を付与したJSON表現を返す.
+
+        :param Union[str, UUID] message_box_uuid: 取得するMessageBoxのUUID
+        :return: json表現のdict
+        :rtype: Dict
+        """
+        message_box = self.find_message_box(message_box_uuid)
+        if message_box is None:
+            return {}
+        dic = message_box.to_json()
+        schema = self.find_schema(message_box.schema_uuid)
+        dic['schema'] = schema.to_json() if schema is not None else {}
+        dic.pop('schema_uuid', None)
+        return dic
+
+    def denormalize_json_module(self, module_uuid):
+        """ModuleにMessageBox情報を付与したJSON表現を返す.
+
+        :param Union[str, UUID] module_uuid: 取得するModuleのUUID
+        :return: json表現のdict
+        :rtype: Dict
+        """
+        module = self.find_module(module_uuid)
+        if module is None:
+            return {}
+        dic = module.to_json()
+        dic['message_boxes'] = [self.denormalize_json_message_box(message_box_uuid)
+                                for message_box_uuid in module.message_box_uuids]
+        dic.pop('message_box_uuids', None)
+        return dic
+
+    def json_schema_with_module(self, schema_uuid):
+        """SchemaにModule情報を付与したJSON表現を返す.
+
+        :param Union[str, UUID] schema_uuid: 取得するSchemaのUUID
+        :return: json表現のdict
+        :rtype: Dict
+        """
+        schema = self.find_schema(schema_uuid)
+        if schema is None:
+            return {}
+        dic = schema.to_json()
+        modules = self.find_modules_by_schema(schema_uuid)
+        dic['modules'] = [module.to_json() for module in modules]
+        return dic
 
 
 @add_metaclass(ABCMeta)

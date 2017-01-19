@@ -73,10 +73,10 @@ class Invitation(UUIDBasedObject):
         self.date_created = date_created
 
     def to_json(self):
-        """このモデルのJSON表現を返す
+        """このモデルのJSON表現を返す.
 
         :return: json表現のdict
-        :rtype: dict
+        :rtype: Dict
         """
         return {
             'uuid': str(self.uuid),

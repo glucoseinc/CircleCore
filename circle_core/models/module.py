@@ -109,6 +109,20 @@ class Module(object):
         pattern = r'^module_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
         return re.match(pattern, key) is not None
 
+    def to_json(self):
+        """このモデルのJSON表現を返す.
+
+        :return: json表現のdict
+        :rtype: Dict
+        """
+        return {
+            'uuid': str(self.uuid),
+            'message_box_uuids': [str(_uuid) for _uuid in self.message_box_uuids],
+            'display_name': self.display_name,
+            'tags': [tag for tag in self.tags],
+            'memo': self.memo,
+        }
+
     def serialize(self):
         """このインスタンスをslaveが再構築できるだけの情報.
 

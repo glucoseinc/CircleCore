@@ -134,10 +134,10 @@ class User(object):
         self.encrypted_password = encrypt_password(new_password, self.uuid.hex)
 
     def to_json(self, full=False):
-        """このモデルのJSON表現を返す
+        """このモデルのJSON表現を返す.
 
         :return: json表現のdict
-        :rtype: dict
+        :rtype: Dict
         """
         d = {
             'uuid': str(self.uuid),

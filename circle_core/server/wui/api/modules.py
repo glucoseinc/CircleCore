@@ -16,7 +16,7 @@ from ..utils import (
 )
 
 if PY3:
-    from typing import Any, Dict, List
+    from typing import Dict, List
 
 
 @api.route('/modules/', methods=['GET', 'POST'])
@@ -31,10 +31,9 @@ def api_modules():
 @oauth_require_read_schema_scope
 def _get_modules():
     metadata = get_metadata()
-    modules = metadata.modules
 
     response = {
-        'modules': [_dictify(module) for module in modules],
+        'modules': [metadata.denormalize_json_module(module.uuid) for module in metadata.modules],
     }
     return api_jsonify(**convert_dict_key_camel_case(response))
 
@@ -74,12 +73,9 @@ def api_module(module_uuid):
 @oauth_require_read_schema_scope
 def _get_module(module_uuid):
     metadata = get_metadata()
-    module = metadata.find_module(module_uuid)
-    if module is None:
-        return api_jsonify()  # TODO: return failure
 
     response = {
-        'module': _dictify(module)
+        'module': metadata.denormalize_json_module(module_uuid)
     }
     return api_jsonify(**convert_dict_key_camel_case(response))
 
@@ -152,42 +148,6 @@ def _delete_module(module_uuid):
         'uuid': module_uuid
     }
     return api_jsonify(**convert_dict_key_camel_case(response))
-
-
-def _dictify(module):
-    """TODO: metadataにdictを返すようなmethod作成.
-
-    :param Module module: Module
-    :return: 辞書
-    :rtype: Dict[str, Any]
-    """
-    metadata = get_metadata()
-    dic = {
-        'uuid': str(module.uuid),
-        'display_name': module.display_name,
-        'tags': module.tags,
-        'memo': module.memo,
-    }
-    message_boxes = [message_box for message_box in metadata.message_boxes
-                     if message_box.uuid in module.message_box_uuids]
-    dictified_message_boxes = []
-    for message_box in message_boxes:
-        schema = metadata.find_schema(message_box.schema_uuid)
-        dictified_schema = {
-            'uuid': str(schema.uuid),
-            'display_name': schema.display_name,
-            'properties': schema.dictified_properties,
-            'memo': schema.memo,
-        } if schema is not None else None
-        dictified_message_box = {
-            'uuid': str(message_box.uuid),
-            'display_name': message_box.display_name,
-            'memo': message_box.memo,
-            'schema': dictified_schema,
-        }
-        dictified_message_boxes.append(dictified_message_box)
-    dic['message_boxes'] = dictified_message_boxes
-    return dic
 
 
 def _create_module_from_request_json(request_json, message_box_uuids):

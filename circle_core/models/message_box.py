@@ -98,6 +98,19 @@ class MessageBox(object):
         pattern = r'^message_box_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
         return re.match(pattern, key) is not None
 
+    def to_json(self):
+        """このモデルのJSON表現を返す.
+
+        :return: json表現のdict
+        :rtype: Dict
+        """
+        return {
+            'uuid': str(self.uuid),
+            'schema_uuid': str(self.schema_uuid),
+            'display_name': self.display_name,
+            'memo': self.memo,
+        }
+
     def serialize(self):
         """このインスタンスをslaveが再構築できるだけの情報.
 
