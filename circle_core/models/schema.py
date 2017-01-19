@@ -3,12 +3,13 @@
 """Schema Model."""
 
 # system module
-import re
 from uuid import UUID
 
 # community module
 from six import PY3
 
+# project module
+from .base import UUIDBasedObject
 from ..helpers.metadata import metadata
 
 if PY3:
@@ -56,14 +57,17 @@ class SchemaProperty(object):
         }
 
 
-class Schema(object):
+class Schema(UUIDBasedObject):
     """Schemaオブジェクト.
 
+    :param str key_prefix: ストレージキーのプレフィックス
     :param UUID uuid: Schema UUID
     :param str display_name: 表示名
     :param List[SchemaProperty] properties: プロパティ
     :param Optional[str] memo: メモ
     """
+
+    key_prefix = 'schema'
 
     def __init__(self, uuid, display_name, dictified_properties=None, memo=None):
         """init.
@@ -73,13 +77,8 @@ class Schema(object):
         :param Optional[List[Dict[str, str]]] dictified_properties: 辞書化プロパティ
         :param Optional[str] memo: メモ
         """
-        if not isinstance(uuid, UUID):
-            try:
-                uuid = UUID(uuid)
-            except ValueError:
-                raise SchemaError('Invalid uuid : {}'.format(uuid))
+        super(Schema, self).__init__(uuid)
 
-        self.uuid = uuid
         self.display_name = display_name
         self.properties = []
         if dictified_properties is not None:
@@ -120,26 +119,6 @@ class Schema(object):
         :rtype: List[Dict[str, str]]
         """
         return [prop.to_json() for prop in self.properties]
-
-    @property
-    def storage_key(self):
-        """ストレージキー.
-
-        :return: ストレージキー
-        :rtype: str
-        """
-        return 'schema_{}'.format(self.uuid)
-
-    @classmethod
-    def is_key_matched(cls, key):
-        """指定のキーがストレージキーの形式にマッチしているか.
-
-        :param str key:
-        :return: マッチしているか
-        :rtype: bool
-        """
-        pattern = r'^schema_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-        return re.match(pattern, key) is not None
 
     @classmethod
     def dictify_properties(cls, stringified_properties):

@@ -3,32 +3,35 @@
 """Module Model."""
 
 # system module
-import re
 from uuid import UUID
 
 # community module
 from six import PY3
 
-from circle_core.utils import prepare_uuid
+# project module
+from .base import UUIDBasedObject
 from ..helpers.metadata import metadata
 
 if PY3:
-    from typing import List, Optional, Union
+    from typing import Dict, List, Optional, Union
 
 
 class ModuleError(Exception):
     pass
 
 
-class Module(object):
+class Module(UUIDBasedObject):
     """Moduleオブジェクト.
 
+    :param str key_prefix: ストレージキーのプレフィックス
     :param UUID uuid: Module UUID
     :param List[UUID] message_box_uuids: MessageBox
     :param str display_name: 表示名
     :param List[str] tags: タグ
     :param Optional[str] memo: メモ
     """
+
+    key_prefix = 'module'
 
     def __init__(self, uuid, message_box_uuids, display_name, tags=None, memo=None):
         """init.
@@ -39,10 +42,7 @@ class Module(object):
         :param Union[Optional[str], List[str]] tags: タグ
         :param Optional[str] memo: メモ
         """
-        try:
-            uuid = prepare_uuid(uuid)
-        except ValueError:
-            raise ModuleError('Invalid uuid : {}'.format(uuid))
+        super(Module, self).__init__(uuid)
 
         _message_box_uuids = []
         for message_box_uuid in message_box_uuids:
@@ -53,7 +53,6 @@ class Module(object):
                     raise ModuleError('Invalid message_box_uuid : {}'.format(message_box_uuids))
             _message_box_uuids.append(message_box_uuid)
 
-        self.uuid = uuid
         self.message_box_uuids = _message_box_uuids
         self.display_name = display_name
         self.memo = memo
@@ -96,26 +95,6 @@ class Module(object):
         :rtype: str
         """
         return ','.join([str(uuid) for uuid in self.message_box_uuids])
-
-    @property
-    def storage_key(self):
-        """ストレージキー.
-
-        :return: ストレージキー
-        :rtype: str
-        """
-        return 'module_{}'.format(self.uuid)
-
-    @classmethod
-    def is_key_matched(cls, key):
-        """指定のキーがストレージキーの形式にマッチしているか.
-
-        :param str key:
-        :return: マッチしているか
-        :rtype: bool
-        """
-        pattern = r'^module_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-        return re.match(pattern, key) is not None
 
     def to_json(self):
         """このモデルのJSON表現を返す.
