@@ -26,19 +26,18 @@ class Module(object):
     :param List[UUID] message_box_uuids: MessageBox
     :param Optional[str] display_name: 表示名
     :param List[str] tags: タグ
-    :param Optional[str] description: 説明
+    :param Optional[str] memo: メモ
     """
 
-    def __init__(self, uuid, message_box_uuids, display_name=None, tags=None, description=None):
+    def __init__(self, uuid, message_box_uuids, display_name=None, tags=None, memo=None):
         """init.
 
         :param Union[str, UUID] uuid: Module UUID
-        :param str message_box_uuids: MessageBoxのUUIDリスト(文字列化)
+        :param List[Union[str, UUID]] message_box_uuids: MessageBoxのUUIDリスト
         :param Optional[str] display_name: 表示名
         :param Optional[str] tags: タグ
-        :param Optional[str] description: 説明
+        :param Optional[str] memo: メモ
         """
-        # TODO: 引き渡すmessage_box_uuidsはリスト化
         if not isinstance(uuid, UUID):
             try:
                 uuid = UUID(uuid)
@@ -46,20 +45,20 @@ class Module(object):
                 raise ModuleError('Invalid uuid : {}'.format(uuid))
 
         _message_box_uuids = []
-        for message_box_uuid in message_box_uuids.split(','):
-            if message_box_uuid != '':
+        for message_box_uuid in message_box_uuids:
+            if not isinstance(message_box_uuid, UUID):
                 try:
                     message_box_uuid = UUID(message_box_uuid)
                 except ValueError:
                     raise ModuleError('Invalid message_box_uuid : {}'.format(message_box_uuids))
-                _message_box_uuids.append(message_box_uuid)
+            _message_box_uuids.append(message_box_uuid)
 
         self.uuid = uuid
         self.message_box_uuids = _message_box_uuids
         self.display_name = display_name
         _tags = tags.split(',') if tags is not None else []
         self.tags = [tag for tag in _tags if tag != '']
-        self.description = description
+        self.memo = memo
 
     def __eq__(self, other):
         """return equality.
@@ -70,7 +69,7 @@ class Module(object):
         """
         return all([self.uuid == other.uuid, self.message_box_uuids == other.message_box_uuids,
                     self.display_name == other.display_name, self.tags == other.tags,
-                    self.description == other.description])
+                    self.memo == other.memo])
 
     @property
     def stringified_tags(self):
@@ -110,6 +109,20 @@ class Module(object):
         pattern = r'^module_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
         return re.match(pattern, key) is not None
 
+    def to_json(self):
+        """このモデルのJSON表現を返す.
+
+        :return: json表現のdict
+        :rtype: Dict
+        """
+        return {
+            'uuid': str(self.uuid),
+            'message_box_uuids': [str(_uuid) for _uuid in self.message_box_uuids],
+            'display_name': self.display_name,
+            'tags': [tag for tag in self.tags],
+            'memo': self.memo,
+        }
+
     def serialize(self):
         """このインスタンスをslaveが再構築できるだけの情報.
 
@@ -117,10 +130,10 @@ class Module(object):
         """
         return {
             'uuid': self.uuid.hex,
-            'message_box_uuids': ','.join(uuid.hex for uuid in self.message_box_uuids),
+            'message_box_uuids': [uuid.hex for uuid in self.message_box_uuids],
             'display_name': self.display_name,
             'tags': ','.join(self.tags),
-            'description': self.description
+            'memo': self.memo
         }
 
     @property

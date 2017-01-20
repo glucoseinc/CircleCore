@@ -81,7 +81,7 @@ def box_detail(ctx, message_box_uuid):
         ('UUID', str(message_box.uuid)),
         ('DISPLAY_NAME', message_box.display_name or ''),
         ('SCHEMA_UUID', str(message_box.schema_uuid)),
-        ('DESCRIPTION', message_box.description or ''),
+        ('MEMO', message_box.memo or ''),
     ]
 
     output_properties(data)
@@ -90,15 +90,15 @@ def box_detail(ctx, message_box_uuid):
 @cli_box.command('add')
 @click.option('display_name', '--name')
 @click.option('schema_uuid', '--schema', type=UUID, required=True)
-@click.option('--description')
+@click.option('--memo')
 @click.pass_context
-def box_add(ctx, display_name, schema_uuid, description):
+def box_add(ctx, display_name, schema_uuid, memo):
     """モジュールを登録する.
 
     :param Context ctx: Context
     :param Optional[str] display_name: モジュール表示名
     :param UUID schema_uuid: スキーマUUID
-    :param str description: 説明
+    :param str memo: メモ
     """
     context_object = ctx.obj  # type: ContextObject
     metadata = context_object.metadata
@@ -118,7 +118,7 @@ def box_add(ctx, display_name, schema_uuid, description):
         message_box_uuid,
         schema_uuid,
         display_name,
-        description
+        memo
     )
 
     metadata.register_message_box(message_box)

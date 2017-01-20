@@ -49,7 +49,7 @@ class ReplicationSlave(object):
         for box in boxes:
             metadata().register_message_box(box)
 
-        modules = [Module(**module) for module in res['modules']]
+        modules = [Module(**module) for module in res['modules']]  # FIXME: message_box_uuidsをlist化する
         for module in modules:
             metadata().register_module(module)
 

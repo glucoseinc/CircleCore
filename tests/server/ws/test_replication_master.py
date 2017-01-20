@@ -39,12 +39,12 @@ class DummyMetadata(MetadataReader):
     ]
     modules = [Module(
         '8e654793-5c46-4721-911e-b9d19f0779f9',
-        '316720eb-84fe-43b3-88b7-9aad49a93220',
+        ['316720eb-84fe-43b3-88b7-9aad49a93220'],
         'DummyModule',
         'foo,bar'
     ), Module(
         'a1956117-bf4e-4ddb-b840-5cd3d9708b49',
-        '3d5a6cc9-d496-4858-8541-ce0d9673422e',
+        ['3d5a6cc9-d496-4858-8541-ce0d9673422e'],
         'DummyModule2',
         'fooo,baar'
     )]
@@ -80,7 +80,7 @@ class DummyReplicationMaster(WebSocketHandler):
                 ).serialize()],
                 'modules': [Module(
                     'f0c5da15-d1f3-43b9-bbc0-423a6d5bcd8f',
-                    '9168d87f-72cc-4dff-90d5-ad30e3e28958',
+                    ['9168d87f-72cc-4dff-90d5-ad30e3e28958'],
                     'DummyModule'
                 ).serialize()]
             })

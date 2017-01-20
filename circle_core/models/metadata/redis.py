@@ -21,7 +21,7 @@ from ..schema import Schema
 from ..user import User
 
 if PY3:
-    from typing import Any, Dict, List
+    from typing import Any, Dict, List, Union
 
 
 class RedisClient(Redis):
@@ -139,6 +139,9 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         for key in keys:
             if self.redis_client.type(key) == 'hash':
                 fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]
+                message_box_uuids = fields.pop('message_box_uuids', None)  # type: Union[str, None]
+                if message_box_uuids is not None:
+                    fields['message_box_uuids'] = message_box_uuids.split(',')
                 modules.append(Module(**fields))
         return modules
 
@@ -253,8 +256,8 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         }
         if message_box.display_name is not None:
             mapping['display_name'] = message_box.display_name
-        if message_box.description is not None:
-            mapping['description'] = message_box.description
+        if message_box.memo is not None:
+            mapping['memo'] = message_box.memo
 
         self.redis_client.hmset(message_box.storage_key, mapping)
         return True
@@ -294,8 +297,8 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         }
         if module.display_name is not None:
             mapping['display_name'] = module.display_name
-        if module.description is not None:
-            mapping['description'] = module.description
+        if module.memo is not None:
+            mapping['memo'] = module.memo
 
         self.redis_client.hmset(module.storage_key, mapping)
         return True

@@ -6,7 +6,7 @@ const MessageBoxRecord = Record({
   uuid: '',
   schema: '',
   displayName: '',
-  description: '',
+  memo: '',
 })
 
 /**
@@ -29,7 +29,7 @@ export class MessageBox extends MessageBoxRecord {
       uuid: rawMessageBox.uuid || '',
       schema: rawMessageBox.schema || '',
       displayName: rawMessageBox.displayName || '',
-      description: rawMessageBox.description || '',
+      memo: rawMessageBox.memo || '',
     })
   }
 }
@@ -40,7 +40,7 @@ const ModuleRecord = Record({
   displayName: '',
   messageBoxes: List(),
   tags: List(),
-  description: '',
+  memo: '',
 })
 
 /**
@@ -65,7 +65,7 @@ export default class Module extends ModuleRecord {
       displayName: rawModule.displayName || '',
       messageBoxes: List(messageBoxes),
       tags: List(rawModule.tags || []),
-      description: rawModule.description || '',
+      memo: rawModule.memo || '',
     })
   }
 

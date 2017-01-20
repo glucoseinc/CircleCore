@@ -16,7 +16,7 @@ from ..utils import (
 )
 
 if PY3:
-    from typing import Any, Dict
+    pass
 
 
 @api.route('/schemas/', methods=['GET', 'POST'])
@@ -31,10 +31,9 @@ def api_schemas():
 @oauth_require_read_schema_scope
 def _get_schemas():
     metadata = get_metadata()
-    schemas = metadata.schemas
 
     response = {
-        'schemas': [_dictify(schema) for schema in schemas],
+        'schemas': [metadata.json_schema_with_module(schema.uuid) for schema in metadata.schemas],
     }
     return api_jsonify(**convert_dict_key_camel_case(response))
 
@@ -80,12 +79,9 @@ def api_schema(schema_uuid):
 @oauth_require_read_schema_scope
 def _get_schema(schema_uuid):
     metadata = get_metadata()
-    schema = metadata.find_schema(schema_uuid)
-    if schema is None:
-        return api_jsonify()  # TODO: return failure
 
     response = {
-        'schema': _dictify(schema)
+        'schema': metadata.json_schema_with_module(schema_uuid)
     }
     return api_jsonify(**convert_dict_key_camel_case(response))
 
@@ -112,28 +108,6 @@ def _delete_schema(schema_uuid):
         'uuid': schema_uuid
     }
     return api_jsonify(**convert_dict_key_camel_case(response))
-
-
-def _dictify(schema):
-    """TODO: metadataにdictを返すようなmethod作成.
-
-    :param Schema schema: Schema
-    :return: 辞書
-    :rtype: Dict[str, Any]
-    """
-    metadata = get_metadata()
-    dic = {
-        'uuid': str(schema.uuid),
-        'display_name': schema.display_name,
-        'properties': schema.dictified_properties,
-        'memo': schema.memo,
-    }
-    modules = metadata.find_modules_by_schema(schema.uuid)
-    dic['modules'] = [{
-        'uuid': str(module.uuid),
-        'display_name': module.display_name,
-    } for module in modules]
-    return dic
 
 
 @api.route('/schemas/propertytypes')
