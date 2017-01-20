@@ -7,6 +7,11 @@ class CircleCoreException(Exception):
     pass
 
 
+class InconsitencyError(CircleCoreException):
+    """なんかやばい"""
+    pass
+
+
 class DatabaseMismatchError(CircleCoreException):
     """Databaseとスキーマが整合しない場合の例外"""
     pass
@@ -22,8 +27,18 @@ class ModuleNotFoundError(CircleCoreException):
     pass
 
 
+class MessageBoxNotFoundError(CircleCoreException):
+    """MessageBoxが見つからない時の例外"""
+    pass
+
+
 class SchemaNotFoundError(CircleCoreException):
     """Schemaが見つからない時の例外"""
+    pass
+
+
+class SchemaNotMatchError(CircleCoreException):
+    """Schemaがあわない時の例外"""
     pass
 
 

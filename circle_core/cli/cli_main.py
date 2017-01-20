@@ -6,6 +6,7 @@ from __future__ import absolute_import, print_function
 
 from itertools import cycle, groupby
 from multiprocessing import Process
+import os
 import re
 from signal import SIGINT, signal, SIGTERM
 import sys

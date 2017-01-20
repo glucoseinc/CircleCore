@@ -2,10 +2,17 @@
 
 # system module
 import datetime
+import uuid
 
 # community module
 import dateutil.parser
 import dateutil.tz
+
+
+def prepare_uuid(v):
+    if not isinstance(v, uuid.UUID):
+        v = uuid.UUID(v)
+    return v
 
 
 def prepare_date(v):

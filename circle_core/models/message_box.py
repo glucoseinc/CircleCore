@@ -151,4 +151,6 @@ class MessageBox(object):
                 }
                 timestamp = row._created_at  # timetupleを使うとmicrosecondの情報が切り捨てられる...
 
-                yield ModuleMessage(self.module.uuid, payload=payload, timestamp=timestamp, count=row._counter)
+                yield ModuleMessage(
+                    self.module.uuid, self.uuid,
+                    timestamp=timestamp, count=row._counter, payload=payload)

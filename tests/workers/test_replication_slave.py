@@ -152,6 +152,7 @@ class TestReplicationSlave:
                 if req['command'] == 'RECEIVE':
                     resp = json.dumps({
                         'module_uuid': '8e654793-5c46-4721-911e-b9d19f0779f9',
+                        'box_id': '316720eb-84fe-43b3-88b7-9aad49a93220',
                         'timestamp': now,
                         'count': 0,
                         'payload': {

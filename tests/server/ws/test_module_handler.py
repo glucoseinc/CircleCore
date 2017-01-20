@@ -68,14 +68,15 @@ class TestModuleHandler(AsyncHTTPTestCase):
             self.io_loop
         )
         req = json.dumps({
-            'hoge': 'piyo'
+            'hoge': 'piyo',
+            '_box': 'e170a8e5-3157-484e-b7d2-9816b0d97546',
         })
         dummy_module.write_message(req)
         # 素直にrecvするとIOLoopがブロックされてModuleHandlerが何も返せなくなるのでModuleHandlerをまず動かす
         yield sleep(1)
         res = next(self.messages)
         assert res.count == 0
-        assert res.module.uuid == UUID('4ffab839-cf56-478a-8614-6003a5980855')
+        assert res.module_uuid == UUID('4ffab839-cf56-478a-8614-6003a5980855')
         assert res.payload == {
             'hoge': 'piyo'
         }

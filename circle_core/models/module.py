@@ -9,6 +9,7 @@ from uuid import UUID
 # community module
 from six import PY3
 
+from circle_core.utils import prepare_uuid
 from ..helpers.metadata import metadata
 
 if PY3:
@@ -38,11 +39,11 @@ class Module(object):
         :param Optional[str] tags: タグ
         :param Optional[str] memo: メモ
         """
-        if not isinstance(uuid, UUID):
-            try:
-                uuid = UUID(uuid)
-            except ValueError:
-                raise ModuleError('Invalid uuid : {}'.format(uuid))
+        # TODO: 引き渡すmessage_box_uuidsはリスト化
+        try:
+            uuid = prepare_uuid(uuid)
+        except ValueError:
+            raise ModuleError('Invalid uuid : {}'.format(uuid))
 
         _message_box_uuids = []
         for message_box_uuid in message_box_uuids:

@@ -169,10 +169,10 @@ class TestReplicationMaster(AsyncHTTPTestCase):
             self.get_url('/module/a1956117-bf4e-4ddb-b840-5cd3d9708b49'),
             self.io_loop
         )
-        yield dummy_module2.write_message('{"piyo": 12.3}')
+        yield dummy_module2.write_message('{"piyo": 12.3, "_box": "17be0dbf-73c2-4055-9aa9-2a487dd8475b"}')
 
         # MIGRATE時に要求したのでたらい回される
-        yield self.dummy_module.write_message('{"hoge": 123}')
+        yield self.dummy_module.write_message('{"hoge": 123, "_box": "316720eb-84fe-43b3-88b7-9aad49a93220"}')
         resp = yield self.dummy_crcr.read_message()
         resp = json.loads(resp)
         assert resp['count'] == 0
@@ -196,12 +196,12 @@ class TestReplicationMaster(AsyncHTTPTestCase):
 
         # カウントの増加
         for i in range(1, 32768):
-            yield self.dummy_module.write_message('{"hoge": 678}')
+            yield self.dummy_module.write_message('{"hoge": 678, "_box": "316720eb-84fe-43b3-88b7-9aad49a93220"}')
             resp = yield self.dummy_crcr.read_message()
             assert json.loads(resp)['count'] == i
 
-        # カウントのリセット
-        yield self.dummy_module.write_message('{"hoge": 45}')
+        # 32767を超えたので、カウントのリセット
+        yield self.dummy_module.write_message('{"hoge": 45, "_box": "316720eb-84fe-43b3-88b7-9aad49a93220"}')
         resp = yield self.dummy_crcr.read_message()
         assert json.loads(resp)['count'] == 0
 

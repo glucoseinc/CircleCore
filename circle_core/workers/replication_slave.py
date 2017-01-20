@@ -74,7 +74,7 @@ class ReplicationSlave(object):
                     return
                 logger.debug('Received from master: %r', msg)
 
-                table = self.db.find_table_for_message(msg)
+                table = self.db.find_table_for_message_box(msg.box_id)
                 query = table.insert().values(
                     _created_at=msg.timestamp,
                     _counter=msg.count,
