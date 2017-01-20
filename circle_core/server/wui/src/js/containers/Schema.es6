@@ -115,7 +115,7 @@ class Schema extends Component {
           onTouchTap={() => actions.schemas.deleteAsk(schema)}
         />
         <SchemaDeleteDialog
-          isActive={isDeleteAsking}
+          open={isDeleteAsking}
           schema={schema}
           onOkTouchTap={actions.schemas.deleteRequest}
           onCancelTouchTap={actions.schemas.deleteCancel}

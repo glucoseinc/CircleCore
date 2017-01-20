@@ -1,6 +1,6 @@
 import path from 'path'
 import React from 'react'
-import {Route, IndexRedirect} from 'react-router'
+import {Route, IndexRedirect, formatPattern} from 'react-router'
 
 import Master from '../containers/Master'
 import {GuestOnly, UserOnly} from '../containers/AuthDivider'
@@ -57,3 +57,8 @@ urls.root = {
   label: 'CircleCore',
 }
 export {urls}
+
+
+export const createPathName = (url, params) => {
+  return formatPattern(url.fullPath, params)
+}

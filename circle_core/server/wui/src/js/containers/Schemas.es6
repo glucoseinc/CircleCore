@@ -1,26 +1,57 @@
 import React, {Component, PropTypes} from 'react'
-import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
+import {routerActions} from 'react-router-redux'
 
 import actions from '../actions'
 import {FloatingAddButton} from '../components/buttons'
 import CCLink from '../components/CCLink'
 import Fetching from '../components/Fetching'
 import SchemaDeleteDialog from '../components/SchemaDeleteDialog'
-import SchemasTable from '../components/SchemasTable'
-import {urls} from '../routes'
+import SchemaInfoPaper from '../components/SchemaInfoPaper'
+import {urls, createPathName} from '../routes'
 
 
 /**
+ * Schema一覧
  */
 class Schemas extends Component {
   static propTypes = {
     isFetching: PropTypes.bool.isRequired,
-    isDeleteAsking: PropTypes.bool.isRequired,
     schemas: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
-    schema: PropTypes.object.isRequired,
-    actions: PropTypes.object.isRequired,
+    onModuleButtonTouchTap: PropTypes.func,
+    onDeleteOkButtonTouchTap: PropTypes.func,
+  }
+
+  state = {
+    deleteSchema: null,
+    isSchemaDeleteDialogOpen: false,
+  }
+
+  /**
+   * 追加メニュー 削除の選択時の動作
+   * @param {object} schema
+   */
+  onDeleteTouchTap(schema) {
+    this.setState({
+      deleteSchema: schema,
+      isSchemaDeleteDialogOpen: true,
+    })
+  }
+
+  /**
+   * 削除ダイアログのボタン押下時の動作
+   * @param {bool} execute
+   * @param {object} schema
+   */
+  onDeleteDialogButtonTouchTap(execute, schema) {
+    this.setState({
+      deleteSchema: null,
+      isSchemaDeleteDialogOpen: false,
+    })
+    if (execute && schema) {
+      this.props.onDeleteOkButtonTouchTap(schema)
+    }
   }
 
   /**
@@ -38,12 +69,14 @@ class Schemas extends Component {
    */
   render() {
     const {
+      deleteSchema,
+      isSchemaDeleteDialogOpen,
+    } = this.state
+    const {
       isFetching,
-      isDeleteAsking,
       schemas,
       modules,
-      schema,
-      actions,
+      onModuleButtonTouchTap,
     } = this.props
 
     if (isFetching) {
@@ -54,21 +87,25 @@ class Schemas extends Component {
 
     return (
       <div>
-        <SchemasTable
-          schemas={schemas}
-          modules={modules}
-          onDeleteTouchTap={actions.schemas.deleteAsk}
-        />
+        {schemas.valueSeq().map((schema) => (
+          <SchemaInfoPaper
+            key={schema.uuid}
+            schema={schema}
+            modules={modules}
+            onModuleButtonTouchTap={onModuleButtonTouchTap}
+            onDeleteTouchTap={::this.onDeleteTouchTap}
+          />
+        ))}
 
         <CCLink url={urls.schemasNew}>
           <FloatingAddButton />
         </CCLink>
 
         <SchemaDeleteDialog
-          isActive={isDeleteAsking}
-          schema={schema}
-          onOkTouchTap={actions.schemas.deleteRequest}
-          onCancelTouchTap={actions.schemas.deleteCancel}
+          open={isSchemaDeleteDialogOpen}
+          schema={deleteSchema}
+          onOkTouchTap={(schema) => this.onDeleteDialogButtonTouchTap(true, schema)}
+          onCancelTouchTap={() => this.onDeleteDialogButtonTouchTap(false)}
         />
       </div>
     )
@@ -76,33 +113,16 @@ class Schemas extends Component {
 }
 
 
-/**
- * [mapStateToProps description]
- * @param  {[type]} state [description]
- * @return {[type]}       [description]
- */
-function mapStateToProps(state) {
-  return {
-    isFetching: state.asyncs.isSchemasFetching,
-    isDeleteAsking: state.asyncs.isSchemasDeleteAsking,
-    schemas: state.entities.schemas,
-    modules: state.entities.modules,
-    schema: state.misc.schema,
-  }
-}
+const mapStateToProps = (state) => ({
+  isFetching: state.asyncs.isSchemasFetching,
+  schemas: state.entities.schemas,
+  modules: state.entities.modules,
+})
 
-/**
- * [mapDispatchToProps description]
- * @param  {[type]} dispatch [description]
- * @return {[type]}          [description]
- */
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: {
-      schemas: bindActionCreators(actions.schemas, dispatch),
-    },
-  }
-}
+const mapDispatchToProps = (dispatch) => ({
+  onModuleButtonTouchTap: (moduleId) => dispatch(routerActions.push(createPathName(urls.module, {moduleId}))),
+  onDeleteOkButtonTouchTap: (schema) => dispatch(actions.schemas.deleteRequest(schema)),
+})
 
 export default connect(
   mapStateToProps,
