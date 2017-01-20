@@ -2,6 +2,7 @@ const children = [
   'ChangeProfile',
   'Cores',
   'Dump',
+  'Invitations',
   'Logout',
   'Modules',
   'ModulesNew',
@@ -12,6 +13,7 @@ const children = [
   'Schema',
   'Setting',
   'Users',
+  'User',
 ]
 
 const pages = [].concat(...children.map((child) => {

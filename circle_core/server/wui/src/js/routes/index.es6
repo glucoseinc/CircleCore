@@ -36,6 +36,7 @@ const createURLs = (route, parentPath = '') => {
     urls[route.key] = {
       fullPath: path.join(parentPath, route.path),
       label: route.label,
+      icon: route.icon,
     }
   }
   if (route.childRoutes !== undefined) {

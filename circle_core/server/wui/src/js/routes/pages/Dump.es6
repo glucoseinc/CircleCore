@@ -4,6 +4,7 @@ const dumpRoute = {
   key: 'dump',
   path: 'dump',
   label: 'メッセージダウンロード',
+  // icon: null,
   component: Dump,
 }
 

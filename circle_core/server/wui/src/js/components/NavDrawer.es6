@@ -16,6 +16,7 @@ import {urls} from '../routes'
 function mapURLToMenuItem(url) {
   return {
     text: url.label,
+    icon: url.icon,
     value: url.fullPath,
   }
 }
@@ -36,45 +37,35 @@ class NavDrawer extends Component {
    */
   render() {
     const menuSections = [
-      [
-        {
-          title: '構成管理',
-          items: [
-            mapURLToMenuItem(urls.modules),
-            mapURLToMenuItem(urls.schemas),
-          ],
-        },
-        {
-          title: '同期',
-          items: [
-            mapURLToMenuItem(urls.replicas),
-            mapURLToMenuItem(urls.cores),
-          ],
-        },
-        {
-          title: 'ダウンロード',
-          items: [
-            mapURLToMenuItem(urls.dump),
-          ],
-        },
-        {
-          title: 'ユーザ管理',
-          items: [
-            mapURLToMenuItem(urls.users),
-            mapURLToMenuItem(urls.invitations),
-          ],
-        },
-      ],
-      [
-        {
-          title: null,
-          items: [
-            mapURLToMenuItem(urls.setting),
-            mapURLToMenuItem(urls.changeProfile),
-            mapURLToMenuItem(urls.logout),
-          ],
-        },
-      ],
+      {
+        title: '構成管理',
+        items: [
+          mapURLToMenuItem(urls.modules),
+          mapURLToMenuItem(urls.schemas),
+        ],
+      },
+      {
+        title: '同期',
+        items: [
+          mapURLToMenuItem(urls.replicas),
+          mapURLToMenuItem(urls.cores),
+        ],
+      },
+      {
+        title: 'ユーザ管理',
+        items: [
+          mapURLToMenuItem(urls.users),
+          mapURLToMenuItem(urls.invitations),
+        ],
+      },
+      {
+        title: null,
+        items: [
+          mapURLToMenuItem(urls.setting),
+          mapURLToMenuItem(urls.changeProfile),
+          mapURLToMenuItem(urls.logout),
+        ],
+      },
     ]
 
     const {

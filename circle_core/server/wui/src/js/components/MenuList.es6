@@ -4,72 +4,18 @@ import Divider from 'material-ui/Divider'
 import {List, ListItem} from 'material-ui/List'
 import Subheader from 'material-ui/Subheader'
 
-
-/**
- */
-class MenuBlock extends Component {
-  static propTypes = {
-    block: PropTypes.object.isRequired,
-    index: PropTypes.number,
-    onTouchTap: PropTypes.func,
-  }
-
-  /**
-   * @override
-   */
-  render() {
-    const {
-      block,
-    } = this.props
-
-    const style = {
-      title: {
-        paddingLeft: 24,
-        paddingRight: 24,
-      },
-      item: {
-        paddingLeft: 8,
-        paddingRight: 24,
-      },
-    }
-
-    const title = block.title !== null ? <Subheader style={style.title}>{block.title}</Subheader> : null
-
-    return (
-      <div>
-        {title}
-        {block.items.map((item, itemIndex) =>
-          <ListItem
-            key={itemIndex}
-            style={style.item}
-            primaryText={item.text}
-            onTouchTap={() => ::this.handleOnTouchTap(item.value)}
-          />
-        )}
-      </div>
-    )
-  }
-
-  /**
-   * @param {string} value
-   */
-  handleOnTouchTap(value) {
-    const {onTouchTap} = this.props
-    if (onTouchTap !== undefined) {
-      onTouchTap(value)
-    }
-  }
-}
+import {colorMenuListItemText} from '../colors'
 
 
 /**
  */
 class MenuSection extends Component {
   static propTypes = {
-    section: PropTypes.array.isRequired,
+    section: PropTypes.object.isRequired,
     index: PropTypes.number.isRequired,
     onItemTouchTap: PropTypes.func,
   }
+
 
   /**
    * @override
@@ -81,17 +27,35 @@ class MenuSection extends Component {
       onItemTouchTap,
     } = this.props
 
+    const style = {
+      title: {
+        lineHeight: '32px',
+        fontSize: 12,
+        paddingLeft: 24,
+        paddingRight: 24,
+      },
+      item: {
+        fontSize: 14,
+        paddingLeft: 8,
+        paddingRight: 0,
+        color: colorMenuListItemText,
+      },
+    }
+
     const sectionDivider = index !== 0 ? <Divider /> : null
+    const title = section.title !== null ? <Subheader style={style.title}>{section.title}</Subheader> : null
 
     return (
       <div>
         {sectionDivider}
-        {section.map((block, blockIndex) =>
-          <MenuBlock
-            key={blockIndex}
-            block={block}
-            index={blockIndex}
-            onTouchTap={onItemTouchTap}
+        {title}
+        {section.items.map((item, itemIndex) =>
+          <ListItem
+            key={itemIndex}
+            style={style.item}
+            primaryText={item.text}
+            leftIcon={item.icon ? <item.icon color={colorMenuListItemText} /> : null}
+            onTouchTap={onItemTouchTap ? () => onItemTouchTap(item.value) : () => null}
           />
         )}
       </div>
