@@ -1,4 +1,13 @@
 @import url("./github-markdown.css");
+@import url("rickshaw/rickshaw.css");
+
+@define-mixin clearfix {
+  &::after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}
 
 body {
   margin: 0;
@@ -17,5 +26,89 @@ table.props th {
   .metadataForm-actions {
     margin-top: 4rem;
     text-align: center;
+  }
+}
+
+
+$moduleCardsMargin: 16px;
+
+.moduleCards {
+  @mixin clearfix;
+
+  margin: 40px 0 0 0;
+
+  .moduleCard {
+    margin-bottom: $moduleCardsMargin;
+    padding-bottom: 20px;
+  }
+
+  &.moduleCards-col2 {
+    .moduleCard {
+      float: left;
+      width: calc(50% - $moduleCardsMargin / 2);
+      margin-right: $moduleCardsMargin;
+    }
+    .moduleCard:nth-child(even) {
+      margin-right: 0;
+    }
+  }
+}
+
+
+/* moduelのgraph */
+$graphWidth: 200px;
+$graphHeight: 200px;
+$graphYAxisWidth: 40px;
+
+.graph {
+  position: relative;
+  min-width: calc($graphWidth + $graphYAxisWidth);
+  min-height: $graphHeight;
+  margin-right: 60px;
+
+  .graph-yAxis {
+    position: absolute;
+    width: $graphYAxisWidth;
+    height: 100%;
+  }
+
+  .graph-chart {
+    margin-left: $graphYAxisWidth;
+    min-width: $graphYAxisWidth;
+    min-height: $graphHeight;
+
+    border: 1px solid #f0f0f0;
+  }
+
+  .graph-preview {
+    margin-left: $graphYAxisWidth;
+    min-height: 40px;
+  }
+
+  .graph-legend {
+    margin: 8px 0 0 40px;
+
+    &.rickshaw_legend {
+      display: block;
+      padding: 4px;
+
+      .line {
+        display: inline-block;
+      }
+    }
+  }
+
+  .graph-loadingIndicator {
+    margin: 0 auto 0;
+    top: 40px !important;
+    left: 0 !important;
+    transform: translate(0, 40px) !important;
+    display: block !important;
+  }
+
+  &.is-loading {
+    .graph-yAxis, .graph-chart, .graph-preview, .graph-legend {
+      display: none;
+    }
   }
 }

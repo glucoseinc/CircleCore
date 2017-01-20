@@ -53,25 +53,45 @@ class TimedDBBundle(object):
                 db_path, timestamps
             )
 
+    def find_db(self, box_id):
+        return TimedDB(os.path.join(self.dir_prefix, TimedDB.make_db_name(box_id)))
+
 
 class TimedDB(object):
     """
+    1s:24h 10s:7d 10m:150d 1h:3y
+    > [(1, 86400), (10, 60480), (600, 21600), (3600, 26280)]
 
-    検討:
-    表示区間                      Datapoint数
-    30m   1800s                 360  5s
-    1h    60m    3600s          360  10s   x2
-    6h    360m   21600s         360  1m    x6
-    1d    24h    1440m          360  4m    x4
-    7d    168h   10080m         336  30m   x7.5
-    1m    30d    1800h          450  4h    x8
-    1y    12m    365d    8760h  730  12h   x3
+    Archive 0: 86400 points of 1s precision
+    Archive 1: 60480 points of 10s precision
+    Archive 2: 21600 points of 600s precision
+    Archive 3: 26280 points of 3600s precision
 
-    とりあえず以下の時系列で
-    5s:2h 1m:24h 5m:7d 30m:30d
+    Estimated Whisper DB Size: 2.229MB (2338816 bytes on disk with 4k block
+
+    Estimated storage requirement for 1k metrics: 2.178GB
+    Estimated storage requirement for 5k metrics: 10.891GB
+    Estimated storage requirement for 10k metrics: 21.782GB
+    Estimated storage requirement for 50k metrics: 108.910GB
+    Estimated storage requirement for 100k metrics: 217.819GB
+    Estimated storage requirement for 500k metrics: 1089.096GB
     """
-    pass
-
     @classmethod
     def make_db_name(cls, box_id):
         return 'box_{}.wsp'.format(box_id)
+
+    def __init__(self, filepath):
+        self.filepath = filepath
+
+    def fetch(self, start_time, end_time):
+        try:
+            data = whisper.fetch(self.filepath, start_time, end_time)
+        except FileNotFoundError:
+            return None
+
+        if not data:
+            return None
+
+        (start, end, step), values = data
+
+        return start, end, step, values

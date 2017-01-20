@@ -2,6 +2,8 @@
 
 """モジュール関連APIの実装."""
 
+import functools
+
 # community module
 from flask import abort, request
 from six import PY3
@@ -207,3 +209,75 @@ def _create_message_boxes_from_request_json(request_json):
         message_boxes.append(message_box)
 
     return message_boxes
+
+
+@api.route('/modules/<module_uuid>/graph')
+def api_module_graph(module_uuid):
+    """respond graph data for specified module"""
+    metadata = get_metadata()
+    module = metadata.find_module(module_uuid)
+    if module is None:
+        return api_jsonify()  # TODO: return failure
+
+    boxes = {}
+    for box in metadata.message_boxes:
+        if box.uuid in module.message_box_uuids:
+            boxes[box.uuid] = box
+
+    import time
+    from circle_core.timed_db import TimedDBBundle
+
+    timed_db_bundle = TimedDBBundle(metadata.prefix)
+
+    # tz_offset = int(request.args.get('tzOffset', 0))
+    tz_offset = 0
+    graph_range = request.args.get('range', '30m')
+    graph_range = {
+        '30m': 60 * 30,
+        '1h': 60 * 60 * 1,
+        '6h': 60 * 60 * 6,
+        '1d': 60 * 60 * 24 * 1,
+        '7d': 60 * 60 * 24 * 7,
+    }[graph_range]
+
+    # とりま30m
+    end_time = time.time() - tz_offset
+    start_time = end_time - graph_range
+
+    graph_data = []
+    graph_steps = None
+
+    missing_box_ids = []
+    for box_id in module.message_box_uuids:
+        db = timed_db_bundle.find_db(box_id)
+        data = db.fetch(start_time, end_time)
+        if not data:
+            missing_box_ids.append(box_id)
+            continue
+
+        start, end, step, values = data
+        if not graph_steps:
+            graph_steps = (start, end, step)
+        else:
+            if graph_steps != (start, end, step):
+                raise ValueError('graph range mismatch')
+
+        box = boxes[box_id]
+        graph_data.append({
+            'messageBox': convert_dict_key_camel_case(box.serialize()),
+            'data': [dict(x=x, y=y) for x, y in zip(range(start, end, step), values)],
+        })
+
+    if not graph_steps:
+        graph_steps = int(start_time), int(end_time), int(end_time - start_time) - 1
+
+    # グラフが無いやつはNullのグラフで埋める
+    for box_id in missing_box_ids:
+        box = boxes[box_id]
+        graph_data.append({
+            'messageBox': convert_dict_key_camel_case(box.serialize()),
+            'data': [dict(x=x, y=None) for x in range(*graph_steps)],
+        })
+    graph_data.sort(key=lambda x: x['messageBox']['uuid'])
+
+    return api_jsonify(graphData=graph_data)

@@ -347,10 +347,21 @@ class CCAPI extends APICaller {
   /**
    * Moduleの詳細を得る
    * @param {Module} module Module
-   * @return {Module} Module
+   * @return {object} Module
    */
   async getModule(module) {
     const res = await this._get(`/modules/${module.uuid}`)
+    return res.body
+  }
+
+  /**
+   * Moduleのグラフ用データを得る
+   * @param {Module} module Module
+   * @param {object} query query
+   * @return {object} グラフデータ
+   */
+  async getModuleGraphData(module, query) {
+    const res = await this._get(`/modules/${module.uuid}/graph`, query)
     return res.body
   }
 
