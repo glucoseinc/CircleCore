@@ -99,12 +99,14 @@ def validate_replication_master_addr(ctx, param, values):
 @click.option('replicate_from', '--replicate', type=click.STRING, envvar='CRCR_REPLICATION', multiple=True,
               help='module_uuid@hostname:port', callback=validate_replication_master_addr)
 @click.option('database_url', '--database', envvar='CRCR_DATABASE')
+@click.option('--prefix', envvar='CRCR_PREFIX', default=lambda: os.getcwd())
 @click.pass_context
-def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, workers, replicate_from, database_url):
+def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, workers, replicate_from, database_url, prefix):
     """CircleCoreの起動."""
     ctx.obj.ipc_socket = 'ipc://' + ipc_socket
     metadata = ctx.obj.metadata
     metadata.database_url = database_url  # とりあえず...
+    metadata.prefix = prefix  # とりあえず...
 
     for addr, value in groupby([module_and_addr.split('@') for module_and_addr in replicate_from], lambda x: x[1]):
         modules = [module_and_addr[0] for module_and_addr in value]
