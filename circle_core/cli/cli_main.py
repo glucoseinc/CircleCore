@@ -40,6 +40,15 @@ def cli_main(ctx, metadata_url, crcr_uuid, log_file_path):
     :param UUID crcr_uuid: CircleCore UUID
     :param str log_file_path: ログファイルのパス
     """
+    # temporary
+    import logging
+
+    root_logger = logging.getLogger()
+    if sys.stdout.isatty():
+        # コマンドラインから直接起動されていれば、stdoutにログを吐く
+        root_logger.setLevel(logging.DEBUG)
+        root_logger.addHandler(logging.StreamHandler())
+
     if metadata_url is None:
         click.echo('Metadata is not set.')
         click.echo('Please set metadata to argument `crcr --metadata URL_SCHEME ...`')
