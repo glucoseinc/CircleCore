@@ -1,4 +1,4 @@
-import ModulesNew from '../../containers/ModulesNew'
+import ModulesNew from '../../../containers/ModulesNew'
 
 const modulesNewRoute = {
   key: 'modulesNew',

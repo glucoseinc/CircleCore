@@ -1,5 +1,5 @@
 import ActionSettingsInputComponent from 'material-ui/svg-icons/action/settings-input-component'
-import Modules from '../../containers/Modules'
+import Modules from '../../../containers/Modules'
 
 const modulesRoute = {
   key: 'modules',

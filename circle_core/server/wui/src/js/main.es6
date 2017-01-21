@@ -23,9 +23,7 @@ const history = syncHistoryWithStore(browserHistory, store)
 render(
   <Provider store={store}>
     <MuiThemeProvider muiTheme={muiTheme}>
-      <Router history={history}>
-        {rootRoute}
-      </Router>
+      <Router history={history} routes={rootRoute} />
     </MuiThemeProvider>
   </Provider>,
   document.getElementById('app')

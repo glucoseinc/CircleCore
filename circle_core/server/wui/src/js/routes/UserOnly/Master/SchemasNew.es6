@@ -1,4 +1,4 @@
-import SchemasNew from '../../containers/SchemasNew'
+import SchemasNew from '../../../containers/SchemasNew'
 
 const schemasNewRoute = {
   key: 'schemasNew',

@@ -1,5 +1,5 @@
 import ActionGroupWork from 'material-ui/svg-icons/action/group-work'
-import Cores from '../../containers/Cores'
+import Cores from '../../../containers/Cores'
 
 const coresRoute = {
   key: 'cores',

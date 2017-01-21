@@ -1,5 +1,5 @@
 import ActionExitToApp from 'material-ui/svg-icons/action/exit-to-app'
-import Logout from '../../containers/Logout'
+import Logout from '../../../containers/Logout'
 
 const logoutRoute = {
   key: 'logout',

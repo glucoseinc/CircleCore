@@ -1,5 +1,5 @@
 import ContentLink from 'material-ui/svg-icons/content/link'
-import Replicas from '../../containers/Replicas'
+import Replicas from '../../../containers/Replicas'
 
 const replicasRoute = {
   key: 'replicas',

@@ -1,5 +1,5 @@
 import ActionReceipt from 'material-ui/svg-icons/action/receipt'
-import Schemas from '../../containers/Schemas'
+import Schemas from '../../../containers/Schemas'
 
 const schemasRoute = {
   key: 'schemas',

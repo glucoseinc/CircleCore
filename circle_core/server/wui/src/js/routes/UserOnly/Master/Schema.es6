@@ -1,4 +1,4 @@
-import Schema from '../../containers/Schema'
+import Schema from '../../../containers/Schema'
 
 const schemaRoute = {
   key: 'schema',

@@ -1,4 +1,4 @@
-import Module from '../../containers/Module'
+import Module from '../../../containers/Module'
 
 const moduleRoute = {
   key: 'module',

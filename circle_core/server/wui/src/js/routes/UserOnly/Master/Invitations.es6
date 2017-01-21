@@ -1,5 +1,5 @@
 import ActionList from 'material-ui/svg-icons/action/list'
-import Invitations from '../../containers/Invitations'
+import Invitations from '../../../containers/Invitations'
 
 const invitationsRoute = {
   key: 'invitations',

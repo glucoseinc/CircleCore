@@ -1,5 +1,5 @@
 import ActionAccountCircle from 'material-ui/svg-icons/action/account-circle'
-import ChangeProfile from '../../containers/ChangeProfile'
+import ChangeProfile from '../../../containers/ChangeProfile'
 
 const changeProfileRoute = {
   key: 'changeProfile',

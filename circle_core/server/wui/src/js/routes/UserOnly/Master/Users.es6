@@ -1,5 +1,5 @@
 import ActionSupervisorAccount from 'material-ui/svg-icons/action/supervisor-account'
-import Users from '../../containers/Users'
+import Users from '../../../containers/Users'
 
 const usersRoute = {
   key: 'users',
