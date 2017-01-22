@@ -1,3 +1,5 @@
+import actions from '../../../actions'
+import {store} from '../../../main'
 import Master from '../../../containers/Master'
 
 import ChangeProfile from './ChangeProfile'
@@ -17,7 +19,12 @@ import Users from './Users'
 import User from './User'
 
 
-const master = {
+const setTitle = (state) => {
+  const title = [...state.routes].pop().label
+  store.dispatch(actions.page.setTitle(title))
+}
+
+const masterRoute = {
   key: 'root',
   component: Master,
   childRoutes: [
@@ -37,6 +44,8 @@ const master = {
     Users,
     User,
   ],
+  onEnter: setTitle,
+  onChange: (prevState, nextState) => setTitle(nextState),
 }
 
-export default master
+export default masterRoute

@@ -10,6 +10,7 @@ const groupNames = [
   'misc',
   'module',
   'modules',
+  'page',
   'schema',
   'schemas',
   'schemaPropertyTypes',

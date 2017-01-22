@@ -15,7 +15,7 @@ import muiTheme from './muiTheme'
 injectTapEventPlugin()
 
 const initialState = {}
-const store = configureStore(browserHistory, initialState)
+export const store = configureStore(browserHistory, initialState)
 store.runSaga(rootSaga)
 const history = syncHistoryWithStore(browserHistory, store)
 
@@ -28,6 +28,3 @@ render(
   </Provider>,
   document.getElementById('app')
 )
-
-export {store}
-

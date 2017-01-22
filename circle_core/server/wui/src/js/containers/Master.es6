@@ -18,6 +18,7 @@ import DevTools from '../containers/DevTools'
  */
 class Master extends React.Component {
   static propTypes = {
+    title: PropTypes.string,
     errorMessage: PropTypes.string,
     navDrawerOpen: PropTypes.bool.isRequired,
     children: PropTypes.node.isRequired,
@@ -34,6 +35,7 @@ class Master extends React.Component {
    */
   render() {
     const {
+      title,
       errorMessage,
       navDrawerOpen,
       children,
@@ -62,6 +64,7 @@ class Master extends React.Component {
         <Title render="CircleCore"/>
         <div style={style.content}>
           <AppBar
+            title={title}
             showMenuIconButton={appBarShowMenuIconButton}
             onLeftIconButtonTouchTap={actions.misc.navDrawerToggleOpen}
           />
@@ -113,6 +116,7 @@ class Master extends React.Component {
  */
 function mapStateToProps(state) {
   return {
+    title: state.page.title,
     navDrawerOpen: state.misc.navDrawerOpen,
     errorMessage: state.misc.errorMessage,
   }
