@@ -19,9 +19,13 @@ import Users from './Users'
 import User from './User'
 
 
-const setTitle = (state) => {
-  const title = [...state.routes].pop().label
-  store.dispatch(actions.page.setTitle(title))
+const handleLocationChange = (state) => {
+  const params = state.params
+  const route = [...state.routes].pop()
+  store.dispatch(actions.page.setTitle(route.label))
+  route.onEnterActions && route.onEnterActions.map((action) => {
+    store.dispatch(action(params))
+  })
 }
 
 const masterRoute = {
@@ -44,8 +48,8 @@ const masterRoute = {
     Users,
     User,
   ],
-  onEnter: setTitle,
-  onChange: (prevState, nextState) => setTitle(nextState),
+  onEnter: handleLocationChange,
+  onChange: (prevState, nextState) => handleLocationChange(nextState),
 }
 
 export default masterRoute

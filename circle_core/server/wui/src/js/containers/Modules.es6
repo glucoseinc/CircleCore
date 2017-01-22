@@ -30,16 +30,6 @@ class Modules extends Component {
   /**
    * @override
    */
-  componentWillMount() {
-    const {
-      actions,
-    } = this.props
-    actions.modules.fetchRequest()
-  }
-
-  /**
-   * @override
-   */
   render() {
     const {
       isFetching,

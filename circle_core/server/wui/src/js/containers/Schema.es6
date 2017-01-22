@@ -26,17 +26,6 @@ class Schema extends Component {
   /**
    * @override
    */
-  componentWillMount() {
-    const {
-      params,
-      actions,
-    } = this.props
-    actions.schema.fetchRequest(params.schemaId)
-  }
-
-  /**
-   * @override
-   */
   render() {
     const {
       isFetching,

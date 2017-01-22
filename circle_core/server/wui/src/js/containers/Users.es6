@@ -33,16 +33,6 @@ class Users extends React.Component {
   /**
    * @override
    */
-  componentWillMount() {
-    const {
-      actions,
-    } = this.props
-    actions.users.fetchRequest()
-  }
-
-  /**
-   * @override
-   */
   render() {
     if(this.props.isFetching) {
       return (

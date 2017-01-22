@@ -2,7 +2,7 @@ import {createCcActions, nullPayloadCreator} from './utils'
 
 
 const payloadCreators = {
-  fetchRequest: (moduleId) => moduleId,
+  fetchRequest: (params) => params.moduleId,
   fetchSucceeded: (response) => response,
   fetchFailed: (message) => message,
 

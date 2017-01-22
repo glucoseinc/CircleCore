@@ -57,16 +57,6 @@ class Schemas extends Component {
   /**
    * @override
    */
-  componentWillMount() {
-    const {
-      actions,
-    } = this.props
-    actions.schemas.fetchRequest()
-  }
-
-  /**
-   * @override
-   */
   render() {
     const {
       deleteSchema,

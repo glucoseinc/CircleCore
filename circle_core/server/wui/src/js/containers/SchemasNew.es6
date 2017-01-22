@@ -27,18 +27,6 @@ class SchemasNew extends Component {
   /**
    * @override
    */
-  componentWillMount() {
-    const {
-      actions,
-    } = this.props
-    actions.schema.createInit()
-    actions.schemaPropertyTypes.fetchRequest()
-  }
-
-
-  /**
-   * @override
-   */
   render() {
     const {
       isSchemaPropertyTypesFetching,

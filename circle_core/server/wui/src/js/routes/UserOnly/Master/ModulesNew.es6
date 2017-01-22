@@ -1,3 +1,4 @@
+import actions from '../../../actions'
 import ModulesNew from '../../../containers/ModulesNew'
 
 const modulesNewRoute = {
@@ -6,6 +7,10 @@ const modulesNewRoute = {
   label: 'モジュール作成',
   // icon: null,
   component: ModulesNew,
+  onEnterActions: [
+    actions.module.createInit,
+    actions.schemas.fetchRequest,
+  ],
 }
 
 export default modulesNewRoute

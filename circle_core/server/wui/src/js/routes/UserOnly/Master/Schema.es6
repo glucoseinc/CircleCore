@@ -1,3 +1,4 @@
+import actions from '../../../actions'
 import Schema from '../../../containers/Schema'
 
 const schemaRoute = {
@@ -6,6 +7,9 @@ const schemaRoute = {
   label: 'メッセージスキーマ詳細',
   // icon: null,
   component: Schema,
+  onEnterActions: [
+    actions.schema.fetchRequest,
+  ],
 }
 
 export default schemaRoute
