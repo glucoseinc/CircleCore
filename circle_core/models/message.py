@@ -97,7 +97,7 @@ class ModuleMessage(object):
 
     @classmethod
     def make_timestamp(cls, timestamp):
-        assert isinstance(timestamp, (float, decimal.Decimal))
+        assert isinstance(timestamp, (float, str, decimal.Decimal))
 
         if isinstance(timestamp, float):
             return message_timestamp_context.create_decimal_from_float(timestamp)
@@ -120,7 +120,7 @@ class ModuleMessage(object):
         :param UUID module_uuid:
         :param UUID box_id:
         :param dict payload:
-        :param Union[float, Decimal, str] timestamp:
+        :param Union[str, Decimal] timestamp:
         :param int count:
         :param dict payload:
         """

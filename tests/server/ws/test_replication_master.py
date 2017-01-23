@@ -213,7 +213,7 @@ class TestReplicationMaster(AsyncHTTPTestCase):
         指定した時点以降のデータのみ送られてくるか。
         """
         DummyMetadata.database_url = self.mysql.url
-        now = round(time(), 6)
+        now = ModuleMessage.make_timestamp(time())
 
         # timestampが同じでcountが違う場合
         db = Database(self.mysql.url)
@@ -227,7 +227,7 @@ class TestReplicationMaster(AsyncHTTPTestCase):
             'command': 'RECEIVE',
             'payload': {
                 '316720eb-84fe-43b3-88b7-9aad49a93220': {
-                    'timestamp': now,
+                    'timestamp': str(now),
                     'count': 0
                 }
             }
@@ -242,8 +242,8 @@ class TestReplicationMaster(AsyncHTTPTestCase):
         assert resp['payload'] == {'hoge': 678}
 
         # countが同じでtimestampが違う場合
-        now = now + 1
-        past = now - 0.000001
+        past = now + 1
+        now = now + 2
         db._engine.execute(table.insert(), _created_at=past, _counter=0, hoge=234)
         db._engine.execute(table.insert(), _created_at=now, _counter=0, hoge=789)
 
@@ -251,7 +251,7 @@ class TestReplicationMaster(AsyncHTTPTestCase):
             'command': 'RECEIVE',
             'payload': {
                 '316720eb-84fe-43b3-88b7-9aad49a93220': {
-                    'timestamp': past,
+                    'timestamp': str(past),
                     'count': 0
                 }
             }
@@ -266,8 +266,8 @@ class TestReplicationMaster(AsyncHTTPTestCase):
         assert resp['payload'] == {'hoge': 789}
 
         # countもtimestampも違う場合
-        now = now + 1
-        past = now - 0.000001
+        past = now + 1
+        now = now + 2
         db._engine.execute(table.insert(), _created_at=past, _counter=1, hoge=345)
         db._engine.execute(table.insert(), _created_at=now, _counter=0, hoge=543)
 
@@ -275,7 +275,7 @@ class TestReplicationMaster(AsyncHTTPTestCase):
             'command': 'RECEIVE',
             'payload': {
                 '316720eb-84fe-43b3-88b7-9aad49a93220': {
-                    'timestamp': past,
+                    'timestamp': str(past),
                     'count': 1
                 }
             }
