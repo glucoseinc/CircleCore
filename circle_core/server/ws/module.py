@@ -5,7 +5,7 @@ import uuid
 
 from tornado.websocket import WebSocketHandler
 
-from circle_core.exceptions import ModuleNotFoundError, CircleCoreException
+from circle_core.exceptions import CircleCoreException, ModuleNotFoundError
 from circle_core.helpers.metadata import metadata
 from circle_core.helpers.nanomsg import Sender
 from circle_core.helpers.topics import ModuleMessageTopic
