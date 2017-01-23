@@ -123,6 +123,7 @@ class Singleton(type):
             cls.__instances[cls] = instance
             return instance
 
+        logger.debug('Reuse existing %s', cls.__name__)
         return cls.__instances[cls]
 
 
