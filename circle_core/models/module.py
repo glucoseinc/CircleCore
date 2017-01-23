@@ -39,7 +39,6 @@ class Module(object):
         :param Optional[str] tags: タグ
         :param Optional[str] memo: メモ
         """
-        # TODO: 引き渡すmessage_box_uuidsはリスト化
         try:
             uuid = prepare_uuid(uuid)
         except ValueError:
