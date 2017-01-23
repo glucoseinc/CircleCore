@@ -39,7 +39,7 @@ def echo(receive_from, send_to):
             try:
                 msg = receiver.recv()
             except websocket.WebSocketTimeoutException:
-                logger.error("I'm no longer received new messages anymore. Reconnecting...")
+                logger.error("I'm not received new messages anymore. Reconnecting...")
                 break
 
             for dic in json.loads(msg):
@@ -61,3 +61,24 @@ def dummy(send_to):
         ws.send(json.dumps({'count': i, 'body': "Greetings from a bot"}, indent=2, ensure_ascii=False))
         click.echo('I sent a message {} times'.format(i))
         sleep(1)
+
+
+@cli_bot.command()
+@click.option('send_to', '--to', type=click.STRING, default='ws://localhost:5000/module')
+def bitcoin(send_to):
+    """Bitcoinの取引をCircleCoreに送信.
+
+    :param str send_to:
+    """
+    websocket.enableTrace(True)
+    sender = websocket.create_connection(send_to)
+    receiver = websocket.create_connection('wss://ws.blockchain.info/inv')
+    receiver.send('{"op":"unconfirmed_sub"}')
+    while True:
+        res = json.loads(receiver.recv())
+        for transaction in res['x']['out']:
+            req = json.dumps({
+                'address': transaction['addr'],
+                'btc': transaction['value'] / 10 ** 8,
+            })
+            sender.send(req)
