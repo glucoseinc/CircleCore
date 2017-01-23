@@ -6,6 +6,11 @@ from time import sleep
 import click
 import websocket
 
+from ..logger import get_stream_logger
+
+
+logger = get_stream_logger()
+
 
 @click.group('bot')
 def cli_bot():
@@ -23,16 +28,22 @@ def echo(receive_from, send_to):
     :param str send_to:
     """
     websocket.enableTrace(True)
-    receiver = websocket.create_connection(receive_from)
     sender = websocket.create_connection(send_to)
 
-    i = 0
     while True:
-        i += 1
-        msg = receiver.recv()
-        for dic in json.loads(msg):
-            sender.send(json.dumps(dic))
-        # click.echo('I sent a message {} times'.format(i))
+        receiver = websocket.create_connection(receive_from, timeout=10)
+
+        i = 0
+        while True:
+            i += 1
+            try:
+                msg = receiver.recv()
+            except websocket.WebSocketTimeoutException:
+                logger.error("I'm no longer received new messages anymore. Reconnecting...")
+                break
+
+            for dic in json.loads(msg):
+                sender.send(json.dumps(dic))
 
 
 @cli_bot.command()
