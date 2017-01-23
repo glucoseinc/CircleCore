@@ -24,7 +24,7 @@ class DummyMetadata(MetadataReader):
     ]
     modules = [Module(
         '314a578a-6543-4331-90f7-ed80c81d29bf',
-        '402a7a37-691d-40ed-b0fe-4aeed9d0bba1',
+        ['402a7a37-691d-40ed-b0fe-4aeed9d0bba1'],
         'DummyModule',
         'foo,bar'
     )]

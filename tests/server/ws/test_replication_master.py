@@ -135,17 +135,17 @@ class TestReplicationMaster(AsyncHTTPTestCase):
         resp = yield self.dummy_crcr.read_message()
         resp = json.loads(resp)
 
-        schema = Schema(**resp['schemas'][0])
+        schema = Schema.from_json(resp['schemas'][0])
         assert schema.uuid == UUID('44ae2fd8-52d0-484d-9a48-128b07937a0a')
         assert schema.display_name == 'DummySchema'
         assert schema.properties[0].name == 'hoge'
         assert schema.properties[0].type == 'int'
 
-        box = MessageBox(**resp['message_boxes'][0])
+        box = MessageBox.from_json(resp['message_boxes'][0])
         assert box.uuid == UUID('316720eb-84fe-43b3-88b7-9aad49a93220')
         assert box.schema_uuid == UUID('44ae2fd8-52d0-484d-9a48-128b07937a0a')
 
-        module = Module(**resp['modules'][0])
+        module = Module.from_json(resp['modules'][0])
         assert module.uuid == UUID('8e654793-5c46-4721-911e-b9d19f0779f9')
         assert module.message_box_uuids[0] == UUID('316720eb-84fe-43b3-88b7-9aad49a93220')
         assert module.display_name == 'DummyModule'

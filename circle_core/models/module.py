@@ -36,7 +36,7 @@ class Module(object):
         :param Union[str, UUID] uuid: Module UUID
         :param List[Union[str, UUID]] message_box_uuids: MessageBoxのUUIDリスト
         :param Optional[str] display_name: 表示名
-        :param Optional[str] tags: タグ
+        :param Union[Optional[str], List[str]] tags: タグ
         :param Optional[str] memo: メモ
         """
         try:
@@ -56,9 +56,15 @@ class Module(object):
         self.uuid = uuid
         self.message_box_uuids = _message_box_uuids
         self.display_name = display_name
-        _tags = tags.split(',') if tags is not None else []
-        self.tags = [tag for tag in _tags if tag != '']
         self.memo = memo
+
+        if tags is None:
+            _tags = []
+        elif isinstance(tags, list):
+            _tags = tags
+        else:
+            _tags = tags.split(',')
+        self.tags = [tag for tag in _tags if tag != '']
 
     def __eq__(self, other):
         """return equality.
@@ -122,6 +128,15 @@ class Module(object):
             'tags': [tag for tag in self.tags],
             'memo': self.memo,
         }
+
+    @classmethod
+    def from_json(cls, json_msg, **kwargs):
+        """JSON表現からの復元.
+
+        :param dict json_msg:
+        :rtype: Module
+        """
+        return cls(**json_msg, **kwargs)
 
     @property
     def of_master(self):

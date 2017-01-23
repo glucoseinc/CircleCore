@@ -111,6 +111,15 @@ class MessageBox(object):
             'memo': self.memo,
         }
 
+    @classmethod
+    def from_json(cls, json_msg, **kwargs):
+        """JSON表現からの復元.
+
+        :param dict json_msg:
+        :rtype: MessageBox
+        """
+        return cls(**json_msg, **kwargs)
+
     def messages_since(self, timestamp, count):
         """引数以降、このMessageBoxに蓄えられたModuleMessageを返す.
 

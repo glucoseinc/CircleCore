@@ -172,6 +172,16 @@ class Schema(object):
             'memo': self.memo,
         }
 
+    @classmethod
+    def from_json(cls, json_msg, **kwargs):
+        """JSON表現から復元.
+
+        :param dict json_msg:
+        :rtype: Schema
+        """
+        properties = json_msg.pop('properties')
+        return Schema(dictified_properties=properties, **json_msg, **kwargs)
+
     @property
     def of_master(self):
         """

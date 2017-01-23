@@ -64,12 +64,12 @@ class TestMetadataRedis(object):
         assert metadata.message_boxes[0].uuid == UUID('316720eb-84fe-43b3-88b7-9aad49a93220')
         assert metadata.message_boxes[0].schema_uuid == UUID('44ae2fd8-52d0-484d-9a48-128b07937a0a')
         assert metadata.message_boxes[0].display_name == 'DummyBox'
-        assert metadata.message_boxes[0].description == 'message box for test'
+        assert metadata.message_boxes[0].memo == 'message box for test'
         assert not metadata.message_boxes[0].of_master
 
         module = Module(
             '8e654793-5c46-4721-911e-b9d19f0779f9',
-            '316720eb-84fe-43b3-88b7-9aad49a93220',
+            ['316720eb-84fe-43b3-88b7-9aad49a93220'],
             'DummyModule',
             'foo,bar',
             'some description'
@@ -80,4 +80,4 @@ class TestMetadataRedis(object):
         assert metadata.modules[0].message_box_uuids == [UUID('316720eb-84fe-43b3-88b7-9aad49a93220')]
         assert metadata.modules[0].display_name == 'DummyModule'
         assert metadata.modules[0].tags == ['foo', 'bar']
-        assert metadata.modules[0].description == 'some description'
+        assert metadata.modules[0].memo == 'some description'

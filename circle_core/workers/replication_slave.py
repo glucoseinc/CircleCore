@@ -41,15 +41,15 @@ class ReplicationSlave(object):
 
         res = json.loads(self.ws.recv())
 
-        schemas = [Schema(**schema) for schema in res['schemas']]
+        schemas = [Schema.from_json(schema) for schema in res['schemas']]
         for schema in schemas:
             metadata().register_schema(schema)
 
-        boxes = [MessageBox(of_master=True, **box) for box in res['message_boxes']]
+        boxes = [MessageBox.from_json(box, of_master=True) for box in res['message_boxes']]
         for box in boxes:
             metadata().register_message_box(box)
 
-        modules = [Module(**module) for module in res['modules']]  # FIXME: message_box_uuidsをlist化する
+        modules = [Module.from_json(module) for module in res['modules']]  # FIXME: message_box_uuidsをlist化する
         for module in modules:
             metadata().register_module(module)
 
