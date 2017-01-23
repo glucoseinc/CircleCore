@@ -1,11 +1,35 @@
 import React from 'react'
 
+import FloatingActionButton from 'material-ui/FloatingActionButton'
 import RaisedButton from 'material-ui/RaisedButton'
 import ContentAdd from 'material-ui/svg-icons/content/add'
 import ContentRemove from 'material-ui/svg-icons/content/remove'
 
 const nullFunctoin = () => null
 
+// FloatingActionButtons
+export const FloatingAddButton = (props) => {
+  const {
+    style = {
+      position: 'fixed',
+      right: 16,
+      bottom: 16,
+    },
+    onTouchTap = nullFunctoin,
+  } = props
+
+  return (
+    <FloatingActionButton
+      style={style}
+      secondary={true}
+      onTouchTap={onTouchTap}
+    >
+      <ContentAdd />
+    </FloatingActionButton>
+  )
+}
+
+// RaisedButtons
 export const AddButton = (props) => {
   const {
     label = '追加する',

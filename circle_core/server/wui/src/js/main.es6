@@ -15,7 +15,7 @@ import muiTheme from './muiTheme'
 injectTapEventPlugin()
 
 const initialState = {}
-const store = configureStore(browserHistory, initialState)
+export const store = configureStore(browserHistory, initialState)
 store.runSaga(rootSaga)
 const history = syncHistoryWithStore(browserHistory, store)
 
@@ -23,13 +23,8 @@ const history = syncHistoryWithStore(browserHistory, store)
 render(
   <Provider store={store}>
     <MuiThemeProvider muiTheme={muiTheme}>
-      <Router history={history}>
-        {rootRoute}
-      </Router>
+      <Router history={history} routes={rootRoute} />
     </MuiThemeProvider>
   </Provider>,
   document.getElementById('app')
 )
-
-export {store}
-

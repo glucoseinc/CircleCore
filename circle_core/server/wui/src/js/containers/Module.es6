@@ -27,18 +27,6 @@ class Module extends Component {
   /**
    * @override
    */
-  componentWillMount() {
-    const {
-      params,
-      actions,
-    } = this.props
-    actions.module.fetchRequest(params.moduleId)
-    actions.schemas.fetchRequest()
-  }
-
-  /**
-   * @override
-   */
   render() {
     const {
       isFetching,

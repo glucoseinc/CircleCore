@@ -2,7 +2,7 @@ import {createCcActions, nullPayloadCreator} from './utils'
 
 
 const payloadCreators = {
-  fetchRequest: (schemaId) => schemaId,
+  fetchRequest: (params) => params.schemaId,
   fetchSucceeded: (response) => response,
   fetchFailed: (message) => message,
 

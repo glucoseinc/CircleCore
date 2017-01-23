@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react'
-import {Link, formatPattern} from 'react-router'
+import {Link} from 'react-router'
 
+import {createPathName} from '../routes'
 
 /**
  */
@@ -31,7 +32,7 @@ class CCLink extends Component {
     )
     return (
       <Link
-        to={formatPattern(url.fullPath, params)}
+        to={createPathName(url, params)}
         style={mergedStyle}
       >
         {children}

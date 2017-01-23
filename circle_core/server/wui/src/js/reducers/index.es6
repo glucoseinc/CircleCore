@@ -9,6 +9,7 @@ const reducerFiles = [
   'auth',
   'entities',
   'misc',
+  'page',
 ]
 reducerFiles.forEach((reducerFile) => reducers[reducerFile] = require(`./${reducerFile}`).default)
 

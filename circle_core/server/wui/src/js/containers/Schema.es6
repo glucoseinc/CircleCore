@@ -26,17 +26,6 @@ class Schema extends Component {
   /**
    * @override
    */
-  componentWillMount() {
-    const {
-      params,
-      actions,
-    } = this.props
-    actions.schema.fetchRequest(params.schemaId)
-  }
-
-  /**
-   * @override
-   */
   render() {
     const {
       isFetching,
@@ -115,7 +104,7 @@ class Schema extends Component {
           onTouchTap={() => actions.schemas.deleteAsk(schema)}
         />
         <SchemaDeleteDialog
-          isActive={isDeleteAsking}
+          open={isDeleteAsking}
           schema={schema}
           onOkTouchTap={actions.schemas.deleteRequest}
           onCancelTouchTap={actions.schemas.deleteCancel}

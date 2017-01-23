@@ -24,18 +24,6 @@ class ModulesNew extends Component {
   /**
    * @override
    */
-  componentWillMount() {
-    const {
-      actions,
-    } = this.props
-    actions.module.createInit()
-    actions.schemas.fetchRequest()
-  }
-
-
-  /**
-   * @override
-   */
   render() {
     const {
       isSchemasFetching,

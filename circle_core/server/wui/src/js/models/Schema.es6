@@ -79,12 +79,19 @@ export default class Schema extends SchemaRecord {
   }
 
   /**
-   * @param {string} key
-   * @param {object} value
+   * @param {string} value
    * @return {Schema}
    */
-  update(key, value) {
-    return this.set(key, value)
+  updateUuid(value) {
+    return this.set('uuid', value)
+  }
+
+  /**
+   * @param {string} value
+   * @return {Schema}
+   */
+  updateDisplayName(value) {
+    return this.set('displayName', value)
   }
 
   /**
@@ -106,14 +113,32 @@ export default class Schema extends SchemaRecord {
 
   /**
    * @param {number} index
-   * @param {string} key
    * @param {object} value
    * @return {Schema}
    */
-  updateSchemaProperty(index, key, value) {
-    const newProperties = this.properties.update(index, (property) => property.set(key, value))
+  updateSchemaPropertyName(index, value) {
+    const newProperties = this.properties.update(index, (property) => property.set('name', value))
     return this.set('properties', newProperties)
   }
+
+  /**
+   * @param {number} index
+   * @param {object} value
+   * @return {Schema}
+   */
+  updateSchemaPropertyType(index, value) {
+    const newProperties = this.properties.update(index, (property) => property.set('type', value))
+    return this.set('properties', newProperties)
+  }
+
+  /**
+   * @param {string} value
+   * @return {Schema}
+   */
+  updateMemo(value) {
+    return this.set('memo', value)
+  }
+
 
   /**
    * @return {bool}
