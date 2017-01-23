@@ -5,6 +5,7 @@ import Rickshaw from 'rickshaw'
 import CCAPI from '../../api'
 import Fetching from '../../components/Fetching'
 
+
 const RANGE_30MINS = '30m'
 const RANGE_1HOUR = '1h'
 const RANGE_6HOURS = '6h'
@@ -94,10 +95,13 @@ class GraphTime {
 
 /**
  * モジュールのグラフを描画するコンポーネント
+ * MessageBoxを渡すとMessageBoxのグラフを書く
+ * クラスを分けようと思ったのだけど、継承させて書くとちょっと面倒なので、ifで...
  */
 export class ModuleGraph extends React.Component {
   static propTypes = {
     module: React.PropTypes.object.isRequired,
+    messageBox: React.PropTypes.object,
     range: React.PropTypes.string.isRequired,
   }
 
@@ -159,9 +163,17 @@ export class ModuleGraph extends React.Component {
         <div ref="yAxis" className="graph-yAxis" />
         <div ref="chart" className="graph-chart" />
         <div ref="preview" className="graph-preview" />
-        <div ref="legend" className="graph-legend" />
+        {this.isShowLegend && <div ref="legend" className="graph-legend" />}
       </div>
     )
+  }
+
+  /**
+   * Legendを描画するか？
+   * @return {bool}
+   */
+  get isShowLegend() {
+    return this.props.messageBox ? false : true
   }
 
   /**
@@ -169,10 +181,18 @@ export class ModuleGraph extends React.Component {
    * @param {str} range '30m', '1h', ...
    */
   async fetchGraphData(range) {
-    let {graphData} = await CCAPI.getModuleGraphData(this.props.module, {
+    let request
+    const query = {
       range: range,
       tzOffset: TZ_OFFSET * 60,
-    })
+    }
+
+    if(this.props.messageBox)
+      request = CCAPI.getMessageBoxGraphData(this.props.module, this.props.messageBox, query)
+    else
+      request = CCAPI.getModuleGraphData(this.props.module, query)
+
+    let {graphData} = await request
 
     this.setState({graphData}, () => {
       this.updateGraph()
@@ -200,7 +220,9 @@ export class ModuleGraph extends React.Component {
       this.refs.yAxis.innerHTML = ''
       this.refs.chart.innerHTML = ''
       this.refs.preview.innerHTML = ''
-      this.refs.legend.innerHTML = ''
+      if(this.isShowLegend) {
+        this.refs.legend.innerHTML = ''
+      }
       delete this.graph
     }
 
@@ -233,13 +255,15 @@ export class ModuleGraph extends React.Component {
       height: 40,
       element: this.refs.preview,
     })
-    new Rickshaw.Graph.Legend( {
-      graph,
-      element: this.refs.legend,
-    })
     new Rickshaw.Graph.HoverDetail( {
       graph: graph,
     })
+    if(this.isShowLegend) {
+      new Rickshaw.Graph.Legend( {
+        graph,
+        element: this.refs.legend,
+      })
+    }
 
     graph.render()
     this.graph = graph

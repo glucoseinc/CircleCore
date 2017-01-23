@@ -6,7 +6,9 @@ import SelectField from 'material-ui/SelectField'
 import TextField from 'material-ui/TextField'
 
 import {AddButton, RemoveButton} from '../../components/buttons'
+import {ModuleGraph, RANGES, RANGE_LABELS} from '../Modules/ModuleGraph'
 import {EditableActionsArea, NotEditableActionsArea, NullComponent} from './commons'
+
 
 const EditableDisplayNameData = ({module, index, actions}) => {
   const messageBox = module.messageBoxes.get(index)
@@ -137,15 +139,18 @@ const MessageBoxInfo = ({editable, module, index, schemas, actions}) => {
       )}
     />
   ) : NullComponent
-
-  const dummyGraph = '/static/images/dummy_graph.png'
-  const GraphArea = editable ? NullComponent : () => (
-    <img src={dummyGraph} width="50%" height="50%"/>
-  )
+  const messageBox = module.messageBoxes.get(index)
 
   return (
     <Paper>
-      <GraphArea />
+      {editable
+        ? NullComponent
+        : <ModuleGraph
+            module={module}
+            messageBox={messageBox}
+            range={RANGES[RANGES.length - 1]} />
+      }
+
       <table className="props">
         <tbody>
           <tr>

@@ -8,6 +8,7 @@ import Fetching from '../components/Fetching'
 import ModuleDeleteDialog from '../components/ModuleDeleteDialog'
 import {ModuleGeneralInfo, ModuleMetadataInfo, ModuleMessageBoxesInfo} from '../components/ModuleInfos'
 
+
 /**
  */
 class Module extends Component {

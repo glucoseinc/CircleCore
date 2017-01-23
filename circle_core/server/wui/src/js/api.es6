@@ -366,6 +366,17 @@ class CCAPI extends APICaller {
   }
 
   /**
+   * MessageBoxのグラフ用データを得る
+   * @param {Module} module Module
+   * @param {MessageBox} messageBox Module
+   * @param {object} query query
+   * @return {object} グラフデータ
+   */
+  async getMessageBoxGraphData(module, messageBox, query) {
+    const res = await this._get(`/modules/${module.uuid}/${messageBox.uuid}/graph`, query)
+    return res.body
+  }
+  /**
    * Moduleを作成する
    * @param {Module} module Module
    * @return {Object} Result
