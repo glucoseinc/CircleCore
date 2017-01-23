@@ -18,6 +18,7 @@ class SchemaInfoPaper extends Component {
   static propTypes = {
     schema: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
+    onTouchTap: PropTypes.func,
     onModuleButtonTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
   }
@@ -29,6 +30,7 @@ class SchemaInfoPaper extends Component {
     const {
       schema,
       modules,
+      onTouchTap,
       onModuleButtonTouchTap,
       onDeleteTouchTap,
     } = this.props
@@ -38,6 +40,7 @@ class SchemaInfoPaper extends Component {
         display: 'flex',
         flexFlow: 'row nowrap',
         padding: 8,
+        cursor: 'pointer',
       },
 
       left: {
@@ -106,7 +109,7 @@ class SchemaInfoPaper extends Component {
 
     return (
       <Paper>
-        <div style={style.root}>
+        <div style={style.root} onTouchTap={() => onTouchTap(schema)}>
           <div style={style.left}>
             <div style={style.displayName}><DisplayNameLabel schema={schema} /></div>
             <div style={style.replicationMasterInfo}>
@@ -124,7 +127,7 @@ class SchemaInfoPaper extends Component {
                   </div>
                 ))}
               </div>
-              <div style={style.moreButton}>
+              <div style={style.moreButton} onTouchTap={(e) => e.stopPropagation()}>
                 <MoreMenu>
                   <MoreMenuItem
                     primaryText="このスキーマを削除する"
@@ -135,7 +138,7 @@ class SchemaInfoPaper extends Component {
                 </MoreMenu>
               </div>
             </div>
-            <div style={style.modules}>
+            <div style={style.modules} onTouchTap={(e) => e.stopPropagation()}>
               {schema.modules.valueSeq().map((moduleId) => (
                 <div key={moduleId} style={style.module}>
                   <ModuleButton

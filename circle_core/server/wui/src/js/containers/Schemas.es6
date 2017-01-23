@@ -19,6 +19,7 @@ class Schemas extends Component {
     isFetching: PropTypes.bool.isRequired,
     schemas: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
+    onSchemaInfoPaperTouchTap: PropTypes.func,
     onModuleButtonTouchTap: PropTypes.func,
     onDeleteOkButtonTouchTap: PropTypes.func,
   }
@@ -66,6 +67,7 @@ class Schemas extends Component {
       isFetching,
       schemas,
       modules,
+      onSchemaInfoPaperTouchTap,
       onModuleButtonTouchTap,
     } = this.props
 
@@ -82,6 +84,7 @@ class Schemas extends Component {
             key={schema.uuid}
             schema={schema}
             modules={modules}
+            onTouchTap={(schema) => onSchemaInfoPaperTouchTap(schema.uuid)}
             onModuleButtonTouchTap={onModuleButtonTouchTap}
             onDeleteTouchTap={::this.onDeleteTouchTap}
           />
@@ -110,6 +113,7 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
+  onSchemaInfoPaperTouchTap: (schemaId) => dispatch(routerActions.push(createPathName(urls.schema, {schemaId}))),
   onModuleButtonTouchTap: (moduleId) => dispatch(routerActions.push(createPathName(urls.module, {moduleId}))),
   onDeleteOkButtonTouchTap: (schema) => dispatch(actions.schemas.deleteRequest(schema)),
 })
