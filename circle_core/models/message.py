@@ -9,9 +9,10 @@ from uuid import UUID
 from base58 import b58decode
 from click import get_current_context
 
+from circle_core.utils import prepare_uuid
 from .module import Module
 from .schema import Schema
-from ..exceptions import SchemaNotFoundError
+from ..exceptions import MessageBoxNotFoundError, SchemaNotFoundError, SchemaNotMatchError
 from ..helpers.metadata import metadata
 from ..logger import get_stream_logger
 
@@ -35,21 +36,47 @@ class ModuleMessageFactory(object):
         :param str plain_msg:
         :return ModuleMessage:
         """
-        timestamp = round(time(), 6)  # TODO: Python内ではdatetimeで統一
+        payload = json_msg.copy()
+
+        # primary key(timestmap, count)を決定する
+        timestamp = round(time(), 6)
+        # TODO: このあたり厳密にはCASをしないとならないはず
         last_message = cls.last_message_per_module.get(module_uuid, None)
         if last_message is not None and 32767 > last_message.count:
             count = last_message.count + 1
         else:
             count = 0
 
-        cls.last_message_per_module[module_uuid] = ModuleMessage(module_uuid, json_msg, timestamp, count)
-        return cls.last_message_per_module[module_uuid]
+        # message boxを決定
+        box_id = UUID(payload.pop('_box'))
+
+        # boxがあるか確認
+        box = metadata().find_message_box(box_id)
+        if not box:
+            raise MessageBoxNotFoundError()
+
+        schema = metadata().find_schema(box.schema_uuid)
+        if not schema:
+            raise SchemaNotFoundError()
+
+        if not schema.is_valid(payload):
+            logger.error(
+                'Schema of the received message: %r',
+                {key: type(value) for key, value in payload.items()}
+            )
+            raise SchemaNotMatchError()
+
+        #
+        new_message = ModuleMessage(module_uuid, box_id, timestamp, count, payload)
+
+        cls.last_message_per_module[module_uuid] = new_message
+        return new_message
 
 
 class ModuleMessage(object):
     """CircleModuleからのメッセージ.
 
-    :param Module module:
+    :param UUID module_uuid:
     :param Schema schema:
     :param int timestamp:
     :param int count:
@@ -85,36 +112,20 @@ class ModuleMessage(object):
     def __repr__(self):
         return '<circle_core.models.message.ModuleMessage %s>' % self.encode()
 
-    def __init__(self, module_uuid, payload, timestamp, count):
+    def __init__(self, module_uuid, box_id, timestamp, count, payload):
         """timestampとcountをMessageの識別子とする.
 
         :param UUID module_uuid:
-        :param dict payload:
+        :param UUID box_id:
         :param float_or_Deciaml timestamp:
         :param int count:
+        :param dict payload:
         """
-        self.payload = payload
+        self.module_uuid = prepare_uuid(module_uuid)
+        self.box_id = prepare_uuid(box_id)
         self.timestamp = self.make_timestamp(timestamp)
         self.count = count
-
-        if not isinstance(module_uuid, UUID):
-            module_uuid = UUID(module_uuid)
-
-        self.module = metadata().find_module(module_uuid)
-        boxes = [metadata().find_message_box(box_uuid) for box_uuid in self.module.message_box_uuids]
-        schemas = [metadata().find_schema(box.schema_uuid) for box in boxes]
-        try:
-            self.schema = [schema for schema in schemas if schema.is_valid(payload)][0]
-        except IndexError:
-            logger.error(
-                'Known schemas: %r',
-                [{property.name: property.type for property in schema.properties} for schema in metadata().schemas]
-            )
-            logger.error(
-                'Schema of the received message: %r',
-                {key: type(value) for key, value in payload.items()}
-            )
-            raise SchemaNotFoundError()
+        self.payload = payload
 
     def encode(self):
         """slaveのCircleCoreに送られる際に使われる.
@@ -124,6 +135,7 @@ class ModuleMessage(object):
         return json.dumps({
             'timestamp': float(self.timestamp),
             'count': self.count,
-            'module_uuid': self.module.uuid.hex,
+            'module_uuid': self.module_uuid.hex,
+            'box_id': self.box_id.hex,
             'payload': self.payload
         })

@@ -91,7 +91,7 @@ class ReplicationMaster(WebSocketHandler):
 
             :param ModuleMessage msg:
             """
-            if any(module.uuid == msg.module.uuid for module in self.subscribing_modules):
+            if any(module.uuid == msg.module_uuid for module in self.subscribing_modules):
                 logger.debug('Received from nanomsg: %s', msg.encode())
                 self.write_message(msg.encode())
 

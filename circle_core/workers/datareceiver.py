@@ -15,6 +15,7 @@ from ..exceptions import ModuleNotFoundError, SchemaNotFoundError
 from ..helpers.nanomsg import Receiver
 from ..helpers.topics import ModuleMessageTopic
 from ..models.metadata import MetadataIniFile, MetadataRedis
+from ..timed_db import TimedDBBundle
 
 if PY3:
     from typing import Tuple, Union
@@ -25,60 +26,89 @@ logger = get_stream_logger(__name__)
 
 def run(metadata):
     """clickから起動される.
-
-    とりあえず現時点ではパケット毎にcommitする
-    将来的には時間 or パケット数でcommitするようにしたい
     """
-    # TODO: Temporary
-    metadata.data_receiver_cycle_time = 10 * 1000
-    metadata.data_receiver_cycle_count = 10
+    DataReceiver(metadata).run()
 
-    receiver = Receiver(ModuleMessageTopic())
-    receiver.set_timeout(metadata.data_receiver_cycle_time)
 
-    db = Database(metadata.database_url)
-    db.register_message_boxes(metadata.message_boxes, metadata.schemas)
+class DataReceiver(object):
+    def __init__(self, metadata, cycle_time=1.0, cycle_count=10):
+        self.metadata = metadata
 
-    if not db.check_tables().is_ok:
-        # TODO: 例外処理
-        raise Exception
+        # commitする、メッセージ数と時間
+        self.cycle_count = cycle_count
+        self.cycle_time = cycle_time
 
-    conn = db._engine.connect()
+        self.message_receiver = Receiver(ModuleMessageTopic())
+        self.message_receiver.set_timeout(int(self.cycle_time * 1000))
 
-    trans = conn.begin()
-    last_commit_count = 0
+        self.db = Database(metadata.database_url)
+        self.db.register_message_boxes(metadata.message_boxes, metadata.schemas)
 
-    while True:
-        try:
-            for msg in receiver.incoming_messages():
-                logger.debug('received a module data for %s : %r', msg.module.uuid, msg.payload)
+        self.time_db_bundle = TimedDBBundle(metadata.prefix)
 
-                try:
-                    table = db.find_table_for_message(msg)
-                    query = table.insert().values(
-                        _created_at=msg.timestamp,
-                        _counter=msg.count,
-                        **msg.payload
-                    )
-                    conn.execute(query)
-                except:
-                    import traceback
-                    traceback.print_exc()
-                    pass
+        if not self.db.diff_database().is_ok:
+            # TODO: 例外処理
+            raise Exception
 
-                last_commit_count += 1
-                if last_commit_count >= metadata.data_receiver_cycle_count:
-                    break
-        except:
-            trans.rollback()
-            raise
-        else:
-            # commit
-            if last_commit_count:
-                logger.debug('commit data count=%d', last_commit_count)
-                trans.commit()
+        self.conn = self.db._engine.connect()
+        self.transaction = None
 
-                # restart new transaction
-                logger.debug('begin new transaction')
-                trans = conn.begin()
-                last_commit_count = 0
+    def run(self):
+        self.begin_transaction()
+
+        while True:
+            for msg in self.message_receiver.incoming_messages():
+                logger.debug('received a module data for %s-%s : %r', msg.module_uuid, msg.box_id, msg.payload)
+
+                self.store_message(msg)
+
+                if self.should_commit():
+                    self.commit_transaction()
+                    self.begin_transaction()
+
+            if self.should_commit():
+                self.commit_transaction()
+                self.begin_transaction()
+
+        if self.write_count:
+            self.commit_transaction()
+
+    def begin_transaction(self):
+        self.transaction = self.conn.begin()
+        self.write_count, self.transaction_begin = 0, time.time()
+
+        # timed dbのアップデート用にlist((box_id, timestamp))を記録する
+        self.updates = []
+
+    def commit_transaction(self):
+        logger.debug('commit data count=%d', self.write_count)
+        self.transaction.commit()
+        # TODO: timeddbには1秒前のデータのみ入れる
+        self.time_db_bundle.update(self.updates)
+        self.updates = self.transaction = self.write_count = self.transaction_begin = None
+
+    def rollback_transaction(self):
+        self.transaction.rollback()
+        self.updates = self.transaction = self.write_count = self.transaction_begin = None
+
+    def should_commit(self):
+        return (
+            self.write_count and
+            self.transaction_begin and
+            (self.write_count >= self.cycle_count or (time.time() - self.transaction_begin) >= self.cycle_time)
+        )
+
+    def store_message(self, msg):
+        assert self.transaction is not None
+
+        table = self.db.find_table_for_message_box(msg.box_id)
+        query = table.insert().values(
+            _created_at=msg.timestamp,
+            _counter=msg.count,
+            **msg.payload
+        )
+        self.conn.execute(query)
+        self.write_count += 1
+
+        assert isinstance(msg.box_id, UUID)
+        self.updates.append((msg.box_id, msg.timestamp))

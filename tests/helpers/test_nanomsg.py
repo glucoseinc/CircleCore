@@ -59,18 +59,22 @@ class TestReceiver(object):
 
     @pytest.mark.timeout(3)
     def test_json(self):
-        self.socket.send(DummyTopic().encode(u'{"body": "I\'m in body"}'))
+        self.socket.send(DummyTopic().encode(
+            u'{"body": "I\'m in body", "_box": "316720eb-84fe-43b3-88b7-9aad49a93220"}')
+        )
         assert next(self.messages).payload == {u'body': u"I'm in body"}
 
     @pytest.mark.timeout(3)
     def test_multibyte_json(self):
-        self.socket.send(DummyTopic().encode(u'{"鍵": "値"}').encode('utf-8'))
+        self.socket.send(DummyTopic().encode(
+            u'{"鍵": "値", "_box": "e2ca248d-5300-4641-830f-97a4dae0d245"}'
+        ).encode('utf-8'))
         assert next(self.messages).payload == {u'鍵': u'値'}
 
     @pytest.mark.timeout(3)
     def test_blocking(self):  # Receiver側で受け取ったメッセージの処理が終わらない内に次のメッセージが来た場合
-        self.socket.send(DummyTopic().encode(u'{"count": 1}'))
-        self.socket.send(DummyTopic().encode(u'{"count": 2}'))
+        self.socket.send(DummyTopic().encode(u'{"count": 1, "_box": "50ba26f6-2447-4f6a-93b1-d62051d83026"}'))
+        self.socket.send(DummyTopic().encode(u'{"count": 2, "_box": "50ba26f6-2447-4f6a-93b1-d62051d83026"}'))
         assert next(self.messages).payload == {u'count': 1}
         assert next(self.messages).payload == {u'count': 2}
 

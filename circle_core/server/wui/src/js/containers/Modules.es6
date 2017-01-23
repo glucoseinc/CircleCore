@@ -3,13 +3,14 @@ import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
 import {Tabs, Tab} from 'material-ui/Tabs'
+import withWidth, {SMALL} from 'material-ui/utils/withWidth'
 
 import actions from '../actions'
 import {FloatingAddButton} from '../components/buttons'
 import CCLink from '../components/CCLink'
 import Fetching from '../components/Fetching'
 import ModuleDeleteDialog from '../components/ModuleDeleteDialog'
-import ModulesCard from '../components/Modules/ModulesCard'
+import ModulesCards from '../components/Modules/ModulesCards'
 import ModulesList from '../components/Modules/ModulesList'
 import InputTextField from '../containers/InputTextField'
 import {urls} from '../routes'
@@ -25,6 +26,7 @@ class Modules extends Component {
     module: PropTypes.object.isRequired,
     inputText: PropTypes.string.isRequired,
     actions: PropTypes.object.isRequired,
+    width: PropTypes.number.isRequired,
   }
 
   /**
@@ -38,6 +40,7 @@ class Modules extends Component {
       module,
       inputText,
       actions,
+      width,
     } = this.props
 
     const style = {
@@ -71,8 +74,9 @@ class Modules extends Component {
           <Tab
             label="カード表示"
           >
-            <ModulesCard
+            <ModulesCards
               modules={filteredModules}
+              cols={width == SMALL ? 1 : 2}
             />
           </Tab>
           <Tab
@@ -134,4 +138,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(Modules)
+)(withWidth()(Modules))

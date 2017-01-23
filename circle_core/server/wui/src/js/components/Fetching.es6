@@ -25,6 +25,7 @@ class Fetching extends Component {
         loadingColor={orange500}
         status="loading"
         style={style.refresh}
+        {...this.props}
       />
     )
   }

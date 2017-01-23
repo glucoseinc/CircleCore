@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime, timedelta
+import uuid
 
 from flask import abort, Flask, render_template, request
 from six import PY3
+from werkzeug.routing import BaseConverter
 
 # project module
 from circle_core.models.metadata import MetadataIniFile, MetadataRedis
@@ -25,6 +27,8 @@ class CCWebApp(Flask):
         self.config['METADATA'] = metadata
         self.config['TEMPLATES_AUTO_RELOAD'] = True
 
+        self.url_map.converters['uuid'] = UUIDConverter
+
         from .api import api
         self.register_blueprint(api, url_prefix='/api')
         from .authorize import authorize, oauth
@@ -39,3 +43,20 @@ class CCWebApp(Flask):
             if request.path.startswith('/api/'):
                 raise abort(404)
             return render_template('index.html')
+
+
+class UUIDConverter(BaseConverter):
+    """UUID値をURLに使うための今バター
+
+    :class:`~bson.objectid.ObjectId` objects;
+    :attr:`ObjectId`.
+    """
+
+    def to_python(self, value):
+        try:
+            return uuid.UUID(value)
+        except ValueError:
+            raise abort(404)
+
+    def to_url(self, value):
+        return str(value)

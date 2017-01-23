@@ -2,6 +2,7 @@
 """WebSocketサーバーに適当にデータを投げつけるbot."""
 import json
 from time import sleep
+import uuid
 
 import click
 import websocket
@@ -20,8 +21,9 @@ def cli_bot():
 
 @cli_bot.command()
 @click.option('receive_from', '--from', type=click.STRING, default='ws://api.coi.bodic.org/websocket')
-@click.option('send_to', '--to', type=click.STRING, default='ws://localhost:5000/module')
-def echo(receive_from, send_to):
+@click.option('send_to', '--to', type=click.STRING, default='ws://localhost:5000/module/?')
+@click.option('box_id', '--box-id', type=uuid.UUID)
+def echo(receive_from, send_to, box_id):
     """--fromから--toへメッセージをたらい回し.
 
     スキーマ登録: crcr schema add --name echobot \
@@ -31,7 +33,9 @@ def echo(receive_from, send_to):
     :param str send_to:
     """
     websocket.enableTrace(True)
+    receiver = websocket.create_connection(receive_from)
     sender = websocket.create_connection(send_to)
+    box_id = str(box_id)
 
     while True:
         receiver = websocket.create_connection(receive_from, timeout=10)
@@ -45,7 +49,8 @@ def echo(receive_from, send_to):
                 logger.error("I'm not received new messages anymore. Reconnecting...")
                 break
 
-            for dic in json.loads(msg):
+            for j, dic in enumerate(json.loads(msg)):
+                dic['_box'] = box_id
                 sender.send(json.dumps(dic))
 
 

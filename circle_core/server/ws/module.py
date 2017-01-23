@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """TornadoでWebSocketサーバーを立てる."""
 import json
+import uuid
 
 from tornado.websocket import WebSocketHandler
 
-from circle_core.exceptions import ModuleNotFoundError, SchemaNotFoundError
+from circle_core.exceptions import CircleCoreException, ModuleNotFoundError
 from circle_core.helpers.metadata import metadata
 from circle_core.helpers.nanomsg import Sender
 from circle_core.helpers.topics import ModuleMessageTopic
@@ -39,22 +40,25 @@ class ModuleHandler(WebSocketHandler):
 
         :param unicode msg:
         """
-        logger.debug('Received from nanomsg: %s', plain_msg)
+        logger.debug('Received from websocket: %s', plain_msg)
 
         json_msgs = json.loads(plain_msg)
         if not isinstance(json_msgs, list):
             json_msgs = [json_msgs]
 
         msgs_with_primary_key = []
+        msgs_with_errors = []
         for json_msg in json_msgs:
             try:
                 msgs_with_primary_key.append(ModuleMessageFactory.new(self.module.uuid, json_msg).encode())
-            except SchemaNotFoundError:
-                logger.error('Received message has unknown schema. Ignore it.')
+            except CircleCoreException as exc:
+                # TODO: エラーテーブルに追加する
+                logger.error('Invalid message ({!r}). ignore it'.format(exc))
+                msgs_with_errors.append((json_msg, exc))
 
-        # FIXME: Redisへのアクセス等も非同期に行わないとパフォーマンスが落ちるかも
-        rv = self._sender.send(msgs_with_primary_key)
-        logger.debug('%r', rv)
+        if msgs_with_primary_key:
+            logger.debug('forwarind %d messages', len(msgs_with_primary_key))
+            self._sender.send(msgs_with_primary_key)
 
     def on_close(self):
         """センサーとの接続が切れた際に呼ばれる."""

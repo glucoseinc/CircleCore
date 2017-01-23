@@ -20,6 +20,7 @@ install_requires = [
     'sqlalchemy>=1.1.4',
     'tornado',
     'websocket-client',
+    'whisper',
 ]
 if PY2:
     install_requires.append('enum34')
@@ -32,6 +33,7 @@ setup(
     install_requires=install_requires,
     dependency_links=[
         'git+https://github.com/nanomsg/nnpy.git#egg=nnpy',
+        'git+https://github.com/graphite-project/whisper.git',
         # 'git+https://github.com/mysql/mysql-connector-python.git@2.2.1-m2#egg=mysql-connector-python',
         # 'http://cdn.mysql.com//Downloads/Connector-Python/mysql-connector-python-2.2.1.tar.gz'
     ],

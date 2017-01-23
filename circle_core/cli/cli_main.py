@@ -6,6 +6,7 @@ from __future__ import absolute_import, print_function
 
 from itertools import cycle, groupby
 from multiprocessing import Process
+import os
 import re
 from signal import SIGINT, signal, SIGTERM
 import sys
@@ -40,6 +41,15 @@ def cli_main(ctx, metadata_url, crcr_uuid, log_file_path):
     :param UUID crcr_uuid: CircleCore UUID
     :param str log_file_path: ログファイルのパス
     """
+    # temporary
+    import logging
+
+    root_logger = logging.getLogger()
+    if sys.stdout.isatty():
+        # コマンドラインから直接起動されていれば、stdoutにログを吐く
+        root_logger.setLevel(logging.DEBUG)
+        root_logger.addHandler(logging.StreamHandler())
+
     if metadata_url is None:
         click.echo('Metadata is not set.')
         click.echo('Please set metadata to argument `crcr --metadata URL_SCHEME ...`')
@@ -89,12 +99,14 @@ def validate_replication_master_addr(ctx, param, values):
 @click.option('replicate_from', '--replicate', type=click.STRING, envvar='CRCR_REPLICATION', multiple=True,
               help='module_uuid@hostname:port', callback=validate_replication_master_addr)
 @click.option('database_url', '--database', envvar='CRCR_DATABASE')
+@click.option('--prefix', envvar='CRCR_PREFIX', default=lambda: os.getcwd())
 @click.pass_context
-def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, workers, replicate_from, database_url):
+def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, workers, replicate_from, database_url, prefix):
     """CircleCoreの起動."""
     ctx.obj.ipc_socket = 'ipc://' + ipc_socket
     metadata = ctx.obj.metadata
     metadata.database_url = database_url  # とりあえず...
+    metadata.prefix = prefix  # とりあえず...
 
     for addr, value in groupby([module_and_addr.split('@') for module_and_addr in replicate_from], lambda x: x[1]):
         modules = [module_and_addr[0] for module_and_addr in value]

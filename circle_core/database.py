@@ -5,6 +5,7 @@
 from __future__ import absolute_import
 
 from time import mktime
+import uuid
 
 from base58 import b58encode
 from click import get_current_context
@@ -83,15 +84,17 @@ class Database(object):
             )
             sa.Table(table_name, self._metadata, *columns, **TABLE_OPTIONS)
 
-    def check_tables(self):
+    def diff_database(self):
         """
-        DBをスキーマ、モジュールの設定に合わせて変更する必要がある化を調査する
-        check_table結果にエラーがあれば、MigrationError例外が起こる
+        DBをスキーマ、モジュールの設定に合わせて変更する必要があるかを調査する
+        結果にエラーがあれば、MigrationError例外が起こる
 
         see: https://github.com/openstack/sqlalchemy-migrate/blob/master/migrate/versioning/schemadiff.py
 
         :return DiffResult: 検証結果
         """
+
+        # 論理MetadataをVisitして、現実Databaseとの差異を確認
         logger.info('start checking database')
         diff_result = DiffResult()
         self._engine._run_visitor(
@@ -105,9 +108,9 @@ class Database(object):
     def migrate(self):
         """
         DBをスキーマ、モジュールの設定に合わせて変更する
-        check_table結果にエラーがあれば、MigrationError例外が起こる
+        結果にエラーがあれば、MigrationError例外が起こる
         """
-        diff = self.check_tables()
+        diff = self.diff_database()
         if diff.error_tables:
             raise MigrationError
 
@@ -132,10 +135,13 @@ class Database(object):
     def make_table_name_for_message_box(self, box):
         """
 
-        :param MessageBox box:
+        :param MessageBox or UUID box:
         :return str:
         """
-        return 'message_box_' + b58encode(box.uuid.bytes)
+        if not isinstance(box, uuid.UUID):
+            box = box.uuid
+
+        return 'message_box_' + b58encode(box.bytes)
 
     def find_table_for_message_box(self, box):  # これらも各modelのメソッドにした方がいいかなあ
         return sa.Table(
@@ -146,6 +152,7 @@ class Database(object):
         )
 
     def find_table_for_message(self, msg):
+        assert 0, 'deprecated'
         boxes = [metadata().find_message_box(box_uuid) for box_uuid in msg.module.message_box_uuids]
         table_name = [
             self.make_table_name_for_message_box(box)
