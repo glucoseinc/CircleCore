@@ -6,6 +6,11 @@ from time import sleep
 import click
 import websocket
 
+from ..logger import get_stream_logger
+
+
+logger = get_stream_logger()
+
 
 @click.group('bot')
 def cli_bot():
@@ -19,26 +24,37 @@ def cli_bot():
 def echo(receive_from, send_to):
     """--fromから--toへメッセージをたらい回し.
 
+    スキーマ登録: crcr schema add --name echobot \
+      speed:float lat:float direction:int x:float y:float timestamp:int lng:float pid:int psen:int
+
     :param str receive_from:
     :param str send_to:
     """
     websocket.enableTrace(True)
-    receiver = websocket.create_connection(receive_from)
     sender = websocket.create_connection(send_to)
 
-    i = 0
     while True:
-        i += 1
-        msg = receiver.recv()
-        for dic in json.loads(msg):
-            sender.send(json.dumps(dic))
-        # click.echo('I sent a message {} times'.format(i))
+        receiver = websocket.create_connection(receive_from, timeout=10)
+
+        i = 0
+        while True:
+            i += 1
+            try:
+                msg = receiver.recv()
+            except websocket.WebSocketTimeoutException:
+                logger.error("I'm not received new messages anymore. Reconnecting...")
+                break
+
+            for dic in json.loads(msg):
+                sender.send(json.dumps(dic))
 
 
 @cli_bot.command()
 @click.option('send_to', '--to', type=click.STRING, default='ws://localhost:5000/module')
 def dummy(send_to):
     """ダミーのデータを投げる.
+
+    スキーマ登録: crcr schema add --name dummybot count:int body:text
 
     :param str send_to:
     """
@@ -50,3 +66,26 @@ def dummy(send_to):
         ws.send(json.dumps({'count': i, 'body': "Greetings from a bot"}, indent=2, ensure_ascii=False))
         click.echo('I sent a message {} times'.format(i))
         sleep(1)
+
+
+@cli_bot.command()
+@click.option('send_to', '--to', type=click.STRING, default='ws://localhost:5000/module')
+def bitcoin(send_to):
+    """Bitcoinの取引をCircleCoreに送信.
+
+    スキーマ登録: crcr schema add --name bitcoinbot address:text btc:float
+
+    :param str send_to:
+    """
+    websocket.enableTrace(True)
+    sender = websocket.create_connection(send_to)
+    receiver = websocket.create_connection('wss://ws.blockchain.info/inv')
+    receiver.send('{"op":"unconfirmed_sub"}')
+    while True:
+        res = json.loads(receiver.recv())
+        for transaction in res['x']['out']:
+            req = json.dumps({
+                'address': transaction['addr'],
+                'btc': transaction['value'] / 10 ** 8,
+            })
+            sender.send(req)
