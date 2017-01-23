@@ -24,6 +24,9 @@ def cli_bot():
 def echo(receive_from, send_to):
     """--fromから--toへメッセージをたらい回し.
 
+    スキーマ登録: crcr schema add --name echobot \
+      speed:float lat:float direction:int x:float y:float timestamp:int lng:float pid:int psen:int
+
     :param str receive_from:
     :param str send_to:
     """
@@ -51,6 +54,8 @@ def echo(receive_from, send_to):
 def dummy(send_to):
     """ダミーのデータを投げる.
 
+    スキーマ登録: crcr schema add --name dummybot count:int body:text
+
     :param str send_to:
     """
     websocket.enableTrace(True)
@@ -67,6 +72,8 @@ def dummy(send_to):
 @click.option('send_to', '--to', type=click.STRING, default='ws://localhost:5000/module')
 def bitcoin(send_to):
     """Bitcoinの取引をCircleCoreに送信.
+
+    スキーマ登録: crcr schema add --name bitcoinbot address:text btc:float
 
     :param str send_to:
     """
