@@ -91,8 +91,9 @@ class ModuleMessage(object):
         :param str plain_msg:
         :return ModuleMessage:
         """
-        decoded = json.loads(plain_msg)
-        return cls(**decoded)
+        json_msg = json.loads(plain_msg)
+        timestamp = message_timestamp_context.create_decimal(json_msg.pop('timestamp'))
+        return cls(timestamp=timestamp, **json_msg)
 
     @classmethod
     def make_timestamp(cls, timestamp):
@@ -135,7 +136,7 @@ class ModuleMessage(object):
         :return str:
         """
         return json.dumps({
-            'timestamp': float(self.timestamp),
+            'timestamp': str(self.timestamp),
             'count': self.count,
             'module_uuid': self.module_uuid.hex,
             'box_id': self.box_id.hex,
