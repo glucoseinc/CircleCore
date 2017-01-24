@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime, timedelta
+import time
 import uuid
 
 from flask import abort, Flask, render_template, request
@@ -20,6 +21,7 @@ class CCWebApp(Flask):
     def __init__(self, metadata=None):
         super(CCWebApp, self).__init__(__name__)
 
+        self.uptime = time.time()
         self.config['SECRET_KEY'] = (
             '16f4ecd3a212450c3bbc22f61c2fa4ea06c5ae7fa8827887e14b469ab59d69d6'
             '574302c7680310a50a5dc70db38d584ace529f0162ec56103cbce6a4c670e417'
@@ -43,6 +45,10 @@ class CCWebApp(Flask):
             if request.path.startswith('/api/'):
                 raise abort(404)
             return render_template('index.html')
+
+        @self.context_processor
+        def global_variables():
+            return dict(UPTIME=self.uptime)
 
 
 class UUIDConverter(BaseConverter):

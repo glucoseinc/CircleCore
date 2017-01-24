@@ -8,7 +8,7 @@
 
 <title>CircleCore</title>
 
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}?_={{ UPTIME }}" />
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 
@@ -16,7 +16,7 @@
 
   <div id="app"></div>
 
-  <script type="text/javascript" src="{{ url_for('static', filename='main.bundle.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='main.bundle.js') }}?_={{ UPTIME }}"></script>
 
 </body>
 </html>
