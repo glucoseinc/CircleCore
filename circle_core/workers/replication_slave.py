@@ -19,6 +19,7 @@ from ..models.message import ModuleMessage
 from ..models.message_box import MessageBox
 from ..models.module import Module
 from ..models.schema import Schema
+from ..workers.datareceiver import DataReceiver
 
 logger = get_stream_logger(__name__)
 
@@ -62,31 +63,11 @@ class ReplicationSlave(object):
             raise
 
     def receive(self):
-        dbconn = self.db._engine.connect()
+        def receiver():
+            for json_msg in self.ws:
+                yield ModuleMessage.decode(json_msg)
 
-        while True:
-            transaction = dbconn.begin()
-            try:
-                try:
-                    msg = ModuleMessage.decode(self.ws.recv())
-                except WebSocketConnectionClosedException:
-                    logger.error('WebSocket connection closed')
-                    return
-                logger.debug('Received from master: %r', msg)
-
-                table = self.db.find_table_for_message_box(msg.box_id)
-                query = table.insert().values(
-                    _created_at=msg.timestamp,
-                    _counter=msg.count,
-                    **msg.payload
-                )
-                dbconn.execute(query)
-            except:
-                traceback.print_exc()
-                transaction.rollback()
-            else:
-                transaction.commit()
-                logger.debug('Execute query %s', query)
+        DataReceiver(self.metadata, receiver=receiver()).run()
 
     def run(self):
         req = json.dumps({

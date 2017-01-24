@@ -68,6 +68,7 @@ class DummyReplicationMaster(WebSocketHandler):
         json_msg = json.loads(plain_msg)
         if json_msg['command'] == 'MIGRATE':
             res = json.dumps({
+                'crcr_uuid': '61b55e35-d769-429f-a464-9efe14a2d573',
                 'schemas': [Schema(
                     '3038b66a-9ebd-4f1b-8ca6-6281e004bb76',
                     'DummySchema',
@@ -181,6 +182,7 @@ class TestReplicationMaster(AsyncHTTPTestCase):
             'hoge': 123
         }
 
+    @pytest.mark.skip
     @pytest.mark.timeout(120)  # 遅い...
     @gen_test
     def test_receive_count(self):

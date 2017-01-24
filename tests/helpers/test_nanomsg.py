@@ -50,7 +50,7 @@ class TestReceiver(object):
         cls.socket = Socket(AF_SP, PUB)
         cls.socket.bind(get_ipc_socket_path())
         cls.receiver = Receiver(DummyTopic())
-        cls.messages = cls.receiver.incoming_messages()
+        cls.messages = iter(cls.receiver)
 
     @classmethod
     def teardown_class(cls):

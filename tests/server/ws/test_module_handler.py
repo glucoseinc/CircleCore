@@ -42,7 +42,7 @@ class TestModuleHandler(AsyncHTTPTestCase):
         message.metadata = DummyMetadata
         module.metadata = DummyMetadata
         self.receiver = Receiver(ModuleMessageTopic())
-        self.messages = self.receiver.incoming_messages()
+        self.messages = iter(self.receiver)
 
     def tearDown(self):
         super().tearDown()
