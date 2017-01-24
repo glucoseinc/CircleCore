@@ -294,7 +294,7 @@ def _respond_rickshaw_graph_data(boxes, graph_range):
                 raise ValueError('graph range mismatch')
 
         graph_data.append({
-            'messageBox': convert_dict_key_camel_case(box.serialize()),
+            'messageBox': convert_dict_key_camel_case(box.to_json()),
             'data': [dict(x=x, y=y) for x, y in zip(range(start, end, step), values)],
         })
 
@@ -304,7 +304,7 @@ def _respond_rickshaw_graph_data(boxes, graph_range):
     # グラフが無いやつはNullのグラフで埋める
     for box in missing_boxes:
         graph_data.append({
-            'messageBox': convert_dict_key_camel_case(box.serialize()),
+            'messageBox': convert_dict_key_camel_case(box.to_json()),
             'data': [dict(x=x, y=None) for x in range(*graph_steps)],
         })
     graph_data.sort(key=lambda x: x['messageBox']['uuid'])
