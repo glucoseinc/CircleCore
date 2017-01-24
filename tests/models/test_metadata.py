@@ -65,7 +65,7 @@ class TestMetadataRedis(object):
         assert metadata.message_boxes[0].schema_uuid == UUID('44ae2fd8-52d0-484d-9a48-128b07937a0a')
         assert metadata.message_boxes[0].display_name == 'DummyBox'
         assert metadata.message_boxes[0].memo == 'message box for test'
-        assert not metadata.message_boxes[0].of_master
+        assert not metadata.message_boxes[0].master_uuid
 
         module = Module(
             '8e654793-5c46-4721-911e-b9d19f0779f9',

@@ -45,7 +45,7 @@ class ReplicationSlave(object):
         for schema in schemas:
             metadata().register_schema(schema)
 
-        boxes = [MessageBox.from_json(box, of_master=True) for box in res['message_boxes']]
+        boxes = [MessageBox.from_json(box, master_uuid=res['crcr_uuid']) for box in res['message_boxes']]
         for box in boxes:
             metadata().register_message_box(box)
 
@@ -101,6 +101,9 @@ class ReplicationSlave(object):
         payload = {}
         for module_uuid in self.module_uuids:
             module = metadata().find_module(module_uuid)
+            if not module:
+                continue
+
             for box_uuid in module.message_box_uuids:
                 box = metadata().find_message_box(box_uuid)
                 last_timestamp, last_count = db.last_message_identifier_for_box(box)

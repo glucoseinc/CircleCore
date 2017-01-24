@@ -12,6 +12,7 @@ from six import PY3
 from .message import ModuleMessage
 from ..helpers.metadata import metadata
 from ..logger import get_stream_logger
+from ..utils import prepare_uuid
 
 if PY3:
     from typing import Optional, Union
@@ -32,14 +33,14 @@ class MessageBox(object):
     :param Optional[str] display_name: 表示名
     :param Optional[str] memo: メモ
     """
-    def __init__(self, uuid, schema_uuid, display_name=None, memo=None, of_master=False):
+    def __init__(self, uuid, schema_uuid, display_name=None, memo=None, master_uuid=None):
         """init.
 
         :param Union[str, UUID] uuid: MessageBox UUID
         :param Union[str, UUID] schema_uuid: Schema UUID
         :param Optional[str] display_name: 表示名
         :param Optional[str] memo: メモ
-        :param Bool of_master:
+        :param Union[NoneType, str, UUID] master_uuid:
         """
         if not isinstance(uuid, UUID):
             try:
@@ -57,9 +58,10 @@ class MessageBox(object):
         self.schema_uuid = schema_uuid
         self.display_name = display_name
         self.memo = memo
-        self.of_master = of_master
-        if isinstance(self.of_master, str):
-            self.of_master = eval(of_master)  # RedisにBoolはない...
+        if master_uuid:
+            self.master_uuid = prepare_uuid(master_uuid)
+        else:
+            self.master_uuid = None
 
     def __eq__(self, other):
         """return equality.
@@ -119,16 +121,6 @@ class MessageBox(object):
         :rtype: MessageBox
         """
         return cls(**json_msg, **kwargs)
-
-    def serialize(self):
-        """このインスタンスをslaveが再構築できるだけの情報.
-        レプリケーション時に使用.
-        """
-        return {
-            'uuid': self.uuid.hex,
-            'display_name': self.display_name,
-            'dictified_properties': self.dictified_properties
-        }
 
     def messages_since(self, timestamp, count):
         """引数以降、このMessageBoxに蓄えられたModuleMessageを返す.

@@ -3,6 +3,8 @@
 import json
 from uuid import UUID
 
+from click import get_current_context
+
 from tornado.ioloop import IOLoop
 from tornado.websocket import WebSocketHandler
 
@@ -15,6 +17,13 @@ from ...models.message_box import MessageBox
 
 
 logger = get_stream_logger(__name__)
+
+
+def get_uuid():
+    try:
+        return get_current_context().obj.uuid
+    except RuntimeError:
+        return ''  # テスト時
 
 
 class ReplicationMaster(WebSocketHandler):
@@ -72,9 +81,10 @@ class ReplicationMaster(WebSocketHandler):
         ]
         schemas = [metadata().find_schema(box.schema_uuid) for box in boxes]
         resp = json.dumps({
-            'modules': [module.to_json() for module in self.subscribing_modules if not module.of_master],
-            'message_boxes': [box.to_json() for box in boxes if not box.of_master],
-            'schemas': [schema.to_json() for schema in schemas if not schema.of_master]
+            'crcr_uuid': str(get_uuid()),
+            'modules': [module.to_json() for module in self.subscribing_modules if not module.master_uuid],
+            'message_boxes': [box.to_json() for box in boxes if not box.master_uuid],
+            'schemas': [schema.to_json() for schema in schemas if not schema.master_uuid]
         })
         self.write_message(resp)
 

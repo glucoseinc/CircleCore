@@ -94,6 +94,7 @@ class TestReplicationSlave:
                 msg = json.loads(message)
                 if msg == {'command': 'MIGRATE'}:
                     res = json.dumps({
+                        'crcr_uuid': '1f479ba2-5642-41bf-8661-f52abb09e5b5',
                         'modules': [{
                             'uuid': '8e654793-5c46-4721-911e-b9d19f0779f9',
                             'message_box_uuids': ['316720eb-84fe-43b3-88b7-9aad49a93220'],
