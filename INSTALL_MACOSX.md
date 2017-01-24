@@ -42,6 +42,8 @@ $ git clone git@github.com:glucoseinc/CircleCore.git  # SSH接続時
 $ cd CircleCore
 $ git checkout master
 $ git pull
+$ git submodule init
+$ git submodule update
 ```
 
 ### venv環境作成
@@ -49,7 +51,8 @@ $ git pull
 $ virtualenv -p ~/.pyenv/versions/3.5.2/bin/python .env/3.5.2
 $ . .env/3.5.2/bin/activate
 (3.5.2) $ pip install -e git://github.com/nanomsg/nnpy.git#egg=nnpy
-(3.5.2) $ pip install http://cdn.mysql.com//Downloads/Connector-Python/mysql-connector-python-2.2.1.tar.gz
+(3.5.2) $ pip install http://cdn.mysql.com//Downloads/Connector-Python/mysql-connector-python-2.2.2.tar.gz
+(3.5.2) $ cd whisper && python setup.py install && cd ..
 (3.5.2) $ pip install -e '.[test,redis,mysql]'
 ```
 
