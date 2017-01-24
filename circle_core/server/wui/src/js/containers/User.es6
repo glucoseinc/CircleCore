@@ -59,7 +59,7 @@ class User extends React.Component {
     const title = `ユーザー ${user.displayName}`
 
     return (
-      <div className="page page-userDetail">
+      <div className="page pageUserDetail">
         <Title render={(previousTitle) => `${title} - ${previousTitle}`} />
 
         <div className="markdown-body">

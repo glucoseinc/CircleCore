@@ -67,7 +67,7 @@ class Invitations extends Component {
     const isReadOnly = token.hasScope('user+rw') ? false : true
 
     return (
-      <div>
+      <div className="page">
         {!isReadOnly &&
         <CreateButton
           label="ユーザー招待リンクを生成する"

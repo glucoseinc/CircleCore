@@ -63,17 +63,18 @@ class Modules extends Component {
     ))
 
     return (
-      <div>
-        <InputTextField
-          hintText="タグで検索"
-          fullWidth={true}
-        />
+      <div className="page pageModules">
         <Tabs
           contentContainerStyle={style.tab}
         >
           <Tab
             label="カード表示"
           >
+            <InputTextField
+              hintText="タグで検索"
+              fullWidth={true}
+            />
+
             <ModulesCards
               modules={filteredModules}
               cols={width == SMALL ? 1 : 2}
@@ -82,6 +83,10 @@ class Modules extends Component {
           <Tab
             label="リスト表示"
           >
+            <InputTextField
+              hintText="タグで検索"
+              fullWidth={true}
+            />
             <ModulesList
               modules={filteredModules}
               onModulesTagTouchTap={actions.misc.inputTextChange}

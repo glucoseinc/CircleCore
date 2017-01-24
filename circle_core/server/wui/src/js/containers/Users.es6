@@ -52,7 +52,7 @@ class Users extends React.Component {
     const isReadOnly = token.hasScope('user+rw') ? false : true
 
     return (
-      <div>
+      <div className="page">
         <UsersTable
           users={users}
           onDeleteUser={::this.onDeleteUser}

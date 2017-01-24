@@ -29,7 +29,12 @@ table.props th {
   }
 }
 
+/* 共通 */
+.page {
+  margin: 32px;
+}
 
+/* module系 */
 $moduleCardsMargin: 16px;
 
 .moduleCards {
