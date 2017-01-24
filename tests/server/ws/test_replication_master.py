@@ -72,17 +72,17 @@ class DummyReplicationMaster(WebSocketHandler):
                     '3038b66a-9ebd-4f1b-8ca6-6281e004bb76',
                     'DummySchema',
                     [{'name': 'hoge', 'type': 'text'}]
-                ).serialize()],
+                ).to_json()],
                 'message_boxes': [MessageBox(
                     '9168d87f-72cc-4dff-90d5-ad30e3e28958',
                     '3038b66a-9ebd-4f1b-8ca6-6281e004bb76',
                     'DummyBox'
-                ).serialize()],
+                ).to_json()],
                 'modules': [Module(
                     'f0c5da15-d1f3-43b9-bbc0-423a6d5bcd8f',
                     ['9168d87f-72cc-4dff-90d5-ad30e3e28958'],
                     'DummyModule'
-                ).serialize()]
+                ).to_json()]
             })
             self.write_message(res)
 

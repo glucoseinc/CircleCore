@@ -120,6 +120,17 @@ class MessageBox(object):
         """
         return cls(**json_msg, **kwargs)
 
+
+    def serialize(self):
+        """このインスタンスをslaveが再構築できるだけの情報.
+        レプリケーション時に使用.
+        """
+        return {
+            'uuid': self.uuid.hex,
+            'display_name': self.display_name,
+            'dictified_properties': self.dictified_properties
+        }
+
     def messages_since(self, timestamp, count):
         """引数以降、このMessageBoxに蓄えられたModuleMessageを返す.
 
