@@ -172,9 +172,25 @@ class Schema(object):
             'memo': self.memo,
         }
 
+    @classmethod
+    def from_json(cls, json_msg, **kwargs):
+        """JSON表現から復元.
+
+        :param dict json_msg:
+        :rtype: Schema
+        """
+        properties = json_msg.pop('properties')
+        return Schema(dictified_properties=properties, **json_msg, **kwargs)
+
+    @property
+    def of_master(self):
+        """
+        :rtype bool:
+        """
+        return any(box.of_master for box in metadata().message_boxes if box.schema_uuid == self.uuid)
+
     def is_valid(self, dic):  # TODO: Schema専用のJSONDecoderを作ってそこで例外を投げたほうがいいかなあ
         """nanomsg経由で受け取ったメッセージをデシリアライズしたものがこのSchemaに適合しているか.
-
         :param dict dic:
         """
         if not len(dic) == len(self.properties):
@@ -198,21 +214,3 @@ class Schema(object):
                 return False
 
         return True
-
-    def serialize(self):
-        """このインスタンスをslaveが再構築できるだけの情報.
-
-        レプリケーション時に使用.
-        """
-        return {
-            'uuid': self.uuid.hex,
-            'display_name': self.display_name,
-            'dictified_properties': self.dictified_properties
-        }
-
-    @property
-    def of_master(self):
-        """
-        :rtype bool:
-        """
-        return any(box.of_master for box in metadata().message_boxes if box.schema_uuid == self.uuid)

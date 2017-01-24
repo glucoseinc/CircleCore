@@ -22,7 +22,7 @@ def cli_bot():
 @cli_bot.command()
 @click.option('receive_from', '--from', type=click.STRING, default='ws://api.coi.bodic.org/websocket')
 @click.option('send_to', '--to', type=click.STRING, default='ws://localhost:5000/module/?')
-@click.option('box_id', '--box-id', type=uuid.UUID)
+@click.option('box_id', '--box-id', type=uuid.UUID, required=True)
 def echo(receive_from, send_to, box_id):
     """--fromから--toへメッセージをたらい回し.
 
@@ -56,7 +56,7 @@ def echo(receive_from, send_to, box_id):
 
 @cli_bot.command()
 @click.option('send_to', '--to', type=click.STRING, default='ws://localhost:5000/module')
-@click.option('box_id', '--box-id', type=uuid.UUID)
+@click.option('box_id', '--box-id', type=uuid.UUID, required=True)
 def dummy(send_to, box_id):
     """ダミーのデータを投げる.
 
@@ -79,7 +79,7 @@ def dummy(send_to, box_id):
 
 @cli_bot.command()
 @click.option('send_to', '--to', type=click.STRING, default='ws://localhost:5000/module')
-@click.option('box_id', '--box-id', type=uuid.UUID)
+@click.option('box_id', '--box-id', type=uuid.UUID, required=True)
 def bitcoin(send_to, box_id):
     """Bitcoinの取引をCircleCoreに送信.
 

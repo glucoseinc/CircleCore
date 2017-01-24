@@ -111,16 +111,23 @@ class MessageBox(object):
             'memo': self.memo,
         }
 
+    @classmethod
+    def from_json(cls, json_msg, **kwargs):
+        """JSON表現からの復元.
+
+        :param dict json_msg:
+        :rtype: MessageBox
+        """
+        return cls(**json_msg, **kwargs)
+
     def serialize(self):
         """このインスタンスをslaveが再構築できるだけの情報.
-
         レプリケーション時に使用.
         """
         return {
             'uuid': self.uuid.hex,
-            'schema_uuid': self.schema_uuid.hex,
             'display_name': self.display_name,
-            'memo': self.memo
+            'dictified_properties': self.dictified_properties
         }
 
     def messages_since(self, timestamp, count):

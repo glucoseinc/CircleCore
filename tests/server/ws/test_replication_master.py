@@ -72,17 +72,17 @@ class DummyReplicationMaster(WebSocketHandler):
                     '3038b66a-9ebd-4f1b-8ca6-6281e004bb76',
                     'DummySchema',
                     [{'name': 'hoge', 'type': 'text'}]
-                ).serialize()],
+                ).to_json()],
                 'message_boxes': [MessageBox(
                     '9168d87f-72cc-4dff-90d5-ad30e3e28958',
                     '3038b66a-9ebd-4f1b-8ca6-6281e004bb76',
                     'DummyBox'
-                ).serialize()],
+                ).to_json()],
                 'modules': [Module(
                     'f0c5da15-d1f3-43b9-bbc0-423a6d5bcd8f',
                     ['9168d87f-72cc-4dff-90d5-ad30e3e28958'],
                     'DummyModule'
-                ).serialize()]
+                ).to_json()]
             })
             self.write_message(res)
 
@@ -135,17 +135,17 @@ class TestReplicationMaster(AsyncHTTPTestCase):
         resp = yield self.dummy_crcr.read_message()
         resp = json.loads(resp)
 
-        schema = Schema(**resp['schemas'][0])
+        schema = Schema.from_json(resp['schemas'][0])
         assert schema.uuid == UUID('44ae2fd8-52d0-484d-9a48-128b07937a0a')
         assert schema.display_name == 'DummySchema'
         assert schema.properties[0].name == 'hoge'
         assert schema.properties[0].type == 'int'
 
-        box = MessageBox(**resp['message_boxes'][0])
+        box = MessageBox.from_json(resp['message_boxes'][0])
         assert box.uuid == UUID('316720eb-84fe-43b3-88b7-9aad49a93220')
         assert box.schema_uuid == UUID('44ae2fd8-52d0-484d-9a48-128b07937a0a')
 
-        module = Module(**resp['modules'][0])
+        module = Module.from_json(resp['modules'][0])
         assert module.uuid == UUID('8e654793-5c46-4721-911e-b9d19f0779f9')
         assert module.message_box_uuids[0] == UUID('316720eb-84fe-43b3-88b7-9aad49a93220')
         assert module.display_name == 'DummyModule'
@@ -213,7 +213,7 @@ class TestReplicationMaster(AsyncHTTPTestCase):
         指定した時点以降のデータのみ送られてくるか。
         """
         DummyMetadata.database_url = self.mysql.url
-        now = round(time(), 6)
+        now = ModuleMessage.make_timestamp(time())
 
         # timestampが同じでcountが違う場合
         db = Database(self.mysql.url)
@@ -227,7 +227,7 @@ class TestReplicationMaster(AsyncHTTPTestCase):
             'command': 'RECEIVE',
             'payload': {
                 '316720eb-84fe-43b3-88b7-9aad49a93220': {
-                    'timestamp': now,
+                    'timestamp': str(now),
                     'count': 0
                 }
             }
@@ -242,8 +242,8 @@ class TestReplicationMaster(AsyncHTTPTestCase):
         assert resp['payload'] == {'hoge': 678}
 
         # countが同じでtimestampが違う場合
-        now = now + 1
-        past = now - 0.000001
+        past = now + 1
+        now = now + 2
         db._engine.execute(table.insert(), _created_at=past, _counter=0, hoge=234)
         db._engine.execute(table.insert(), _created_at=now, _counter=0, hoge=789)
 
@@ -251,7 +251,7 @@ class TestReplicationMaster(AsyncHTTPTestCase):
             'command': 'RECEIVE',
             'payload': {
                 '316720eb-84fe-43b3-88b7-9aad49a93220': {
-                    'timestamp': past,
+                    'timestamp': str(past),
                     'count': 0
                 }
             }
@@ -266,8 +266,8 @@ class TestReplicationMaster(AsyncHTTPTestCase):
         assert resp['payload'] == {'hoge': 789}
 
         # countもtimestampも違う場合
-        now = now + 1
-        past = now - 0.000001
+        past = now + 1
+        now = now + 2
         db._engine.execute(table.insert(), _created_at=past, _counter=1, hoge=345)
         db._engine.execute(table.insert(), _created_at=now, _counter=0, hoge=543)
 
@@ -275,7 +275,7 @@ class TestReplicationMaster(AsyncHTTPTestCase):
             'command': 'RECEIVE',
             'payload': {
                 '316720eb-84fe-43b3-88b7-9aad49a93220': {
-                    'timestamp': past,
+                    'timestamp': str(past),
                     'count': 1
                 }
             }

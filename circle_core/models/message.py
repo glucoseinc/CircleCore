@@ -39,7 +39,7 @@ class ModuleMessageFactory(object):
         payload = json_msg.copy()
 
         # primary key(timestmap, count)を決定する
-        timestamp = round(time(), 6)
+        timestamp = time()
         # TODO: このあたり厳密にはCASをしないとならないはず
         last_message = cls.last_message_per_module.get(module_uuid, None)
         if last_message is not None and 32767 > last_message.count:
@@ -77,6 +77,7 @@ class ModuleMessage(object):
     """CircleModuleからのメッセージ.
 
     :param UUID module_uuid:
+    :param MessageBox message_box:
     :param Schema schema:
     :param int timestamp:
     :param int count:
@@ -90,12 +91,13 @@ class ModuleMessage(object):
         :param str plain_msg:
         :return ModuleMessage:
         """
-        decoded = json.loads(plain_msg)
-        return cls(**decoded)
+        json_msg = json.loads(plain_msg)
+        timestamp = message_timestamp_context.create_decimal(json_msg.pop('timestamp'))
+        return cls(timestamp=timestamp, **json_msg)
 
     @classmethod
     def make_timestamp(cls, timestamp):
-        assert isinstance(timestamp, (float, decimal.Decimal))
+        assert isinstance(timestamp, (float, str, decimal.Decimal))
 
         if isinstance(timestamp, float):
             return message_timestamp_context.create_decimal_from_float(timestamp)
@@ -117,7 +119,8 @@ class ModuleMessage(object):
 
         :param UUID module_uuid:
         :param UUID box_id:
-        :param float_or_Deciaml timestamp:
+        :param dict payload:
+        :param Union[str, Decimal] timestamp:
         :param int count:
         :param dict payload:
         """
@@ -133,7 +136,7 @@ class ModuleMessage(object):
         :return str:
         """
         return json.dumps({
-            'timestamp': float(self.timestamp),
+            'timestamp': str(self.timestamp),
             'count': self.count,
             'module_uuid': self.module_uuid.hex,
             'box_id': self.box_id.hex,

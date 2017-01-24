@@ -107,7 +107,7 @@ class TestReplicationSlave:
                         'schemas': [{
                             'uuid': '44ae2fd8-52d0-484d-9a48-128b07937a0a',
                             'display_name': 'DummySchema',
-                            'dictified_properties': [{'name': 'hoge', 'type': 'int'}]
+                            'properties': [{'name': 'hoge', 'type': 'int'}]
                         }]
                     })
                     self.write_message(res)

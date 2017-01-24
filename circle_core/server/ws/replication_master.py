@@ -6,6 +6,7 @@ from uuid import UUID
 from tornado.ioloop import IOLoop
 from tornado.websocket import WebSocketHandler
 
+from ...exceptions import ModuleNotFoundError
 from ...helpers.metadata import metadata
 from ...helpers.nanomsg import Receiver
 from ...helpers.topics import ModuleMessageTopic
@@ -59,7 +60,11 @@ class ReplicationMaster(WebSocketHandler):
 
     def send_modules(self, module_uuids):
         """自分に登録されているDataSourceとSchemaを通知."""
-        self.subscribing_modules = [metadata().find_module(module_uuid) for module_uuid in module_uuids]
+        self.subscribing_modules = [
+            module
+            for module in map(metadata().find_module, module_uuids)
+            if module is not None
+        ]
         boxes = [
             metadata().find_message_box(box_uuid)
             for module in self.subscribing_modules
@@ -67,9 +72,9 @@ class ReplicationMaster(WebSocketHandler):
         ]
         schemas = [metadata().find_schema(box.schema_uuid) for box in boxes]
         resp = json.dumps({
-            'modules': [module.serialize() for module in self.subscribing_modules if not module.of_master],
-            'message_boxes': [box.serialize() for box in boxes if not box.of_master],
-            'schemas': [schema.serialize() for schema in schemas if not schema.of_master]
+            'modules': [module.to_json() for module in self.subscribing_modules if not module.of_master],
+            'message_boxes': [box.to_json() for box in boxes if not box.of_master],
+            'schemas': [schema.to_json() for schema in schemas if not schema.of_master]
         })
         self.write_message(resp)
 
