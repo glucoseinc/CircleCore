@@ -205,8 +205,8 @@ class Schema(object):
         for msg_key, msg_value in dic.items():
             for property in self.properties:
                 if msg_key == property.name and (
-                        (property.type == 'float' and isinstance(msg_value, int)) or
-                        # float型の値が0だった場合にintだと判定されてしまう
+                    (property.type == 'float' and isinstance(msg_value, int)) or
+                    # float型の値が0だった場合にintだと判定されてしまう
                     isinstance(msg_value, schema_type_map[property.type])
                 ):
                     break

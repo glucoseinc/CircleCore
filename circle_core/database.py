@@ -211,7 +211,7 @@ class DatabaseDiff(SchemaVisitor):
         self.db_metadata = sa.MetaData()
         # self.db_metadata = db_metadata
 
-    def visit_metadata(self, metadata):
+    def visit_metadata(self, metadata):  # NOQA
         tables = sqlalchemy.sql.ddl.sort_tables(metadata.tables.values())
         for table in tables:
             if table is not None:
