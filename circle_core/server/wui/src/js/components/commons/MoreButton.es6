@@ -5,6 +5,7 @@ import NavigarionMoreVert from 'material-ui/svg-icons/navigation/more-vert'
 
 
 /**
+ * 追加メニューボタン
  */
 class MoreButton extends Component {
   static propTypes = {

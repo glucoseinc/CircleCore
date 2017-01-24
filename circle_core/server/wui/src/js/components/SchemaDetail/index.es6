@@ -2,11 +2,12 @@ import React, {Component, PropTypes} from 'react'
 
 import {grey900} from 'material-ui/styles/colors'
 
-import DisplayNamePaper from './DosplayNamePaper'
-import PropertiesTableComponent from './PropertiesTableComponent'
-import MetadataPaper from './MetadataPaper'
 import BackButton from './BackButton'
 import DeleteButton from './DeleteButton'
+import DisplayNamePaper from './DosplayNamePaper'
+import MetadataPaper from './MetadataPaper'
+import PropertiesTableComponent from './PropertiesTableComponent'
+
 
 /**
  * メッセージスキーマ詳細コンポーネント

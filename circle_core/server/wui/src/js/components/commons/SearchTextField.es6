@@ -1,20 +1,18 @@
 import React, {Component, PropTypes} from 'react'
-import {bindActionCreators} from 'redux'
-import {connect} from 'react-redux'
 
 import FontIcon from 'material-ui/FontIcon'
 import TextField from 'material-ui/TextField'
 
-import actions from '../actions'
 
 /**
+ * 検索テキストフィールド
  */
-class InputTextField extends Component {
+class SearchTextField extends Component {
   static propTypes = {
     hintText: PropTypes.string,
     fullWidth: PropTypes.bool,
     inputText: PropTypes.string.isRequired,
-    actions: PropTypes.object.isRequired,
+    onChange: PropTypes.func,
   }
 
   /**
@@ -25,7 +23,7 @@ class InputTextField extends Component {
       hintText = null,
       fullWidth = false,
       inputText,
-      actions,
+      onChange,
     } = this.props
 
     const hintNode = (
@@ -36,12 +34,12 @@ class InputTextField extends Component {
     )
 
     return (
-      <div className="inputTextField">
+      <div className="searchTextField">
         <TextField
           hintText={hintNode}
           fullWidth={fullWidth}
           value={inputText}
-          onChange={(e) => actions.misc.inputTextChange(e.target.value)}
+          onChange={(e) => onChange(e.target.value)}
           hintStyle={{marginLeft: '32px'}}
           inputStyle={{marginLeft: '32px'}}
           underlineStyle={{bottom: '0'}}
@@ -52,31 +50,4 @@ class InputTextField extends Component {
 }
 
 
-/**
- * [mapStateToProps description]
- * @param  {[type]} state [description]
- * @return {[type]}       [description]
- */
-function mapStateToProps(state) {
-  return {
-    inputText: state.misc.inputText,
-  }
-}
-
-/**
- * [mapDispatchToProps description]
- * @param  {[type]} dispatch [description]
- * @return {[type]}          [description]
- */
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: {
-      misc: bindActionCreators(actions.misc, dispatch),
-    },
-  }
-}
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(InputTextField)
+export default SearchTextField

@@ -7,8 +7,8 @@ import OkCancelDialog from '../components/OkCancelDialog'
  */
 class ModuleDeleteDialog extends Component {
   static propTypes = {
-    isActive: PropTypes.bool.isRequired,
-    module: PropTypes.object.isRequired,
+    open: PropTypes.bool,
+    module: PropTypes.object,
     onOkTouchTap: PropTypes.func.isRequired,
     onCancelTouchTap: PropTypes.func.isRequired,
   }
@@ -18,7 +18,7 @@ class ModuleDeleteDialog extends Component {
    */
   render() {
     const {
-      isActive,
+      open = false,
       module,
       onOkTouchTap,
       onCancelTouchTap,
@@ -31,9 +31,9 @@ class ModuleDeleteDialog extends Component {
         onOkTouchTap={() => onOkTouchTap(module)}
         cancelLabel="キャンセル"
         onCancelTouchTap={onCancelTouchTap}
-        open={isActive ? true : false}
+        open={open}
       >
-        <p>{module.label}</p>
+        <p>{module && module.label || ''}</p>
       </OkCancelDialog>
     )
   }

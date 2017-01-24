@@ -6,6 +6,7 @@ import MoreButton from './MoreButton'
 
 
 /**
+ * 追加メニュー
  */
 class MoreMenu extends Component {
   static propTypes = {

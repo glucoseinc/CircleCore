@@ -8,7 +8,7 @@ import {grey900} from 'material-ui/styles/colors'
  */
 class DisplayNameLabel extends Component {
   static propTypes = {
-    schema: PropTypes.object.isRequired,
+    obj: PropTypes.object.isRequired,
   }
 
   state = {
@@ -20,7 +20,7 @@ class DisplayNameLabel extends Component {
    */
   render() {
     const {
-      schema,
+      obj,
     } = this.props
 
     const style = {
@@ -38,9 +38,9 @@ class DisplayNameLabel extends Component {
         onMouseEnter={() => this.setState({hovered: true})}
         onMouseLeave={() => this.setState({hovered: false})}
       >
-        {schema.displayName || '(no name)'}
+        {obj.displayName || '(no name)'}
         <Tooltip
-          label={schema.uuid}
+          label={obj.uuid}
           show={this.state.hovered}
         />
       </div>
