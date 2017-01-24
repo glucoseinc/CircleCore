@@ -1,26 +1,61 @@
 import React, {Component, PropTypes} from 'react'
-import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
-
-import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
+import {routerActions} from 'react-router-redux'
 
 import actions from '../actions'
-import {urls} from '../routes'
-import CCLink from '../components/CCLink'
 import Fetching from '../components/Fetching'
 import SchemaDeleteDialog from '../components/SchemaDeleteDialog'
-import {BackButton, RemoveButton} from '../components/buttons'
+import {urls} from '../routes'
 
+import SchemaDetail from '../components/SchemaDetail'
 
 /**
+ * Schema詳細
  */
 class Schema extends Component {
   static propTypes = {
     isFetching: PropTypes.bool.isRequired,
-    isDeleteAsking: PropTypes.bool.isRequired,
     schemas: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,
-    actions: PropTypes.object.isRequired,
+    setTitle: PropTypes.func,
+    onBackButtonTouchTap: PropTypes.func,
+    onDeleteOkButtonTouchTap: PropTypes.func,
+  }
+
+  state = {
+    isSchemaDeleteDialogOpen: false,
+  }
+
+  /**
+   * @override
+   */
+  componentWillReceiveProps(nextProps) {
+    const schema = nextProps.schemas.get(nextProps.params.schemaId)
+    const title = schema !== undefined ? schema.label : ''
+    this.props.setTitle(title)
+  }
+
+  /**
+   * 追加メニュー 削除の選択時の動作
+   */
+  onDeleteTouchTap() {
+    this.setState({
+      isSchemaDeleteDialogOpen: true,
+    })
+  }
+
+  /**
+   * 削除ダイアログのボタン押下時の動作
+   * @param {bool} execute
+   * @param {object} schema
+   */
+  onDeleteDialogButtonTouchTap(execute, schema) {
+    this.setState({
+      isSchemaDeleteDialogOpen: false,
+    })
+    if (execute && schema) {
+      this.props.onDeleteOkButtonTouchTap(schema)
+    }
   }
 
   /**
@@ -28,11 +63,13 @@ class Schema extends Component {
    */
   render() {
     const {
+      isSchemaDeleteDialogOpen,
+    } = this.state
+    const {
       isFetching,
-      isDeleteAsking,
       schemas,
       params,
-      actions,
+      onBackButtonTouchTap,
     } = this.props
 
     if (isFetching) {
@@ -53,61 +90,17 @@ class Schema extends Component {
 
     return (
       <div className="page">
-        <Table selectable={false}>
-          <TableBody displayRowCheckbox={false}>
-            <TableRow>
-              <TableRowColumn>名前</TableRowColumn>
-              <TableRowColumn>{schema.displayName}</TableRowColumn>
-            </TableRow>
-            <TableRow>
-              <TableRowColumn>UUID</TableRowColumn>
-              <TableRowColumn>{schema.uuid}</TableRowColumn>
-            </TableRow>
-            <TableRow>
-              <TableRowColumn>プロパティ</TableRowColumn>
-              <TableRowColumn>
-                <Table selectable={false}>
-                  <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
-                    <TableRow>
-                      <TableHeaderColumn>Name</TableHeaderColumn>
-                      <TableHeaderColumn>Type</TableHeaderColumn>
-                    </TableRow>
-                  </TableHeader>
-
-                  <TableBody displayRowCheckbox={false}>
-                    {schema.properties.map((property, index) =>
-                      <TableRow key={index}>
-                        <TableRowColumn>{property.name}</TableRowColumn>
-                        <TableRowColumn>{property.type}</TableRowColumn>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </TableRowColumn>
-            </TableRow>
-            <TableRow>
-              <TableRowColumn>メタデータ</TableRowColumn>
-              <TableRowColumn>
-                <p>メモ</p>
-                <p>{schema.memo}</p>
-              </TableRowColumn>
-            </TableRow>
-          </TableBody>
-        </Table>
-        <CCLink
-          url={urls.schemas}
-        >
-          <BackButton />
-        </CCLink>
-        <RemoveButton
-          disabled={schema.modules.size === 0 ? false : true}
-          onTouchTap={() => actions.schemas.deleteAsk(schema)}
-        />
-        <SchemaDeleteDialog
-          open={isDeleteAsking}
+        <SchemaDetail
           schema={schema}
-          onOkTouchTap={actions.schemas.deleteRequest}
-          onCancelTouchTap={actions.schemas.deleteCancel}
+          onBackTouchTap={onBackButtonTouchTap}
+          onDeleteTouchTap={::this.onDeleteTouchTap}
+        />
+
+        <SchemaDeleteDialog
+          open={isSchemaDeleteDialogOpen}
+          schema={schema}
+          onOkTouchTap={(schema) => this.onDeleteDialogButtonTouchTap(true, schema)}
+          onCancelTouchTap={() => this.onDeleteDialogButtonTouchTap(false)}
         />
       </div>
     )
@@ -115,32 +108,16 @@ class Schema extends Component {
 }
 
 
-/**
- * [mapStateToProps description]
- * @param  {[type]} state [description]
- * @return {[type]}       [description]
- */
-function mapStateToProps(state) {
-  return {
-    isFetching: state.asyncs.isSchemaFetching,
-    isDeleteAsking: state.asyncs.isSchemasDeleteAsking,
-    schemas: state.entities.schemas,
-  }
-}
+const mapStateToProps = (state) => ({
+  isFetching: state.asyncs.isSchemaFetching,
+  schemas: state.entities.schemas,
+})
 
-/**
- * [mapDispatchToProps description]
- * @param  {[type]} dispatch [description]
- * @return {[type]}          [description]
- */
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: {
-      schemas: bindActionCreators(actions.schemas, dispatch),
-      schema: bindActionCreators(actions.schema, dispatch),
-    },
-  }
-}
+const mapDispatchToProps = (dispatch) => ({
+  setTitle: (title) => dispatch(actions.page.setTitle(title)),
+  onBackButtonTouchTap: () => dispatch(routerActions.push(urls.schemas.fullPath)),
+  onDeleteOkButtonTouchTap: (schema) => dispatch(actions.schemas.deleteRequest(schema)),
+})
 
 export default connect(
   mapStateToProps,
