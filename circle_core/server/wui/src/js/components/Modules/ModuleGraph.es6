@@ -100,9 +100,14 @@ class GraphTime {
  */
 export class ModuleGraph extends React.Component {
   static propTypes = {
+    autoUpdate: React.PropTypes.number,
     module: React.PropTypes.object.isRequired,
     messageBox: React.PropTypes.object,
     range: React.PropTypes.string.isRequired,
+  }
+
+  static defaultProps = {
+    autoUpdate: 0,
   }
 
   /**
@@ -115,6 +120,7 @@ export class ModuleGraph extends React.Component {
       graphData: null,
     }
     this.graph = null
+    this.updateTimer = null
   }
 
   /**
@@ -131,6 +137,8 @@ export class ModuleGraph extends React.Component {
    * @override
    */
   componentWillUnmount() {
+    this.clearUpdateTimer()
+
     if(this.resizeHandler) {
       window.removeEventListener('resize', this.resizeHandler)
       delete this.resizeHandler
@@ -147,6 +155,20 @@ export class ModuleGraph extends React.Component {
       this.fetchGraphData(nextProps.range)
     }
   }
+
+  /**
+   * @override
+   */
+  componentWillUpdate(nextProps, nextState) {
+    if(this.props.autoUpdate != nextProps.autoUpdate) {
+      this.clearUpdateTimer()
+
+      // グラフデータが既に取得済みであれば、タイマーを再設定
+      if(nextState.graphData)
+        this.setUpdateTimer(nextProps.autoUpdate)
+    }
+  }
+
 
   /**
    * @override
@@ -196,6 +218,8 @@ export class ModuleGraph extends React.Component {
 
     this.setState({graphData}, () => {
       this.updateGraph()
+
+      this.setUpdateTimer(this.props.autoUpdate)
     })
   }
 
@@ -213,7 +237,7 @@ export class ModuleGraph extends React.Component {
     if(!this.refs.graphContainer || !graphData)
       return
 
-    let palette = new Rickshaw.Color.Palette({scheme: 'cool'})
+    let palette = new Rickshaw.Color.Palette({scheme: 'colorwheel'})
 
     // remove graph if exists
     if(this.graph) {
@@ -284,5 +308,31 @@ export class ModuleGraph extends React.Component {
       height: bb.height,
     })
     this.graph.render()
+  }
+
+  /**
+   * グラフ更新タイマーが設定されてあれば、キャンセルする
+   */
+  clearUpdateTimer() {
+    if(this.updateTimer) {
+      console.log('clear timer')
+      clearTimeout(this.updateTimer)
+      this.updateTimer = null
+    }
+  }
+
+  /**
+   * グラフ更新タイマーが設定されてあれば、キャンセルする
+   * @param {int} delay 間隔を秒で
+   */
+  setUpdateTimer(delay) {
+    require('assert')(this.updateTimer == null)
+    if(!delay)
+      return
+    console.log('set timer')
+    this.updateTimer = setTimeout(() => {
+      this.updateTimer = null
+      this.fetchGraphData()
+    }, delay * 1000)
   }
 }

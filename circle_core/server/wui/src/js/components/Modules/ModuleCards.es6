@@ -2,6 +2,7 @@ import React, {Component, PropTypes} from 'react'
 
 import FlatButton from 'material-ui/FlatButton'
 import {Card, CardMedia, CardTitle} from 'material-ui/Card'
+import Toggle from 'material-ui/Toggle'
 
 import CCLink from '../../components/CCLink'
 import {colorUUID} from '../../colors'
@@ -27,6 +28,7 @@ class ModuleCards extends Component {
     super(...args)
 
     this.state = {
+      autoUpdate: true,
       graphRange: RANGES[0],
     }
   }
@@ -40,6 +42,7 @@ class ModuleCards extends Component {
       modules,
     } = this.props
     const {
+      autoUpdate,
       graphRange,
     } = this.state
 
@@ -60,13 +63,22 @@ class ModuleCards extends Component {
         </div>
 
         <div className={`moduleCards moduleCards-col${cols}`}>
+
+          <div className="moduleCards-toggle">
+            <Toggle
+              label="自動更新(1分)"
+              toggled={autoUpdate}
+              onToggle={() => this.setState({autoUpdate: !this.state.autoUpdate})}
+            />
+          </div>
+
           {modules.valueSeq().map((module) => (
             <Card
               key={module.uuid}
               className="moduleCard"
             >
               <CardMedia>
-                <ModuleGraph module={module} range={graphRange} />
+                <ModuleGraph module={module} range={graphRange} autoUpdate={autoUpdate ? 60 : 0} />
               </CardMedia>
               <CardTitle
                 title={
