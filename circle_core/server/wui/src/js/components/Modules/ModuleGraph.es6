@@ -213,7 +213,7 @@ export class ModuleGraph extends React.Component {
     if(!this.refs.graphContainer || !graphData)
       return
 
-    let palette = new Rickshaw.Color.Palette({scheme: 'cool'})
+    let palette = new Rickshaw.Color.Palette({scheme: 'colorwheel'})
 
     // remove graph if exists
     if(this.graph) {
