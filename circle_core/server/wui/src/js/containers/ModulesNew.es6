@@ -40,7 +40,7 @@ class ModulesNew extends Component {
     }
 
     return (
-      <div>
+      <div className="page">
         <ModuleGeneralInfo
           editable={true}
           module={module}

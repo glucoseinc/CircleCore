@@ -5,7 +5,7 @@
 # community module
 import datetime
 
-from flask import Blueprint
+from flask import abort, Blueprint
 
 api = Blueprint('api', __name__)
 
@@ -18,6 +18,9 @@ def before_request():
 
     t, oauth_requets = oauth.verify_request([])
     my_uuid = oauth_requets.user
+
+    if not my_uuid:
+        raise abort(403)
 
     metadata = get_metadata()
     metadata.update_user_last_access(my_uuid, datetime.datetime.utcnow())

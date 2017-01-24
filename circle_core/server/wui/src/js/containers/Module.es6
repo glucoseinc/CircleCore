@@ -73,7 +73,7 @@ class Module extends Component {
     const isEditingMessageBox = moduleEditingArea === 'messageBox'
 
     return (
-      <div>
+      <div className="page">
         <div style={style.contentHeader}>
           <AddButton
             label="共有リンクを作成する"

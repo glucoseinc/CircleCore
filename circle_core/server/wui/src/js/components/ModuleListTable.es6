@@ -11,7 +11,7 @@ import {urls} from '../routes'
 
 /**
  */
-class ModulesTable extends Component {
+class ModuleListTable extends Component {
   static propTypes = {
     modules: PropTypes.object.isRequired,
     onTagTouchTap: PropTypes.func,
@@ -120,4 +120,4 @@ class ModulesTable extends Component {
   }
 }
 
-export default ModulesTable
+export default ModuleListTable

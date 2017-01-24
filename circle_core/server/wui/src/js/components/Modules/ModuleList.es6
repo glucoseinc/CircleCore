@@ -1,11 +1,11 @@
 import React, {Component, PropTypes} from 'react'
 
-import ModulesTable from '../../components/ModulesTable'
+import ModuleListTable from '../../components/ModuleListTable'
 
 
 /**
  */
-class ModulesList extends Component {
+class ModuleList extends Component {
   static propTypes = {
     modules: PropTypes.object.isRequired,
     onModulesTagTouchTap: PropTypes.func,
@@ -23,7 +23,7 @@ class ModulesList extends Component {
     } = this.props
 
     return (
-      <ModulesTable
+      <ModuleListTable
         modules={modules}
         onTagTouchTap={onModulesTagTouchTap}
         onDeleteTouchTap={onModulesDeleteTouchTap}
@@ -33,4 +33,4 @@ class ModulesList extends Component {
 }
 
 
-export default ModulesList
+export default ModuleList

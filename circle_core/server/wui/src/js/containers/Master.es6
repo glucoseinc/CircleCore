@@ -55,7 +55,6 @@ class Master extends React.Component {
         paddingLeft: navDrawerAlwaysOpen ? muiTheme.drawer.width : 0,
       },
       children: {
-        padding: 32,
       },
     }
 

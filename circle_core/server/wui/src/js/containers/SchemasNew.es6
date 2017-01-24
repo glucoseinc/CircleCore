@@ -33,7 +33,7 @@ class SchemasNew extends Component {
     }
 
     return (
-      <div>
+      <div className="page">
         <SchemaNewPaper
           propertyTypes={schemaPropertyTypes}
           onCreateTouchTap={onCreateTouchTap}

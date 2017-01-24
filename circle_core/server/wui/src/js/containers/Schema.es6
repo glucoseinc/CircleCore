@@ -52,7 +52,7 @@ class Schema extends Component {
     }
 
     return (
-      <div>
+      <div className="page">
         <Table selectable={false}>
           <TableBody displayRowCheckbox={false}>
             <TableRow>

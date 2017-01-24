@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from 'react'
 import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
-import {Tabs, Tab} from 'material-ui/Tabs'
+import FlatButton from 'material-ui/FlatButton'
 import withWidth, {SMALL} from 'material-ui/utils/withWidth'
 
 import actions from '../actions'
@@ -10,11 +10,14 @@ import {FloatingAddButton} from '../components/buttons'
 import CCLink from '../components/CCLink'
 import Fetching from '../components/Fetching'
 import ModuleDeleteDialog from '../components/ModuleDeleteDialog'
-import ModulesCards from '../components/Modules/ModulesCards'
-import ModulesList from '../components/Modules/ModulesList'
+import ModuleCards from '../components/Modules/ModuleCards'
+import ModuleList from '../components/Modules/ModuleList'
 import InputTextField from '../containers/InputTextField'
 import {urls} from '../routes'
 
+
+const TAB_CARDS = 'cards'
+const TAB_LIST = 'list'
 
 /**
  */
@@ -30,6 +33,17 @@ class Modules extends Component {
   }
 
   /**
+   * @constructor
+   */
+  constructor(...args) {
+    super(...args)
+
+    this.state = {
+      activeTab: TAB_CARDS,
+    }
+  }
+
+  /**
    * @override
    */
   render() {
@@ -42,17 +56,11 @@ class Modules extends Component {
       actions,
       width,
     } = this.props
+    const {
+      activeTab,
+    } = this.state
 
-    const style = {
-      tab: {
-        paddingTop: 16,
-        paddingLeft: 24,
-        paddingRight: 24,
-        paddingbottom: 16,
-      },
-    }
-
-    if (isFetching) {
+    if(isFetching) {
       return (
         <Fetching />
       )
@@ -63,32 +71,44 @@ class Modules extends Component {
     ))
 
     return (
-      <div>
+      <div className="page pageModules">
+
+        <div className="pageModules-tabs">
+          <div className={`pageModules-tab ${activeTab === TAB_CARDS ? 'is-active' : ''}`}>
+            <FlatButton
+              label="カード表示"
+              onTouchTap={() => this.setState({activeTab: TAB_CARDS})}
+            />
+          </div>
+          <div className={`pageModules-tab ${activeTab === TAB_LIST ? 'is-active' : ''}`}>
+            <FlatButton
+              label="リスト表示"
+              onTouchTap={() => this.setState({activeTab: TAB_LIST})}
+            />
+          </div>
+        </div>
+
         <InputTextField
-          hintText="タグで検索"
+          hintText="タグでモジュールを絞込"
           fullWidth={true}
         />
-        <Tabs
-          contentContainerStyle={style.tab}
-        >
-          <Tab
-            label="カード表示"
-          >
-            <ModulesCards
+
+        <div className="tabs">
+          <div className="tab tabCards" style={{display: (activeTab === TAB_CARDS ? 'block' : 'none')}}>
+            <ModuleCards
               modules={filteredModules}
               cols={width == SMALL ? 1 : 2}
             />
-          </Tab>
-          <Tab
-            label="リスト表示"
-          >
-            <ModulesList
+          </div>
+
+          <div className="tab tabList" style={{display: (activeTab === TAB_LIST ? 'block' : 'none')}}>
+            <ModuleList
               modules={filteredModules}
               onModulesTagTouchTap={actions.misc.inputTextChange}
               onModulesDeleteTouchTap={actions.modules.deleteAsk}
             />
-          </Tab>
-        </Tabs>
+          </div>
+        </div>
 
         <CCLink url={urls.modulesNew}>
           <FloatingAddButton />

@@ -99,9 +99,10 @@ class SchemaInfoPaper extends Component {
     }
 
     // TODO: dummy
-    const replicationMaster = {
-      displayName: '九州大学xx研究部',
-    }
+    // const replicationMaster = {
+    //   displayName: '九州大学xx研究部',
+    // }
+    const replicationMaster = null
 
     return (
       <Paper>

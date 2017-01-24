@@ -1,6 +1,11 @@
 @import url("./github-markdown.css");
 @import url("rickshaw/rickshaw.css");
 
+$colorBlue500: #2196f3;
+$colorGray200: #eeeeee;
+$colorGray300: #e0e0e0;
+$colorRedA200: #ff5252;
+
 @define-mixin clearfix {
   &::after {
     content: "";
@@ -29,17 +34,75 @@ table.props th {
   }
 }
 
+/* 共通 */
+.page {
+  margin: 32px;
+}
 
+/* module系 */
 $moduleCardsMargin: 16px;
+
+.page.pageModules {
+  margin: 0;
+
+  .pageModules-tabs {
+    background: #fff;
+    border-bottom: 1px solid $colorGray300;
+
+    .pageModules-tab {
+      border-bottom: 2px solid transparent;
+      display: inline-block;
+
+      &.is-active {
+        border-bottom-color: $colorBlue500;
+      }
+
+      &:first-child {
+        margin-left: 28px;
+      }
+    }
+  }
+
+  .inputTextField {
+    background: #fff;
+    box-shadow: rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px;
+  }
+}
+
+.tabs {
+  .tab {
+    margin: 32px;
+  }
+}
+
+.moduleCardsTab {
+  .moduleCardsTab-timeRanges {
+    background: $colorGray200;
+    padding-left: 20px;
+
+    .moduleCardsTab-timeRange {
+      border-bottom: 2px solid transparent;
+      display: inline-block;
+
+      &.is-active {
+        border-bottom-color: $colorRedA200;
+      }
+    }
+  }
+}
 
 .moduleCards {
   @mixin clearfix;
 
-  margin: 40px 0 0 0;
+  margin: 16px 0 0 0;
 
   .moduleCard {
     margin-bottom: $moduleCardsMargin;
-    padding-bottom: 20px;
+    padding: 12px 0 0 0;
+
+    .graph {
+      margin-right: 16px;
+    }
   }
 
   &.moduleCards-col2 {
@@ -64,7 +127,6 @@ $graphYAxisWidth: 40px;
   position: relative;
   min-width: calc($graphWidth + $graphYAxisWidth);
   min-height: $graphHeight;
-  margin-right: 60px;
 
   .graph-yAxis {
     position: absolute;

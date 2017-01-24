@@ -76,7 +76,7 @@ class Schemas extends Component {
     }
 
     return (
-      <div>
+      <div className="page">
         {schemas.valueSeq().map((schema) => (
           <SchemaInfoPaper
             key={schema.uuid}
