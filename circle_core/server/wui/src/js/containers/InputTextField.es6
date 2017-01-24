@@ -2,6 +2,7 @@ import React, {Component, PropTypes} from 'react'
 import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
+import FontIcon from 'material-ui/FontIcon'
 import TextField from 'material-ui/TextField'
 
 import actions from '../actions'
@@ -27,14 +28,25 @@ class InputTextField extends Component {
       actions,
     } = this.props
 
+    const hintNode = (
+      <span>
+        <FontIcon className="material-icons" style={{color: 'inherit', verticalAlign: 'bottom'}}>search</FontIcon>
+        {hintText}
+      </span>
+    )
 
     return (
-      <TextField
-        hintText={hintText}
-        fullWidth={fullWidth}
-        value={inputText}
-        onChange={(e) => actions.misc.inputTextChange(e.target.value)}
-      />
+      <div className="inputTextField">
+        <TextField
+          hintText={hintNode}
+          fullWidth={fullWidth}
+          value={inputText}
+          onChange={(e) => actions.misc.inputTextChange(e.target.value)}
+          hintStyle={{marginLeft: '32px'}}
+          inputStyle={{marginLeft: '32px'}}
+          underlineStyle={{bottom: '0'}}
+        />
+      </div>
     )
   }
 }
