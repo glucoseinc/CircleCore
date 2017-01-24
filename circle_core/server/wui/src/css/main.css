@@ -93,8 +93,12 @@ $moduleCardsMargin: 16px;
 
 .moduleCards {
   @mixin clearfix;
-
   margin: 16px 0 0 0;
+
+  .moduleCards-toggle {
+    text-align: right;
+    margin: 0 0 8px 0;
+  }
 
   .moduleCard {
     margin-bottom: $moduleCardsMargin;
