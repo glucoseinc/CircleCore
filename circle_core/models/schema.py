@@ -183,11 +183,15 @@ class Schema(object):
         return Schema(dictified_properties=properties, **json_msg, **kwargs)
 
     @property
-    def of_master(self):
+    def master_uuid(self):
         """
-        :rtype bool:
+        :rtype Optional[UUID]:
         """
-        return any(box.of_master for box in metadata().message_boxes if box.schema_uuid == self.uuid)
+        for box in metadata().message_boxes:
+            if box.schema_uuid == self.uuid and box.master_uuid:
+                return box.master_uuid
+
+        return None
 
     def is_valid(self, dic):  # TODO: Schema専用のJSONDecoderを作ってそこで例外を投げたほうがいいかなあ
         """nanomsg経由で受け取ったメッセージをデシリアライズしたものがこのSchemaに適合しているか.

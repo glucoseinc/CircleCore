@@ -139,8 +139,13 @@ class Module(object):
         return cls(**json_msg, **kwargs)
 
     @property
-    def of_master(self):
+    def master_uuid(self):
         """
-        :return bool:
+        :rtype Optional[UUID]:
         """
-        return any(metadata().find_message_box(box_uuid).of_master for box_uuid in self.message_box_uuids)
+        for box_uuid in self.message_box_uuids:
+            master_uuid = metadata().find_message_box(box_uuid).master_uuid
+            if master_uuid:
+                return master_uuid
+
+        return None
