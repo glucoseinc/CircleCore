@@ -6,21 +6,18 @@ import ActionDelete from 'material-ui/svg-icons/action/delete'
 import DisplayNameLabel from '../commons/DisplayNameLabel'
 import MoreMenu from '../commons/MoreMenu'
 import MoreMenuItem from '../commons/MoreMenuItem'
-import MemoArea from './MemoArea'
-import ModuleButton from './ModuleButton'
-import ReplicationMasterInfoChip from './ReplicationMasterInfoChip'
-import SchemaPropertyLabel from './SchemaPropertyLabel'
+import MessageBoxLabel from './MessageBoxLabel'
+import TagButton from './TagButton'
 
 
 /**
- * Schemaリストの1Schema
+ * Moduleリストの1Module
  */
-class SchemaInfoPaper extends Component {
+class ModuleInfoPaper extends Component {
   static propTypes = {
-    schema: PropTypes.object.isRequired,
-    modules: PropTypes.object.isRequired,
+    module: PropTypes.object.isRequired,
     onTouchTap: PropTypes.func,
-    onModuleButtonTouchTap: PropTypes.func,
+    onTagButtonTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
   }
 
@@ -29,10 +26,9 @@ class SchemaInfoPaper extends Component {
    */
   render() {
     const {
-      schema,
-      modules,
+      module,
       onTouchTap,
-      onModuleButtonTouchTap,
+      onTagButtonTouchTap,
       onDeleteTouchTap,
     } = this.props
 
@@ -71,13 +67,13 @@ class SchemaInfoPaper extends Component {
         flexFlow: 'row nowrap',
         padding: 0,
       },
-      properties: {
+      messageBoxes: {
         display: 'flex',
         flexFlow: 'row wrap',
         flexGrow: 1,
         padding: 0,
       },
-      property: {
+      messageBox: {
         padding: 4,
       },
       moreButton: {
@@ -86,44 +82,29 @@ class SchemaInfoPaper extends Component {
         height: 24,
       },
 
-      modules: {
+      tags: {
         display: 'flex',
         flexFlow: 'row wrap',
         padding: 0,
       },
-      module: {
+      tag: {
         padding: 4,
-      },
-
-      memo: {
-        padding: 4,
-        overflow: 'auto',
-        wordWrap: 'break-word',
       },
     }
 
-    // TODO: dummy
-    // const replicationMaster = {
-    //   displayName: '九州大学xx研究部',
-    // }
-    const replicationMaster = null
-
     return (
       <Paper>
-        <div style={style.root} onTouchTap={() => onTouchTap(schema)}>
+        <div style={style.root} onTouchTap={() => onTouchTap(module)}>
           <div style={style.left}>
-            <div style={style.displayName}><DisplayNameLabel obj={schema} /></div>
-            <div style={style.replicationMasterInfo}>
-              {replicationMaster ? <ReplicationMasterInfoChip replicationMaster={replicationMaster} /> : null}
-            </div>
+            <div style={style.displayName}><DisplayNameLabel obj={module} /></div>
           </div>
           <div style={style.right}>
             <div style={style.rightTop}>
-              <div style={style.properties}>
-                {schema.properties.valueSeq().map((property, index) => (
-                  <div key={index} style={style.property}>
-                    <SchemaPropertyLabel
-                      schemaProperty={property}
+              <div style={style.messageBoxes}>
+                {module.messageBoxes.valueSeq().map((messageBox, index) => (
+                  <div key={index} style={style.messageBox}>
+                    <MessageBoxLabel
+                      messageBox={messageBox}
                     />
                   </div>
                 ))}
@@ -131,25 +112,23 @@ class SchemaInfoPaper extends Component {
               <div style={style.moreButton} onTouchTap={(e) => e.stopPropagation()}>
                 <MoreMenu>
                   <MoreMenuItem
-                    primaryText="このスキーマを削除する"
+                    primaryText="このモジュールを削除する"
                     leftIcon={ActionDelete}
-                    disabled={schema.modules.size === 0 ? false : true}
-                    onTouchTap={() => onDeleteTouchTap(schema)}
+                    onTouchTap={() => onDeleteTouchTap(module)}
                   />
                 </MoreMenu>
               </div>
             </div>
-            <div style={style.modules} onTouchTap={(e) => e.stopPropagation()}>
-              {schema.modules.valueSeq().map((moduleId) => (
-                <div key={moduleId} style={style.module}>
-                  <ModuleButton
-                    module={modules.get(moduleId)}
-                    onTouchTap={onModuleButtonTouchTap}
+            <div style={style.tags} onTouchTap={(e) => e.stopPropagation()}>
+              {module.tags.valueSeq().map((tag, index) => (
+                <div key={index} style={style.tag}>
+                  <TagButton
+                    tag={tag}
+                    onTouchTap={onTagButtonTouchTap}
                   />
                 </div>
                 ))}
             </div>
-            <div style={style.memo}><MemoArea schema={schema} /></div>
           </div>
         </div>
       </Paper>
@@ -158,4 +137,4 @@ class SchemaInfoPaper extends Component {
 }
 
 
-export default SchemaInfoPaper
+export default ModuleInfoPaper

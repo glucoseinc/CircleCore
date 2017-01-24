@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from 'react'
-import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
+import {routerActions} from 'react-router-redux'
 
 import FlatButton from 'material-ui/FlatButton'
 import withWidth, {SMALL} from 'material-ui/utils/withWidth'
@@ -11,35 +11,67 @@ import CCLink from '../components/CCLink'
 import Fetching from '../components/Fetching'
 import ModuleDeleteDialog from '../components/ModuleDeleteDialog'
 import ModuleCards from '../components/Modules/ModuleCards'
-import ModuleList from '../components/Modules/ModuleList'
-import InputTextField from '../containers/InputTextField'
-import {urls} from '../routes'
-
+import ModuleInfoPaper from '../components/ModuleInfoPaper'
+import SearchTextField from '../components/commons/SearchTextField'
+import {urls, createPathName} from '../routes'
 
 const TAB_CARDS = 'cards'
 const TAB_LIST = 'list'
 
+
 /**
+ * Module一覧
  */
 class Modules extends Component {
   static propTypes = {
     isFetching: PropTypes.bool.isRequired,
-    isDeleteAsking: PropTypes.bool.isRequired,
     modules: PropTypes.object.isRequired,
-    module: PropTypes.object.isRequired,
-    inputText: PropTypes.string.isRequired,
-    actions: PropTypes.object.isRequired,
+    onModuleInfoPaperTouchTap: PropTypes.func,
+    onDeleteOkButtonTouchTap: PropTypes.func,
     width: PropTypes.number.isRequired,
   }
 
-  /**
-   * @constructor
-   */
-  constructor(...args) {
-    super(...args)
+  state = {
+    activeTab: TAB_CARDS,
+    searchText: '',
+    deleteModule: null,
+    isModuleDeleteDialogOpen: false,
+  }
 
-    this.state = {
-      activeTab: TAB_CARDS,
+  /**
+   * 検索テキストを更新
+   * @param {string} newText
+   */
+  setSearchText(newText) {
+    this.setState({
+      searchText: newText,
+    })
+  }
+
+  /**
+   * 追加メニュー 削除の選択時の動作
+   * @param {object} module
+   */
+  onDeleteTouchTap(module) {
+    this.setState({
+      deleteModule: module,
+      isModuleDeleteDialogOpen: true,
+    })
+  }
+
+  /**
+   * 削除ダイアログのボタン押下時の動作
+   * @param {bool} execute
+   * @param {object} module
+   */
+  onDeleteDialogButtonTouchTap(execute, module) {
+    console.log('onDeleteDialogButtonTouchTap', execute, module)
+    this.setState({
+      deleteModule: null,
+      isModuleDeleteDialogOpen: false,
+    })
+    if (execute && module) {
+      this.props.onDeleteOkButtonTouchTap(module)
     }
   }
 
@@ -48,17 +80,17 @@ class Modules extends Component {
    */
   render() {
     const {
+      activeTab,
+      searchText,
+      deleteModule,
+      isModuleDeleteDialogOpen,
+    } = this.state
+    const {
       isFetching,
-      isDeleteAsking,
       modules,
-      module,
-      inputText,
-      actions,
+      onModuleInfoPaperTouchTap,
       width,
     } = this.props
-    const {
-      activeTab,
-    } = this.state
 
     if(isFetching) {
       return (
@@ -66,8 +98,8 @@ class Modules extends Component {
       )
     }
 
-    const filteredModules = inputText === '' ? modules : modules.filter((module) => (
-      module.tags.filter((tag) => tag.includes(inputText)).size > 0
+    const filteredModules = searchText === '' ? modules : modules.filter((module) => (
+      module.tags.filter((tag) => tag.includes(searchText)).size > 0
     ))
 
     return (
@@ -88,9 +120,11 @@ class Modules extends Component {
           </div>
         </div>
 
-        <InputTextField
+        <SearchTextField
           hintText="タグでモジュールを絞込"
           fullWidth={true}
+          inputText={searchText}
+          onChange={::this.setSearchText}
         />
 
         <div className="tabs">
@@ -102,11 +136,15 @@ class Modules extends Component {
           </div>
 
           <div className="tab tabList" style={{display: (activeTab === TAB_LIST ? 'block' : 'none')}}>
-            <ModuleList
-              modules={filteredModules}
-              onModulesTagTouchTap={actions.misc.inputTextChange}
-              onModulesDeleteTouchTap={actions.modules.deleteAsk}
-            />
+            {filteredModules.valueSeq().map((module) =>
+              <ModuleInfoPaper
+                key={module.uuid}
+                module={module}
+                onTouchTap={(module) => onModuleInfoPaperTouchTap(module.uuid)}
+                onTagButtonTouchTap={(tag) => this.setSearchText(tag)}
+                onDeleteTouchTap={::this.onDeleteTouchTap}
+              />
+            )}
           </div>
         </div>
 
@@ -115,10 +153,10 @@ class Modules extends Component {
         </CCLink>
 
         <ModuleDeleteDialog
-          isActive={isDeleteAsking}
-          module={module}
-          onOkTouchTap={actions.modules.deleteRequest}
-          onCancelTouchTap={actions.modules.deleteCancel}
+          open={isModuleDeleteDialogOpen}
+          module={deleteModule}
+          onOkTouchTap={(module) => this.onDeleteDialogButtonTouchTap(true, module)}
+          onCancelTouchTap={() => this.onDeleteDialogButtonTouchTap(false)}
         />
       </div>
     )
@@ -126,34 +164,15 @@ class Modules extends Component {
 }
 
 
-/**
- * [mapStateToProps description]
- * @param  {[type]} state [description]
- * @return {[type]}       [description]
- */
-function mapStateToProps(state) {
-  return {
-    isFetching: state.asyncs.isModulesFetching,
-    isDeleteAsking: state.asyncs.isModulesDeleteAsking,
-    modules: state.entities.modules,
-    module: state.misc.module,
-    inputText: state.misc.inputText,
-  }
-}
+const mapStateToProps = (state) => ({
+  isFetching: state.asyncs.isModulesFetching,
+  modules: state.entities.modules,
+})
 
-/**
- * [mapDispatchToProps description]
- * @param  {[type]} dispatch [description]
- * @return {[type]}          [description]
- */
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: {
-      modules: bindActionCreators(actions.modules, dispatch),
-      misc: bindActionCreators(actions.misc, dispatch),
-    },
-  }
-}
+const mapDispatchToProps = (dispatch) => ({
+  onModuleInfoPaperTouchTap: (moduleId) => dispatch(routerActions.push(createPathName(urls.module, {moduleId}))),
+  onDeleteOkButtonTouchTap: (module) => dispatch(actions.modules.deleteRequest(module)),
+})
 
 export default connect(
   mapStateToProps,

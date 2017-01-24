@@ -4,8 +4,9 @@ import MenuItem from 'material-ui/MenuItem'
 
 
 /**
+ * 追加メニューアイテム
  */
-class MoreMenu extends Component {
+class MoreMenuItem extends Component {
   static propTypes = {
     primaryText: PropTypes.string,
     leftIcon: PropTypes.func,
@@ -50,4 +51,4 @@ class MoreMenu extends Component {
   }
 }
 
-export default MoreMenu
+export default MoreMenuItem
