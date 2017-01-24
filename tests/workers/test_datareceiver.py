@@ -13,7 +13,6 @@ from circle_core.models import message
 from circle_core.models import MessageBox, Module, Schema
 from circle_core.models.message import ModuleMessageFactory
 from circle_core.models.metadata.base import MetadataReader
-from circle_core.workers import datareceiver
 
 
 class DummyMetadata(MetadataReader):
@@ -47,6 +46,7 @@ def test_specific_box(mysql):
     db.register_message_boxes(DummyMetadata.message_boxes, DummyMetadata.schemas)
     db.migrate()
 
+    from circle_core.workers import datareceiver
     global worker
     worker = Process(target=lambda: datareceiver.run(DummyMetadata()))
     worker.daemon = True
