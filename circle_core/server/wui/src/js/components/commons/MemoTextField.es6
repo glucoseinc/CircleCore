@@ -4,10 +4,11 @@ import TextField from 'material-ui/TextField'
 
 
 /**
+ * メモテキストフィールド
  */
 class MemoTextField extends Component {
   static propTypes = {
-    schema: PropTypes.object.isRequired,
+    obj: PropTypes.object.isRequired,
     onChange: PropTypes.func,
   }
 
@@ -16,7 +17,7 @@ class MemoTextField extends Component {
    */
   render() {
     const {
-      schema,
+      obj,
       onChange,
     } = this.props
 
@@ -42,7 +43,7 @@ class MemoTextField extends Component {
         multiLine={true}
         rows={4}
         rowsMax={4}
-        value={schema.memo}
+        value={obj.memo}
         onChange={onChange}
         style={style.root}
         floatingLabelStyle={style.floatingLabel}

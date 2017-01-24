@@ -2,7 +2,6 @@ import {createCcActions, nullPayloadCreator, passPayloadCreator} from './utils'
 
 
 const payloadCreators = {
-  navDrawerToggleOpen: passPayloadCreator,
   inputTextChange: passPayloadCreator,
   startModuleEdit: ({module, editingArea}) => ({
     rawModule: module.toJS(),

@@ -8,6 +8,7 @@ const SchemaPropertyRecord = Record({
 })
 
 /**
+ * SchemaPropertyモデル
  */
 export class SchemaProperty extends SchemaPropertyRecord {
   /**
@@ -53,6 +54,7 @@ const SchemaRecord = Record({
 })
 
 /**
+ * Schemaモデル
  */
 export default class Schema extends SchemaRecord {
   /**
@@ -138,7 +140,6 @@ export default class Schema extends SchemaRecord {
   updateMemo(value) {
     return this.set('memo', value)
   }
-
 
   /**
    * @return {bool}

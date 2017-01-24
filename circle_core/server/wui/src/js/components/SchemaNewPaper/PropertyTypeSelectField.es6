@@ -5,10 +5,11 @@ import SelectField from 'material-ui/SelectField'
 
 
 /**
+ * PropertyTypeセレクトフィールド
  */
 class PropertyTypeSelectField extends Component {
   static propTypes = {
-    property: PropTypes.object.isRequired,
+    selectedProperty: PropTypes.object.isRequired,
     propertyTypes: PropTypes.object.isRequired,
     onChange: PropTypes.func,
   }
@@ -18,7 +19,7 @@ class PropertyTypeSelectField extends Component {
    */
   render() {
     const {
-      property,
+      selectedProperty,
       propertyTypes,
       onChange,
     } = this.props
@@ -27,7 +28,7 @@ class PropertyTypeSelectField extends Component {
       <SelectField
         floatingLabelText="属性タイプ"
         fullWidth={true}
-        value={property.type}
+        value={selectedProperty.type}
         onChange={onChange}
       >
         {propertyTypes.valueSeq().map((propertyType) =>
@@ -38,7 +39,6 @@ class PropertyTypeSelectField extends Component {
           />
         )}
       </SelectField>
-
     )
   }
 }

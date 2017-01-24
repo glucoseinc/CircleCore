@@ -5,9 +5,9 @@ import TextField from 'material-ui/TextField'
 
 /**
  */
-class DisplayNameTextField extends Component {
+class TagTextField extends Component {
   static propTypes = {
-    schema: PropTypes.object.isRequired,
+    tag: PropTypes.string.isRequired,
     onChange: PropTypes.func,
   }
 
@@ -16,19 +16,18 @@ class DisplayNameTextField extends Component {
    */
   render() {
     const {
-      schema,
+      tag,
       onChange,
     } = this.props
 
     return (
       <TextField
-        floatingLabelText="メッセージスキーマ名"
-        fullWidth={true}
-        value={schema.displayName}
+        floatingLabelText="タグ"
+        value={tag}
         onChange={onChange}
       />
     )
   }
 }
 
-export default DisplayNameTextField
+export default TagTextField
