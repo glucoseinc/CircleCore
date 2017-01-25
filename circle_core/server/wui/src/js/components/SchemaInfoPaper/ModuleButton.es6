@@ -1,10 +1,10 @@
 import React, {Component, PropTypes} from 'react'
 
-import RaisedButton from 'material-ui/RaisedButton'
-import ActionSettingsInputComponent from 'material-ui/svg-icons/action/settings-input-component'
+import FlatButton from 'material-ui/FlatButton'
 
 
 /**
+ * Moduleボタン
  */
 class ModuleButton extends Component {
   static propTypes = {
@@ -23,19 +23,21 @@ class ModuleButton extends Component {
 
     const style = {
       root: {
-        height: 32,
+        height: 24,
+        lineHeight: 1,
       },
-      icon: {
-        width: 16,
-        height: 16,
+      label: {
+        padding: '0 8px',
+        fontWeight: 'bold',
       },
     }
 
     return (
-      <RaisedButton
+      <FlatButton
         style={style.root}
-        icon={<ActionSettingsInputComponent style={style.icon} />}
+        primary={true}
         label={module.label}
+        labelStyle={style.label}
         onTouchTap={() => onTouchTap(module.uuid)}
       />
     )

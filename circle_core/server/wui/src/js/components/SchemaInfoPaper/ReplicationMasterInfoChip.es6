@@ -6,6 +6,7 @@ import {redA100, redA700, white} from 'material-ui/styles/colors'
 
 
 /**
+ * 同期Masterチップ
  */
 class ReplicationMasterInfoChip extends Component {
   static propTypes = {

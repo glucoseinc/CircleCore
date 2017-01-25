@@ -4,12 +4,13 @@ import Paper from 'material-ui/Paper'
 import ActionDelete from 'material-ui/svg-icons/action/delete'
 
 import DisplayNameLabel from '../commons/DisplayNameLabel'
+import IdLabel from '../commons/IdLabel'
+import MemoLabel from '../commons/MemoLabel'
 import MoreMenu from '../commons/MoreMenu'
 import MoreMenuItem from '../commons/MoreMenuItem'
-import MemoArea from './MemoArea'
-import ModuleButton from './ModuleButton'
+import ModuleButtons from './ModuleButtons'
 import ReplicationMasterInfoChip from './ReplicationMasterInfoChip'
-import SchemaPropertyLabel from './SchemaPropertyLabel'
+import SchemaPropertiesLabel from './SchemaPropertiesLabel'
 
 
 /**
@@ -20,6 +21,7 @@ class SchemaInfoPaper extends Component {
     schema: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
     onTouchTap: PropTypes.func,
+    onIdCopyButtonTouchTap: PropTypes.func,
     onModuleButtonTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
   }
@@ -32,6 +34,7 @@ class SchemaInfoPaper extends Component {
       schema,
       modules,
       onTouchTap,
+      onIdCopyButtonTouchTap,
       onModuleButtonTouchTap,
       onDeleteTouchTap,
     } = this.props
@@ -54,6 +57,7 @@ class SchemaInfoPaper extends Component {
       },
       displayName: {
         padding: 8,
+        lineHeight: 1,
       },
       replicationMasterInfo: {
         padding: 8,
@@ -69,13 +73,20 @@ class SchemaInfoPaper extends Component {
       rightTop: {
         display: 'flex',
         flexFlow: 'row nowrap',
+        padding: 8,
+      },
+      idAndProperties: {
+        display: 'flex',
+        flexFlow: 'column nowrap',
+        flexGrow: 1,
+      },
+      id: {
         padding: 0,
       },
       properties: {
         display: 'flex',
         flexFlow: 'row wrap',
-        flexGrow: 1,
-        padding: 0,
+        paddingTop: 8,
       },
       property: {
         padding: 4,
@@ -86,19 +97,18 @@ class SchemaInfoPaper extends Component {
         height: 24,
       },
 
+      memo: {
+        padding: '0 8px',
+      },
+
       modules: {
         display: 'flex',
         flexFlow: 'row wrap',
-        padding: 0,
+        padding: 8,
+        paddingBottom: 0,
       },
       module: {
         padding: 4,
-      },
-
-      memo: {
-        padding: 4,
-        overflow: 'auto',
-        wordWrap: 'break-word',
       },
     }
 
@@ -117,16 +127,21 @@ class SchemaInfoPaper extends Component {
               {replicationMaster ? <ReplicationMasterInfoChip replicationMaster={replicationMaster} /> : null}
             </div>
           </div>
+
           <div style={style.right}>
             <div style={style.rightTop}>
-              <div style={style.properties}>
-                {schema.properties.valueSeq().map((property, index) => (
-                  <div key={index} style={style.property}>
-                    <SchemaPropertyLabel
-                      schemaProperty={property}
-                    />
-                  </div>
-                ))}
+              <div style={style.idAndProperties}>
+                <div style={style.id}>
+                  <IdLabel
+                    obj={schema}
+                    onTouchTap={onIdCopyButtonTouchTap}
+                  />
+                </div>
+                <div style={style.properties}>
+                  <SchemaPropertiesLabel
+                    schema={schema}
+                  />
+                </div>
               </div>
               <div style={style.moreButton} onTouchTap={(e) => e.stopPropagation()}>
                 <MoreMenu>
@@ -139,17 +154,16 @@ class SchemaInfoPaper extends Component {
                 </MoreMenu>
               </div>
             </div>
-            <div style={style.modules} onTouchTap={(e) => e.stopPropagation()}>
-              {schema.modules.valueSeq().map((moduleId) => (
-                <div key={moduleId} style={style.module}>
-                  <ModuleButton
-                    module={modules.get(moduleId)}
-                    onTouchTap={onModuleButtonTouchTap}
-                  />
-                </div>
-                ))}
+
+            <div style={style.memo}><MemoLabel obj={schema}/></div>
+
+            <div style={style.modules}>
+              <ModuleButtons
+                schema={schema}
+                modules={modules}
+                onTouchTap={onModuleButtonTouchTap}
+              />
             </div>
-            <div style={style.memo}><MemoArea schema={schema} /></div>
           </div>
         </div>
       </Paper>

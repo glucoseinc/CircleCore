@@ -77,7 +77,7 @@ class Master extends React.Component {
     const {
       muiTheme,
     } = this.context
-    const showDevTool = false
+    const showDevTool = process.env.NODE_ENV === 'development'
 
     const navDrawerAlwaysOpen = (width === LARGE)
     const appBarShowMenuIconButton = navDrawerAlwaysOpen ? false : true
