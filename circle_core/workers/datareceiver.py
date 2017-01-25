@@ -31,15 +31,18 @@ def run(metadata):
 
 
 class DataReceiver(object):
-    def __init__(self, metadata, cycle_time=1.0, cycle_count=10):
+    def __init__(self, metadata, cycle_time=1.0, cycle_count=10, receiver=None):
         self.metadata = metadata
 
         # commitする、メッセージ数と時間
         self.cycle_count = cycle_count
         self.cycle_time = cycle_time
 
-        self.message_receiver = Receiver(ModuleMessageTopic())
-        self.message_receiver.set_timeout(int(self.cycle_time * 1000))
+        if receiver is None:
+            self.message_receiver = Receiver(ModuleMessageTopic())
+            self.message_receiver.set_timeout(int(self.cycle_time * 1000))
+        else:
+            self.message_receiver = receiver
 
         self.db = Database(metadata.database_url)
         self.db.register_message_boxes(metadata.message_boxes, metadata.schemas)
@@ -57,7 +60,7 @@ class DataReceiver(object):
         self.begin_transaction()
 
         while True:
-            for msg in self.message_receiver.incoming_messages():
+            for msg in self.message_receiver:
                 logger.debug('received a module data for %s-%s : %r', msg.module_uuid, msg.box_id, msg.payload)
 
                 self.store_message(msg)

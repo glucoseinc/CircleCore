@@ -2,7 +2,7 @@
 from datetime import datetime
 import json
 from multiprocessing import Process
-from os import environ
+from os import environ, getcwd
 from threading import Thread
 from time import sleep, time
 from uuid import UUID
@@ -17,6 +17,7 @@ from tornado.ioloop import IOLoop
 from tornado.testing import AsyncHTTPTestCase, gen_test
 from tornado.web import Application
 from tornado.websocket import websocket_connect, WebSocketHandler
+from websocket import WebSocketConnectionClosedException
 
 from circle_core import database
 from circle_core.cli.cli_main import cli_main
@@ -45,6 +46,7 @@ class DummyMetadata(MetadataReader):
     invitations = []
     parse_url_scheme = None
     writable = True
+    prefix = getcwd()
 
     def register_schema(self, schema):  # TODO: こういうのをMockにするべきなのかな
         self.schemas.append(schema)
@@ -151,16 +153,18 @@ class TestReplicationSlave:
             def on_message(self, req):
                 req = json.loads(req)
                 if req['command'] == 'RECEIVE':
-                    resp = json.dumps({
-                        'module_uuid': '8e654793-5c46-4721-911e-b9d19f0779f9',
-                        'box_id': '316720eb-84fe-43b3-88b7-9aad49a93220',
-                        'timestamp': now,
-                        'count': 0,
-                        'payload': {
-                            'hoge': 123
-                        }
-                    })
-                    self.write_message(resp)
+                    for count in range(10):
+                        resp = json.dumps({
+                            'module_uuid': '8e654793-5c46-4721-911e-b9d19f0779f9',
+                            'box_id': '316720eb-84fe-43b3-88b7-9aad49a93220',
+                            'timestamp': now,
+                            'count': count,
+                            'payload': {
+                                'hoge': 123
+                            }
+                        })
+                        self.write_message(resp)
+
                     raise RuntimeError('This exception is used to stop DummyReplicationMaster.')
 
         self.run_dummy_server(DummyReplicationMaster)
@@ -170,7 +174,8 @@ class TestReplicationSlave:
             'command': 'RECEIVE'
         })
         slave.ws.send(req)
-        slave.receive()
+        with pytest.raises(WebSocketConnectionClosedException):
+            slave.receive()
 
         db = Database(self.mysql.url)
         table = Table('message_box_76pzhAbUqxJeYp1CYkLBc3', db._metadata, autoload=True, autoload_with=db._engine)
@@ -179,7 +184,7 @@ class TestReplicationSlave:
         # テーブルにメッセージが書き込まれているか
         with session.begin():
             rows = session.query(table).all()
-            assert len(rows) == 1
+            assert len(rows) == 10
             assert ModuleMessage.is_equal_timestamp(rows[0]._created_at, now)
             assert rows[0]._counter == 0
             assert rows[0].hoge == 123

@@ -54,25 +54,9 @@ class Receiver(object):
         """接続を閉じる."""
         self._socket.close()
 
-    def fileno(self):
-        """Tornadoに叩かれる."""
-        return self._socket.getsockopt(nnpy.SOL_SOCKET, nnpy.RCVFD)
-
-    def close(self):
-        """Tornadoに叩かれる."""
-        IOLoop.current().remove_handler(self)
-
-    def set_timeout(self, timeout):
-        """タイムアウトを設定する.
-
-        :param int timeout: タイムアウト millisecond
-        """
-        self._socket.setsockopt(nnpy.SOL_SOCKET, nnpy.RCVTIMEO, timeout)
-
-    def incoming_messages(self):
+    def __iter__(self):
         """メッセージを受信次第それを返すジェネレータ.
 
-        :param TopicBase topic:
         :return ModuleMessage: 受信したメッセージ
         """
         while True:
@@ -90,13 +74,28 @@ class Receiver(object):
             except JSONDecodeError:
                 logger.warning('Received an non-JSON message. Ignore it.')
 
+    def fileno(self):
+        """Tornadoに叩かれる."""
+        return self._socket.getsockopt(nnpy.SOL_SOCKET, nnpy.RCVFD)
+
+    def close(self):
+        """Tornadoに叩かれる."""
+        IOLoop.current().remove_handler(self)
+
+    def set_timeout(self, timeout):
+        """タイムアウトを設定する.
+
+        :param int timeout: タイムアウト millisecond
+        """
+        self._socket.setsockopt(nnpy.SOL_SOCKET, nnpy.RCVTIMEO, timeout)
+
     def register_ioloop(self, callback):
         """TornadoのIOLoopにメッセージ受信時のコールバックを登録.
 
         :param FunctionType callback:
         """
         def call_callback(*args):
-            # TODO: incoming_messagesと同じような処理が多い。共通化する
+            # TODO: __iter__と同じような処理が多い。共通化する
             plain_msg = self._socket.recv().decode('utf-8')
             try:
                 msgs = self.topic.decode(plain_msg)
