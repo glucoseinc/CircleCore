@@ -1,5 +1,6 @@
-import React, {PropTypes} from 'react'
+import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
+import {routerActions} from 'react-router-redux'
 
 import AppBar from 'material-ui/AppBar'
 import Dialog from 'material-ui/Dialog'
@@ -7,22 +8,24 @@ import FlatButton from 'material-ui/FlatButton'
 import Title from 'react-title-component'
 import withWidth, {LARGE} from 'material-ui/utils/withWidth'
 
-import actions from '../actions'
-import NavDrawer from '../components/NavDrawer'
-import {OAUTH_AUTHORIZATION_URL} from '../Authorization'
-import DevTools from '../containers/DevTools'
+import actions from 'src/actions'
+import {OAUTH_AUTHORIZATION_URL} from 'src/Authorization'
+
+import NavDrawer from 'src/components/NavDrawer'
+import DevTools from 'src/containers/DevTools'
 
 
 /**
  * メインコンテンツ
  */
-class Master extends React.Component {
+class Master extends Component {
   static propTypes = {
     title: PropTypes.string,
     errorMessage: PropTypes.string,
+    location: PropTypes.object.isRequired,
     children: PropTypes.node.isRequired,
     width: PropTypes.number.isRequired,
-    onLocationChangeRequest: PropTypes.func,
+    onLocationChange: PropTypes.func,
     onCloseErrorAlert: PropTypes.func,
   }
 
@@ -47,11 +50,13 @@ class Master extends React.Component {
   /**
    * @param {string} pathname
    */
-  onNavDrawerMenutouchTap(pathname) {
+  onNavDrawerMenuTouchTap(pathname) {
     this.setState({
       navDrawerOpen: false,
     })
-    this.props.onLocationChangeRequest(pathname)
+    if (pathname !== this.props.location.pathname) {
+      this.props.onLocationChange(pathname)
+    }
   }
 
   /**
@@ -108,7 +113,7 @@ class Master extends React.Component {
             alwaysOpen={navDrawerAlwaysOpen}
             open={navDrawerOpen}
             onRequestChange={::this.onNavDrawerButtonTouchTap}
-            onNavItemTouchTap={::this.onNavDrawerMenutouchTap}
+            onNavItemTouchTap={::this.onNavDrawerMenuTouchTap}
           />
         </div>
 
@@ -138,7 +143,7 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch)=> ({
-  onLocationChangeRequest: (pathname) => dispatch(actions.location.changeRequest(pathname)),
+  onLocationChange: (pathname) => dispatch(routerActions.push(pathname)),
   onCloseErrorAlert: () => dispatch(actions.misc.clearErrorMessage()),
 })
 

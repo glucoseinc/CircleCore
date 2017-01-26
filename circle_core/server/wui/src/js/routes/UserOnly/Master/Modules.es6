@@ -1,12 +1,12 @@
-import ActionSettingsInputComponent from 'material-ui/svg-icons/action/settings-input-component'
-import actions from '../../../actions'
-import Modules from '../../../containers/Modules'
+import actions from 'src/actions'
+import {ModuleIcon} from 'src/components/bases/icons'
+import Modules from 'src/containers/Modules'
 
 const modulesRoute = {
   key: 'modules',
   path: 'modules/',
   label: 'モジュール一覧',
-  icon: ActionSettingsInputComponent,
+  icon: ModuleIcon,
   component: Modules,
   onEnterActions: [
     actions.modules.fetchRequest,

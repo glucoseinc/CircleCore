@@ -1,4 +1,4 @@
-import {UserOnly} from '../../containers/AuthDivider'
+import {UserOnly} from 'src/containers/AuthDivider'
 
 import Master from './Master'
 

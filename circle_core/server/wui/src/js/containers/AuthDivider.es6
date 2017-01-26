@@ -1,21 +1,22 @@
 // ログイン状態を見てユーザーを振り分ける
-import React from 'react'
+import React, {Component, PropTypes} from 'react'
 import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
-import actions from '../actions'
-import {OAUTH_AUTHORIZATION_URL} from '../Authorization'
+import actions from 'src/actions'
+import {OAUTH_AUTHORIZATION_URL} from 'src/Authorization'
 
 
 /**
  * ログイン済ユーザ用のフレーム
  */
-class UserOnlyFrame extends React.Component {
+class UserOnlyFrame extends Component {
   static propTypes = {
-    tokenIsValid: React.PropTypes.bool.isRequired,
+    tokenIsValid: PropTypes.bool.isRequired,
+    children: PropTypes.node,
   }
   static contextTypes = {
-    router: React.PropTypes.object.isRequired,
+    router: PropTypes.object.isRequired,
   }
 
   /**
@@ -74,12 +75,13 @@ export const UserOnly = connect(
 /**
  * 未ログインユーザ用のフレーム
  */
-class GuestOnlyFrame extends React.Component {
+class GuestOnlyFrame extends Component {
   static propTypes = {
-    tokenIsValid: React.PropTypes.bool.isRequired,
+    tokenIsValid: PropTypes.bool.isRequired,
+    children: PropTypes.node,
   }
   static contextTypes = {
-    router: React.PropTypes.object.isRequired,
+    router: PropTypes.object.isRequired,
   }
 
   /**

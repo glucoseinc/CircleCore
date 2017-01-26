@@ -4,13 +4,16 @@ import {routerActions} from 'react-router-redux'
 
 import Snackbar from 'material-ui/Snackbar'
 
-import actions from '../actions'
-import {FloatingAddButton} from '../components/buttons'
-import CCLink from '../components/CCLink'
-import Fetching from '../components/Fetching'
-import SchemaDeleteDialog from '../components/SchemaDeleteDialog'
-import SchemaInfoPaper from '../components/SchemaInfoPaper'
-import {urls, createPathName} from '../routes'
+import actions from 'src/actions'
+import {urls, createPathName} from 'src/routes'
+
+import LoadingIndicator from 'src/components/bases/LoadingIndicator'
+
+import AddFloatingActionButton from 'src/components/commons/AddFloatingActionButton'
+import CCLink from 'src/components/commons/CCLink'
+import SchemaDeleteDialog from 'src/components/commons/SchemaDeleteDialog'
+
+import SchemaInfoPaper from 'src/components/SchemaInfoPaper'
 
 
 /**
@@ -96,7 +99,7 @@ class Schemas extends Component {
 
     if (isFetching) {
       return (
-        <Fetching />
+        <LoadingIndicator />
       )
     }
 
@@ -107,7 +110,7 @@ class Schemas extends Component {
             key={schema.uuid}
             schema={schema}
             modules={modules}
-            onTouchTap={(schema) => onSchemaInfoPaperTouchTap(schema.uuid)}
+            onDisplayNameTouchTap={(schema) => onSchemaInfoPaperTouchTap(schema.uuid)}
             onIdCopyButtonTouchTap={::this.onIdCopyButtonTouchTap}
             onModuleButtonTouchTap={onModuleButtonTouchTap}
             onDeleteTouchTap={::this.onDeleteTouchTap}
@@ -115,7 +118,7 @@ class Schemas extends Component {
         ))}
 
         <CCLink url={urls.schemasNew}>
-          <FloatingAddButton />
+          <AddFloatingActionButton />
         </CCLink>
 
         <Snackbar

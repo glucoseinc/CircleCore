@@ -1,4 +1,4 @@
-import OAuthAuthorize from '../../containers/OAuthAuthorize'
+import OAuthAuthorize from 'src/containers/OAuthAuthorize'
 
 const oAuthAuthorizeRoute = {
   path: '/oauth/authorize',

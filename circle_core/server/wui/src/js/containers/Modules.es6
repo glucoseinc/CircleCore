@@ -5,15 +5,18 @@ import {routerActions} from 'react-router-redux'
 import FlatButton from 'material-ui/FlatButton'
 import withWidth, {SMALL} from 'material-ui/utils/withWidth'
 
-import actions from '../actions'
-import {FloatingAddButton} from '../components/buttons'
-import CCLink from '../components/CCLink'
-import Fetching from '../components/Fetching'
-import ModuleDeleteDialog from '../components/ModuleDeleteDialog'
-import ModuleCards from '../components/Modules/ModuleCards'
-import ModuleInfoPaper from '../components/ModuleInfoPaper'
-import SearchTextField from '../components/commons/SearchTextField'
-import {urls, createPathName} from '../routes'
+import actions from 'src/actions'
+import {urls, createPathName} from 'src/routes'
+
+import LoadingIndicator from 'src/components/bases/LoadingIndicator'
+
+import AddFloatingActionButton from 'src/components/commons/AddFloatingActionButton'
+import CCLink from 'src/components/commons/CCLink'
+import ModuleDeleteDialog from 'src/components/commons/ModuleDeleteDialog'
+import SearchTextField from 'src/components/commons/SearchTextField'
+
+import ModuleCards from 'src/components/Modules/ModuleCards'
+import ModuleInfoPaper from 'src/components/ModuleInfoPaper'
 
 const TAB_CARDS = 'cards'
 const TAB_LIST = 'list'
@@ -93,7 +96,7 @@ class Modules extends Component {
 
     if(isFetching) {
       return (
-        <Fetching />
+        <LoadingIndicator />
       )
     }
 
@@ -139,7 +142,8 @@ class Modules extends Component {
               <ModuleInfoPaper
                 key={module.uuid}
                 module={module}
-                onTouchTap={(module) => onModuleInfoPaperTouchTap(module.uuid)}
+                onDisplayNameTouchTap={(module) => onModuleInfoPaperTouchTap(module.uuid)}
+                onIdCopyButtonTouchTap={() => console.log('ModuleInfoPaper onIdCopyButtonTouchTap')}
                 onTagButtonTouchTap={(tag) => this.setSearchText(tag)}
                 onDeleteTouchTap={::this.onDeleteTouchTap}
               />
@@ -148,7 +152,7 @@ class Modules extends Component {
         </div>
 
         <CCLink url={urls.modulesNew}>
-          <FloatingAddButton />
+          <AddFloatingActionButton />
         </CCLink>
 
         <ModuleDeleteDialog
@@ -170,7 +174,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   onModuleInfoPaperTouchTap: (moduleId) => dispatch(routerActions.push(createPathName(urls.module, {moduleId}))),
-  onDeleteOkButtonTouchTap: (module) => dispatch(actions.modules.deleteRequest(module)),
+  onDeleteOkButtonTouchTap: (module) => dispatch(actions.modules.deleteRequest(module.uuid)),
 })
 
 export default connect(

@@ -1,11 +1,11 @@
-import ActionList from 'material-ui/svg-icons/action/list'
-import Invitations from '../../../containers/Invitations'
+import {InvitationIcon} from 'src/components/bases/icons'
+import Invitations from 'src/containers/Invitations'
 
 const invitationsRoute = {
   key: 'invitations',
   path: 'invitations/',
   label: '招待リンク一覧',
-  icon: ActionList,
+  icon: InvitationIcon,
   component: Invitations,
 }
 

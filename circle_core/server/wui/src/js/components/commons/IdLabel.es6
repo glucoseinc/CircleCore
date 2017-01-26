@@ -3,8 +3,9 @@ import {findDOMNode} from 'react-dom'
 
 import IconButton from 'material-ui/IconButton'
 import {grey500} from 'material-ui/styles/colors'
-import ActionInfo from 'material-ui/svg-icons/action/info'
-import ContentContentCopy from 'material-ui/svg-icons/content/content-copy'
+
+import ComponentWithIcon from 'src/components/bases/ComponentWithIcon'
+import {IdIcon, CopyIcon} from 'src/components/bases/icons'
 
 
 /**
@@ -68,42 +69,40 @@ class IdLabel extends Component {
         display: 'flex',
         flexFlow: 'row nowrap',
         alignItems: 'center',
-        lineHeight: 1,
       },
+
+      label: {
+        fontSize: 12,
+        lineHeight: 1,
+        color: grey500,
+      },
+
       iconButton: {
         width: 16,
         height: 16,
         padding: 0,
+        paddingLeft: 4,
       },
       icon: {
         width: 16,
         height: 16,
       },
-      label: {
-        fontSize: 12,
-        paddingLeft: 8,
-        paddingRight: 4,
-        color: grey500,
-      },
     }
 
     return (
-      <div
-        style={style.root}
-      >
+      <ComponentWithIcon icon={IdIcon}>
         <HiddenTextArea text={obj.uuid} ref="hiddenTextArea"/>
-        <ActionInfo style={style.icon} color={grey500}/>
-        <span style={style.label}>
-          {obj.uuid}
-        </span>
-      <IconButton
-        style={style.iconButton}
-        iconStyle={style.icon}
-        onTouchTap={::this.onTouchTap}
-      >
-        <ContentContentCopy color={grey500}/>
-      </IconButton>
-      </div>
+        <div style={style.root}>
+          <div style={style.label}>{obj.uuid}</div>
+          <IconButton
+            style={style.iconButton}
+            iconStyle={style.icon}
+            onTouchTap={::this.onTouchTap}
+          >
+            <CopyIcon color={grey500}/>
+          </IconButton>
+        </div>
+      </ComponentWithIcon>
     )
   }
 }

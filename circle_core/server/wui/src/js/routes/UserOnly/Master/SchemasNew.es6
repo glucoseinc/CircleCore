@@ -1,5 +1,5 @@
-import actions from '../../../actions'
-import SchemasNew from '../../../containers/SchemasNew'
+import actions from 'src/actions'
+import SchemasNew from 'src/containers/SchemasNew'
 
 const schemasNewRoute = {
   key: 'schemasNew',
@@ -8,7 +8,6 @@ const schemasNewRoute = {
   // icon: null,
   component: SchemasNew,
   onEnterActions: [
-    actions.schema.createInit,
     actions.schemaPropertyTypes.fetchRequest,
   ],
 }

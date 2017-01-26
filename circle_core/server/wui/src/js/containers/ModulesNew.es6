@@ -1,9 +1,11 @@
 import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 
-import actions from '../actions'
-import Fetching from '../components/Fetching'
-import ModuleNewPaper from '../components/ModuleNewPaper'
+import actions from 'src/actions'
+
+import LoadingIndicator from 'src/components/bases/LoadingIndicator'
+
+import ModuleNewPaper from 'src/components/ModuleNewPaper'
 
 
 /**
@@ -28,7 +30,7 @@ class ModulesNew extends Component {
 
     if (isSchemasFetching) {
       return (
-        <Fetching />
+        <LoadingIndicator />
       )
     }
 

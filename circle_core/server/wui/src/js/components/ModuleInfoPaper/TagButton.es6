@@ -1,10 +1,10 @@
 import React, {Component, PropTypes} from 'react'
 
-import RaisedButton from 'material-ui/RaisedButton'
-import ActionLabel from 'material-ui/svg-icons/action/label'
+import FlatButton from 'material-ui/FlatButton'
 
 
 /**
+ * タグボタン
  */
 class TagButton extends Component {
   static propTypes = {
@@ -23,19 +23,22 @@ class TagButton extends Component {
 
     const style = {
       root: {
-        height: 32,
+        height: 24,
+        minWidth: 0,
+        lineHeight: 1,
       },
-      icon: {
-        width: 16,
-        height: 16,
+      label: {
+        padding: 0,
+        fontWeight: 'bold',
       },
     }
 
     return (
-      <RaisedButton
+      <FlatButton
         style={style.root}
-        icon={<ActionLabel style={style.icon} />}
+        primary={true}
         label={tag}
+        labelStyle={style.label}
         onTouchTap={() => onTouchTap(tag)}
       />
     )

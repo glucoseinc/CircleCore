@@ -1,14 +1,7 @@
-import {createCcActions, nullPayloadCreator, passPayloadCreator} from './utils'
+import {createCcActions, nullPayloadCreator} from './utils'
 
 
 const payloadCreators = {
-  inputTextChange: passPayloadCreator,
-  startModuleEdit: ({module, editingArea}) => ({
-    rawModule: module.toJS(),
-    editingArea,
-  }),
-  cancelModuleEdit: nullPayloadCreator,
-  executeModuleEdit: (module) => module.toJS(),
   clearErrorMessage: nullPayloadCreator,
 }
 

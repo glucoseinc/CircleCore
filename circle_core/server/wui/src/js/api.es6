@@ -347,7 +347,7 @@ class CCAPI extends APICaller {
 
   /**
    * Moduleの詳細を得る
-   * @param {string} moduleId Module UUID
+   * @param {string} moduleId
    * @return {object} Result
    */
   async fetchModule(moduleId) {
@@ -366,21 +366,21 @@ class CCAPI extends APICaller {
 
   /**
    * Moduleを更新する
-   * @param {Module} module Module
+   * @param {object} rawModule
    * @return {object} Result
    */
-  async updateModule(module) {
-    const res = await this._put(`/modules/${module.uuid}`, module.toJS())
+  async updateModule(rawModule) {
+    const res = await this._put(`/modules/${rawModule.uuid}`, rawModule)
     return res.body
   }
 
   /**
    * Moduleを削除する
-   * @param {Module} module Module
+   * @param {string} moduleId
    * @return {object} Result
    */
-  async deleteModule(module) {
-    const res = await this._delete(`/modules/${module.uuid}`)
+  async deleteModule(moduleId) {
+    const res = await this._delete(`/modules/${moduleId}`)
     return res.body
   }
 

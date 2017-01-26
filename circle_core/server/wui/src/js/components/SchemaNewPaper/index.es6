@@ -3,12 +3,14 @@ import React, {Component, PropTypes} from 'react'
 import Paper from 'material-ui/Paper'
 import {grey600} from 'material-ui/styles/colors'
 
-import Schema from '../../models/Schema'
-import AddFlatButton from '../commons/AddFlatButton'
-import CreateButton from '../commons/CreateButton'
-import DeleteIconButton from '../commons/DeleteIconButton'
-import DisplayNameTextField from '../commons/DisplayNameTextField'
-import MemoTextField from '../commons/MemoTextField'
+import Schema from 'src/models/Schema'
+
+import AddFlatButton from 'src/components/commons/AddFlatButton'
+import CreateButton from 'src/components/commons/CreateButton'
+import DeleteIconButton from 'src/components/commons/DeleteIconButton'
+import DisplayNameTextField from 'src/components/commons/DisplayNameTextField'
+import MemoTextField from 'src/components/commons/MemoTextField'
+
 import PropertyNameTextField from './PropertyNameTextField'
 import PropertyTypeSelectField from './PropertyTypeSelectField'
 

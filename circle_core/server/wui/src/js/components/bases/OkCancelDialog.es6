@@ -5,6 +5,7 @@ import FlatButton from 'material-ui/FlatButton'
 
 
 /**
+ * OK/Cancelボタンを持つダイアログ
  */
 class OkCancelDialog extends Component {
   static propTypes = {

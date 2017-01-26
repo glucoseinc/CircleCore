@@ -1,10 +1,11 @@
-import React, {PropTypes} from 'react'
+import React, {Component, PropTypes} from 'react'
 
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
 
-import {colorUUID} from '../colors'
-import {RemoveButton} from '../components/buttons'
-import Invitation from '../models/Invitation'
+import {colorUUID} from 'src/colors'
+import Invitation from 'src/models/Invitation'
+
+import DeleteButton from 'src/components/commons/DeleteButton'
 
 
 const styles = {
@@ -20,7 +21,7 @@ const styles = {
 /**
  * 招待一覧の各行
  */
-class InvitationsTableRow extends React.Component {
+class InvitationsTableRow extends Component {
   static propTypes = {
     invitation: PropTypes.instanceOf(Invitation).isRequired,
     onDeleteInvitation: PropTypes.func.isRequired,
@@ -52,7 +53,7 @@ class InvitationsTableRow extends React.Component {
         </TableRowColumn>
         <TableRowColumn>
           {!this.props.readOnly &&
-          <RemoveButton
+          <DeleteButton
             onTouchTap={(e) => this.props.onDeleteInvitation(invitation, e)}
           />}
         </TableRowColumn>
@@ -65,7 +66,7 @@ class InvitationsTableRow extends React.Component {
 /**
  * 招待一覧
  */
-export default class InvitationsTable extends React.Component {
+export default class InvitationsTable extends Component {
   static propTypes = {
     invitations: PropTypes.object.isRequired,
     onDeleteInvitation: PropTypes.func.isRequired,

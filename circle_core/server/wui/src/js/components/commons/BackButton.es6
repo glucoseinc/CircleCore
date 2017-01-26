@@ -4,11 +4,10 @@ import RaisedButton from 'material-ui/RaisedButton'
 
 
 /**
- * 削除ボタン
+ * 一覧へ戻るボタン
  */
-class DeleteButton extends Component {
+class BackButton extends Component {
   static propTypes = {
-    disabled: PropTypes.bool,
     onTouchTap: PropTypes.func,
   }
 
@@ -17,25 +16,24 @@ class DeleteButton extends Component {
    */
   render() {
     const {
-      disabled = false,
       onTouchTap,
     } = this.props
 
     const style = {
       root: {
-        width: 160,
+        minWidth: 160,
       },
     }
 
     return (
       <RaisedButton
         style={style.root}
-        label="削除する"
-        disabled={disabled}
+        label="一覧へ戻る"
+        primary={true}
         onTouchTap={onTouchTap}
        />
     )
   }
 }
 
-export default DeleteButton
+export default BackButton

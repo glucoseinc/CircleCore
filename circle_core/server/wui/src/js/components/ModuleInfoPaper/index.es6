@@ -1,22 +1,25 @@
 import React, {Component, PropTypes} from 'react'
 
+import MenuItem from 'material-ui/MenuItem'
 import Paper from 'material-ui/Paper'
-import ActionDelete from 'material-ui/svg-icons/action/delete'
 
-import DisplayNameLabel from '../commons/DisplayNameLabel'
-import MoreMenu from '../commons/MoreMenu'
-import MoreMenuItem from '../commons/MoreMenuItem'
-import MessageBoxLabel from './MessageBoxLabel'
-import TagButton from './TagButton'
+import ComponentWithMoreIconMenu from 'src/components/bases/ComponentWithMoreIconMenu'
+import {DeleteIcon} from 'src/components/bases/icons'
+
+import IdLabel from 'src/components/commons/IdLabel'
+
+import MessageBoxesLabel from './MessageBoxesLabel'
+import TagButtons from './TagButtons'
 
 
 /**
- * Moduleリストの1Module
+ * Module一覧ペーパー
  */
 class ModuleInfoPaper extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
-    onTouchTap: PropTypes.func,
+    onDisplayNameTouchTap: PropTypes.func,
+    onIdCopyButtonTouchTap: PropTypes.func,
     onTagButtonTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
   }
@@ -27,109 +30,87 @@ class ModuleInfoPaper extends Component {
   render() {
     const {
       module,
-      onTouchTap,
+      onDisplayNameTouchTap,
+      onIdCopyButtonTouchTap,
       onTagButtonTouchTap,
       onDeleteTouchTap,
     } = this.props
 
     const style = {
       root: {
-        display: 'flex',
-        flexFlow: 'row nowrap',
-        padding: 8,
-        cursor: 'pointer',
+        padding: 24,
       },
 
-      left: {
+      contents: {
+        display: 'flex',
+        flexFlow: 'row nowrap',
+      },
+
+      leftArea: {
         display: 'flex',
         flexFlow: 'column nowrap',
-        padding: 8,
-        boxSizing: 'border-box',
         minWidth: 232,
         maxWidth: 232,
       },
       displayName: {
-        padding: 8,
-      },
-      replicationMasterInfo: {
-        padding: 8,
+        fontSize: 14,
+        fontWeight: 'bold',
+        cursor: 'pointer',
       },
 
-      right: {
+      rightArea: {
         display: 'flex',
         flexFlow: 'column nowrap',
         flexGrow: 1,
-        padding: 8,
-        minWidth: 0,
       },
-      rightTop: {
-        display: 'flex',
-        flexFlow: 'row nowrap',
-        padding: 0,
+      idSection: {
       },
-      messageBoxes: {
-        display: 'flex',
-        flexFlow: 'row wrap',
-        flexGrow: 1,
-        padding: 0,
+      messageBoxesSection: {
+        paddingTop: 8,
       },
-      messageBox: {
-        padding: 4,
-      },
-      moreButton: {
-        margin: '2px 0',
-        padding: 4,
-        height: 24,
-      },
-
-      tags: {
-        display: 'flex',
-        flexFlow: 'row wrap',
-        padding: 0,
-      },
-      tag: {
-        padding: 4,
+      tagsSection: {
+        paddingTop: 8,
       },
     }
 
     return (
       <Paper>
-        <div style={style.root} onTouchTap={() => onTouchTap(module)}>
-          <div style={style.left}>
-            <div style={style.displayName}><DisplayNameLabel obj={module} /></div>
-          </div>
-          <div style={style.right}>
-            <div style={style.rightTop}>
-              <div style={style.messageBoxes}>
-                {module.messageBoxes.valueSeq().map((messageBox, index) => (
-                  <div key={index} style={style.messageBox}>
-                    <MessageBoxLabel
-                      messageBox={messageBox}
-                    />
-                  </div>
-                ))}
+        <div style={style.root}>
+          <ComponentWithMoreIconMenu
+            menuItems={[
+              <MenuItem
+                primaryText="このモジュールを削除する"
+                leftIcon={<DeleteIcon />}
+                onTouchTap={() => onDeleteTouchTap(module)}
+              />,
+            ]}
+          >
+            <div style={style.contents}>
+              <div style={style.leftArea}>
+                <div style={style.displayName} onTouchTap={() => onDisplayNameTouchTap(module)}>
+                  {module.displayName || '(no name)'}
+                </div>
               </div>
-              <div style={style.moreButton} onTouchTap={(e) => e.stopPropagation()}>
-                <MoreMenu>
-                  <MoreMenuItem
-                    primaryText="このモジュールを削除する"
-                    leftIcon={ActionDelete}
-                    onTouchTap={() => onDeleteTouchTap(module)}
+
+              <div style={style.rightArea}>
+                <div style={style.idSection}>
+                  <IdLabel
+                    obj={module}
+                    onTouchTap={onIdCopyButtonTouchTap}
                   />
-                </MoreMenu>
-              </div>
-            </div>
-            <div style={style.tags} onTouchTap={(e) => e.stopPropagation()}>
-              {module.tags.valueSeq().map((tag, index) => (
-                <div key={index} style={style.tag}>
-                  <TagButton
-                    tag={tag}
+                </div>
+                <div style={style.messageBoxesSection}>
+                  <MessageBoxesLabel module={module}/>
+                </div>
+                <div style={style.tagsSection}>
+                  <TagButtons
+                    module={module}
                     onTouchTap={onTagButtonTouchTap}
                   />
                 </div>
-                ))}
+              </div>
             </div>
-          </div>
+          </ComponentWithMoreIconMenu>
         </div>
       </Paper>
     )

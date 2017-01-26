@@ -1,7 +1,8 @@
 import React, {Component, PropTypes} from 'react'
 
-import FontIcon from 'material-ui/FontIcon'
 import TextField from 'material-ui/TextField'
+
+import {SearchIcon} from 'src/components/bases/icons'
 
 
 /**
@@ -28,7 +29,7 @@ class SearchTextField extends Component {
 
     const hintNode = (
       <span>
-        <FontIcon className="material-icons" style={{color: 'inherit', verticalAlign: 'bottom'}}>search</FontIcon>
+        <SearchIcon style={{color: 'inherit', verticalAlign: 'bottom'}} />
         {hintText}
       </span>
     )

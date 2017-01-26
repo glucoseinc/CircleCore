@@ -1,9 +1,10 @@
+import React, {Component, PropTypes} from 'react'
 import moment from 'moment'
-import React from 'react'
 import Rickshaw from 'rickshaw'
 
-import CCAPI from '../../api'
-import Fetching from '../../components/Fetching'
+import CCAPI from 'src/api'
+
+import LoadingIndicator from 'src/components/bases/LoadingIndicator'
 
 
 const RANGE_30MINS = '30m'
@@ -98,12 +99,12 @@ class GraphTime {
  * MessageBoxを渡すとMessageBoxのグラフを書く
  * クラスを分けようと思ったのだけど、継承させて書くとちょっと面倒なので、ifで...
  */
-export class ModuleGraph extends React.Component {
+export class ModuleGraph extends Component {
   static propTypes = {
-    autoUpdate: React.PropTypes.number,
-    module: React.PropTypes.object.isRequired,
-    messageBox: React.PropTypes.object,
-    range: React.PropTypes.string.isRequired,
+    autoUpdate: PropTypes.number,
+    module: PropTypes.object.isRequired,
+    messageBox: PropTypes.object,
+    range: PropTypes.string.isRequired,
   }
 
   static defaultProps = {
@@ -181,7 +182,7 @@ export class ModuleGraph extends React.Component {
     return (
       <div
         ref="graphContainer" className={`graph graph-module ${graphData ? '' : 'is-loading'}`}>
-        {!graphData && <Fetching className="graph-loadingIndicator" />}
+        {!graphData && <LoadingIndicator className="graph-loadingIndicator" />}
         <div ref="yAxis" className="graph-yAxis" />
         <div ref="chart" className="graph-chart" />
         <div ref="preview" className="graph-preview" />

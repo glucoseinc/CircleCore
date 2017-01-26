@@ -1,9 +1,10 @@
 import React, {Component, PropTypes} from 'react'
 
-import OkCancelDialog from '../components/OkCancelDialog'
+import OkCancelDialog from 'src/components/bases/OkCancelDialog'
 
 
 /**
+ * Schema削除ダイアログ
  */
 class SchemaDeleteDialog extends Component {
   static propTypes = {

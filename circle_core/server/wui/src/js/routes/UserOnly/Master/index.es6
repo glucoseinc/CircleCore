@@ -1,6 +1,6 @@
-import actions from '../../../actions'
-import {store} from '../../../main'
-import Master from '../../../containers/Master'
+import actions from 'src/actions'
+import {store} from 'src/main'
+import Master from 'src/containers/Master'
 
 import ChangeProfile from './ChangeProfile'
 import Cores from './Cores'

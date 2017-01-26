@@ -1,4 +1,4 @@
-import Dump from '../../../containers/Dump'
+import Dump from 'src/containers/Dump'
 
 const dumpRoute = {
   key: 'dump',

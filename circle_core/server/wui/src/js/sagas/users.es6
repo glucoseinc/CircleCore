@@ -1,7 +1,7 @@
 import {call, fork, put, takeEvery, takeLatest} from 'redux-saga/effects'
 
-import CCAPI from '../api'
-import actions, {actionTypes} from '../actions'
+import CCAPI from 'src/api'
+import actions, {actionTypes} from 'src/actions'
 import {makeError} from './utils'
 
 

@@ -1,12 +1,12 @@
-import ActionReceipt from 'material-ui/svg-icons/action/receipt'
-import actions from '../../../actions'
-import Schemas from '../../../containers/Schemas'
+import actions from 'src/actions'
+import {SchemaIcon} from 'src/components/bases/icons'
+import Schemas from 'src/containers/Schemas'
 
 const schemasRoute = {
   key: 'schemas',
   path: 'schemas',
   label: 'メッセージスキーマ一覧',
-  icon: ActionReceipt,
+  icon: SchemaIcon,
   component: Schemas,
   onEnterActions: [
     actions.schemas.fetchRequest,

@@ -4,10 +4,14 @@ import FlatButton from 'material-ui/FlatButton'
 import {Card, CardMedia, CardTitle} from 'material-ui/Card'
 import Toggle from 'material-ui/Toggle'
 
-import CCLink from '../../components/CCLink'
-import {colorUUID} from '../../colors'
-import {urls} from '../../routes'
+import {colorUUID} from 'src/colors'
+import {urls} from 'src/routes'
+
+import CCLink from 'src/components/commons/CCLink'
+
 import {ModuleGraph, RANGES, RANGE_LABELS} from './ModuleGraph'
+
+
 /**
  */
 class ModuleCards extends Component {

@@ -2,13 +2,13 @@ import {handleActions} from 'redux-actions'
 import {Map} from 'immutable'
 import {normalize} from 'normalizr'
 
-import {actionTypes} from '../actions'
-import Invitation from '../models/Invitation'
-import Module from '../models/Module'
-import Schema from '../models/Schema'
-import SchemaPropertyType from '../models/SchemaPropertyType'
-import User from '../models/User'
-import normalizerSchema from '../models/normalizerSchema'
+import {actionTypes} from 'src/actions'
+import Invitation from 'src/models/Invitation'
+import Module from 'src/models/Module'
+import Schema from 'src/models/Schema'
+import SchemaPropertyType from 'src/models/SchemaPropertyType'
+import User from 'src/models/User'
+import normalizerSchema from 'src/models/normalizerSchema'
 
 
 const initialState = {

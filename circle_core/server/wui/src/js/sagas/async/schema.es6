@@ -1,5 +1,5 @@
-import CCAPI from '../../api'
-import actions, {actionTypes} from '../../actions'
+import CCAPI from 'src/api'
+import actions, {actionTypes} from 'src/actions'
 
 import {createAsyncSagaParam} from './utils'
 

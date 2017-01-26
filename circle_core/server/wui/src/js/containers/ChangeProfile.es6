@@ -1,20 +1,22 @@
-import React, {PropTypes} from 'react'
+import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 import Title from 'react-title-component'
 import {bindActionCreators} from 'redux'
 import {put, take} from 'redux-saga/effects'
 import {Snackbar} from 'material-ui'
 
-import actions, {actionTypes} from '../actions'
-import Fetching from '../components/Fetching'
-import UserForm from '../components/UserForm'
-import {store} from '../main'
+import actions, {actionTypes} from 'src/actions'
+import {store} from 'src/main'
+
+import LoadingIndicator from 'src/components/bases/LoadingIndicator'
+
+import UserForm from 'src/components/UserForm'
 
 
 /**
  * 自分の情報の確認、編集
  */
-class ChangeProfile extends React.Component {
+class ChangeProfile extends Component {
   static propTypes = {
     isFetching: PropTypes.bool.isRequired,
     user: PropTypes.object,
@@ -54,7 +56,7 @@ class ChangeProfile extends React.Component {
     // actionの更新タイミングによってisFetchingがfalseでもuserが無い時がある涙
     if(this.props.isFetching || !user) {
       return (
-        <Fetching />
+        <LoadingIndicator />
       )
     }
 

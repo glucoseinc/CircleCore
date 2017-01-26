@@ -1,9 +1,11 @@
 import React, {Component, PropTypes} from 'react'
 import {Link} from 'react-router'
 
-import {createPathName} from '../routes'
+import {createPathName} from 'src/routes'
+
 
 /**
+ * リンクボタン
  */
 class CCLink extends Component {
   static propTypes = {
@@ -24,12 +26,11 @@ class CCLink extends Component {
       children,
     } = this.props
 
-    const mergedStyle = Object.assign(
-      {
-        textDecoration: 'none',
-      },
-      style
-    )
+    const mergedStyle = {
+      textDecoration: 'none',
+      ...style,
+    }
+
     return (
       <Link
         to={createPathName(url, params)}

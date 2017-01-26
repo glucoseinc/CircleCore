@@ -5,8 +5,9 @@ import {orange500} from 'material-ui/styles/colors'
 
 
 /**
+ * ロード中インジゲーター
  */
-class Fetching extends Component {
+class LoadingIndicator extends Component {
   /**
    * @override
    */
@@ -31,4 +32,4 @@ class Fetching extends Component {
   }
 }
 
-export default Fetching
+export default LoadingIndicator

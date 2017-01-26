@@ -1,9 +1,11 @@
 import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 
-import actions from '../actions'
-import Fetching from '../components/Fetching'
-import SchemaNewPaper from '../components/SchemaNewPaper'
+import actions from 'src/actions'
+
+import LoadingIndicator from 'src/components/bases/LoadingIndicator'
+
+import SchemaNewPaper from 'src/components/SchemaNewPaper'
 
 
 /**
@@ -28,7 +30,7 @@ class SchemasNew extends Component {
 
     if (isSchemaPropertyTypesFetching) {
       return (
-        <Fetching />
+        <LoadingIndicator />
       )
     }
 

@@ -10,8 +10,6 @@ const payloadCreators = {
   fetchSucceeded: (response) => response,
   fetchFailed: (message) => message,
 
-  deleteAsk: (schema) => schema.toJS(),
-  deleteCancel: nullPayloadCreator,
   deleteRequest: (schemaId) => schemaId,
   deleteSucceeded: (response) => response,
   deleteFailed: (message) => message,

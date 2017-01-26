@@ -14,8 +14,6 @@ const payloadCreators = {
   updateSucceeded: (response) => response,
   updateFailed: (message) => message,
 
-  deleteAsk: (module) => module.toJS(),
-  deleteCancel: nullPayloadCreator,
   deleteRequest: (moduleId) => moduleId,
   deleteSucceeded: (response) => response,
   deleteFailed: (message) => message,

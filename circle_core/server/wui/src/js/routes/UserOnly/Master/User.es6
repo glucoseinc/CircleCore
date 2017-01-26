@@ -1,5 +1,5 @@
-import actions from '../../../actions'
-import User from '../../../containers/User'
+import actions from 'src/actions'
+import User from 'src/containers/User'
 
 const userRoute = {
   key: 'user',
