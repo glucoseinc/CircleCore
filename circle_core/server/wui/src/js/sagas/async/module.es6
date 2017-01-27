@@ -1,21 +1,20 @@
 import CCAPI from '../../api'
 import actions, {actionTypes} from '../../actions'
-import Module from '../../models/Module'
 
 import {createAsyncSagaParam} from './utils'
 
 
 // Create
 const moduleCreateParam = createAsyncSagaParam(
-    ::CCAPI.postModule,
-    (payload) => Module.fromObject(payload),
+    ::CCAPI.createModule,
+    (payload) => payload,
     actions.modules.createSucceeded,
     actions.modules.createFailed,
 )
 
 // Read
 const moduleFetchParam = createAsyncSagaParam(
-  ::CCAPI.getModule,
+  ::CCAPI.fetchModule,
   (payload) => payload,
   actions.module.fetchSucceeded,
   actions.module.fetchFailed
@@ -23,7 +22,7 @@ const moduleFetchParam = createAsyncSagaParam(
 
 // Read all
 const allModulesFetchParam = createAsyncSagaParam(
-  ::CCAPI.getModules,
+  ::CCAPI.fetchAllModules,
   () => null,
   actions.modules.fetchSucceeded,
   actions.modules.fetchFailed
@@ -31,8 +30,8 @@ const allModulesFetchParam = createAsyncSagaParam(
 
 // Update
 const moduleUpdateParam = createAsyncSagaParam(
-  ::CCAPI.putModule,
-  (payload) => Module.fromObject(payload),
+  ::CCAPI.updateModule,
+  (payload) => payload,
   actions.modules.updateSucceeded,
   actions.modules.updateFailed,
 )
@@ -40,7 +39,7 @@ const moduleUpdateParam = createAsyncSagaParam(
 // Delete
 const moduleDeleteParam = createAsyncSagaParam(
   ::CCAPI.deleteModule,
-  (payload) => Module.fromObject(payload),
+  (payload) => payload,
   actions.modules.deleteSucceeded,
   actions.modules.deleteFailed,
 )

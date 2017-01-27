@@ -2,7 +2,7 @@ import {createCcActions, nullPayloadCreator} from './utils'
 
 
 const payloadCreators = {
-  createRequest: (schema) => schema.toJS(),
+  createRequest: (rawSchema) => rawSchema,
   createSucceeded: (response) => response,
   createFailed: (message) => message,
 
@@ -12,7 +12,7 @@ const payloadCreators = {
 
   deleteAsk: (schema) => schema.toJS(),
   deleteCancel: nullPayloadCreator,
-  deleteRequest: (schema) => schema.toJS(),
+  deleteRequest: (schemaId) => schemaId,
   deleteSucceeded: (response) => response,
   deleteFailed: (message) => message,
 }

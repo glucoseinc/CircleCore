@@ -116,7 +116,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
   setTitle: (title) => dispatch(actions.page.setTitle(title)),
   onBackButtonTouchTap: () => dispatch(routerActions.push(urls.schemas.fullPath)),
-  onDeleteOkButtonTouchTap: (schema) => dispatch(actions.schemas.deleteRequest(schema)),
+  onDeleteOkButtonTouchTap: (schema) => dispatch(actions.schemas.deleteRequest(schema.uuid)),
 })
 
 export default connect(

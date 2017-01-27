@@ -6,7 +6,7 @@ import {createAsyncSagaParam} from './utils'
 
 // Read all
 const allSchemaPropertyTypesFetchParam = createAsyncSagaParam(
-  ::CCAPI.getSchemaPropertyTypes,
+  ::CCAPI.fetchAllSchemaPropertyTypes,
   () => null,
   actions.schemaPropertyTypes.fetchSucceeded,
   actions.schemaPropertyTypes.fetchFailed

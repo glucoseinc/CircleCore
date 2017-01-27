@@ -50,7 +50,7 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  onCreateTouchTap: (schema) => dispatch(actions.schemas.createRequest(schema)),
+  onCreateTouchTap: (schema) => dispatch(actions.schemas.createRequest(schema.toJS())),
 })
 
 export default connect(

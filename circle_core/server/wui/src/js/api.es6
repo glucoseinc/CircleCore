@@ -233,56 +233,59 @@ class CCAPI extends APICaller {
   }
 
 
-  // schemas
+  // Schema
   /**
-   * Schemaのリストを得る
-   * @return {Array<Schema>} Schemaのリスト
+   * Schemaを作成する
+   * @param {object} rawSchema
+   * @return {object} Result
    */
-  async getSchemas() {
-    const res = await this._get('/schemas/')
+  async createSchema(rawSchema) {
+    const res = await this._post('/schemas/', rawSchema)
     return res.body
   }
 
   /**
    * Schemaの詳細を得る
-   * @param {Schema} schema Schema
-   * @return {Schema} Schema
+   * @param {string} schemaId
+   * @return {object} Result
    */
-  async getSchema(schema) {
-    const res = await this._get(`/schemas/${schema.uuid}`)
+  async fetchSchema(schemaId) {
+    const res = await this._get(`/schemas/${schemaId}`)
     return res.body
   }
 
   /**
-   * Schemaを作成する
-   * @param {Schema} schema Schema
-   * @return {Object} Result
+   * Schemaのリストを得る
+   * @return {object} Result
    */
-  async postSchema(schema) {
-    const res = await this._post('/schemas/', schema.toJS())
+  async fetchAllSchemas() {
+    const res = await this._get('/schemas/')
     return res.body
   }
 
   /**
    * Schemaを削除する
-   * @param {Schema} schema Schema
-   * @return {Object} Result
+   * @param {string} schemaId
+   * @return {object} Result
    */
-  async deleteSchema(schema) {
-    const res = await this._delete(`/schemas/${schema.uuid}`)
+  async deleteSchema(schemaId) {
+    const res = await this._delete(`/schemas/${schemaId}`)
     return res.body
   }
 
+
+  // SchemaPropertyType
   /**
    * Schema Property Typeのリストを得る
-   * @return {Array<Schema>} Schema Property Typeのリスト
+   * @return {object} Result
    */
-  async getSchemaPropertyTypes() {
+  async fetchAllSchemaPropertyTypes() {
     const res = await this._get('/schemas/propertytypes')
     return res.body
   }
 
-  // users
+
+  // User
   /**
    * Userのリストを得る
    * @return {Object} Userのリスト
@@ -330,26 +333,59 @@ class CCAPI extends APICaller {
     return res.body
   }
 
-  // modules
+
+  // Module
   /**
-   * Moduleのリストを得る
-   * @return {Array<Module>} モジュールのリスト
+   * Moduleを作成する
+   * @param {object} rawModule
+   * @return {object} Result
    */
-  async getModules() {
-    const res = await this._get('/modules/')
+  async createModule(rawModule) {
+    const res = await this._post('/modules/', rawModule)
     return res.body
   }
 
   /**
    * Moduleの詳細を得る
    * @param {string} moduleId Module UUID
-   * @return {object} Module
+   * @return {object} Result
    */
-  async getModule(moduleId) {
+  async fetchModule(moduleId) {
     const res = await this._get(`/modules/${moduleId}`)
     return res.body
   }
 
+  /**
+   * Moduleのリストを得る
+   * @return {object} Result
+   */
+  async fetchAllModules() {
+    const res = await this._get('/modules/')
+    return res.body
+  }
+
+  /**
+   * Moduleを更新する
+   * @param {Module} module Module
+   * @return {object} Result
+   */
+  async updateModule(module) {
+    const res = await this._put(`/modules/${module.uuid}`, module.toJS())
+    return res.body
+  }
+
+  /**
+   * Moduleを削除する
+   * @param {Module} module Module
+   * @return {object} Result
+   */
+  async deleteModule(module) {
+    const res = await this._delete(`/modules/${module.uuid}`)
+    return res.body
+  }
+
+
+  // ModuleGraphData
   /**
    * Moduleのグラフ用データを得る
    * @param {Module} module Module
@@ -361,6 +397,8 @@ class CCAPI extends APICaller {
     return res.body
   }
 
+
+  // MessageBoxGraphData
   /**
    * MessageBoxのグラフ用データを得る
    * @param {Module} module Module
@@ -370,35 +408,6 @@ class CCAPI extends APICaller {
    */
   async getMessageBoxGraphData(module, messageBox, query) {
     const res = await this._get(`/modules/${module.uuid}/${messageBox.uuid}/graph`, query)
-    return res.body
-  }
-  /**
-   * Moduleを作成する
-   * @param {Module} module Module
-   * @return {Object} Result
-   */
-  async postModule(module) {
-    const res = await this._post('/modules/', module.toJS())
-    return res.body
-  }
-
-  /**
-   * Moduleを更新する
-   * @param {Module} module Module
-   * @return {Object} Result
-   */
-  async putModule(module) {
-    const res = await this._put(`/modules/${module.uuid}`, module.toJS())
-    return res.body
-  }
-
-  /**
-   * Moduleを削除する
-   * @param {Module} module Module
-   * @return {Object} Result
-   */
-  async deleteModule(module) {
-    const res = await this._delete(`/modules/${module.uuid}`)
     return res.body
   }
 }

@@ -2,7 +2,7 @@ import {createCcActions, nullPayloadCreator} from './utils'
 
 
 const payloadCreators = {
-  createRequest: (module) => module.toJS(),
+  createRequest: (rawModule) => rawModule,
   createSucceeded: (response) => response,
   createFailed: (message) => message,
 
@@ -10,13 +10,13 @@ const payloadCreators = {
   fetchSucceeded: (response) => response,
   fetchFailed: (message) => message,
 
-  updateRequest: (module) => module.toJS(),
+  updateRequest: (rawModule) => rawModule,
   updateSucceeded: (response) => response,
   updateFailed: (message) => message,
 
   deleteAsk: (module) => module.toJS(),
   deleteCancel: nullPayloadCreator,
-  deleteRequest: (module) => module.toJS(),
+  deleteRequest: (moduleId) => moduleId,
   deleteSucceeded: (response) => response,
   deleteFailed: (message) => message,
 }

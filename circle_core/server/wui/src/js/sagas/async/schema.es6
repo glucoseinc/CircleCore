@@ -1,21 +1,20 @@
 import CCAPI from '../../api'
 import actions, {actionTypes} from '../../actions'
-import Schema from '../../models/Schema'
 
 import {createAsyncSagaParam} from './utils'
 
 
 // Create
 const schemaCreateParam = createAsyncSagaParam(
-    ::CCAPI.postSchema,
-    (payload) => Schema.fromObject(payload),
+    ::CCAPI.createSchema,
+    (payload) => payload,
     actions.schemas.createSucceeded,
     actions.schemas.createFailed,
 )
 
 // Read
 const schemaFetchParam = createAsyncSagaParam(
-  ::CCAPI.getSchema,
+  ::CCAPI.fetchSchema,
   (payload) => payload,
   actions.schema.fetchSucceeded,
   actions.schema.fetchFailed
@@ -23,7 +22,7 @@ const schemaFetchParam = createAsyncSagaParam(
 
 // Read all
 const allSchemasFetchParam = createAsyncSagaParam(
-  ::CCAPI.getSchemas,
+  ::CCAPI.fetchAllSchemas,
   () => null,
   actions.schemas.fetchSucceeded,
   actions.schemas.fetchFailed
@@ -32,7 +31,7 @@ const allSchemasFetchParam = createAsyncSagaParam(
 // Delete
 const schemaDeleteParam = createAsyncSagaParam(
   ::CCAPI.deleteSchema,
-  (payload) => Schema.fromObject(payload),
+  (payload) => payload,
   actions.schemas.deleteSucceeded,
   actions.schemas.deleteFailed,
 )
