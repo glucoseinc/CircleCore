@@ -1,7 +1,13 @@
 {
   "presets": ["react", "es2015", "stage-1"],
   "plugins": [
-    "transform-function-bind"
+    "transform-function-bind",
+    ["module-resolver", {
+      "root": ["./circle_core/server/wui/src"],
+      "alias": {
+        "src": "js",
+      }
+    }]
   ],
   "env": {
     "development": {
