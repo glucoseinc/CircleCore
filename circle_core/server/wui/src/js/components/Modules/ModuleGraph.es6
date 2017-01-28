@@ -315,7 +315,6 @@ export class ModuleGraph extends React.Component {
    */
   clearUpdateTimer() {
     if(this.updateTimer) {
-      console.log('clear timer')
       clearTimeout(this.updateTimer)
       this.updateTimer = null
     }
@@ -329,7 +328,6 @@ export class ModuleGraph extends React.Component {
     require('assert')(this.updateTimer == null)
     if(!delay)
       return
-    console.log('set timer')
     this.updateTimer = setTimeout(() => {
       this.updateTimer = null
       this.fetchGraphData()

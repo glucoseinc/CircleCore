@@ -130,7 +130,6 @@ class APICaller {
   _extendToken() {
     if(this._extendTokenRequest) {
       // extend中
-      console.log('extending... suspend request')
       return this._extendTokenRequest
     }
 
@@ -139,8 +138,6 @@ class APICaller {
       this._requestRefresh()
         .then((res) => {
           // succeeded
-          console.log('refresh token', res.body)
-
           this.token.update(res.body.access_token, res.body.refresh_token)
           this.token.save()
 
@@ -148,7 +145,6 @@ class APICaller {
           resolve()
         }, (err) => {
           // rejected
-          console.log('extend failed!')
           reject(err)
         })
     })
