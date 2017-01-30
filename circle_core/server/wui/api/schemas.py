@@ -44,8 +44,6 @@ def _post_schemas():
     response = {}  # TODO: response形式の統一
     try:
         display_name = dic['display_name']
-        if len(display_name) == 0:
-            display_name = None
         properties = dic['properties']
         properties = [prop for prop in properties
                       if len(prop['name']) != 0 and len(prop['type']) != 0]

@@ -105,7 +105,7 @@ class TestCliSchema(object):
     def test_schema_remove_success(self):
         # setup
         runner = CliRunner()
-        result = runner.invoke(cli_entry, ['schema', 'add', 'key:int'])
+        result = runner.invoke(cli_entry, ['schema', 'add', '--name', 'schema_name', 'key:int'])
         uuid = result.output.split()[1][1:-1]  # Schema "{uuid}" is added.\n
 
         # test

@@ -208,10 +208,9 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         """
         mapping = {
             'uuid': schema.uuid,
+            'display_name': schema.display_name,
             'properties': schema.stringified_properties,
         }
-        if schema.display_name is not None:
-            mapping['display_name'] = schema.display_name
         if schema.memo is not None:
             mapping['memo'] = schema.memo
 
@@ -252,10 +251,9 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         mapping = {
             'uuid': message_box.uuid,
             'schema_uuid': message_box.schema_uuid,
+            'display_name': message_box.display_name,
             'master_uuid': message_box.master_uuid or ''
         }
-        if message_box.display_name is not None:
-            mapping['display_name'] = message_box.display_name
         if message_box.memo is not None:
             mapping['memo'] = message_box.memo
 
@@ -293,10 +291,9 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         mapping = {
             'uuid': module.uuid,
             'message_box_uuids': module.stringified_message_box_uuids,
+            'display_name': module.display_name,
             'tags': module.stringified_tags,
         }
-        if module.display_name is not None:
-            mapping['display_name'] = module.display_name
         if module.memo is not None:
             mapping['memo'] = module.memo
 

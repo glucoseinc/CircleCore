@@ -25,17 +25,17 @@ class Module(object):
 
     :param UUID uuid: Module UUID
     :param List[UUID] message_box_uuids: MessageBox
-    :param Optional[str] display_name: 表示名
+    :param str display_name: 表示名
     :param List[str] tags: タグ
     :param Optional[str] memo: メモ
     """
 
-    def __init__(self, uuid, message_box_uuids, display_name=None, tags=None, memo=None):
+    def __init__(self, uuid, message_box_uuids, display_name, tags=None, memo=None):
         """init.
 
         :param Union[str, UUID] uuid: Module UUID
         :param List[Union[str, UUID]] message_box_uuids: MessageBoxのUUIDリスト
-        :param Optional[str] display_name: 表示名
+        :param str display_name: 表示名
         :param Union[Optional[str], List[str]] tags: タグ
         :param Optional[str] memo: メモ
         """
