@@ -20,7 +20,7 @@ from click.core import Context
 # project module
 from circle_core import server
 from circle_core.server import ws, wui
-from circle_core.workers import get_worker
+from circle_core.workers import datareceiver
 from circle_core.workers.replication_slave import ReplicationSlave
 from .context import ContextObject, ContextObjectError
 from .utils import RestartableProcess
@@ -95,13 +95,13 @@ def validate_replication_master_addr(ctx, param, values):
 @click.option('--ws-path', type=click.STRING, envvar='CRCR_WSPATH', default='/module/?')
 @click.option('--wui-port', type=click.INT, envvar='CRCR_WUIPORT', default=5000)
 @click.option('--ipc-socket', type=click.Path(resolve_path=True), envvar='CRCR_IPCSOCK', default='/tmp/circlecore.ipc')
-@click.option('workers', '--worker', type=click.STRING, envvar='CRCR_WORKERS', multiple=True)
 @click.option('replicate_from', '--replicate', type=click.STRING, envvar='CRCR_REPLICATION', multiple=True,
               help='module_uuid@hostname:port', callback=validate_replication_master_addr)
 @click.option('database_url', '--database', envvar='CRCR_DATABASE')
 @click.option('--prefix', envvar='CRCR_PREFIX', default=lambda: os.getcwd())
+@click.option('--debug', is_flag=True)
 @click.pass_context
-def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, workers, replicate_from, database_url, prefix):
+def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, replicate_from, database_url, prefix, debug):
     """CircleCoreの起動."""
     ctx.obj.ipc_socket = 'ipc://' + ipc_socket
     metadata = ctx.obj.metadata
@@ -112,11 +112,10 @@ def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, workers, replicate
         modules = [module_and_addr[0] for module_and_addr in value]
         RestartableProcess(target=lambda: ReplicationSlave(metadata, addr, modules).run()).start()
 
-    for worker in workers:
-        RestartableProcess(target=get_worker(worker).run, args=[metadata]).start()
+    RestartableProcess(target=datareceiver.run, args=[metadata]).start()
 
     if ws_port == wui_port:
-        RestartableProcess(target=server.run, args=[wui_port, metadata]).start()
+        RestartableProcess(target=server.run, args=[wui_port, metadata, debug]).start()
     else:
         RestartableProcess(target=ws.run, args=[metadata, ws_path, ws_port]).start()
         RestartableProcess(target=wui.create_app(metadata).run, kwargs={'port': wui_port}).start()

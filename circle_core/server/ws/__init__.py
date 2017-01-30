@@ -12,7 +12,7 @@ if PY3:
     from typing import Union
 
 
-def run(metadata, path, port):
+def run(metadata, path, port, debug):
     """Tornadoサーバーを立てる.
 
     :param Union[MetadataIniFile, MetadataRedis] metadata:
@@ -22,5 +22,5 @@ def run(metadata, path, port):
     Application([
         (path, ReplicationMaster),
         (path + '/(?P<module_uuid>[0-9A-Fa-f-]+)', ModuleHandler)
-    ]).listen(port)
+    ], debug=debug).listen(port)
     IOLoop.current().start()
