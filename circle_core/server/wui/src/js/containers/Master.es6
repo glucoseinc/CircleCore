@@ -1,5 +1,4 @@
 import React, {PropTypes} from 'react'
-import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
 import AppBar from 'material-ui/AppBar'
@@ -15,19 +14,51 @@ import DevTools from '../containers/DevTools'
 
 
 /**
+ * メインコンテンツ
  */
 class Master extends React.Component {
   static propTypes = {
     title: PropTypes.string,
     errorMessage: PropTypes.string,
-    navDrawerOpen: PropTypes.bool.isRequired,
     children: PropTypes.node.isRequired,
     width: PropTypes.number.isRequired,
-    actions: PropTypes.object.isRequired,
+    onLocationChangeRequest: PropTypes.func,
+    onCloseErrorAlert: PropTypes.func,
   }
 
   static contextTypes = {
     muiTheme: PropTypes.object.isRequired,
+  }
+
+  state = {
+    navDrawerOpen: false,
+  }
+
+  /**
+   * NavDrawerの開閉
+   * @param {bool} open
+   */
+  onNavDrawerButtonTouchTap(open) {
+    this.setState({
+      navDrawerOpen: open,
+    })
+  }
+
+  /**
+   * @param {string} pathname
+   */
+  onNavDrawerMenutouchTap(pathname) {
+    this.setState({
+      navDrawerOpen: false,
+    })
+    this.props.onLocationChangeRequest(pathname)
+  }
+
+  /**
+   * エラーAlertの閉じるボタンが押された時に呼ばれる
+   */
+  onCloseErrorAlert() {
+    this.props.onCloseErrorAlert()
   }
 
   /**
@@ -35,12 +66,13 @@ class Master extends React.Component {
    */
   render() {
     const {
+      navDrawerOpen,
+    } = this.state
+    const {
       title,
       errorMessage,
-      navDrawerOpen,
       children,
       width,
-      actions,
     } = this.props
     const {
       muiTheme,
@@ -65,7 +97,7 @@ class Master extends React.Component {
           <AppBar
             title={title}
             showMenuIconButton={appBarShowMenuIconButton}
-            onLeftIconButtonTouchTap={actions.misc.navDrawerToggleOpen}
+            onLeftIconButtonTouchTap={() => this.onNavDrawerButtonTouchTap(true)}
           />
           <div style={style.children}>
             {children}
@@ -75,8 +107,8 @@ class Master extends React.Component {
           <NavDrawer
             alwaysOpen={navDrawerAlwaysOpen}
             open={navDrawerOpen}
-            onRequestChange={actions.misc.navDrawerToggleOpen}
-            onNavItemTouchTap={actions.location.changeRequest}
+            onRequestChange={::this.onNavDrawerButtonTouchTap}
+            onNavItemTouchTap={::this.onNavDrawerMenutouchTap}
           />
         </div>
 
@@ -97,43 +129,18 @@ class Master extends React.Component {
       </div>
     )
   }
-
-  /**
-   * エラーAlertの閉じるボタンが押された時に呼ばれる
-   */
-  onCloseErrorAlert() {
-    //
-    this.props.actions.misc.clearErrorMessage()
-  }
 }
 
 
-/**
- * [mapStateToProps description]
- * @param  {[type]} state [description]
- * @return {[type]}       [description]
- */
-function mapStateToProps(state) {
-  return {
-    title: state.page.title,
-    navDrawerOpen: state.misc.navDrawerOpen,
-    errorMessage: state.misc.errorMessage,
-  }
-}
+const mapStateToProps = (state) => ({
+  title: state.page.title,
+  errorMessage: state.misc.errorMessage,
+})
 
-/**
- * [mapDispatchToProps description]
- * @param  {[type]} dispatch [description]
- * @return {[type]}          [description]
- */
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: {
-      location: bindActionCreators(actions.location, dispatch),
-      misc: bindActionCreators(actions.misc, dispatch),
-    },
-  }
-}
+const mapDispatchToProps = (dispatch)=> ({
+  onLocationChangeRequest: (pathname) => dispatch(actions.location.changeRequest(pathname)),
+  onCloseErrorAlert: () => dispatch(actions.misc.clearErrorMessage()),
+})
 
 export default connect(
   mapStateToProps,

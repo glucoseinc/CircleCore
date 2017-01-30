@@ -6,8 +6,9 @@ import ContentAdd from 'material-ui/svg-icons/content/add'
 
 /**
  */
-class PropertyAddButton extends Component {
+class AddFlatButton extends Component {
   static propTypes = {
+    label: PropTypes.string,
     onTouchTap: PropTypes.func,
   }
 
@@ -16,6 +17,7 @@ class PropertyAddButton extends Component {
    */
   render() {
     const {
+      label = '追加する',
       onTouchTap,
     } = this.props
 
@@ -31,7 +33,7 @@ class PropertyAddButton extends Component {
 
     return (
       <FlatButton
-        label="プロパティを追加する"
+        label={label}
         labelStyle={style.label}
         icon={<ContentAdd style={style.icon} />}
         primary={true}
@@ -41,4 +43,4 @@ class PropertyAddButton extends Component {
   }
 }
 
-export default PropertyAddButton
+export default AddFlatButton

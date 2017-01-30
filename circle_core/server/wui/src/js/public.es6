@@ -29,7 +29,6 @@ class PublicFrame extends React.Component {
    */
   render() {
     const {
-    //   navDrawerOpen,
       children,
     //   width,
     //   actions,
@@ -37,9 +36,6 @@ class PublicFrame extends React.Component {
     // const {
     //   muiTheme,
     // } = this.context
-
-    // const navDrawerAlwaysOpen = (width === LARGE)
-    // const appBarShowMenuIconButton = navDrawerAlwaysOpen ? false : true
 
     return (
       <div className="container is-public">

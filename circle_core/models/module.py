@@ -64,7 +64,9 @@ class Module(object):
             _tags = tags
         else:
             _tags = tags.split(',')
-        self.tags = [tag for tag in _tags if tag != '']
+        _tags = [tag for tag in _tags if tag != '']     # 空白除去
+        _tags = sorted(set(_tags), key=_tags.index)     # 重複除去
+        self.tags = _tags
 
     def __eq__(self, other):
         """return equality.

@@ -65,7 +65,6 @@ class Modules extends Component {
    * @param {object} module
    */
   onDeleteDialogButtonTouchTap(execute, module) {
-    console.log('onDeleteDialogButtonTouchTap', execute, module)
     this.setState({
       deleteModule: null,
       isModuleDeleteDialogOpen: false,

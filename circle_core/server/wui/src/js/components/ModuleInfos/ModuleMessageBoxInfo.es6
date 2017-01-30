@@ -19,9 +19,11 @@ const EditableDisplayNameData = ({module, index, actions}) => {
         hintText="オプション"
         fullWidth={true}
         value={messageBox.displayName}
-        onChange={(e) => actions.module.update(
-          module.updateMessageBox(index, 'displayName', e.target.value)
-        )}
+        onChange={(e) => {
+          const newMessageBox = messageBox.updateDisplayName(e.target.value)
+          const newModule = module.updateMessageBox(index, newMessageBox)
+          actions.module.update(newModule)
+        }}
       />
     </td>
   )
@@ -41,9 +43,11 @@ const EditableSchemaData = ({module, index, schemas, actions}) => {
     <td>
       <SelectField
         value={messageBox.schema}
-        onChange={(e, i, v) => actions.module.update(
-          module.updateMessageBox(index, 'schema', v)
-        )}
+        onChange={(e, i, v) => {
+          const newMessageBox = messageBox.updateSchema(v)
+          const newModule = module.updateMessageBox(index, newMessageBox)
+          actions.module.update(newModule)
+        }}
       >
         {schemas.valueSeq().map((schema) =>
           <MenuItem
@@ -111,9 +115,11 @@ const EditableMemoData = ({module, index, actions}) => {
         rows={4}
         rowsMax={4}
         value={messageBox.memo}
-        onChange={(e) => actions.module.update(
-          module.updateMessageBox(index, 'memo', e.target.value)
-        )}
+        onChange={(e) => {
+          const newMessageBox = messageBox.updateMemo(e.target.value)
+          const newModule = module.updateMessageBox(index, newMessageBox)
+          actions.module.update(newModule)
+        }}
       />
     </td>
   )

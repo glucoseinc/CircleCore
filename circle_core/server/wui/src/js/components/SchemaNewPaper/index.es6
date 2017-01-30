@@ -4,16 +4,17 @@ import Paper from 'material-ui/Paper'
 import {grey600} from 'material-ui/styles/colors'
 
 import Schema from '../../models/Schema'
-import CreateButton from './CreateButton'
-import DisplayNameTextField from './DisplayNameTextField'
-import MemoTextField from './MemoTextField'
-import PropertyAddButton from './PropertyAddButton'
-import PropertyDeleteIconButton from './PropertyDeleteIconButton'
+import AddFlatButton from '../commons/AddFlatButton'
+import CreateButton from '../commons/CreateButton'
+import DeleteIconButton from '../commons/DeleteIconButton'
+import DisplayNameTextField from '../commons/DisplayNameTextField'
+import MemoTextField from '../commons/MemoTextField'
 import PropertyNameTextField from './PropertyNameTextField'
 import PropertyTypeSelectField from './PropertyTypeSelectField'
 
 
 /**
+ * Schema作成
  */
 class SchemaNewPaper extends Component {
   static propTypes = {
@@ -104,10 +105,12 @@ class SchemaNewPaper extends Component {
         <div style={style.root}>
           <div style={style.displayName}>
             <DisplayNameTextField
-              schema={schema}
+              obj={schema}
+              floatingLabelText="メッセージスキーマ名"
               onChange={(e) => this.setState({schema: schema.updateDisplayName(e.target.value)})}
             />
           </div>
+
           <div style={style.propertiesArea}>
             <div style={style.areaLabel}>
               <span>プロパティ</span>
@@ -125,13 +128,14 @@ class SchemaNewPaper extends Component {
                   </div>
                   <div style={style.propertyType}>
                     <PropertyTypeSelectField
-                      property={property}
+                      selectedProperty={property}
                       propertyTypes={propertyTypes}
                       onChange={(e, i, v) => this.setState({schema: schema.updateSchemaPropertyType(index, v)})}
                     />
                   </div>
                   <div style={style.propertyDeleteIcon}>
-                    <PropertyDeleteIconButton
+                    <DeleteIconButton
+                      disabled={schema.properties.size <= 1}
                       onTouchTap={() => this.setState({schema: schema.removeSchemaProperty(index)})}
                     />
                   </div>
@@ -139,22 +143,25 @@ class SchemaNewPaper extends Component {
               )}
             </div>
             <div style={style.propertyActionsBlock}>
-              <PropertyAddButton
+              <AddFlatButton
+                label="プロパティを追加する"
                 onTouchTap={() => this.setState({schema: schema.pushSchemaProperty()})}
               />
             </div>
           </div>
+
           <div style={style.metadataArea}>
             <div style={style.areaLabel}>
               <span>メタデータ</span>
             </div>
             <div style={style.memo}>
               <MemoTextField
-                schema={schema}
+                obj={schema}
                 onChange={(e) => this.setState({schema: schema.updateMemo(e.target.value)})}
               />
             </div>
           </div>
+
           <div style={style.actionsArea}>
             <CreateButton
               disabled={schema.isReadytoCreate() ? false : true}

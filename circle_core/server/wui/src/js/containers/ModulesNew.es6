@@ -1,24 +1,19 @@
 import React, {Component, PropTypes} from 'react'
-import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
 import actions from '../actions'
-import {CancelButton, CreateButton} from '../components/buttons'
-import CCLink from '../components/CCLink'
 import Fetching from '../components/Fetching'
-import {ModuleGeneralInfo, ModuleMetadataInfo, ModuleMessageBoxesInfo} from '../components/ModuleInfos'
-import {urls} from '../routes'
+import ModuleNewPaper from '../components/ModuleNewPaper'
 
 
 /**
+ * Module作成
  */
 class ModulesNew extends Component {
   static propTypes = {
     isSchemasFetching: PropTypes.bool.isRequired,
     schemas: PropTypes.object.isRequired,
-    module: PropTypes.object.isRequired,
-    inputText: PropTypes.string.isRequired,
-    actions: PropTypes.object.isRequired,
+    onCreateTouchTap: PropTypes.func,
   }
 
   /**
@@ -28,9 +23,7 @@ class ModulesNew extends Component {
     const {
       isSchemasFetching,
       schemas,
-      module,
-      inputText,
-      actions,
+      onCreateTouchTap,
     } = this.props
 
     if (isSchemasFetching) {
@@ -41,35 +34,9 @@ class ModulesNew extends Component {
 
     return (
       <div className="page">
-        <ModuleGeneralInfo
-          editable={true}
-          module={module}
-          actions={actions}
-          hiddenUuid={true}
-          hiddenActionsArea={true}
-        />
-        <ModuleMessageBoxesInfo
-          editable={true}
-          module={module}
+        <ModuleNewPaper
           schemas={schemas}
-          actions={actions}
-          hiddenActionsArea={true}
-        />
-        <ModuleMetadataInfo
-          editable={true}
-          module={module}
-          inputText={inputText}
-          actions={actions}
-          hiddenActionsArea={true}
-        />
-        <CCLink
-          url={urls.modules}
-        >
-          <CancelButton />
-        </CCLink>
-        <CreateButton
-          disabled={module.isReadytoCreate() ? false : true}
-          onTouchTap={() => actions.modules.createRequest(module)}
+          onCreateTouchTap={onCreateTouchTap}
         />
       </div>
     )
@@ -77,35 +44,14 @@ class ModulesNew extends Component {
 }
 
 
-/**
-* [mapStateToProps description]
-* @param  {[type]} state [description]
-* @return {[type]}       [description]
-*/
-function mapStateToProps(state) {
-  return {
-    isSchemasFetching: state.asyncs.isSchemasFetching,
-    schemas: state.entities.schemas,
-    module: state.misc.module,
-    inputText: state.misc.inputText,
-  }
-}
+const mapStateToProps = (state) => ({
+  isSchemasFetching: state.asyncs.isSchemasFetching,
+  schemas: state.entities.schemas,
+})
 
-/**
- * [mapDispatchToProps description]
- * @param  {[type]} dispatch [description]
- * @return {[type]}          [description]
- */
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: {
-      schemas: bindActionCreators(actions.schemas, dispatch),
-      modules: bindActionCreators(actions.modules, dispatch),
-      module: bindActionCreators(actions.module, dispatch),
-      misc: bindActionCreators(actions.misc, dispatch),
-    },
-  }
-}
+const mapDispatchToProps = (dispatch) => ({
+  onCreateTouchTap: (module) => dispatch(actions.modules.createRequest(module)),
+})
 
 export default connect(
   mapStateToProps,

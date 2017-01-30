@@ -10,6 +10,7 @@ const MessageBoxRecord = Record({
 })
 
 /**
+ * MessageBoxモデル
  */
 export class MessageBox extends MessageBoxRecord {
   /**
@@ -32,6 +33,33 @@ export class MessageBox extends MessageBoxRecord {
       memo: rawMessageBox.memo || '',
     })
   }
+
+  /**
+   * Schema更新
+   * @param {string} value
+   * @return {MessageBox}
+   */
+  updateSchema(value) {
+    return this.set('schema', value)
+  }
+
+  /**
+   * 表示名更新
+   * @param {string} value
+   * @return {MessageBox}
+   */
+  updateDisplayName(value) {
+    return this.set('displayName', value)
+  }
+
+  /**
+   * メモ更新
+   * @param {string} value
+   * @return {MessageBox}
+   */
+  updateMemo(value) {
+    return this.set('memo', value)
+  }
 }
 
 
@@ -44,6 +72,7 @@ const ModuleRecord = Record({
 })
 
 /**
+ * Moduleモデル
  */
 export default class Module extends ModuleRecord {
   /**
@@ -70,25 +99,26 @@ export default class Module extends ModuleRecord {
   }
 
   /**
-   * @param {string} key
-   * @param {object} value
+   * 表示名更新
+   * @param {string} value
    * @return {Module}
    */
-  update(key, value) {
-    return this.set(key, value)
+  updateDisplayName(value) {
+    return this.set('displayName', value)
   }
 
   /**
-   * @param {object} rawMessageBox
+   * MessageBox追加
+   * @param {MessageBox} meessageBox
    * @return {Module}
    */
-  pushMessageBox(rawMessageBox = {}) {
-    const newMessageBox = MessageBox.fromObject(rawMessageBox)
-    const newMessageBoxes = this.messageBoxes.push(newMessageBox)
+  pushMessageBox(meessageBox = new MessageBox()) {
+    const newMessageBoxes = this.messageBoxes.push(meessageBox)
     return this.set('messageBoxes', newMessageBoxes)
   }
 
   /**
+   * MessageBox削除
    * @param {number} index
    * @return {Module}
    */
@@ -96,18 +126,20 @@ export default class Module extends ModuleRecord {
     const newMessageBoxes = this.messageBoxes.delete(index)
     return this.set('messageBoxes', newMessageBoxes)
   }
+
   /**
+   * MessageBox更新
    * @param {number} index
-   * @param {string} key
-   * @param {object} value
+   * @param {MessageBox} messageBox
    * @return {Module}
    */
-  updateMessageBox(index, key, value) {
-    const newMessageBoxes = this.messageBoxes.update(index, (messageBox) => messageBox.set(key, value))
+  updateMessageBox(index, messageBox) {
+    const newMessageBoxes = this.messageBoxes.set(index, messageBox)
     return this.set('messageBoxes', newMessageBoxes)
   }
 
   /**
+   * tag追加
    * @param {string} tag
    * @return {Module}
    */
@@ -117,6 +149,7 @@ export default class Module extends ModuleRecord {
   }
 
   /**
+   * tag削除
    * @param {number} index
    * @return {Module}
    */
@@ -126,10 +159,34 @@ export default class Module extends ModuleRecord {
   }
 
   /**
+   * tag更新
+   * @param {number} index
+   * @param {string} tag
+   * @return {Module}
+   */
+  updateTag(index, tag) {
+    const newTags = this.tags.set(index, tag)
+    return this.set('tags', newTags)
+  }
+
+  /**
+   * メモ更新
+   * @param {string} value
+   * @return {Schema}
+   */
+  updateMemo(value) {
+    return this.set('memo', value)
+  }
+
+  /**
+   * 作成可能か
    * @return {bool}
    */
   isReadytoCreate() {
     if (this.messageBoxes.filter((messageBox) => messageBox.schema === '').size !== 0) {
+      return false
+    }
+    if (this.tags.filter((tag) => tag === '').size !== 0) {
       return false
     }
     return true

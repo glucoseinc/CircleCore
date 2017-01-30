@@ -5,9 +5,11 @@ import ActionDelete from 'material-ui/svg-icons/action/delete'
 
 
 /**
+ * 削除アイコンボタン
  */
-class PropertyDeleteIconButton extends Component {
+class DeleteIconButton extends Component {
   static propTypes = {
+    disabled: PropTypes.bool,
     onTouchTap: PropTypes.func,
   }
 
@@ -18,6 +20,7 @@ class PropertyDeleteIconButton extends Component {
     const {
       size = 24,
       iconSize = 24,
+      disabled = false,
       onTouchTap,
     } = this.props
 
@@ -36,6 +39,7 @@ class PropertyDeleteIconButton extends Component {
       <IconButton
         style={style.root}
         iconStyle={style.icon}
+        disabled={disabled}
         onTouchTap={onTouchTap}
       >
         <ActionDelete />
@@ -44,4 +48,4 @@ class PropertyDeleteIconButton extends Component {
   }
 }
 
-export default PropertyDeleteIconButton
+export default DeleteIconButton

@@ -9,7 +9,6 @@ import Module from '../models/Module'
 const initialState = {
   schema: new Schema(),
   module: new Module(),
-  navDrawerOpen: false,
   inputText: '',
   moduleEditingArea: '',
   errorMessage: null,
@@ -51,18 +50,6 @@ const updateModule = () => (state, action) => {
 }
 
 
-// navDrawer
-const setNavDrawerOpen = (newState) => (state, action) => ({
-  ...state,
-  navDrawerOpen: newState,
-})
-
-const toggleNavDrawerOpen = () => (state, action) => ({
-  ...state,
-  navDrawerOpen: !state.navDrawerOpen,
-})
-
-
 // inputText
 const updateInputText = () => (state, action) => ({
   ...state,
@@ -95,7 +82,6 @@ const endModuleEdit = () => (state, action) => {
 const misc = handleActions({
   // Location change
   [LOCATION_CHANGE]: initialize(),
-  [actionTypes.location.changeCancel]: setNavDrawerOpen(false),
 
   // Schema
   [actionTypes.schema.update]: updateSchema(),
@@ -119,7 +105,6 @@ const misc = handleActions({
   },
 
   // misc
-  [actionTypes.misc.navDrawerToggleOpen]: toggleNavDrawerOpen(),
   [actionTypes.misc.inputTextChange]: updateInputText(),
 
   [actionTypes.misc.startModuleEdit]: startModuleEdit(),
