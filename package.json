@@ -6,7 +6,9 @@
   "scripts": {
     "lint": "eslint --ext es6 circle_core/server/wui/src/js",
     "build": "gulp",
-    "watch": "gulp watch"
+    "watch": "gulp watch",
+    "build:debug": "NODE_ENV=development gulp",
+    "watch:debug": "NODE_ENV=development gulp watch"
   },
   "repository": {
     "type": "git",

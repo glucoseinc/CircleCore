@@ -1,9 +1,10 @@
 import React, {Component, PropTypes} from 'react'
 
-import {grey300, grey900} from 'material-ui/styles/colors'
+import {grey900, orange700} from 'material-ui/styles/colors'
 
 
 /**
+ * SchemaPropertyラベル
  */
 class SchemaPropertyLabel extends Component {
   static propTypes = {
@@ -19,21 +20,27 @@ class SchemaPropertyLabel extends Component {
     } = this.props
 
     const style = {
-      root: {
-        height: 28,
-        borderRadius: 2,
-        backgroundColor: grey300,
-      },
-      label: {
+      name: {
         fontSize: 14,
+        letterSpacing: 0.7,
         color: grey900,
-        padding: 7,
+      },
+      type: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        letterSpacing: 0.6,
+        fontFamily: 'Courier New, Courier',
+        color: orange700,
       },
     }
+
     return (
-      <div style={style.root}>
-        <span style={style.label}>
-          {schemaProperty.name}/{schemaProperty.type}
+      <div>
+        <span style={style.name}>
+          {schemaProperty.name}
+        </span>
+        <span style={style.type}>
+          {schemaProperty.type}
         </span>
       </div>
     )

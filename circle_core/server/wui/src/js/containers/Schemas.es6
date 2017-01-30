@@ -2,6 +2,8 @@ import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 import {routerActions} from 'react-router-redux'
 
+import Snackbar from 'material-ui/Snackbar'
+
 import actions from '../actions'
 import {FloatingAddButton} from '../components/buttons'
 import CCLink from '../components/CCLink'
@@ -26,7 +28,27 @@ class Schemas extends Component {
 
   state = {
     deleteSchema: null,
+    isIdCopiedSnackBarOpen: false,
     isSchemaDeleteDialogOpen: false,
+  }
+
+  /**
+   * IDコピーボタン押下時の動作
+   * @param {string} schemaId
+   */
+  onIdCopyButtonTouchTap(schemaId) {
+    this.setState({
+      isIdCopiedSnackBarOpen: true,
+    })
+  }
+
+  /**
+   * スナックバークローズ要求時の動作
+   */
+  onIdCopiedSnackBarCloseRequest() {
+    this.setState({
+      isIdCopiedSnackBarOpen: false,
+    })
   }
 
   /**
@@ -61,6 +83,7 @@ class Schemas extends Component {
   render() {
     const {
       deleteSchema,
+      isIdCopiedSnackBarOpen,
       isSchemaDeleteDialogOpen,
     } = this.state
     const {
@@ -85,6 +108,7 @@ class Schemas extends Component {
             schema={schema}
             modules={modules}
             onTouchTap={(schema) => onSchemaInfoPaperTouchTap(schema.uuid)}
+            onIdCopyButtonTouchTap={::this.onIdCopyButtonTouchTap}
             onModuleButtonTouchTap={onModuleButtonTouchTap}
             onDeleteTouchTap={::this.onDeleteTouchTap}
           />
@@ -93,6 +117,13 @@ class Schemas extends Component {
         <CCLink url={urls.schemasNew}>
           <FloatingAddButton />
         </CCLink>
+
+        <Snackbar
+          open={isIdCopiedSnackBarOpen}
+          message="IDをコピーしました"
+          autoHideDuration={4000}
+          onRequestClose={::this.onIdCopiedSnackBarCloseRequest}
+        />
 
         <SchemaDeleteDialog
           open={isSchemaDeleteDialogOpen}
