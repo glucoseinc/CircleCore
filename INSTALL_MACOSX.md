@@ -116,7 +116,7 @@ Module "1a15b84b-99b5-4cd3-a509-6b72b68a86da" is added. # 次で使用する
 
 ### BOT起動
 ```
-(3.5.2) $ crcr bot echo --to ws://localhost:5000/module/1a15b84b-99b5-4cd3-a509-6b72b68a86da  # UUIDはModuleのものを使用
+(3.5.2) $ crcr bot echo --to ws://localhost:5000/module/1a15b84b-99b5-4cd3-a509-6b72b68a86da --box-id f34973b1-b5be-46a3-a8a8-f2bf306c3e70 # UUIDはModule, MessageBoxのものを使用
 ```
 
 ## レプリケーション
