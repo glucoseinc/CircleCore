@@ -100,8 +100,9 @@ def validate_replication_master_addr(ctx, param, values):
               help='module_uuid@hostname:port', callback=validate_replication_master_addr)
 @click.option('database_url', '--database', envvar='CRCR_DATABASE')
 @click.option('--prefix', envvar='CRCR_PREFIX', default=lambda: os.getcwd())
+@click.option('--debug', is_flag=True)
 @click.pass_context
-def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, workers, replicate_from, database_url, prefix):
+def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, workers, replicate_from, database_url, prefix, debug):
     """CircleCoreの起動."""
     ctx.obj.ipc_socket = 'ipc://' + ipc_socket
     metadata = ctx.obj.metadata
@@ -116,7 +117,7 @@ def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, workers, replicate
         RestartableProcess(target=get_worker(worker).run, args=[metadata]).start()
 
     if ws_port == wui_port:
-        RestartableProcess(target=server.run, args=[wui_port, metadata]).start()
+        RestartableProcess(target=server.run, args=[wui_port, metadata, debug]).start()
     else:
         RestartableProcess(target=ws.run, args=[metadata, ws_path, ws_port]).start()
         RestartableProcess(target=wui.create_app(metadata).run, kwargs={'port': wui_port}).start()
