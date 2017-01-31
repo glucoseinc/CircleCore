@@ -1,13 +1,14 @@
 import React, {Component, PropTypes} from 'react'
 
-import TextField from 'material-ui/TextField'
-
+import AutoComplete from 'material-ui/AutoComplete'
 
 /**
+ * タグテキストフィールド
  */
 class TagTextField extends Component {
   static propTypes = {
     tag: PropTypes.string.isRequired,
+    suggestions: PropTypes.array,
     onChange: PropTypes.func,
   }
 
@@ -17,14 +18,16 @@ class TagTextField extends Component {
   render() {
     const {
       tag,
+      suggestions = [],
       onChange,
     } = this.props
 
     return (
-      <TextField
+      <AutoComplete
         floatingLabelText="タグ"
-        value={tag}
-        onChange={onChange}
+        dataSource={suggestions}
+        searchText={tag}
+        onUpdateInput={onChange}
       />
     )
   }
