@@ -27,9 +27,9 @@ class DummyMetadata(MetadataReader):
         Schema('1a7c8c61-7709-442e-9059-e8498501fb36', 'blocking', [{'name': 'count', 'type': 'int'}])
     ]
     message_boxes = [
-        MessageBox('316720eb-84fe-43b3-88b7-9aad49a93220', '44ae2fd8-52d0-484d-9a48-128b07937a0a'),
-        MessageBox('e2ca248d-5300-4641-830f-97a4dae0d245', 'a1912d13-8fc7-4714-8cb3-e6f9326fdb36'),
-        MessageBox('50ba26f6-2447-4f6a-93b1-d62051d83026', '1a7c8c61-7709-442e-9059-e8498501fb36')
+        MessageBox('316720eb-84fe-43b3-88b7-9aad49a93220', '44ae2fd8-52d0-484d-9a48-128b07937a0a', 'DummyMessageBox1'),
+        MessageBox('e2ca248d-5300-4641-830f-97a4dae0d245', 'a1912d13-8fc7-4714-8cb3-e6f9326fdb36', 'DummyMessageBox2'),
+        MessageBox('50ba26f6-2447-4f6a-93b1-d62051d83026', '1a7c8c61-7709-442e-9059-e8498501fb36', 'DummyMessageBox3')
     ]
     modules = [Module(
         '8e654793-5c46-4721-911e-b9d19f0779f9',

@@ -172,8 +172,6 @@ def _create_module_from_request_json(request_json, message_box_uuids):
     dic = convert_dict_key_snake_case(request_json)
 
     display_name = dic['display_name']
-    if len(display_name) == 0:
-        display_name = None
     tags = ','.join(dic['tags'])
     memo = dic['memo']
     if len(memo) == 0:
@@ -206,8 +204,6 @@ def _create_message_boxes_from_request_json(request_json):
     message_box_dics = dic['message_boxes']
     for message_box_dic in message_box_dics:
         display_name = message_box_dic['display_name']
-        if len(display_name) == 0:
-            display_name = None
         schema_uuid = message_box_dic['schema']
         memo = message_box_dic['memo']
         message_box_uuid = message_box_dic['uuid']

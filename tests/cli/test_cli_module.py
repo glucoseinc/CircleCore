@@ -66,10 +66,10 @@ class TestCliModule(object):
     def test_module_add_success(self):
         # setup
         runner = CliRunner()
-        result = runner.invoke(cli_entry, ['schema', 'add', 'key:int'])
+        result = runner.invoke(cli_entry, ['schema', 'add', '--name', 'schema_name', 'key:int'])
         schema_uuid = result.output.split()[1][1:-1]  # Schema "{uuid}" is added.\n
 
-        result = runner.invoke(cli_entry, ['box', 'add', '--schema', schema_uuid])
+        result = runner.invoke(cli_entry, ['box', 'add', '--name', 'message_box_name', '--schema', schema_uuid])
         message_box_uuid = result.output.split()[1][1:-1]  # MessageBox "{uuid}" is added.\n
 
         # test
@@ -105,10 +105,10 @@ class TestCliModule(object):
     def test_module_remove_success(self):
         # setup
         runner = CliRunner()
-        result = runner.invoke(cli_entry, ['schema', 'add', 'key:int'])
+        result = runner.invoke(cli_entry, ['schema', 'add', '--name', 'schema_name', 'key:int'])
         schema_uuid = result.output.split()[1][1:-1]  # Schema "{uuid}" is added.\n
 
-        result = runner.invoke(cli_entry, ['box', 'add', '--schema', schema_uuid])
+        result = runner.invoke(cli_entry, ['box', 'add', '--name', 'message_box_name', '--schema', schema_uuid])
         message_box_uuid = result.output.split()[1][1:-1]  # MessageBox "{uuid}" is added.\n
 
         module_add_params = ['--name', 'module_name',

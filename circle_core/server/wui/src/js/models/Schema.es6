@@ -151,6 +151,9 @@ export default class Schema extends SchemaRecord {
     if (this.properties.filterNot((property) => property.isValid()).size !== 0) {
       return false
     }
+    if (this.displayName.length === 0) {
+      return false
+    }
     return true
   }
 

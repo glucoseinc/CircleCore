@@ -52,7 +52,7 @@ def _format_for_columns(message_boxes):
     header = ['UUID', 'DISPLAY_NAME']
     data = []  # type: List[List[str]]
     for message_box in message_boxes:
-        display_name = message_box.display_name or ''
+        display_name = message_box.display_name
         data.append([
             str(message_box.uuid),
             display_name,
@@ -79,7 +79,7 @@ def box_detail(ctx, message_box_uuid):
 
     data = [
         ('UUID', str(message_box.uuid)),
-        ('DISPLAY_NAME', message_box.display_name or ''),
+        ('DISPLAY_NAME', message_box.display_name),
         ('SCHEMA_UUID', str(message_box.schema_uuid)),
         ('MEMO', message_box.memo or ''),
     ]
@@ -88,7 +88,7 @@ def box_detail(ctx, message_box_uuid):
 
 
 @cli_box.command('add')
-@click.option('display_name', '--name')
+@click.option('display_name', '--name', required=True)
 @click.option('schema_uuid', '--schema', type=UUID, required=True)
 @click.option('--memo')
 @click.pass_context
@@ -96,7 +96,7 @@ def box_add(ctx, display_name, schema_uuid, memo):
     """モジュールを登録する.
 
     :param Context ctx: Context
-    :param Optional[str] display_name: モジュール表示名
+    :param str display_name: モジュール表示名
     :param UUID schema_uuid: スキーマUUID
     :param str memo: メモ
     """

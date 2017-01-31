@@ -60,16 +60,16 @@ class Schema(object):
     """Schemaオブジェクト.
 
     :param UUID uuid: Schema UUID
-    :param Optional[str] display_name: 表示名
+    :param str display_name: 表示名
     :param List[SchemaProperty] properties: プロパティ
     :param Optional[str] memo: メモ
     """
 
-    def __init__(self, uuid, display_name=None, dictified_properties=None, memo=None):
+    def __init__(self, uuid, display_name, dictified_properties=None, memo=None):
         """init.
 
         :param Union[str, UUID] uuid: Schema UUID
-        :param Optional[str] display_name: 表示名
+        :param str display_name: 表示名
         :param Optional[List[Dict[str, str]]] dictified_properties: 辞書化プロパティ
         :param Optional[str] memo: メモ
         """

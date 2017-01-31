@@ -52,7 +52,7 @@ def _format_for_columns(schemas):
     header = ['UUID', 'DISPLAY_NAME', 'PROPERTIES']
     data = []  # type: List[List[str]]
     for schema in schemas:
-        display_name = schema.display_name or ''
+        display_name = schema.display_name
         data.append([str(schema.uuid), display_name, schema.stringified_properties])
     return data, header
 
@@ -76,7 +76,7 @@ def schema_detail(ctx, schema_uuid):
 
     data = [
         ('UUID', str(schema.uuid)),
-        ('DISPLAY_NAME', schema.display_name or ''),
+        ('DISPLAY_NAME', schema.display_name),
     ]
     for i, prop in enumerate(schema.properties):
         data.append(('PROPERTIES' if i == 0 else '', '{}:{}'.format(prop.name, prop.type)))
@@ -93,7 +93,7 @@ def schema_detail(ctx, schema_uuid):
 
 
 @cli_schema.command('add')
-@click.option('display_name', '--name')
+@click.option('display_name', '--name', required=True)
 @click.option('memo', '--memo')
 @click.argument('name_and_types', nargs=-1)
 @click.pass_context
@@ -101,7 +101,7 @@ def schema_add(ctx, display_name, memo, name_and_types):
     """スキーマを登録する.
 
     :param Context ctx: Context
-    :param Optional[str] display_name: 表示名
+    :param str display_name: 表示名
     :param Optional[str] memo: メモ
     :param List[str] name_and_types: プロパティ
     """

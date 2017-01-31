@@ -18,8 +18,8 @@ from circle_core.models.metadata.base import MetadataReader
 class DummyMetadata(MetadataReader):
     schemas = [Schema('95eef02e-36e5-446e-9fea-aedd10321f6f', 'json', [{'name': 'hoge', 'type': 'int'}])]
     message_boxes = [
-        MessageBox('402a7a37-691d-40ed-b0fe-4aeed9d0bba1', '95eef02e-36e5-446e-9fea-aedd10321f6f'),
-        MessageBox('dba1c788-69b4-4ca2-a7bd-8582eda96064', '95eef02e-36e5-446e-9fea-aedd10321f6f')
+        MessageBox('402a7a37-691d-40ed-b0fe-4aeed9d0bba1', '95eef02e-36e5-446e-9fea-aedd10321f6f', 'DummyMessageBox1'),
+        MessageBox('dba1c788-69b4-4ca2-a7bd-8582eda96064', '95eef02e-36e5-446e-9fea-aedd10321f6f', 'DummyMessageBox2')
     ]
     modules = [Module(
         '314a578a-6543-4331-90f7-ed80c81d29bf',

@@ -52,7 +52,7 @@ def _format_for_columns(modules):
     header = ['UUID', 'DISPLAY_NAME', 'TAGS']
     data = []  # type: List[List[str]]
     for module in modules:
-        display_name = module.display_name or ''
+        display_name = module.display_name
         data.append([
             str(module.uuid),
             display_name,
@@ -80,7 +80,7 @@ def module_detail(ctx, module_uuid):
 
     data = [
         ('UUID', str(module.uuid)),
-        ('DISPLAY_NAME', module.display_name or ''),
+        ('DISPLAY_NAME', module.display_name),
     ]
 
     for i, message_box_uuid in enumerate(module.message_box_uuids):
@@ -98,7 +98,7 @@ def module_detail(ctx, module_uuid):
         message_box = metadata.find_message_box(message_box_uuid)
         data = [
             ('UUID', str(message_box.uuid)),
-            ('DISPLAY_NAME', message_box.display_name or ''),
+            ('DISPLAY_NAME', message_box.display_name),
             ('SCHEMA_UUID', str(message_box.schema_uuid)),
             ('MEMO', message_box.memo or ''),
         ]
@@ -106,7 +106,7 @@ def module_detail(ctx, module_uuid):
 
 
 @cli_module.command('add')
-@click.option('display_name', '--name')
+@click.option('display_name', '--name', required=True)
 @click.option('stringified_message_box_uuids', '--box', required=True)
 @click.option('tags', '--tag')
 @click.option('--memo')
@@ -115,7 +115,7 @@ def module_add(ctx, display_name, stringified_message_box_uuids, tags, memo):
     """モジュールを登録する.
 
     :param Context ctx: Context
-    :param Optional[str] display_name: モジュール表示名
+    :param str display_name: モジュール表示名
     :param str stringified_message_box_uuids: メッセージボックスUUIDリスト(文字列化)
     :param Optional[str] tags: タグ
     :param Optional[str] memo: メモ

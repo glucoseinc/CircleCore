@@ -35,7 +35,9 @@ from circle_core.workers.replication_slave import ReplicationSlave
 
 class DummyMetadata(MetadataReader):
     schemas = [Schema('95eef02e-36e5-446e-9fea-aedd10321f6f', 'json', [{'name': 'hoge', 'type': 'int'}])]
-    message_boxes = [MessageBox('402a7a37-691d-40ed-b0fe-4aeed9d0bba1', '95eef02e-36e5-446e-9fea-aedd10321f6f')]
+    message_boxes = [
+        MessageBox('402a7a37-691d-40ed-b0fe-4aeed9d0bba1', '95eef02e-36e5-446e-9fea-aedd10321f6f', 'DummyMessageBox')
+    ]
     modules = [Module(
         '314a578a-6543-4331-90f7-ed80c81d29bf',
         ['402a7a37-691d-40ed-b0fe-4aeed9d0bba1'],
@@ -105,6 +107,7 @@ class TestReplicationSlave:
                         }],
                         'message_boxes': [{
                             'uuid': '316720eb-84fe-43b3-88b7-9aad49a93220',
+                            'display_name': 'DummyMessageBox',
                             'schema_uuid': '44ae2fd8-52d0-484d-9a48-128b07937a0a'
                         }],
                         'schemas': [{
@@ -132,7 +135,8 @@ class TestReplicationSlave:
         db = Database(self.mysql.url)
         engine = create_engine(self.mysql.url)
         inspector = Inspector.from_engine(engine)
-        box = MessageBox('316720eb-84fe-43b3-88b7-9aad49a93220', '44ae2fd8-52d0-484d-9a48-128b07937a0a')
+        box = MessageBox('316720eb-84fe-43b3-88b7-9aad49a93220', '44ae2fd8-52d0-484d-9a48-128b07937a0a',
+                         'DummyMessageBox')
         table_name = db.make_table_name_for_message_box(box)
         columns = inspector.get_columns(table_name)
         types = {

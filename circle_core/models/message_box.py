@@ -30,15 +30,15 @@ class MessageBox(object):
 
     :param UUID uuid: MessageBox UUID
     :param UUID schema_uuid: Schema UUID
-    :param Optional[str] display_name: 表示名
+    :param str display_name: 表示名
     :param Optional[str] memo: メモ
     """
-    def __init__(self, uuid, schema_uuid, display_name=None, memo=None, master_uuid=None):
+    def __init__(self, uuid, schema_uuid, display_name, memo=None, master_uuid=None):
         """init.
 
         :param Union[str, UUID] uuid: MessageBox UUID
         :param Union[str, UUID] schema_uuid: Schema UUID
-        :param Optional[str] display_name: 表示名
+        :param str display_name: 表示名
         :param Optional[str] memo: メモ
         :param Union[NoneType, str, UUID] master_uuid:
         """

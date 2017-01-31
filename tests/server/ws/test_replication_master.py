@@ -34,8 +34,8 @@ class DummyMetadata(MetadataReader):
         Schema('17be0dbf-73c2-4055-9aa9-2a487dd8475b', 'DummySchema2', [{'name': 'piyo', 'type': 'float'}])
     ]
     message_boxes = [
-        MessageBox('316720eb-84fe-43b3-88b7-9aad49a93220', '44ae2fd8-52d0-484d-9a48-128b07937a0a'),
-        MessageBox('3d5a6cc9-d496-4858-8541-ce0d9673422e', '17be0dbf-73c2-4055-9aa9-2a487dd8475b')
+        MessageBox('316720eb-84fe-43b3-88b7-9aad49a93220', '44ae2fd8-52d0-484d-9a48-128b07937a0a', 'DummyMessageBox1'),
+        MessageBox('3d5a6cc9-d496-4858-8541-ce0d9673422e', '17be0dbf-73c2-4055-9aa9-2a487dd8475b', 'DummyMessageBox2')
     ]
     modules = [Module(
         '8e654793-5c46-4721-911e-b9d19f0779f9',
