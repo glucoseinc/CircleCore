@@ -99,7 +99,7 @@ class GraphTime {
  * MessageBoxを渡すとMessageBoxのグラフを書く
  * クラスを分けようと思ったのだけど、継承させて書くとちょっと面倒なので、ifで...
  */
-export class ModuleGraph extends Component {
+class ModuleGraph extends Component {
   static propTypes = {
     autoUpdate: PropTypes.number,
     module: PropTypes.object.isRequired,
@@ -335,3 +335,5 @@ export class ModuleGraph extends Component {
     }, delay * 1000)
   }
 }
+
+export default ModuleGraph
