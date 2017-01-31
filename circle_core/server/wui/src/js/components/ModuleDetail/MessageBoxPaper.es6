@@ -1,5 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 
+import DatePicker from 'material-ui/DatePicker'
 import MenuItem from 'material-ui/MenuItem'
 import Paper from 'material-ui/Paper'
 
@@ -26,10 +27,19 @@ class MessageBoxPaper extends Component {
     onDownloadTouchTap: PropTypes.func,
   }
 
+  state = {
+    downloadStartDate: null,
+    downloadEndDate: null,
+  }
+
   /**
    * @override
    */
   render() {
+    const {
+      downloadStartDate,
+      downloadEndDate,
+    } = this.state
     const {
         module,
         messageBox,
@@ -79,12 +89,25 @@ class MessageBoxPaper extends Component {
         paddingTop: 24,
       },
 
-      actionsSection: {
+      downloadSection: {
         display: 'flex',
+        flexFlow: 'column nowrap',
         justifyContent: 'center',
         paddingTop: 24,
       },
-
+      dateRange: {
+        display: 'flex',
+        flexFlow: 'row nowrap',
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      rangeMark: {
+        padding: '0 8px',
+      },
+      downloadButton: {
+        display: 'flex',
+        justifyContent: 'center',
+      },
     }
 
     return (
@@ -138,13 +161,33 @@ class MessageBoxPaper extends Component {
               </ComponentWithSubTitle>
             </div>
 
-            <div style={style.actionsSection}>
-              <CCFlatButton
-                label="データダウンロード"
-                primary={true}
-                icon={DownloadIcon}
-                onTouchTap={onDownloadTouchTap}
-              />
+            <div style={style.downloadSection}>
+              <div style={style.dateRange}>
+                <DatePicker
+                  hintText="開始日"
+                  container="inline"
+                  onChange={(n, date) => this.setState({
+                    downloadStartDate: date,
+                  })}
+                />
+                <span style={style.rangeMark}>〜</span>
+                <DatePicker
+                  hintText="終了日"
+                  container="inline"
+                  onChange={(n, date) => this.setState({
+                    downloadEndDate: date,
+                  })}
+                />
+              </div>
+              <div style={style.downloadButton}>
+                <CCFlatButton
+                  label="データダウンロード"
+                  primary={true}
+                  icon={DownloadIcon}
+                  disabled={downloadStartDate === null || downloadEndDate === null ? true : false}
+                  onTouchTap={() => onDownloadTouchTap(module, messageBox, downloadStartDate, downloadEndDate)}
+                />
+              </div>
             </div>
           </ComponentWithMoreIconMenu>
         </div>

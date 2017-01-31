@@ -133,7 +133,7 @@ class ModuleDetail extends Component {
                 schema={schemas.get(messageBox.schema)}
                 onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.messageBox, index)}
                 onDeleteTouchTap={() => onMessageBoxDeleteTouchTap(messageBox)}
-                onDownloadTouchTap={() => onMessageBoxDownloadTouchTap(messageBox)}
+                onDownloadTouchTap={onMessageBoxDownloadTouchTap}
               />
             )}
           </ComponentWithTitle>
