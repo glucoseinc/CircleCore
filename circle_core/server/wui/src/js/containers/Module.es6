@@ -2,9 +2,12 @@ import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 
 import actions from 'src/actions'
+import {urls} from 'src/routes'
 
 import LoadingIndicator from 'src/components/bases/LoadingIndicator'
 
+import AddFloatingActionButton from 'src/components/commons/AddFloatingActionButton'
+import CCLink from 'src/components/commons/CCLink'
 import ModuleDeleteDialog from 'src/components/commons/ModuleDeleteDialog'
 
 import ModuleDetail from 'src/components/ModuleDetail'
@@ -101,6 +104,10 @@ class Module extends Component {
           onMessageBoxDownloadTouchTap={(...args) => console.log('onMessageBoxDownloadTouchTap', ...args)}
           onDeleteTouchTap={::this.onDeleteTouchTap}
         />
+
+        <CCLink url={urls.replicasNew} params={params}>
+          <AddFloatingActionButton />
+        </CCLink>
 
         <ModuleDeleteDialog
           open={isModuleDeleteDialogOpen}

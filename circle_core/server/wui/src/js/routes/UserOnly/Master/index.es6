@@ -11,6 +11,7 @@ import Modules from './Modules'
 import ModulesNew from './ModulesNew'
 import Module from './Module'
 import Replicas from './Replicas'
+import ReplicasNew from './ReplicasNew'
 import Schemas from './Schemas'
 import SchemasNew from './SchemasNew'
 import Schema from './Schema'
@@ -41,6 +42,7 @@ const masterRoute = {
     ModulesNew,
     Module,
     Replicas,
+    ReplicasNew,
     Schemas,
     SchemasNew,
     Schema,

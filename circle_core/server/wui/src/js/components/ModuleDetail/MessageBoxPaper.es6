@@ -87,7 +87,6 @@ class MessageBoxPaper extends Component {
 
     }
 
-    console.log(module)
     return (
       <Paper>
         <div style={style.root}>

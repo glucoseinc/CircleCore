@@ -33,4 +33,27 @@ export default class ReplicationLink extends ReplicationLinkRecord {
       memo: rawReplicationLink.memo || '',
     })
   }
+
+  /**
+   * @param {string} value
+   * @return {Schema}
+   */
+  updateDisplayName(value) {
+    return this.set('displayName', value)
+  }
+
+  /**
+   * @param {string} value
+   * @return {Schema}
+   */
+  updateMemo(value) {
+    return this.set('memo', value)
+  }
+
+  /**
+   * @return {bool}
+   */
+  isReadytoCreate() {
+    return true
+  }
 }
