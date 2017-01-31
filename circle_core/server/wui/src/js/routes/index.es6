@@ -14,4 +14,4 @@ const routes = (
 
 export default routes
 
-export {urls, createPathName} from './utils'
+export {urls, createPathName, createQuery} from './utils'

@@ -11,6 +11,7 @@ const createURLs = (route, parentPath = '') => {
   if (route.key !== undefined) {
     urls[route.key] = {
       fullPath: path.join(parentPath, route.path || ''),
+      query: route.query,
       label: route.label,
       icon: route.icon,
     }
@@ -29,4 +30,21 @@ export const urls = createURLs(Root)
 
 export const createPathName = (url, params) => {
   return formatPattern(url.fullPath, params)
+}
+
+export const createQuery = (url, params) => {
+  if (url.query === undefined || params === undefined) {
+    return null
+  }
+
+  return Object.entries(url.query).reduce((query, [key, value]) => {
+    try {
+      return {
+        ...query,
+        [key]: formatPattern(value, params),
+      }
+    } catch (e) {
+      return query
+    }
+  }, {})
 }
