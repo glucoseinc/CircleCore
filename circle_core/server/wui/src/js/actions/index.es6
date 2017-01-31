@@ -6,7 +6,6 @@ let actionTypes = {}
 const groupNames = [
   'auth',
   'invitations',
-  'location',
   'misc',
   'module',
   'modules',

@@ -1,28 +1,64 @@
 import React, {Component, PropTypes} from 'react'
-import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
-import actions from '../actions'
-import {AddButton, RemoveButton} from '../components/buttons'
-import Fetching from '../components/Fetching'
-import ModuleDeleteDialog from '../components/ModuleDeleteDialog'
-import {ModuleGeneralInfo, ModuleMetadataInfo, ModuleMessageBoxesInfo} from '../components/ModuleInfos'
+import actions from 'src/actions'
+
+import LoadingIndicator from 'src/components/bases/LoadingIndicator'
+
+import ModuleDeleteDialog from 'src/components/commons/ModuleDeleteDialog'
+
+import ModuleDetail from 'src/components/ModuleDetail'
 
 
 /**
+ * Module詳細
  */
 class Module extends Component {
   static propTypes = {
     isFetching: PropTypes.bool.isRequired,
     isUpdating: PropTypes.bool.isRequired,
-    isDeleteAsking: PropTypes.bool.isRequired,
     schemas: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
-    tempModule: PropTypes.object.isRequired,
-    moduleEditingArea: PropTypes.string.isRequired,
-    inputText: PropTypes.string.isRequired,
     params: PropTypes.object.isRequired,
-    actions: PropTypes.object.isRequired,
+    setTitle: PropTypes.func,
+    onDeleteOkButtonTouchTap: PropTypes.func,
+  }
+
+  state = {
+    isModuleDeleteDialogOpen: false,
+  }
+
+  /**
+   * @override
+   */
+  componentWillReceiveProps(nextProps) {
+    const module = nextProps.modules.get(nextProps.params.moduleId)
+    const title = module !== undefined ? module.label : ''
+    this.props.setTitle(title)
+  }
+
+  /**
+   * 削除ボタン押下時の動作
+   */
+  onDeleteTouchTap() {
+    this.setState({
+      isModuleDeleteDialogOpen: true,
+    })
+  }
+
+
+  /**
+   * 削除ダイアログのボタン押下時の動作
+   * @param {bool} execute
+   * @param {object} module
+   */
+  onDeleteDialogButtonTouchTap(execute, module) {
+    this.setState({
+      isModuleDeleteDialogOpen: false,
+    })
+    if (execute && module) {
+      this.props.onDeleteOkButtonTouchTap(module)
+    }
   }
 
   /**
@@ -30,31 +66,19 @@ class Module extends Component {
    */
   render() {
     const {
+      isModuleDeleteDialogOpen,
+    } = this.state
+    const {
       isFetching,
       isUpdating,
-      isDeleteAsking,
       schemas,
       modules,
-      tempModule,
-      moduleEditingArea,
-      inputText,
       params,
-      actions,
     } = this.props
 
-    const style = {
-      contentHeader: {
-        display: 'flex',
-        justifyContent: 'flex-end',
-      },
-      contentFooter: {
-        display: 'flex',
-        justifyContent: 'center',
-      },
-    }
     if (isFetching || isUpdating) {
       return (
-        <Fetching />
+        <LoadingIndicator />
       )
     }
 
@@ -68,94 +92,39 @@ class Module extends Component {
       )
     }
 
-    const isEditingGeneral = moduleEditingArea === 'general'
-    const isEditingMetadata = moduleEditingArea === 'metadata'
-    const isEditingMessageBox = moduleEditingArea === 'messageBox'
-
     return (
       <div className="page">
-        <div style={style.contentHeader}>
-          <AddButton
-            label="共有リンクを作成する"
-            onOkTouchTap={() => actions.shareLinks.createRequest()}
-          />
-        </div>
-
-        <ModuleGeneralInfo
-          editable={isEditingGeneral}
-          module={isEditingGeneral ? tempModule : module}
-          actions={actions}
-          hiddenUuid={false}
-          hiddenActionsArea={false}
-        />
-        <ModuleMetadataInfo
-          editable={isEditingMetadata}
-          module={isEditingMetadata ? tempModule : module}
-          inputText={inputText}
-          actions={actions}
-          hiddenActionsArea={false}
-        />
-        <ModuleMessageBoxesInfo
-          editable={isEditingMessageBox}
-          module={isEditingMessageBox ? tempModule : module}
+        <ModuleDetail
+          module={module}
           schemas={schemas}
-          actions={actions}
-          hiddenActionsArea={false}
+          onMessageBoxDeleteTouchTap={(...args) => console.log('onMessageBoxDeleteTouchTap', ...args)}
+          onMessageBoxDownloadTouchTap={(...args) => console.log('onMessageBoxDownloadTouchTap', ...args)}
+          onDeleteTouchTap={::this.onDeleteTouchTap}
         />
 
         <ModuleDeleteDialog
-          isActive={isDeleteAsking}
+          open={isModuleDeleteDialogOpen}
           module={module}
-          onOkTouchTap={actions.modules.deleteRequest}
-          onCancelTouchTap={actions.modules.deleteCancel}
+          onOkTouchTap={(module) => this.onDeleteDialogButtonTouchTap(true, module)}
+          onCancelTouchTap={() => this.onDeleteDialogButtonTouchTap(false)}
         />
-
-        <div style={style.contentFooter}>
-          <RemoveButton
-            label="このモジュールを削除する"
-            onTouchTap={() => actions.modules.deleteAsk(module)}
-          />
-        </div>
       </div>
     )
   }
 }
 
 
-/**
- * [mapStateToProps description]
- * @param  {[type]} state [description]
- * @return {[type]}       [description]
- */
-function mapStateToProps(state) {
-  return {
-    isFetching: state.asyncs.isModuleFetching,
-    isUpdating: state.asyncs.isModulesUpdating,
-    isDeleteAsking: state.asyncs.isModulesDeleteAsking,
-    schemas: state.entities.schemas,
-    modules: state.entities.modules,
-    tempModule: state.misc.module,
-    moduleEditingArea: state.misc.moduleEditingArea,
-    inputText: state.misc.inputText,
-  }
-}
+const mapStateToProps = (state) => ({
+  isFetching: state.asyncs.isModuleFetching,
+  isUpdating: state.asyncs.isModulesUpdating,
+  schemas: state.entities.schemas,
+  modules: state.entities.modules,
+})
 
-/**
- * [mapDispatchToProps description]
- * @param  {[type]} dispatch [description]
- * @return {[type]}          [description]
- */
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: {
-      schemas: bindActionCreators(actions.schemas, dispatch),
-      modules: bindActionCreators(actions.modules, dispatch),
-      module: bindActionCreators(actions.module, dispatch),
-      shareLinks: bindActionCreators(actions.shareLinks, dispatch),
-      misc: bindActionCreators(actions.misc, dispatch),
-    },
-  }
-}
+const mapDispatchToProps = (dispatch) => ({
+  setTitle: (title) => dispatch(actions.page.setTitle(title)),
+  onDeleteOkButtonTouchTap: (module) => dispatch(actions.modules.deleteRequest(module.uuid)),
+})
 
 export default connect(
   mapStateToProps,

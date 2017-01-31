@@ -1,24 +1,27 @@
-import React, {PropTypes} from 'react'
+import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 import Title from 'react-title-component'
 import {bindActionCreators} from 'redux'
 import {put, take} from 'redux-saga/effects'
 import {Snackbar} from 'material-ui'
 
-import actions, {actionTypes} from '../actions'
-import Fetching from '../components/Fetching'
-import UserForm from '../components/UserForm'
-import {store} from '../main'
+import actions, {actionTypes} from 'src/actions'
+import {store} from 'src/main'
+
+import LoadingIndicator from 'src/components/bases/LoadingIndicator'
+
+import UserForm from 'src/components/UserForm'
 
 
 /**
  * User情報の確認、編集
  */
-class User extends React.Component {
+class User extends Component {
   static propTypes = {
     isFetching: PropTypes.bool.isRequired,
     users: PropTypes.object.isRequired,
     token: PropTypes.object.isRequired,
+    params: PropTypes.object.isRequired,
     actions: PropTypes.object.isRequired,
   }
 
@@ -40,7 +43,7 @@ class User extends React.Component {
   render() {
     if(this.props.isFetching) {
       return (
-        <Fetching />
+        <LoadingIndicator />
       )
     }
     // const {

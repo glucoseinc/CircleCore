@@ -3,9 +3,11 @@ import React, {Component, PropTypes} from 'react'
 import AppBar from 'material-ui/AppBar'
 import Drawer from 'material-ui/Drawer'
 
-import CCLink from '../components/CCLink'
-import MenuList from '../components/MenuList'
-import {urls} from '../routes'
+import {urls} from 'src/routes'
+
+import CCLink from 'src/components/commons/CCLink'
+
+import MenuList from 'src/components/MenuList'
 
 
 /**

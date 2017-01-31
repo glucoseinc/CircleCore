@@ -1,20 +1,20 @@
-import React, {PropTypes} from 'react'
+import React, {Component, PropTypes} from 'react'
 
-// import FlatButton from 'material-ui/FlatButton'
 import Checkbox from 'material-ui/Checkbox'
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
 
-import {colorUUID} from '../colors'
-import {RemoveButton} from '../components/buttons'
-import CCLink from '../components/CCLink'
-import User from '../models/User'
-import {urls} from '../routes'
+import {colorUUID} from 'src/colors'
+import User from 'src/models/User'
+import {urls} from 'src/routes'
+
+import CCLink from 'src/components/commons/CCLink'
+import DeleteButton from 'src/components/commons/DeleteButton'
 
 
 /**
  * ユーザー一覧の各行
  */
-class UsersTableRow extends React.Component {
+class UsersTableRow extends Component {
   static propTypes = {
     user: PropTypes.instanceOf(User).isRequired,
     onDeleteUser: PropTypes.func.isRequired,
@@ -56,7 +56,7 @@ class UsersTableRow extends React.Component {
         <TableRowColumn>{user.dateLastAccess.format('LLL')}</TableRowColumn>
         <TableRowColumn>
           {!readOnly &&
-          <RemoveButton
+          <DeleteButton
             onTouchTap={(e) => this.props.onDeleteUser(user, e)}
           />}
         </TableRowColumn>
@@ -68,7 +68,7 @@ class UsersTableRow extends React.Component {
 
 /**
  */
-export default class UsersTable extends React.Component {
+export default class UsersTable extends Component {
   static propTypes = {
     users: PropTypes.object.isRequired,
     onDeleteUser: PropTypes.func.isRequired,

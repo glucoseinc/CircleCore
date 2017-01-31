@@ -1,16 +1,18 @@
-import React, {PropTypes} from 'react'
+import React, {Component, PropTypes} from 'react'
 import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
-import actions from '../actions'
-import Fetching from '../components/Fetching'
-import UsersTable from '../components/UsersTable'
-import OkCancelDialog from '../components/OkCancelDialog'
+import actions from 'src/actions'
+
+import LoadingIndicator from 'src/components/bases/LoadingIndicator'
+import OkCancelDialog from 'src/components/bases/OkCancelDialog'
+
+import UsersTable from 'src/components/UsersTable'
 
 
 /**
  */
-class Users extends React.Component {
+class Users extends Component {
   static propTypes = {
     isFetching: PropTypes.bool.isRequired,
     users: PropTypes.object.isRequired,
@@ -36,7 +38,7 @@ class Users extends React.Component {
   render() {
     if(this.props.isFetching) {
       return (
-        <Fetching />
+        <LoadingIndicator />
       )
     }
 

@@ -4,7 +4,7 @@
  *
  * main.es6は冒頭で認証チェックをしているので...
  */
-import React from 'react'
+import React, {Component, PropTypes} from 'react'
 import {render} from 'react-dom'
 import {Router, Route, browserHistory} from 'react-router'
 import injectTapEventPlugin from 'react-tap-event-plugin'
@@ -23,7 +23,11 @@ injectTapEventPlugin()
 /**
  * 公開画面用の枠。ロゴがでてるくぐらい
  */
-class PublicFrame extends React.Component {
+class PublicFrame extends Component {
+  static propTypes = {
+    children: PropTypes.node,
+  }
+
   /**
    * @override
    */
@@ -58,7 +62,7 @@ class PublicFrame extends React.Component {
 /**
  * ログイン画面
  */
-class OAuthLogin extends React.Component {
+class OAuthLogin extends Component {
   /**
    * @constructor
    */
@@ -145,7 +149,7 @@ class OAuthLogin extends React.Component {
 /**
  * OAuth認証画面。 UIすっとばして強制的にPOSTしてしまう
  */
-class OAuthAuthorize extends React.Component {
+class OAuthAuthorize extends Component {
   /**
    * @override
    */

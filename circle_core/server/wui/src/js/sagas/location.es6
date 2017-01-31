@@ -1,9 +1,8 @@
-import {fork, put, select, takeEvery} from 'redux-saga/effects'
+import {fork, put, takeEvery} from 'redux-saga/effects'
 import {routerActions, LOCATION_CHANGE} from 'react-router-redux'
 
-import actions, {actionTypes} from '../actions'
-import {urls} from '../routes'
-import * as selectors from '../selectors'
+import {actionTypes} from 'src/actions'
+import {urls} from 'src/routes'
 
 
 const pathnames = Object.entries(urls).reduce((_pathnames, [key, url]) => ({
@@ -11,20 +10,6 @@ const pathnames = Object.entries(urls).reduce((_pathnames, [key, url]) => ({
   [key]: url.fullPath,
 }), {})
 
-
-/**
- * [locationChangeJudge description]
- * @param  {[type]}    action [description]
- */
-function* locationChangeJudge(action) {
-  const requestedPathname = action.payload
-  const currentPathname = yield select(selectors.pathname)
-  if (currentPathname !== requestedPathname) {
-    yield put(routerActions.push(requestedPathname))
-  } else {
-    yield put(actions.location.changeCancel())
-  }
-}
 
 /**
  * [locationChangetoSchemas description]
@@ -40,14 +25,6 @@ function* locationChangetoSchemas(action) {
  */
 function* locationChangetoModules(action) {
   yield put(routerActions.push(pathnames.modules))
-}
-
-
-/**
- * [handleLocationChangeRequest description]
- */
-function* handleLocationChangeRequest() {
-  yield takeEvery(actionTypes.location.changeRequest, locationChangeJudge)
 }
 
 /**
@@ -77,7 +54,6 @@ function* handleLocationChangetoModules() {
  * @param  {[type]}    args [description]
  */
 export default function* locationSaga(...args) {
-  yield fork(handleLocationChangeRequest, ...args)
   yield fork(handleLocationChangetoSchemas, ...args)
   yield fork(handleLocationChangetoModules, ...args)
 }

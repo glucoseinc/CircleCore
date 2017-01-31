@@ -1,4 +1,4 @@
-import {GuestOnly} from '../../containers/AuthDivider'
+import {GuestOnly} from 'src/containers/AuthDivider'
 
 import OAuthAuthorize from './OAuthAuthorize'
 import CheckingAuthCode from './CheckingAuthCode'

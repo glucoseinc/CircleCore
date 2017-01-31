@@ -6,13 +6,16 @@ import {put, take} from 'redux-saga/effects'
 import Dialog from 'material-ui/Dialog'
 import FlatButton from 'material-ui/FlatButton'
 
-import actions, {actionTypes} from '../actions'
-import {CreateButton} from '../components/buttons'
-import Fetching from '../components/Fetching'
-import InvitationsTable from '../components/InvitationsTable'
-import OkCancelDialog from '../components/OkCancelDialog'
-import {store} from '../main'
-import Invitation from '../models/Invitation'
+import actions, {actionTypes} from 'src/actions'
+import {store} from 'src/main'
+import Invitation from 'src/models/Invitation'
+
+import LoadingIndicator from 'src/components/bases/LoadingIndicator'
+import OkCancelDialog from 'src/components/bases/OkCancelDialog'
+
+import CreateButton from 'src/components/commons/CreateButton'
+
+import InvitationsTable from 'src/components/InvitationsTable'
 
 
 /**
@@ -52,7 +55,7 @@ class Invitations extends Component {
   render() {
     if(this.props.isFetching) {
       return (
-        <Fetching />
+        <LoadingIndicator />
       )
     }
 

@@ -1,5 +1,5 @@
-import actions from '../../../actions'
-import Module from '../../../containers/Module'
+import actions from 'src/actions'
+import Module from 'src/containers/Module'
 
 const moduleRoute = {
   key: 'module',

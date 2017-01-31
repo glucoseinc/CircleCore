@@ -1,11 +1,11 @@
-import ActionGroupWork from 'material-ui/svg-icons/action/group-work'
-import Cores from '../../../containers/Cores'
+import {CoreIcon} from 'src/components/bases/icons'
+import Cores from 'src/containers/Cores'
 
 const coresRoute = {
   key: 'cores',
   path: 'cores',
   label: 'CircleCore一覧',
-  icon: ActionGroupWork,
+  icon: CoreIcon,
   component: Cores,
 }
 

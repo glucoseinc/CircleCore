@@ -4,7 +4,7 @@ import Divider from 'material-ui/Divider'
 import {List, ListItem} from 'material-ui/List'
 import Subheader from 'material-ui/Subheader'
 
-import {colorMenuListItemText} from '../colors'
+import {colorMenuListItemText} from 'src/colors'
 
 
 /**

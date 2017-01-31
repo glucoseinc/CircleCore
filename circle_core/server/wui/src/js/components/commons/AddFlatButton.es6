@@ -1,10 +1,11 @@
 import React, {Component, PropTypes} from 'react'
 
-import FlatButton from 'material-ui/FlatButton'
-import ContentAdd from 'material-ui/svg-icons/content/add'
+import CCFlatButton from 'src/components/bases/CCFlatButton'
+import {AddIcon} from 'src/components/bases/icons'
 
 
 /**
+ * 追加フラットボタン
  */
 class AddFlatButton extends Component {
   static propTypes = {
@@ -21,21 +22,10 @@ class AddFlatButton extends Component {
       onTouchTap,
     } = this.props
 
-    const style = {
-      label: {
-        paddingLeft: 0,
-      },
-      icon: {
-        width: 16,
-        height: 16,
-      },
-    }
-
     return (
-      <FlatButton
+      <CCFlatButton
         label={label}
-        labelStyle={style.label}
-        icon={<ContentAdd style={style.icon} />}
+        icon={AddIcon}
         primary={true}
         onTouchTap={onTouchTap}
       />

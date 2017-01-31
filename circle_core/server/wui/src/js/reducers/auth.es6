@@ -1,9 +1,9 @@
 import {handleActions} from 'redux-actions'
 import {LOCATION_CHANGE} from 'react-router-redux'
 
-import {actionTypes} from '../actions'
-import CCAPI from '../api'
-import {oauthToken} from '../Authorization'
+import {actionTypes} from 'src/actions'
+import CCAPI from 'src/api'
+import {oauthToken} from 'src/Authorization'
 
 const initialState = {
   token: oauthToken,

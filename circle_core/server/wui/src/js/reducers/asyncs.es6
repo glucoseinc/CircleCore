@@ -1,6 +1,6 @@
 import {handleActions} from 'redux-actions'
 
-import {actionTypes} from '../actions'
+import {actionTypes} from 'src/actions'
 
 
 const initialState = {
@@ -101,9 +101,7 @@ const asyncs = handleActions({
   [actionTypes.schemas.fetchFailed]: setSchemasFetching(false),
 
   // Delete Schemas
-  [actionTypes.schemas.deleteAsk]: setSchemasDeleteAsking(true),
   [actionTypes.schemas.deleteRequest]: setSchemasDeleteAsking(false),
-  [actionTypes.schemas.deleteCancel]: setSchemasDeleteAsking(false),
 
   // Fetch Schema property types
   [actionTypes.schemaPropertyTypes.fetchRequest]: setSchemaPropertyTypesFetching(true),
@@ -121,9 +119,7 @@ const asyncs = handleActions({
   [actionTypes.modules.updateFailed]: setModulesUpdating(false),
 
   // Delete Modules
-  [actionTypes.modules.deleteAsk]: setModulesDeleteAsking(true),
   [actionTypes.modules.deleteRequest]: setModulesDeleteAsking(false),
-  [actionTypes.modules.deleteCancel]: setModulesDeleteAsking(false),
 
   // Fetch Schema
   [actionTypes.schema.fetchRequest]: setSchemaFetching(true),

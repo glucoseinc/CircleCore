@@ -2,21 +2,19 @@ import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 import {routerActions} from 'react-router-redux'
 
-import FlatButton from 'material-ui/FlatButton'
-import withWidth, {SMALL} from 'material-ui/utils/withWidth'
+import Snackbar from 'material-ui/Snackbar'
+import withWidth from 'material-ui/utils/withWidth'
 
-import actions from '../actions'
-import {FloatingAddButton} from '../components/buttons'
-import CCLink from '../components/CCLink'
-import Fetching from '../components/Fetching'
-import ModuleDeleteDialog from '../components/ModuleDeleteDialog'
-import ModuleCards from '../components/Modules/ModuleCards'
-import ModuleInfoPaper from '../components/ModuleInfoPaper'
-import SearchTextField from '../components/commons/SearchTextField'
-import {urls, createPathName} from '../routes'
+import actions from 'src/actions'
+import {urls, createPathName} from 'src/routes'
 
-const TAB_CARDS = 'cards'
-const TAB_LIST = 'list'
+import LoadingIndicator from 'src/components/bases/LoadingIndicator'
+
+import AddFloatingActionButton from 'src/components/commons/AddFloatingActionButton'
+import CCLink from 'src/components/commons/CCLink'
+import ModuleDeleteDialog from 'src/components/commons/ModuleDeleteDialog'
+
+import ModulesTabComponent from 'src/components/ModulesTabComponent'
 
 
 /**
@@ -32,19 +30,27 @@ class Modules extends Component {
   }
 
   state = {
-    activeTab: TAB_CARDS,
-    searchText: '',
     deleteModule: null,
+    isIdCopiedSnackBarOpen: false,
     isModuleDeleteDialogOpen: false,
   }
 
   /**
-   * 検索テキストを更新
-   * @param {string} newText
+   * IDコピーボタン押下時の動作
+   * @param {string} schemaId
    */
-  setSearchText(newText) {
+  onIdCopyButtonTouchTap(schemaId) {
     this.setState({
-      searchText: newText,
+      isIdCopiedSnackBarOpen: true,
+    })
+  }
+
+  /**
+   * スナックバークローズ要求時の動作
+   */
+  onIdCopiedSnackBarCloseRequest() {
+    this.setState({
+      isIdCopiedSnackBarOpen: false,
     })
   }
 
@@ -79,9 +85,8 @@ class Modules extends Component {
    */
   render() {
     const {
-      activeTab,
-      searchText,
       deleteModule,
+      isIdCopiedSnackBarOpen,
       isModuleDeleteDialogOpen,
     } = this.state
     const {
@@ -93,63 +98,30 @@ class Modules extends Component {
 
     if(isFetching) {
       return (
-        <Fetching />
+        <LoadingIndicator />
       )
     }
 
-    const filteredModules = searchText === '' ? modules : modules.filter((module) => (
-      module.tags.filter((tag) => tag.includes(searchText)).size > 0
-    ))
-
     return (
       <div className="page pageModules">
-
-        <div className="pageModules-tabs">
-          <div className={`pageModules-tab ${activeTab === TAB_CARDS ? 'is-active' : ''}`}>
-            <FlatButton
-              label="カード表示"
-              onTouchTap={() => this.setState({activeTab: TAB_CARDS})}
-            />
-          </div>
-          <div className={`pageModules-tab ${activeTab === TAB_LIST ? 'is-active' : ''}`}>
-            <FlatButton
-              label="リスト表示"
-              onTouchTap={() => this.setState({activeTab: TAB_LIST})}
-            />
-          </div>
-        </div>
-
-        <SearchTextField
-          hintText="タグでモジュールを絞込"
-          fullWidth={true}
-          inputText={searchText}
-          onChange={::this.setSearchText}
+        <ModulesTabComponent
+          modules={modules}
+          width={width}
+          onModuleInfoPaperTouchTap={onModuleInfoPaperTouchTap}
+          onDeleteTouchTap={::this.onDeleteTouchTap}
+          onIdCopyButtonTouchTap={::this.onIdCopyButtonTouchTap}
         />
 
-        <div className="tabs">
-          <div className="tab tabCards" style={{display: (activeTab === TAB_CARDS ? 'block' : 'none')}}>
-            <ModuleCards
-              modules={filteredModules}
-              cols={width == SMALL ? 1 : 2}
-            />
-          </div>
-
-          <div className="tab tabList" style={{display: (activeTab === TAB_LIST ? 'block' : 'none')}}>
-            {filteredModules.valueSeq().map((module) =>
-              <ModuleInfoPaper
-                key={module.uuid}
-                module={module}
-                onTouchTap={(module) => onModuleInfoPaperTouchTap(module.uuid)}
-                onTagButtonTouchTap={(tag) => this.setSearchText(tag)}
-                onDeleteTouchTap={::this.onDeleteTouchTap}
-              />
-            )}
-          </div>
-        </div>
-
         <CCLink url={urls.modulesNew}>
-          <FloatingAddButton />
+          <AddFloatingActionButton />
         </CCLink>
+
+        <Snackbar
+          open={isIdCopiedSnackBarOpen}
+          message="IDをコピーしました"
+          autoHideDuration={4000}
+          onRequestClose={::this.onIdCopiedSnackBarCloseRequest}
+        />
 
         <ModuleDeleteDialog
           open={isModuleDeleteDialogOpen}
@@ -170,7 +142,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   onModuleInfoPaperTouchTap: (moduleId) => dispatch(routerActions.push(createPathName(urls.module, {moduleId}))),
-  onDeleteOkButtonTouchTap: (module) => dispatch(actions.modules.deleteRequest(module)),
+  onDeleteOkButtonTouchTap: (module) => dispatch(actions.modules.deleteRequest(module.uuid)),
 })
 
 export default connect(

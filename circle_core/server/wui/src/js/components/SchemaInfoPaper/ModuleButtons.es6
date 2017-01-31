@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 
-import {grey500} from 'material-ui/styles/colors'
-import ActionSettingsInputComponent from 'material-ui/svg-icons/action/settings-input-component'
+import ComponentWithIcon from 'src/components/bases/ComponentWithIcon'
+import {ModuleIcon} from 'src/components/bases/icons'
 
 import ModuleButton from './ModuleButton'
 
@@ -27,40 +27,26 @@ class ModuleButtons extends Component {
     } = this.props
 
     const style = {
-      root: {
-        display: 'flex',
-        flexFlow: 'row nowrap',
-        alignItems: 'center',
-        lineHeight: 1,
-      },
-      icon: {
-        width: 16,
-        height: 16,
-      },
       modules: {
-        flexGrow: 1,
-        fontSize: 14,
+        display: 'flex',
+        flexFlow: 'row wrap',
+        lineHeight: 1,
+        marginTop: -4,
       },
     }
 
     return (
-      <div
-        style={style.root}
-      >
-        <ActionSettingsInputComponent style={style.icon} color={grey500}/>
-        <div style={style.modules} onTouchTap={(e) => e.stopPropagation()}>
-          {schema.modules.valueSeq().map((moduleId, index) => {
-            const module = modules.get(moduleId)
-            return (
-              <ModuleButton
-                key={moduleId}
-                module={module}
-                onTouchTap={(onTouchTap)}
-              />
-            )
-          })}
+      <ComponentWithIcon icon={ModuleIcon}>
+        <div style={style.modules}>
+          {schema.modules.valueSeq().map((moduleId, index) =>
+            <ModuleButton
+              key={moduleId}
+              module={modules.get(moduleId)}
+              onTouchTap={(onTouchTap)}
+            />
+          )}
         </div>
-      </div>
+      </ComponentWithIcon>
     )
   }
 }

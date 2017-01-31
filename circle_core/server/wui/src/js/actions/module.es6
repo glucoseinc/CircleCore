@@ -1,13 +1,10 @@
-import {createCcActions, nullPayloadCreator} from './utils'
+import {createCcActions} from './utils'
 
 
 const payloadCreators = {
   fetchRequest: (params) => params.moduleId,
   fetchSucceeded: (response) => response,
   fetchFailed: (message) => message,
-
-  update: (module) => module.toJS(),
-  createInit: nullPayloadCreator,
 }
 
 const ccActions = createCcActions('module', payloadCreators)

@@ -1,8 +1,11 @@
 /**
  * ユーザー情報を表示したり編集したりするForm
  */
-import {Checkbox, IconButton, FlatButton, FontIcon, TextField, RaisedButton, Snackbar} from 'material-ui'
-import React, {PropTypes} from 'react'
+import React, {Component, PropTypes} from 'react'
+
+import {Checkbox, IconButton, FlatButton, TextField, RaisedButton, Snackbar} from 'material-ui'
+
+import {CopyIcon} from 'src/components/bases/icons'
 
 const PASSWORD_FORM_MANUAL = 'manual'
 const PASSWORD_FORM_GENERATED = 'generated'
@@ -11,13 +14,14 @@ const PASSWORD_FORM_GENERATED = 'generated'
 /**
  * User情報の確認、編集
  */
-export default class UserForm extends React.Component {
+export default class UserForm extends Component {
   static propTypes = {
     errors: PropTypes.object,
     readOnly: PropTypes.bool.isRequired,
     showCurrentPasswordFiled: PropTypes.bool,
     showPermissionFields: PropTypes.bool,
     user: PropTypes.object.isRequired,
+    onSubmitUserForm: PropTypes.func,
   }
   static defaultProps = {
     errors: {},
@@ -118,7 +122,7 @@ export default class UserForm extends React.Component {
   /**
    * パスワード設定フォームを描画する
    * @param {Object} errors
-   * @return {React.Component}
+   * @return {Component}
    */
   renderPasswordForm(errors) {
     return (
@@ -145,7 +149,7 @@ export default class UserForm extends React.Component {
   /**
    * パスワード手動設定フォームを描画する
    * @param {Object} errors
-   * @return {React.Component}
+   * @return {Component}
    */
   renderManualPasswordForm(errors) {
     return (
@@ -178,7 +182,7 @@ export default class UserForm extends React.Component {
   /**
    * パスワード自動設定フォームを描画する
    * @param {Object} errors
-   * @return {React.Component}
+   * @return {Component}
    */
   renderGeneratedPasswordForm(errors) {
     return (
@@ -194,7 +198,7 @@ export default class UserForm extends React.Component {
           errorText={errors.newPassword}
         />
         <IconButton tooltip="パスワードをクリップボードにコピー" onTouchTap={::this.onTapCopyGeneratedPassword}>
-          <FontIcon className="material-icons">input</FontIcon>
+          <CopyIcon />
         </IconButton>
         <br />
 

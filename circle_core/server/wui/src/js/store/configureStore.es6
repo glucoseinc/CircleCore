@@ -2,8 +2,8 @@ import {createStore, compose, applyMiddleware} from 'redux'
 import createSagaMiddleware from 'redux-saga'
 import {routerMiddleware} from 'react-router-redux'
 
-import rootReducer from '../reducers'
-import DevTools from '../containers/DevTools'
+import rootReducer from 'src/reducers'
+import DevTools from 'src/containers/DevTools'
 
 
 /**

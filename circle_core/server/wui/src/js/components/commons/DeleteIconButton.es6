@@ -1,7 +1,8 @@
 import React, {Component, PropTypes} from 'react'
 
 import IconButton from 'material-ui/IconButton'
-import ActionDelete from 'material-ui/svg-icons/action/delete'
+
+import {DeleteIcon} from 'src/components/bases/icons'
 
 
 /**
@@ -9,6 +10,8 @@ import ActionDelete from 'material-ui/svg-icons/action/delete'
  */
 class DeleteIconButton extends Component {
   static propTypes = {
+    size: PropTypes.number,
+    iconSize: PropTypes.number,
     disabled: PropTypes.bool,
     onTouchTap: PropTypes.func,
   }
@@ -42,7 +45,7 @@ class DeleteIconButton extends Component {
         disabled={disabled}
         onTouchTap={onTouchTap}
       >
-        <ActionDelete />
+        <DeleteIcon />
       </IconButton>
     )
   }

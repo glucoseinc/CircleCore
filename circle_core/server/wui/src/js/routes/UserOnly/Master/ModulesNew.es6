@@ -1,5 +1,5 @@
-import actions from '../../../actions'
-import ModulesNew from '../../../containers/ModulesNew'
+import actions from 'src/actions'
+import ModulesNew from 'src/containers/ModulesNew'
 
 const modulesNewRoute = {
   key: 'modulesNew',
@@ -8,7 +8,6 @@ const modulesNewRoute = {
   // icon: null,
   component: ModulesNew,
   onEnterActions: [
-    actions.module.createInit,
     actions.schemas.fetchRequest,
   ],
 }

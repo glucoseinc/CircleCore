@@ -1,13 +1,16 @@
 import React, {Component, PropTypes} from 'react'
 
 import RaisedButton from 'material-ui/RaisedButton'
-import ContentAdd from 'material-ui/svg-icons/content/add'
+
+import {AddIcon} from 'src/components/bases/icons'
 
 
 /**
+ * 作成ボタン
  */
 class CreateButton extends Component {
   static propTypes = {
+    label: PropTypes.string,
     disabled: PropTypes.bool,
     onTouchTap: PropTypes.func,
   }
@@ -17,13 +20,14 @@ class CreateButton extends Component {
    */
   render() {
     const {
+      label = '追加する',
       disabled = false,
       onTouchTap,
     } = this.props
 
     const style = {
       root: {
-        width: 160,
+        minWidth: 160,
       },
       label: {
         paddingLeft: 0,
@@ -37,9 +41,9 @@ class CreateButton extends Component {
     return (
       <RaisedButton
         style={style.root}
-        label="追加する"
+        label={label}
         labelStyle={style.label}
-        icon={<ContentAdd style={style.icon} />}
+        icon={<AddIcon style={style.icon} />}
         primary={true}
         disabled={disabled}
         onTouchTap={onTouchTap}

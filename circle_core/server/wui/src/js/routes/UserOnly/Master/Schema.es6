@@ -1,5 +1,5 @@
-import actions from '../../../actions'
-import Schema from '../../../containers/Schema'
+import actions from 'src/actions'
+import Schema from 'src/containers/Schema'
 
 const schemaRoute = {
   key: 'schema',

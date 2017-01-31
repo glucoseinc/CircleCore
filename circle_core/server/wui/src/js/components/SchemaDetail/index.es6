@@ -1,16 +1,17 @@
 import React, {Component, PropTypes} from 'react'
 
-import {grey900} from 'material-ui/styles/colors'
+import ComponentWithTitle from 'src/components/bases/ComponentWithTitle'
 
-import BackButton from './BackButton'
-import DeleteButton from './DeleteButton'
-import DisplayNamePaper from './DosplayNamePaper'
+import BackButton from 'src/components/commons/BackButton'
+import DeleteButton from 'src/components/commons/DeleteButton'
+
+import DisplayNamePaper from './DisplayNamePaper'
 import MetadataPaper from './MetadataPaper'
 import PropertiesTableComponent from './PropertiesTableComponent'
 
 
 /**
- * メッセージスキーマ詳細コンポーネント
+ * Schema詳細コンポーネント
  */
 class SchemaDetail extends Component {
   static propTypes = {
@@ -33,68 +34,53 @@ class SchemaDetail extends Component {
       root: {
         display: 'flex',
         flexFlow: 'column nowrap',
-        padding: 0,
-      },
-
-      areaLabel: {
-        padding: '0 24px',
-        fontSize: 16,
-        fontWeight: 'bold',
-        lineHeight: 1,
-        color: grey900,
       },
 
       displayNamePaper: {
-        padding: 0,
-        paddingBottom: 16,
       },
 
       propertiesArea: {
-        padding: '16px 0',
-      },
-      propertiesTableComponent: {
-        padding: 0,
+        paddingTop: 32,
       },
 
       metadataArea: {
-        padding: '16px 0',
-      },
-      metadataPaper: {
-        padding: '16px 0',
+        paddingTop: 32,
       },
 
       actionsArea: {
-        padding: 4,
+        paddingTop: 40,
         display: 'flex',
         flexFlow: 'row nowrap',
         justifyContent: 'center',
       },
       backButton: {
-        padding: 4,
+        paddingRight: 4,
       },
       deleteButton: {
-        padding: 4,
+        paddingLeft: 4,
       },
     }
 
     const deleteButtonDisabled = schema.modules.size !== 0 ? true : false
+
     return (
       <div style={style.root}>
         <div style={style.displayNamePaper}>
           <DisplayNamePaper schema={schema} />
         </div>
+
         <div style={style.propertiesArea}>
-          <div style={style.areaLabel}>プロパティ</div>
-          <div style={style.propertiesTableComponent}>
+          <ComponentWithTitle title="プロパティ">
             <PropertiesTableComponent schema={schema}/>
-          </div>
+          </ComponentWithTitle>
         </div>
+
         <div style={style.metadataArea}>
-          <div style={style.areaLabel}>メタデータ</div>
-          <div style={style.metadataPaper}>
+          <ComponentWithTitle title="メタデータ">
             <MetadataPaper schema={schema} />
-          </div>
+          </ComponentWithTitle>
         </div>
+
         <div style={style.actionsArea}>
           <div style={style.backButton}>
             <BackButton onTouchTap={onBackTouchTap}/>

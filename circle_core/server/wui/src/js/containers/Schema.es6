@@ -2,12 +2,15 @@ import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 import {routerActions} from 'react-router-redux'
 
-import actions from '../actions'
-import Fetching from '../components/Fetching'
-import SchemaDeleteDialog from '../components/SchemaDeleteDialog'
-import {urls} from '../routes'
+import actions from 'src/actions'
+import {urls} from 'src/routes'
 
-import SchemaDetail from '../components/SchemaDetail'
+import LoadingIndicator from 'src/components/bases/LoadingIndicator'
+
+import SchemaDeleteDialog from 'src/components/commons/SchemaDeleteDialog'
+
+import SchemaDetail from 'src/components/SchemaDetail'
+
 
 /**
  * Schema詳細
@@ -36,7 +39,7 @@ class Schema extends Component {
   }
 
   /**
-   * 追加メニュー 削除の選択時の動作
+   * 削除ボタン押下時の動作
    */
   onDeleteTouchTap() {
     this.setState({
@@ -74,7 +77,7 @@ class Schema extends Component {
 
     if (isFetching) {
       return (
-        <Fetching />
+        <LoadingIndicator />
       )
     }
 
@@ -116,7 +119,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
   setTitle: (title) => dispatch(actions.page.setTitle(title)),
   onBackButtonTouchTap: () => dispatch(routerActions.push(urls.schemas.fullPath)),
-  onDeleteOkButtonTouchTap: (schema) => dispatch(actions.schemas.deleteRequest(schema)),
+  onDeleteOkButtonTouchTap: (schema) => dispatch(actions.schemas.deleteRequest(schema.uuid)),
 })
 
 export default connect(

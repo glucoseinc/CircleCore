@@ -1,24 +1,18 @@
 import {fork} from 'redux-saga/effects'
+import auth from './auth'
+import async from './async'
+import invitations from './invitations'
+import location from './location'
+import users from './users'
 
-
-const sagaset = [
-  'auth',
-  'invitations',
-  'location',
-  'misc',
-  'module',
-  'modules',
-  'schema',
-  'schemas',
-  'users',
-]
 
 /**
- * [rootSaga description]
+ * rootSaga
  */
 export default function* rootSaga() {
-  for(let sagaFile of sagaset) {
-    let saga = require(`./${sagaFile}`).default
-    yield fork(saga)
-  }
+  yield fork(auth)
+  yield fork(async)
+  yield fork(invitations)
+  yield fork(location)
+  yield fork(users)
 }
