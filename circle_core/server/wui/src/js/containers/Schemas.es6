@@ -105,7 +105,7 @@ class Schemas extends Component {
 
     return (
       <div className="page">
-        {schemas.valueSeq().map((schema) => (
+        {schemas.valueSeq().map((schema) =>
           <SchemaInfoPaper
             key={schema.uuid}
             schema={schema}
@@ -115,7 +115,7 @@ class Schemas extends Component {
             onModuleButtonTouchTap={onModuleButtonTouchTap}
             onDeleteTouchTap={::this.onDeleteTouchTap}
           />
-        ))}
+        )}
 
         <CCLink url={urls.schemasNew}>
           <AddFloatingActionButton />
