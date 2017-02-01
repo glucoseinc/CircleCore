@@ -1,13 +1,12 @@
 import React, {Component, PropTypes} from 'react'
 
-import FlatButton from 'material-ui/FlatButton'
-
 import ComponentWithTitle from 'src/components/bases/ComponentWithTitle'
 
 import DeleteButton from 'src/components/commons/DeleteButton'
 
 import DisplayNamePaper from './DisplayNamePaper'
 import MessageBoxPaper from './MessageBoxPaper'
+import MessageBoxAddActionPaper from './MessageBoxAddActionPaper'
 import MetadataPaper from './MetadataPaper'
 
 
@@ -74,9 +73,6 @@ class ModuleDetail extends Component {
       messageBoxesArea: {
         paddingTop: 32,
       },
-      messageBoxesAreaAdditional: {
-        lineHeight: 1,
-      },
       messageBoxAddButton: {
         height: 16,
         lineHeight: 1,
@@ -114,17 +110,7 @@ class ModuleDetail extends Component {
         </div>
 
         <div style={style.messageBoxesArea}>
-          <ComponentWithTitle
-            title="メッセージボックス"
-            additional={<FlatButton
-              style={style.messageBoxAddButton}
-              label="＋メッセージボックスを追加する"
-              labelStyle={style.messageBoxAddButtonLabel}
-              primary={true}
-              onTouchTap={() => console.log('メッセージボックスを追加する')}
-            />}
-            additionalStyle={style.messageBoxesAreaAdditional}
-          >
+          <ComponentWithTitle title="メッセージボックス">
             {module.messageBoxes.valueSeq().map((messageBox, index) =>
               <MessageBoxPaper
                 key={index}
@@ -136,11 +122,15 @@ class ModuleDetail extends Component {
                 onDownloadTouchTap={onMessageBoxDownloadTouchTap}
               />
             )}
+            <MessageBoxAddActionPaper
+              onTouchTap={() => console.log('メッセージボックスを追加する')}
+            />
           </ComponentWithTitle>
         </div>
 
         <div style={style.actionsArea}>
           <DeleteButton
+            label="このモジュールを削除する"
             onTouchTap={onDeleteTouchTap}
           />
         </div>
