@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 
-import RaisedButton from 'material-ui/RaisedButton'
+import CCRaisedButton from 'src/components/bases/CCRaisedButton'
 
 import {AddIcon} from 'src/components/bases/icons'
 
@@ -32,18 +32,14 @@ class CreateButton extends Component {
       label: {
         paddingLeft: 0,
       },
-      icon: {
-        width: 16,
-        height: 16,
-      },
     }
 
     return (
-      <RaisedButton
+      <CCRaisedButton
         style={style.root}
         label={label}
         labelStyle={style.label}
-        icon={<AddIcon style={style.icon} />}
+        icon={AddIcon}
         primary={true}
         disabled={disabled}
         onTouchTap={onTouchTap}
