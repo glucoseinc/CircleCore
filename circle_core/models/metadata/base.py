@@ -9,6 +9,7 @@ from six import add_metaclass, PY3
 
 # project module
 from circle_core import abstractclassmethod
+from ..cc_info import CcInfo
 from ..invitation import Invitation
 from ..message_box import MessageBox
 from ..module import Module
@@ -134,6 +135,15 @@ class MetadataReader(MetadataBase):
         """
         raise NotImplementedError
 
+    @abstractproperty
+    def cc_infos(self):
+        """全てのCircleCoreInfoオブジェクト.
+
+        :return: CircleCoreInfoオブジェクトリスト
+        :rtype: List[CcInfo]
+        """
+        raise NotImplementedError
+
     def find_invitation(self, uuid):
         """InvitationリストからUUIDがマッチするものを取得する.
 
@@ -249,10 +259,37 @@ class MetadataReader(MetadataBase):
             except ValueError:
                 return None
 
-        for module in self.replication_links:
-            if module.uuid == replication_link_uuid:
-                return module
+        for replication_link in self.replication_links:
+            if replication_link.uuid == replication_link_uuid:
+                return replication_link
         return None
+
+    def find_cc_info(self, cc_info_uuid):
+        """CircleCoreInfoリストからUUIDがマッチするものを取得する.
+
+        :param Union[str, UUID] cc_info_uuid: 取得するCircleCoreInfoのUUID
+        :return: マッチしたCircleCoreInfo
+        :rtype: Optional[CcInfo]
+        """
+        if not isinstance(cc_info_uuid, UUID):
+            try:
+                cc_info_uuid = UUID(cc_info_uuid)
+            except ValueError:
+                return None
+
+        for cc_info in self.cc_infos:
+            if cc_info.uuid == cc_info_uuid:
+                return cc_info
+        return None
+
+    def find_own_cc_info(self):
+        """CircleCoreInfoリストから自分自身のCircleCoreInfoを取得する.
+
+        :return: 自分自身のCircleCoreInfo
+        :rtype: Optional[CcInfo]
+        """
+        own_cc_infos = [cc_info for cc_info in self.cc_infos if cc_info.myself is True]
+        return own_cc_infos[0] if own_cc_infos else None
 
     def find_user(self, user_uuid):
         """ユーザリストからUUIDがマッチするものを取得する.
@@ -399,6 +436,7 @@ class MetadataWriter(MetadataBase):
         """
         raise NotImplementedError
 
+    # MessageBox
     @abstractmethod
     def register_message_box(self, message_box):
         """MessageBoxオブジェクトをストレージに登録する.
@@ -429,6 +467,7 @@ class MetadataWriter(MetadataBase):
         """
         raise NotImplementedError
 
+    # Module
     @abstractmethod
     def register_module(self, module):
         """Moduleオブジェクトをストレージに登録する.
@@ -459,6 +498,7 @@ class MetadataWriter(MetadataBase):
         """
         raise NotImplementedError
 
+    # User
     @abstractmethod
     def register_user(self, user):
         """Userオブジェクトをストレージに登録する.
@@ -481,10 +521,10 @@ class MetadataWriter(MetadataBase):
 
     @abstractmethod
     def update_user_last_access(self, user_id, datetime):
-        """Userの最終アクセス時刻を記録する
+        """Userの最終アクセス時刻を記録する.
 
         :param UUID user_id: UserのID
-        :param datetime datetime.datetime: 最終アクセス時刻(UTC)
+        :param datetime.datetime dt: 最終アクセス時刻(UTC)
         :return: 成功/失敗
         :rtype: bool
         """
@@ -492,10 +532,41 @@ class MetadataWriter(MetadataBase):
 
     @abstractmethod
     def get_user_last_access(self, user_id):
-        """Userの最終アクセス時刻を記録する
+        """Userの最終アクセス時刻を記録する.
 
         :param UUID user_id: UserのID
         :return: 成功/失敗
         :rtype: datetime.datetime
+        """
+        raise NotImplementedError
+
+    # CcInfo
+    @abstractmethod
+    def register_cc_info(self, cc_info):
+        """CircleCoreInfoオブジェクトをストレージに登録する.
+
+        :param CcInfo cc_info: CircleCoreInfoオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def unregister_cc_info(self, cc_info):
+        """CircleCoreInfoオブジェクトをストレージから削除する.
+
+        :param CcInfo cc_info: CircleCoreInfoオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def update_cc_info(self, cc_info):
+        """ストレージ上のCircleCoreInfoオブジェクトを更新する.
+
+        :param CcInfo cc_info: CircleCoreInfoオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
         """
         raise NotImplementedError
