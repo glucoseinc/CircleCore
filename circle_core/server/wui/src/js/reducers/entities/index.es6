@@ -3,6 +3,7 @@ import {Map} from 'immutable'
 
 import ReplicationLink from 'src/models/ReplicationLink'  // TODO: For Mock
 
+import ccInfosActionsHandler from './ccInfos'
 import invitationsActionsHandler from './invitations'
 import modulesActionsHandler from './modules'
 import schemasActionsHandler from './schemas'
@@ -25,6 +26,7 @@ const mockReplicationLinks = {
 }
 
 const initialState = {
+  ccInfos: new Map(),
   invitations: new Map(),
   modules: new Map(),
   myID: null,  // 自分のUserオブジェクトのuuid
@@ -36,6 +38,7 @@ const initialState = {
 
 
 const entities = handleActions({
+  ...ccInfosActionsHandler,
   ...invitationsActionsHandler,
   ...modulesActionsHandler,
   ...schemasActionsHandler,

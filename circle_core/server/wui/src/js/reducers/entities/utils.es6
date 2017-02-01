@@ -1,6 +1,7 @@
 import {Map} from 'immutable'
 import {normalize} from 'normalizr'
 
+import CcInfo from 'src/models/CcInfo'
 import Module from 'src/models/Module'
 import Schema from 'src/models/Schema'
 import SchemaPropertyType from 'src/models/SchemaPropertyType'
@@ -21,6 +22,7 @@ export const getNewEntities = (response) => {
   const normalized = normalize(response, normalizerSchema)
   const entities = normalized.entities
   return {
+    ccInfos: new Map(convertValues(entities.ccInfos, CcInfo.fromObject)),
     schemas: new Map(convertValues(entities.schemas, Schema.fromObject)),
     schemaPropertyTypes: new Map(convertValues(entities.schemaPropertyTypes, SchemaPropertyType.fromObject)),
     modules: new Map(convertValues(entities.modules, Module.fromObject)),
