@@ -31,18 +31,16 @@ class ContextObject(object):
     :param LTSVLogger _logger: Logger
     """
 
-    def __init__(self, metadata_url, crcr_uuid, log_file_path):
+    def __init__(self, metadata_url, metadata, crcr_uuid, log_file_path):
         """init.
 
         :param str metadata_url: MetadataのURLスキーム
+        :param Union[MetadataIniFile, MetadataRedis] metadata: Metadataオブジェクト
         :param UUID crcr_uuid: CircleCore UUID
         :param Optional[str] log_file_path: ログファイルのパス
         """
         self.metadata_url = metadata_url
-        try:
-            self.metadata = parse_url_scheme(metadata_url)
-        except MetadataError as e:
-            raise ContextObjectError('Invalid metadata url / {} : {}'.format(e, metadata_url))
+        self.metadata = metadata
         self.uuid = crcr_uuid
         self.log_file_path = log_file_path
         self._logger = LTSVLogger(name='cli_logger', log_file_path=log_file_path)

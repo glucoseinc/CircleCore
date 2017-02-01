@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 
+# system module
 import os
 
+# community module
 import pytest
 import redis
 import sqlalchemy as sa
 from sqlalchemy.engine.url import make_url
 import tcptest.redis
+
+# project module
+from tests import crcr_uuid
 
 
 @pytest.fixture(autouse=True, scope='session')
@@ -15,7 +20,6 @@ def redis_server(request):
     server.start()
 
     os.environ['CRCR_METADATA'] = 'redis://localhost:{}/0'.format(server.port)
-    os.environ['CRCR_UUID'] = '00000000-1111-2222-3333-444444444444'
     os.environ['CRCR_LOG_FILE_PATH'] = '/tmp/test_log.ltsv'
 
     def stop():
@@ -28,17 +32,21 @@ def redis_server(request):
 @pytest.fixture()
 def flushall_redis_server(redis_server):
     redis.Redis(port=redis_server.port).flushall()
+    own_cc_info_dict = {
+        'uuid': crcr_uuid,
+        'display_name': 'CircleCore_{}'.format(crcr_uuid),
+        'myself': 'True',
+    }
+    redis.Redis(port=redis_server.port).hmset('cc_info_{}'.format(crcr_uuid), own_cc_info_dict)
 
 
 @pytest.fixture()
 def remove_environ(request):
     crcr_metadata = os.environ.pop('CRCR_METADATA')
-    crcr_uuid = os.environ.pop('CRCR_UUID')
     crcr_log_file_path = os.environ.pop('CRCR_LOG_FILE_PATH')
 
     def at_exit():
         os.environ['CRCR_METADATA'] = crcr_metadata
-        os.environ['CRCR_UUID'] = crcr_uuid
         os.environ['CRCR_LOG_FILE_PATH'] = crcr_log_file_path
 
     request.addfinalizer(at_exit)

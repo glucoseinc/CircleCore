@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
+
+# system module
 from collections import defaultdict
 import os
 
+# community module
 from click.testing import CliRunner
 import pytest
 
+# project module
 from circle_core.cli import cli_entry
+from tests import crcr_uuid
 
 
 class TestCliMain(object):
@@ -19,15 +24,7 @@ class TestCliMain(object):
                         'or set to environment variable `export CRCR_METADATA=URL_SCHEME`.']},  # expected
         ),
         (
-            ['--metadata', 'redis://localhost:6379/1'],  # main_params
-            {'exit_code': -1,
-             'output': ['Circle Core UUID is not set.',
-                        'Please set UUID to argument `crcr --uuid UUID ...`',
-                        'or set to environment variable `export CRCR_UUID=UUID`.']},  # expected
-        ),
-        (
-            ['--metadata', 'redis://localhost:65535/16',
-             '--uuid', '12121212-3434-5656-7878-909090909090'],  # main_params
+            ['--metadata', 'redis://localhost:65535/16'],  # main_params
             {'exit_code': -1,
              'output': ['Invalid metadata url / '
                         'Cannot connect to Redis server. : redis://localhost:65535/16']},  # expected
@@ -40,9 +37,8 @@ class TestCliMain(object):
         assert result.output == '\n'.join(expected['output']) + '\n'
 
     @pytest.mark.parametrize(('main_param_uuid', 'expected'), [
-        (['--uuid', '12121212-3434-5656-7878-909090909090',
-          '--log-file', '/tmp/log.ltsv'],  # main_param_uuid
-         {'output_uuid': '12121212-3434-5656-7878-909090909090',
+        (['--log-file', '/tmp/log.ltsv'],  # main_param_uuid
+         {'output_uuid': crcr_uuid,
           'output_log_file_path': '/tmp/log.ltsv'}),  # expected
     ])
     def test_main_env_success(self, main_param_uuid, expected):
@@ -61,7 +57,6 @@ class TestCliMain(object):
         """`--database`オプションなしでmigrateを呼んだらエラーにする"""
         default_args = [
             '--metadata', 'file:///{}/tests/metadata.ini'.format(os.getcwd()),
-            '--uuid', '12121212-3434-5656-7878-909090909090',
             'migrate'
         ]
         result = CliRunner().invoke(cli_entry, default_args)
@@ -91,7 +86,6 @@ class TestCliMain(object):
         # dry-runなし
         default_args = [
             '--metadata', 'file:///{}/tests/metadata.ini'.format(os.getcwd()),
-            '--uuid', '12121212-3434-5656-7878-909090909090',
             'migrate', '--database={}'.format(test_db_url)
         ]
         result = CliRunner().invoke(cli_entry, default_args)
