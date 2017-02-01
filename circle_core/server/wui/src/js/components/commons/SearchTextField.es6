@@ -1,8 +1,8 @@
 import React, {Component, PropTypes} from 'react'
 
+import AutoComplete from 'material-ui/AutoComplete'
 import IconButton from 'material-ui/IconButton'
 import Paper from 'material-ui/Paper'
-import TextField from 'material-ui/TextField'
 
 import {ClearIcon, SearchIcon} from 'src/components/bases/icons'
 
@@ -15,6 +15,7 @@ class SearchTextField extends Component {
     hintText: PropTypes.string,
     fullWidth: PropTypes.bool,
     inputText: PropTypes.string.isRequired,
+    suggestions: PropTypes.array,
     onChange: PropTypes.func,
   }
   static contextTypes = {
@@ -29,6 +30,7 @@ class SearchTextField extends Component {
       hintText = null,
       fullWidth = false,
       inputText,
+      suggestions = [],
       onChange,
     } = this.props
     const {
@@ -70,11 +72,12 @@ class SearchTextField extends Component {
     return (
       <Paper>
         <div style={style.root}>
-          <TextField
+          <AutoComplete
             hintText={hintNode}
+            dataSource={suggestions}
             fullWidth={fullWidth}
-            value={inputText}
-            onChange={(e) => onChange(e.target.value)}
+            searchText={inputText}
+            onUpdateInput={onChange}
             hintStyle={style.hint}
             inputStyle={style.input}
             underlineStyle={style.underline}
