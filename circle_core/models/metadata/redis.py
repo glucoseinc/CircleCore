@@ -14,6 +14,7 @@ from six import PY3
 # TODO: cli.utilsから外に移す
 from circle_core.utils import format_date, prepare_date
 from .base import MetadataError, MetadataReader, MetadataWriter
+from ..cc_info import CcInfo
 from ..invitation import Invitation
 from ..message_box import MessageBox
 from ..module import Module
@@ -22,7 +23,7 @@ from ..schema import Schema
 from ..user import User
 
 if PY3:
-    from typing import Any, Dict, List, Union
+    from typing import Any, Dict, List, Optional, Union
 
 
 class RedisClient(Redis):
@@ -107,7 +108,7 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         for key in keys:
             if self.redis_client.type(key) == 'hash':
                 fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]
-                properties_string = fields.pop('properties', None)
+                properties_string = fields.pop('properties', None)  # type: Optional[str]
                 if properties_string is not None:
                     fields['dictified_properties'] = Schema.dictify_properties(properties_string)
                 schemas.append(Schema(**fields))
@@ -181,7 +182,22 @@ class MetadataRedis(MetadataReader, MetadataWriter):
                 replication_links.append(ReplicationLink(**fields))
         return replication_links
 
-    # invitation
+    @property
+    def cc_infos(self):
+        """全てのCircleCoreInfoオブジェクト.
+
+        :return: CircleCoreInfoオブジェクトリスト
+        :rtype: List[CcInfo]
+        """
+        cc_infos = []
+        keys = [key for key in self.redis_client.keys() if CcInfo.is_key_matched(key)]
+        for key in keys:
+            if self.redis_client.type(key) == 'hash':
+                fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]
+                cc_infos.append(CcInfo(**fields))
+        return cc_infos
+
+    # Invitation
     def register_invitation(self, obj):
         """Invitationオブジェクトをストレージに登録する.
 
@@ -210,8 +226,8 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         :return: 成功/失敗
         :rtype: bool
         """
-        if self.unregister_schema(invitation) is True:
-            return self.register_schema(invitation)
+        if self.unregister_invitation(invitation) is True:
+            return self.register_invitation(invitation)
         return False
 
     # Schema
@@ -257,6 +273,7 @@ class MetadataRedis(MetadataReader, MetadataWriter):
             return self.register_schema(schema)
         return False
 
+    # MessageBox
     def register_message_box(self, message_box):
         """MessageBoxオブジェクトをストレージに登録する.
 
@@ -297,6 +314,7 @@ class MetadataRedis(MetadataReader, MetadataWriter):
             return self.register_message_box(message_box)
         return False
 
+    # Module
     def register_module(self, module):
         """Moduleオブジェクトをストレージに登録する.
 
@@ -338,6 +356,7 @@ class MetadataRedis(MetadataReader, MetadataWriter):
             return self.register_module(module)
         return False
 
+    # User
     def register_user(self, new_user):
         """Userオブジェクトをストレージに登録する.
 
@@ -364,18 +383,11 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         self.redis_client.delete(user.storage_key)
         return True
 
-    def _generate_uuid(self, model_class):
-        while True:
-            generated = uuid.uuid4()
-            if not self.redis_client.exists(model_class.make_storage_key(generated)):
-                break
-        return generated
-
     def update_user_last_access(self, user_id, dt):
-        """Userの最終アクセス時刻を記録する
+        """Userの最終アクセス時刻を記録する.
 
         :param UUID user_id: UserのID
-        :param datetime datetime.datetime: 最終アクセス時刻(UTC)
+        :param datetime.datetime dt: 最終アクセス時刻(UTC)
         :return: 成功/失敗
         :rtype: bool
         """
@@ -386,7 +398,7 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         print('update date', user_id, dt)
 
     def get_user_last_access(self, user_id):
-        """Userの最終アクセス時刻を記録する
+        """Userの最終アクセス時刻を記録する.
 
         :param UUID user_id: UserのID
         :return: 成功/失敗
@@ -396,3 +408,55 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         if not val:
             return None
         return prepare_date(val)
+
+    # CcInfo
+    def register_cc_info(self, cc_info):
+        """CircleCoreInfoオブジェクトをストレージに登録する.
+
+        :param CcInfo cc_info: CircleCoreInfoオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
+        """
+        mapping = {
+            'uuid': cc_info.uuid,
+            'display_name': cc_info.display_name,
+            'myself': cc_info.myself,
+        }
+        if cc_info.work is not None:
+            mapping['work'] = cc_info.work
+
+        self.redis_client.hmset(cc_info.storage_key, mapping)
+        # TODO: 登録時に myself is True が2個以上存在しないようにする必要がある
+        return True
+
+    def unregister_cc_info(self, cc_info):
+        """CircleCoreInfoオブジェクトをストレージから削除する.
+
+        :param CcInfo cc_info: CircleCoreInfoオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
+        """
+        if len(self.find_modules_by_schema(cc_info.uuid)) != 0:
+            return False
+
+        self.redis_client.delete(cc_info.storage_key)
+        return True
+
+    def update_cc_info(self, cc_info):
+        """ストレージ上のCircleCoreInfoオブジェクトを更新する.
+
+        :param CcInfo cc_info: CircleCoreInfoオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
+        """
+        if self.register_cc_info(cc_info) is True:
+            return self.unregister_cc_info(cc_info)
+        return False
+
+    # Private methods
+    def _generate_uuid(self, model_class):
+        while True:
+            generated = uuid.uuid4()
+            if not self.redis_client.exists(model_class.make_storage_key(generated)):
+                break
+        return generated

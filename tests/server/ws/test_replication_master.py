@@ -48,9 +48,10 @@ class DummyMetadata(MetadataReader):
         'DummyModule2',
         'fooo,baar'
     )]
-    invitations = []
     users = []
     replication_links = []
+    cc_infos = []
+    invitations = []
     parse_url_scheme = None
     writable = True
 

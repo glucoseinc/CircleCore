@@ -10,6 +10,7 @@ from six.moves.urllib.parse import urlparse
 
 # project module
 from .base import MetadataError, MetadataReader
+from ..cc_info import CcInfo
 from ..invitation import Invitation
 from ..message_box import MessageBox
 from ..module import Module
@@ -145,3 +146,16 @@ class MetadataIniFile(MetadataReader):
         replication_link_dicts = [dict(parser.items(section)) for section in parser.sections()
                                   if ReplicationLink.is_key_matched(section)]
         return [ReplicationLink(**replication_link_dict) for replication_link_dict in replication_link_dicts]
+
+    @property
+    def cc_infos(self):
+        """全てのCircleCoreInfoオブジェクト.
+
+        :return: CircleCoreInfoオブジェクトリスト
+        :rtype: List[CcInfo]
+        """
+        parser = configparser.ConfigParser()
+        parser.read(self.ini_file_path)
+        cc_info_dicts = [dict(parser.items(section)) for section in parser.sections()
+                         if CcInfo.is_key_matched(section)]
+        return [CcInfo(**cc_info_dict) for cc_info_dict in cc_info_dicts]

@@ -27,8 +27,9 @@ class DummyMetadata(MetadataReader):
     modules = [Module('4ffab839-cf56-478a-8614-6003a5980855', ['e170a8e5-3157-484e-b7d2-9816b0d97546'], 'DummyModule')]
     users = []
     replication_links = []
+    cc_infos = []
+    invitations = []
     parse_url_scheme = None
-    invitations = None
 
 
 class TestModuleHandler(AsyncHTTPTestCase):

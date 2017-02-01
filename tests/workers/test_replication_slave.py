@@ -46,6 +46,7 @@ class DummyMetadata(MetadataReader):
     )]
     users = []
     replication_links = []
+    cc_infos = []
     invitations = []
     parse_url_scheme = None
     writable = True

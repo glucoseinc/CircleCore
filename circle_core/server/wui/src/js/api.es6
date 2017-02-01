@@ -384,6 +384,24 @@ class CCAPI extends APICaller {
     return res.body
   }
 
+  // CcInfo
+  /**
+   * CircleCoreInfoのリストを得る
+   * @return {object} Result
+   */
+  async fetchAllCcInfos() {
+    const res = await this._get('/cores/')
+    return res.body
+  }
+
+  /**
+   * 自身のCircleCoreInfoを得る
+   * @return {object} Result
+   */
+  async fetchMyselfCcInfo() {
+    const res = await this._get('/cores/myself')
+    return res.body
+  }
 
   // ModuleGraphData
   /**
