@@ -4,6 +4,7 @@ import ComponentWithTitle from 'src/components/bases/ComponentWithTitle'
 
 import DeleteButton from 'src/components/commons/DeleteButton'
 
+import DisplayNameEditPaper from './DisplayNameEditPaper'
 import DisplayNamePaper from './DisplayNamePaper'
 import MessageBoxPaper from './MessageBoxPaper'
 import MessageBoxAddActionPaper from './MessageBoxAddActionPaper'
@@ -17,6 +18,7 @@ class ModuleDetail extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     schemas: PropTypes.object.isRequired,
+    onUpdateTouchTap: PropTypes.func,
     onMessageBoxDeleteTouchTap: PropTypes.func,
     onMessageBoxDownloadTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
@@ -31,6 +33,7 @@ class ModuleDetail extends Component {
   state = {
     editingArea: null,
     editingAreaIndex: null,
+    editingModule: null,
   }
 
   /**
@@ -42,6 +45,32 @@ class ModuleDetail extends Component {
     this.setState({
       editingArea,
       editingAreaIndex,
+      editingModule: this.props.module,
+    })
+  }
+
+  /**
+   * 保存ボタン押下時の動作
+   */
+  onUpdateTouchTap() {
+    this.props.onUpdateTouchTap(this.state.editingModule)
+    // TODO: 保存失敗時には編集中の状態を復元したい
+    this.setState({
+      editingArea: null,
+      editingAreaIndex: null,
+      editingModule: null,
+    })
+  }
+
+
+  /**
+   * 編集キャンセルボタン押下時の動作
+   */
+  onEditCancelTouchTap() {
+    this.setState({
+      editingArea: null,
+      editingAreaIndex: null,
+      editingModule: null,
     })
   }
 
@@ -49,6 +78,10 @@ class ModuleDetail extends Component {
    * @override
    */
   render() {
+    const {
+      editingArea,
+      editingModule,
+    } = this.state
     const {
       module,
       schemas,
@@ -63,7 +96,7 @@ class ModuleDetail extends Component {
         flexFlow: 'column nowrap',
       },
 
-      displayNamePaper: {
+      displayNameArea: {
       },
 
       metadataArea: {
@@ -91,13 +124,24 @@ class ModuleDetail extends Component {
       },
     }
 
+    const displayNameArea = editingArea == ModuleDetail.editingArea.displayName ? (
+      <DisplayNameEditPaper
+        module={editingModule}
+        onDisplayNameChange={(e) => this.setState({editingModule: editingModule.updateDisplayName(e.target.value)})}
+        onOKButtonTouchTap={() => this.onUpdateTouchTap()}
+        onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
+      />
+    ) : (
+      <DisplayNamePaper
+        module={module}
+        onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.displayName, null)}
+      />
+    )
+
     return (
       <div style={style.root}>
-        <div style={style.displayNamePaper}>
-          <DisplayNamePaper
-            module={module}
-            onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.displayName, null)}
-          />
+        <div style={style.displayNameArea}>
+          {displayNameArea}
         </div>
 
         <div style={style.metadataArea}>
