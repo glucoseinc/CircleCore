@@ -13,6 +13,7 @@ from .base import MetadataError, MetadataReader
 from ..invitation import Invitation
 from ..message_box import MessageBox
 from ..module import Module
+from ..replication_link import ReplicationLink
 from ..schema import Schema
 from ..user import User
 
@@ -131,3 +132,16 @@ class MetadataIniFile(MetadataReader):
         user_dicts = [dict(parser.items(section)) for section in parser.sections()
                       if User.is_key_matched(section)]
         return [User(**user_dict) for user_dict in user_dicts]
+
+    @property
+    def replication_links(self):
+        """全てのReplicationLinkオブジェクト.
+
+        :return: ReplicationLinkオブジェクトリスト
+        :rtype: List[ReplicationLink]
+        """
+        parser = configparser.ConfigParser()
+        parser.read(self.ini_file_path)
+        replication_link_dicts = [dict(parser.items(section)) for section in parser.sections()
+                                  if ReplicationLink.is_key_matched(section)]
+        return [ReplicationLink(**replication_link_dict) for replication_link_dict in replication_link_dicts]

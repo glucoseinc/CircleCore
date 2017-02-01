@@ -1,5 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 
+import DatePicker from 'material-ui/DatePicker'
 import MenuItem from 'material-ui/MenuItem'
 import Paper from 'material-ui/Paper'
 
@@ -10,6 +11,7 @@ import {DeleteIcon, DownloadIcon, EditIcon, SchemaIcon} from 'src/components/bas
 
 import SchemaPropertiesLabel from 'src/components/commons/SchemaPropertiesLabel'
 import MemoComponent from 'src/components/commons/MemoComponent'
+import ModuleGraph, {RANGES} from 'src/components/commons/ModuleGraph'
 
 
 /**
@@ -17,6 +19,7 @@ import MemoComponent from 'src/components/commons/MemoComponent'
  */
 class MessageBoxPaper extends Component {
   static propTypes = {
+    module: PropTypes.object.isRequired,
     messageBox: PropTypes.object.isRequired,
     schema: PropTypes.object.isRequired,
     onEditTouchTap: PropTypes.func,
@@ -24,11 +27,21 @@ class MessageBoxPaper extends Component {
     onDownloadTouchTap: PropTypes.func,
   }
 
+  state = {
+    downloadStartDate: null,
+    downloadEndDate: null,
+  }
+
   /**
    * @override
    */
   render() {
     const {
+      downloadStartDate,
+      downloadEndDate,
+    } = this.state
+    const {
+        module,
         messageBox,
         schema,
         onEditTouchTap,
@@ -47,6 +60,9 @@ class MessageBoxPaper extends Component {
         display: 'flex',
         justifyContent: 'center',
         paddingLeft: 24,
+      },
+      graph: {
+        width: '100%',
       },
 
       displayName: {
@@ -73,12 +89,25 @@ class MessageBoxPaper extends Component {
         paddingTop: 24,
       },
 
-      actionsSection: {
+      downloadSection: {
         display: 'flex',
+        flexFlow: 'column nowrap',
         justifyContent: 'center',
         paddingTop: 24,
       },
-
+      dateRange: {
+        display: 'flex',
+        flexFlow: 'row nowrap',
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      rangeMark: {
+        padding: '0 8px',
+      },
+      downloadButton: {
+        display: 'flex',
+        justifyContent: 'center',
+      },
     }
 
     return (
@@ -99,8 +128,13 @@ class MessageBoxPaper extends Component {
             ]}
           >
             <div style={style.graphSection}>
-              <div style={{background: '#EEE', width: '100%', height: 60}}>
-                グラフ
+              <div style={style.graph}>
+                <ModuleGraph
+                  module={module}
+                  messageBox={messageBox}
+                  range={RANGES[0]}
+                  autoUpdate={0}
+                />
               </div>
             </div>
 
@@ -127,13 +161,33 @@ class MessageBoxPaper extends Component {
               </ComponentWithSubTitle>
             </div>
 
-            <div style={style.actionsSection}>
-              <CCFlatButton
-                label="データダウンロード"
-                primary={true}
-                icon={DownloadIcon}
-                onTouchTap={onDownloadTouchTap}
-              />
+            <div style={style.downloadSection}>
+              <div style={style.dateRange}>
+                <DatePicker
+                  hintText="開始日"
+                  container="inline"
+                  onChange={(n, date) => this.setState({
+                    downloadStartDate: date,
+                  })}
+                />
+                <span style={style.rangeMark}>〜</span>
+                <DatePicker
+                  hintText="終了日"
+                  container="inline"
+                  onChange={(n, date) => this.setState({
+                    downloadEndDate: date,
+                  })}
+                />
+              </div>
+              <div style={style.downloadButton}>
+                <CCFlatButton
+                  label="データダウンロード"
+                  primary={true}
+                  icon={DownloadIcon}
+                  disabled={downloadStartDate === null || downloadEndDate === null ? true : false}
+                  onTouchTap={() => onDownloadTouchTap(module, messageBox, downloadStartDate, downloadEndDate)}
+                />
+              </div>
             </div>
           </ComponentWithMoreIconMenu>
         </div>

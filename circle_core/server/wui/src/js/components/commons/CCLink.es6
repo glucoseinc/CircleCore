@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import {Link} from 'react-router'
 
-import {createPathName} from 'src/routes'
+import {createPathName, createQuery} from 'src/routes'
 
 
 /**
@@ -31,9 +31,14 @@ class CCLink extends Component {
       ...style,
     }
 
+    const to = {
+      pathname: createPathName(url, params),
+      query: createQuery(url, params),
+    }
+
     return (
       <Link
-        to={createPathName(url, params)}
+        to={to}
         style={mergedStyle}
       >
         {children}

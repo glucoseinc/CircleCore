@@ -8,11 +8,7 @@ import FlatButton from 'material-ui/FlatButton'
  */
 class CCFlatButton extends Component {
   static propTypes = {
-    label: PropTypes.string.isRequired,
     icon: PropTypes.func,
-    primary: PropTypes.bool,
-    secondary: PropTypes.bool,
-    onTouchTap: PropTypes.func,
   }
 
   /**
@@ -20,11 +16,8 @@ class CCFlatButton extends Component {
    */
   render() {
     const {
-      label,
       icon,
-      primary = false,
-      secondary= false,
-      onTouchTap,
+      ...other
     } = this.props
 
     const style = {
@@ -41,12 +34,9 @@ class CCFlatButton extends Component {
 
     return (
       <FlatButton
-        label={label}
         labelStyle={style.label}
         icon={icon ? <Icon style={style.icon}/> : null}
-        primary={primary}
-        secondary={secondary}
-        onTouchTap={onTouchTap}
+        {...other}
       />
     )
   }

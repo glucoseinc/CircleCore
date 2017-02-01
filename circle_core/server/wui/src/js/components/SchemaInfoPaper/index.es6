@@ -17,7 +17,7 @@ import ReplicationMasterInfoChip from './ReplicationMasterInfoChip'
 /**
  * Schema一覧ペーパー
  */
-class ModuleDetail extends Component {
+class SchemaInfoPaper extends Component {
   static propTypes = {
     schema: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
@@ -142,4 +142,4 @@ class ModuleDetail extends Component {
   }
 }
 
-export default ModuleDetail
+export default SchemaInfoPaper

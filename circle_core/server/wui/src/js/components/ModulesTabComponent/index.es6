@@ -1,4 +1,5 @@
 import React, {Component, PropTypes} from 'react'
+import {Set} from 'immutable'
 
 import {Tabs, Tab} from 'material-ui/Tabs'
 import {blue500, grey50} from 'material-ui/styles/colors'
@@ -71,6 +72,11 @@ class ModulesTabComponent extends Component {
       },
     }
 
+    const tagSuggestions = modules.reduce(
+      (tagSet, module) => tagSet.union(module.tags)
+      , new Set()
+    ).toArray().sort()
+
     const filteredModules = searchText === '' ? modules : modules.filter((module) =>
       module.tags.filter((tag) => tag.includes(searchText)).size > 0
     )
@@ -80,6 +86,7 @@ class ModulesTabComponent extends Component {
         hintText="タグでモジュールを絞込"
         fullWidth={true}
         inputText={searchText}
+        suggestions={tagSuggestions}
         onChange={::this.setSearchText}
       />
     )

@@ -128,11 +128,12 @@ class ModuleDetail extends Component {
             {module.messageBoxes.valueSeq().map((messageBox, index) =>
               <MessageBoxPaper
                 key={index}
+                module={module}
                 messageBox={messageBox}
                 schema={schemas.get(messageBox.schema)}
                 onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.messageBox, index)}
                 onDeleteTouchTap={() => onMessageBoxDeleteTouchTap(messageBox)}
-                onDownloadTouchTap={() => onMessageBoxDownloadTouchTap(messageBox)}
+                onDownloadTouchTap={onMessageBoxDownloadTouchTap}
               />
             )}
           </ComponentWithTitle>

@@ -21,6 +21,7 @@ import TagTextField from './TagTextField'
 class ModuleNewPaper extends Component {
   static propTypes = {
     schemas: PropTypes.object.isRequired,
+    tagSuggestions: PropTypes.array,
     onCreateTouchTap: PropTypes.func,
   }
 
@@ -37,6 +38,7 @@ class ModuleNewPaper extends Component {
     } = this.state
     const {
       schemas,
+      tagSuggestions = [],
       onCreateTouchTap,
     } = this.props
 
@@ -149,8 +151,9 @@ class ModuleNewPaper extends Component {
                   <div style={style.tag}>
                     <TagTextField
                       tag={tag}
+                      suggestions={tagSuggestions}
                       onChange={
-                        (e) => this.setState({module: module.updateTag(index, e.target.value)})
+                        (searchText) => this.setState({module: module.updateTag(index, searchText)})
                       }
                     />
                   </div>

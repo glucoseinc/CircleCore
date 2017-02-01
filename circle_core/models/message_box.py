@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 
+"""Message Box Model."""
+
 # system module
-from datetime import datetime
-import re
-from time import mktime
 from uuid import UUID
 
 # community module
 from six import PY3
 
+# project module
+from .base import UUIDBasedObject
 from .message import ModuleMessage
 from ..helpers.metadata import metadata
 from ..logger import get_stream_logger
@@ -25,14 +26,18 @@ class MessageBoxError(Exception):
     pass
 
 
-class MessageBox(object):
+class MessageBox(UUIDBasedObject):
     """MessageBoxオブジェクト
 
+    :param str key_prefix: ストレージキーのプレフィックス
     :param UUID uuid: MessageBox UUID
     :param UUID schema_uuid: Schema UUID
     :param str display_name: 表示名
     :param Optional[str] memo: メモ
     """
+
+    key_prefix = 'message_box'
+
     def __init__(self, uuid, schema_uuid, display_name, memo=None, master_uuid=None):
         """init.
 
@@ -42,11 +47,7 @@ class MessageBox(object):
         :param Optional[str] memo: メモ
         :param Union[NoneType, str, UUID] master_uuid:
         """
-        if not isinstance(uuid, UUID):
-            try:
-                uuid = UUID(uuid)
-            except ValueError:
-                raise MessageBoxError('Invalid uuid : {}'.format(uuid))
+        super(MessageBox, self).__init__(uuid)
 
         if not isinstance(schema_uuid, UUID):
             try:
@@ -54,7 +55,6 @@ class MessageBox(object):
             except ValueError:
                 raise MessageBoxError('Invalid schema_uuid : {}'.format(schema_uuid))
 
-        self.uuid = uuid
         self.schema_uuid = schema_uuid
         self.display_name = display_name
         self.memo = memo
@@ -74,31 +74,11 @@ class MessageBox(object):
                     self.display_name == other.display_name, self.memo == other.memo])
 
     @property
-    def storage_key(self):
-        """ストレージキー.
-
-        :return: ストレージキー
-        :rtype: str
-        """
-        return 'message_box_{}'.format(self.uuid)
-
-    @property
     def module(self):
         for m in metadata().modules:
             for box_uuid in m.message_box_uuids:
                 if box_uuid == self.uuid:
                     return m
-
-    @classmethod
-    def is_key_matched(cls, key):
-        """指定のキーがストレージキーの形式にマッチしているか.
-
-        :param str key:
-        :return: マッチしているか
-        :rtype: bool
-        """
-        pattern = r'^message_box_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-        return re.match(pattern, key) is not None
 
     def to_json(self):
         """このモデルのJSON表現を返す.

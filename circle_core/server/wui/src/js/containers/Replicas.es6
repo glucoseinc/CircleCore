@@ -1,50 +1,45 @@
 import React, {Component, PropTypes} from 'react'
-// import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
 // import actions from 'src/actions'
+
+import ReplicationLinkInfoPaper from 'src/components/ReplicationLinkInfoPaper'
 
 /**
  */
 class Replicas extends Component {
   static propTypes = {
-    actions: PropTypes.object.isRequired,
+    replicationLinks: PropTypes.object.isRequired,
   }
 
   /**
    * @override
    */
   render() {
+    const {
+      replicationLinks,
+    } = this.props
+
     return (
-      <div>
-        <h1>Not Implemented</h1>
+      <div className="page">
+        {replicationLinks.valueSeq().map((replicationLink) =>
+          <ReplicationLinkInfoPaper
+            key={replicationLink.uuid}
+            replicationLink={replicationLink}
+          />
+        )}
       </div>
     )
   }
 }
 
 
-/**
- * [mapStateToProps description]
- * @param  {[type]} state [description]
- * @return {[type]}       [description]
- */
-function mapStateToProps(state) {
-  return {
-  }
-}
+const mapStateToProps = (state) => ({
+  replicationLinks: state.entities.replicationLinks,
+})
 
-/**
- * [mapDispatchToProps description]
- * @param  {[type]} dispatch [description]
- * @return {[type]}          [description]
- */
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: {
-    },
-  }
-}
+const mapDispatchToProps = (dispatch) => ({
+})
 
 export default connect(
   mapStateToProps,

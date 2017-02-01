@@ -9,8 +9,10 @@ from six import add_metaclass, PY3
 
 # project module
 from circle_core import abstractclassmethod
+from ..invitation import Invitation
 from ..message_box import MessageBox
 from ..module import Module
+from ..replication_link import ReplicationLink
 from ..schema import Schema
 from ..user import User
 
@@ -123,6 +125,15 @@ class MetadataReader(MetadataBase):
         """
         raise NotImplementedError
 
+    @abstractproperty
+    def replication_links(self):
+        """全てのReplicationLinkオブジェクト.
+
+        :return: ReplicationLinkオブジェクトリスト
+        :rtype: List[ReplicationLink]
+        """
+        raise NotImplementedError
+
     def find_invitation(self, uuid):
         """InvitationリストからUUIDがマッチするものを取得する.
 
@@ -224,6 +235,24 @@ class MetadataReader(MetadataBase):
             if len(set(module.message_box_uuids).intersection(message_box_uuids)) > 0:
                 modules.append(module)
         return modules
+
+    def find_replication_link(self, replication_link_uuid):
+        """ReplicationLinkリストからUUIDがマッチするものを取得する.
+
+        :param Union[str, UUID] replication_link_uuid: 取得するReplicationLinkのUUID
+        :return: マッチしたReplicationLink
+        :rtype: Optional[ReplicationLink]
+        """
+        if not isinstance(replication_link_uuid, UUID):
+            try:
+                replication_link_uuid = UUID(replication_link_uuid)
+            except ValueError:
+                return None
+
+        for module in self.replication_links:
+            if module.uuid == replication_link_uuid:
+                return module
+        return None
 
     def find_user(self, user_uuid):
         """ユーザリストからUUIDがマッチするものを取得する.

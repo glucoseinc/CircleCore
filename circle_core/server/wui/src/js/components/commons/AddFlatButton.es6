@@ -10,7 +10,6 @@ import {AddIcon} from 'src/components/bases/icons'
 class AddFlatButton extends Component {
   static propTypes = {
     label: PropTypes.string,
-    onTouchTap: PropTypes.func,
   }
 
   /**
@@ -19,7 +18,7 @@ class AddFlatButton extends Component {
   render() {
     const {
       label = '追加する',
-      onTouchTap,
+      ...other
     } = this.props
 
     return (
@@ -27,7 +26,7 @@ class AddFlatButton extends Component {
         label={label}
         icon={AddIcon}
         primary={true}
-        onTouchTap={onTouchTap}
+        {...other}
       />
     )
   }

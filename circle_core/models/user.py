@@ -4,13 +4,14 @@
 
 # system module
 from hashlib import sha512
-import re
 from uuid import UUID
 
 # community module
 from six import PY3
 
+# project module
 from circle_core.utils import format_date, prepare_date
+from .base import UUIDBasedObject
 
 
 if PY3:
@@ -21,9 +22,10 @@ class UserError(Exception):
     pass
 
 
-class User(object):
+class User(UUIDBasedObject):
     """Userオブジェクト.
 
+    :param str key_prefix: ストレージキーのプレフィックス
     :param UUID uuid: User UUID
     :param str account: アカウント
     :param List[str] permissions: 権限
@@ -33,6 +35,8 @@ class User(object):
     :param str encrypted_password: 暗号化パスワード
     :param datetime.datetime date_last_access: 最終アクセス時刻
     """
+
+    key_prefix = 'user'
 
     def __init__(
             self, uuid, account, permissions, work, mail_address, telephone,
@@ -51,11 +55,7 @@ class User(object):
         assert uuid
         assert (password or encrypted_password) and not (password and encrypted_password)
 
-        if not isinstance(uuid, UUID):
-            try:
-                uuid = UUID(uuid)
-            except ValueError:
-                raise UserError('Invalid uuid : {}'.format(uuid))
+        super(User, self).__init__(uuid)
 
         if isinstance(permissions, str):
             permissions = permissions.split(',') if permissions else []
@@ -64,7 +64,6 @@ class User(object):
         if password:
             encrypted_password = encrypt_password(password, uuid.hex)
 
-        self.uuid = uuid
         self.account = account
         self.mail_address = mail_address
         self.encrypted_password = encrypted_password
@@ -82,26 +81,6 @@ class User(object):
         :rtype: str
         """
         return ','.join(self.permissions)
-
-    @property
-    def storage_key(self):
-        """ストレージキー.
-
-        :return: ストレージキー
-        :rtype: str
-        """
-        return 'user_{}'.format(self.uuid)
-
-    @classmethod
-    def is_key_matched(cls, key):
-        """指定のキーがストレージキーの形式にマッチしているか.
-
-        :param str key:
-        :return: マッチしているか
-        :rtype: bool
-        """
-        pattern = r'^user_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-        return re.match(pattern, key) is not None
 
     @classmethod
     def make_key_for_last_access(cls, uuid):
