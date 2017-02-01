@@ -49,8 +49,17 @@ const invitation = new normalizerSchema.Entity(
   }
 )
 
+const ccInfo = new normalizerSchema.Entity(
+  'ccInfos',
+  {},
+  {
+    idAttribute: 'uuid',
+  }
+)
 
 const response = {
+  ccInfo,
+  ccInfos: [ccInfo],
   invitation,
   invitations: [invitation],
   schema,
