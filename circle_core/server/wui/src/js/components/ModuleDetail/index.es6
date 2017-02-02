@@ -6,7 +6,7 @@ import ComponentWithTitle from 'src/components/bases/ComponentWithTitle'
 
 import DeleteButton from 'src/components/commons/DeleteButton'
 
-import DisplayNamePaper from './DosplayNamePaper'
+import DisplayNamePaper from './DisplayNamePaper'
 import MessageBoxPaper from './MessageBoxPaper'
 import MetadataPaper from './MetadataPaper'
 
