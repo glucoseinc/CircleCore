@@ -2,8 +2,6 @@ import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 import {routerActions} from 'react-router-redux'
 
-import Snackbar from 'material-ui/Snackbar'
-
 import actions from 'src/actions'
 import {urls, createPathName} from 'src/routes'
 
@@ -26,32 +24,13 @@ class Schemas extends Component {
     modules: PropTypes.object.isRequired,
     onSchemaInfoPaperTouchTap: PropTypes.func,
     onModuleButtonTouchTap: PropTypes.func,
+    onIdCopyButtonTouchTap: PropTypes.func,
     onDeleteOkButtonTouchTap: PropTypes.func,
   }
 
   state = {
     deleteSchema: null,
-    isIdCopiedSnackBarOpen: false,
     isSchemaDeleteDialogOpen: false,
-  }
-
-  /**
-   * IDコピーボタン押下時の動作
-   * @param {string} schemaId
-   */
-  onIdCopyButtonTouchTap(schemaId) {
-    this.setState({
-      isIdCopiedSnackBarOpen: true,
-    })
-  }
-
-  /**
-   * スナックバークローズ要求時の動作
-   */
-  onIdCopiedSnackBarCloseRequest() {
-    this.setState({
-      isIdCopiedSnackBarOpen: false,
-    })
   }
 
   /**
@@ -86,7 +65,6 @@ class Schemas extends Component {
   render() {
     const {
       deleteSchema,
-      isIdCopiedSnackBarOpen,
       isSchemaDeleteDialogOpen,
     } = this.state
     const {
@@ -95,6 +73,7 @@ class Schemas extends Component {
       modules,
       onSchemaInfoPaperTouchTap,
       onModuleButtonTouchTap,
+      onIdCopyButtonTouchTap,
     } = this.props
 
     if (isFetching) {
@@ -111,7 +90,7 @@ class Schemas extends Component {
             schema={schema}
             modules={modules}
             onDisplayNameTouchTap={(schema) => onSchemaInfoPaperTouchTap(schema.uuid)}
-            onIdCopyButtonTouchTap={::this.onIdCopyButtonTouchTap}
+            onIdCopyButtonTouchTap={onIdCopyButtonTouchTap}
             onModuleButtonTouchTap={onModuleButtonTouchTap}
             onDeleteTouchTap={::this.onDeleteTouchTap}
           />
@@ -120,13 +99,6 @@ class Schemas extends Component {
         <CCLink url={urls.schemasNew}>
           <AddFloatingActionButton />
         </CCLink>
-
-        <Snackbar
-          open={isIdCopiedSnackBarOpen}
-          message="IDをコピーしました"
-          autoHideDuration={4000}
-          onRequestClose={::this.onIdCopiedSnackBarCloseRequest}
-        />
 
         <SchemaDeleteDialog
           open={isSchemaDeleteDialogOpen}
@@ -149,6 +121,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
   onSchemaInfoPaperTouchTap: (schemaId) => dispatch(routerActions.push(createPathName(urls.schema, {schemaId}))),
   onModuleButtonTouchTap: (moduleId) => dispatch(routerActions.push(createPathName(urls.module, {moduleId}))),
+  onIdCopyButtonTouchTap: (uuid) => dispatch(actions.page.showSnackbar('IDをコピーしました')),
   onDeleteOkButtonTouchTap: (schema) => dispatch(actions.schemas.deleteRequest(schema.uuid)),
 })
 

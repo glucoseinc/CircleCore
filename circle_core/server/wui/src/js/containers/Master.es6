@@ -5,6 +5,7 @@ import {routerActions} from 'react-router-redux'
 import AppBar from 'material-ui/AppBar'
 import Dialog from 'material-ui/Dialog'
 import FlatButton from 'material-ui/FlatButton'
+import Snackbar from 'material-ui/Snackbar'
 import Title from 'react-title-component'
 import withWidth, {LARGE} from 'material-ui/utils/withWidth'
 
@@ -20,12 +21,15 @@ import DevTools from 'src/containers/DevTools'
  */
 class Master extends Component {
   static propTypes = {
+    isSnackbarOpen: PropTypes.bool,
     title: PropTypes.string,
+    snackbarMessage: PropTypes.string,
     errorMessage: PropTypes.string,
     location: PropTypes.object.isRequired,
     children: PropTypes.node.isRequired,
     width: PropTypes.number.isRequired,
     onLocationChange: PropTypes.func,
+    onSnackBarCloseRequest: PropTypes.func,
     onCloseErrorAlert: PropTypes.func,
   }
 
@@ -74,10 +78,13 @@ class Master extends Component {
       navDrawerOpen,
     } = this.state
     const {
-      title,
+      title = '',
+      isSnackbarOpen = false,
+      snackbarMessage = '',
       errorMessage,
       children,
       width,
+      onSnackBarCloseRequest,
     } = this.props
     const {
       muiTheme,
@@ -108,14 +115,20 @@ class Master extends Component {
             {children}
           </div>
         </div>
-        <div>
-          <NavDrawer
-            alwaysOpen={navDrawerAlwaysOpen}
-            open={navDrawerOpen}
-            onRequestChange={::this.onNavDrawerButtonTouchTap}
-            onNavItemTouchTap={::this.onNavDrawerMenuTouchTap}
-          />
-        </div>
+
+        <NavDrawer
+          alwaysOpen={navDrawerAlwaysOpen}
+          open={navDrawerOpen}
+          onRequestChange={::this.onNavDrawerButtonTouchTap}
+          onNavItemTouchTap={::this.onNavDrawerMenuTouchTap}
+        />
+
+        <Snackbar
+          open={isSnackbarOpen}
+          message={snackbarMessage}
+          autoHideDuration={4000}
+          onRequestClose={onSnackBarCloseRequest}
+        />
 
         {errorMessage != null &&
           <Dialog
@@ -138,12 +151,15 @@ class Master extends Component {
 
 
 const mapStateToProps = (state) => ({
+  isSnackbarOpen: state.page.isSnackbarOpen,
   title: state.page.title,
+  snackbarMessage: state.page.snackbarMessage,
   errorMessage: state.misc.errorMessage,
 })
 
 const mapDispatchToProps = (dispatch)=> ({
   onLocationChange: (pathname) => dispatch(routerActions.push(pathname)),
+  onSnackBarCloseRequest: () => dispatch(actions.page.hideSnackbar()),
   onCloseErrorAlert: () => dispatch(actions.misc.clearErrorMessage()),
 })
 

@@ -16,6 +16,7 @@ class Setting extends Component {
     isFetching: PropTypes.bool.isRequired,
     isUpdating: PropTypes.bool.isRequired,
     ccInfos: PropTypes.object.isRequired,
+    onIdCopyButtonTouchTap: PropTypes.func,
     onUpdateTouchTap: PropTypes.func,
   }
 
@@ -27,6 +28,7 @@ class Setting extends Component {
       isFetching,
       isUpdating,
       ccInfos,
+      onIdCopyButtonTouchTap,
       onUpdateTouchTap,
     } = this.props
 
@@ -42,6 +44,7 @@ class Setting extends Component {
       <div className="page">
         <CcInfoEditPaper
           ccInfo={ownCcInfo}
+          onIdCopyButtonTouchTap={onIdCopyButtonTouchTap}
           onUpdateTouchTap={onUpdateTouchTap}
         />
       </div>
@@ -58,6 +61,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   onUpdateTouchTap: (ccInfo) => dispatch(actions.ccInfos.updateRequest(ccInfo.toJS())),
+  onIdCopyButtonTouchTap: (uuid) => dispatch(actions.page.showSnackbar('IDをコピーしました')),
 })
 
 export default connect(

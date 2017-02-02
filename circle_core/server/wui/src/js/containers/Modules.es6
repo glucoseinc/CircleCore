@@ -2,7 +2,6 @@ import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 import {routerActions} from 'react-router-redux'
 
-import Snackbar from 'material-ui/Snackbar'
 import withWidth from 'material-ui/utils/withWidth'
 
 import actions from 'src/actions'
@@ -25,33 +24,14 @@ class Modules extends Component {
     isFetching: PropTypes.bool.isRequired,
     modules: PropTypes.object.isRequired,
     onModuleInfoPaperTouchTap: PropTypes.func,
+    onIdCopyButtonTouchTap: PropTypes.func,
     onDeleteOkButtonTouchTap: PropTypes.func,
     width: PropTypes.number.isRequired,
   }
 
   state = {
     deleteModule: null,
-    isIdCopiedSnackBarOpen: false,
     isModuleDeleteDialogOpen: false,
-  }
-
-  /**
-   * IDコピーボタン押下時の動作
-   * @param {string} schemaId
-   */
-  onIdCopyButtonTouchTap(schemaId) {
-    this.setState({
-      isIdCopiedSnackBarOpen: true,
-    })
-  }
-
-  /**
-   * スナックバークローズ要求時の動作
-   */
-  onIdCopiedSnackBarCloseRequest() {
-    this.setState({
-      isIdCopiedSnackBarOpen: false,
-    })
   }
 
   /**
@@ -86,13 +66,13 @@ class Modules extends Component {
   render() {
     const {
       deleteModule,
-      isIdCopiedSnackBarOpen,
       isModuleDeleteDialogOpen,
     } = this.state
     const {
       isFetching,
       modules,
       onModuleInfoPaperTouchTap,
+      onIdCopyButtonTouchTap,
       width,
     } = this.props
 
@@ -109,19 +89,12 @@ class Modules extends Component {
           width={width}
           onModuleInfoPaperTouchTap={onModuleInfoPaperTouchTap}
           onDeleteTouchTap={::this.onDeleteTouchTap}
-          onIdCopyButtonTouchTap={::this.onIdCopyButtonTouchTap}
+          onIdCopyButtonTouchTap={onIdCopyButtonTouchTap}
         />
 
         <CCLink url={urls.modulesNew}>
           <AddFloatingActionButton />
         </CCLink>
-
-        <Snackbar
-          open={isIdCopiedSnackBarOpen}
-          message="IDをコピーしました"
-          autoHideDuration={4000}
-          onRequestClose={::this.onIdCopiedSnackBarCloseRequest}
-        />
 
         <ModuleDeleteDialog
           open={isModuleDeleteDialogOpen}
@@ -142,6 +115,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   onModuleInfoPaperTouchTap: (moduleId) => dispatch(routerActions.push(createPathName(urls.module, {moduleId}))),
+  onIdCopyButtonTouchTap: (uuid) => dispatch(actions.page.showSnackbar('IDをコピーしました')),
   onDeleteOkButtonTouchTap: (module) => dispatch(actions.modules.deleteRequest(module.uuid)),
 })
 
