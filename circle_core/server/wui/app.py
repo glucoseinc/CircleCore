@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime, timedelta
+import os
 import time
 import uuid
-import os
 
 from flask import abort, Flask, render_template, request
 from six import PY3

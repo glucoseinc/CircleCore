@@ -11,7 +11,7 @@ from click.core import Context
 from six import PY3
 
 # project module
-from .context import ContextObject
+from .context import CLIContextObject
 from .utils import generate_uuid, output_listing_columns, output_properties
 from ..models import Schema
 

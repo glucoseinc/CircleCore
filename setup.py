@@ -9,6 +9,7 @@ PY2 = sys.version_info[0] == 2
 
 
 install_requires = [
+    'alembic',
     'base58',
     'click>=6',
     'flask',

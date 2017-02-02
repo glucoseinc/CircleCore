@@ -3,6 +3,7 @@
 """CircleCore Models."""
 
 # project module
+from .base import generate_uuid, MetaDataBase, MetaDataSession, NoResultFound
 from .cc_info import CcInfo
 from .invitation import Invitation
 from .message_box import MessageBox

@@ -2,53 +2,16 @@
 
 """CLI Contextオブジェクト."""
 
-# system module
-from uuid import UUID
 
-# community module
-from six import PY3
-
-# project module
-from circle_core.logger import LTSVLogger
-from ..models import MetadataError
-from ..models.metadata import MetadataIniFile, MetadataRedis, parse_url_scheme
-
-if PY3:
-    from typing import Optional, Union
-
-
-class ContextObjectError(Exception):
-    pass
-
-
-class ContextObject(object):
+class CLIContextObject(object):
     """CLI Contextオブジェクト.
 
-    :param str metadata_url: MetadataのURLスキーム
-    :param Union[MetadataIniFile, MetadataRedis] metadata: Metadataオブジェクト
-    :param UUID uuid: CircleCore UUID
-    :param Optional[str] log_file_path: ログファイルのパス
-    :param LTSVLogger _logger: Logger
+    :param CircleCore core: CircleCore
     """
 
-    def __init__(self, metadata_url, metadata, crcr_uuid, log_file_path):
+    def __init__(self, core):
         """init.
 
-        :param str metadata_url: MetadataのURLスキーム
-        :param Union[MetadataIniFile, MetadataRedis] metadata: Metadataオブジェクト
-        :param UUID crcr_uuid: CircleCore UUID
-        :param Optional[str] log_file_path: ログファイルのパス
+        :param CircleCore core: CircleCore
         """
-        self.metadata_url = metadata_url
-        self.metadata = metadata
-        self.uuid = crcr_uuid
-        self.log_file_path = log_file_path
-        self._logger = LTSVLogger(name='cli_logger', log_file_path=log_file_path)
-
-    def log_info(self, operation, **details):
-        """ログをファイルに書き込む.
-
-        :param str operation:
-        :param Dict[str, str] details:
-        """
-        self._logger.info(user_id='0', operation=operation, **details)
+        self.core = core

@@ -192,3 +192,4 @@ jspm_packages
 # User definition
 tmp
 circle_core/server/wui/static/
+circle_core.ini

@@ -1,0 +1,9 @@
+[circle_core]
+uuid = auto
+prefix = ./cc_dev
+metadata_file_path = %(prefix)s/metadata.sqlite
+log_file_path = $(prefix)s/core.log
+
+
+[circle_core:datareceiver]
+db = mysql+mysqlconnector://crcr_dev:crcr@localhost/crcr_dev

@@ -7,6 +7,11 @@ class CircleCoreException(Exception):
     pass
 
 
+class ConfigError(Exception):
+    """設定関連のエラー"""
+    pass
+
+
 class InconsitencyError(CircleCoreException):
     """なんかやばい"""
     pass
