@@ -66,10 +66,6 @@ class ChangeProfile extends Component {
       <div className="page page-changeProfile">
         <Title render={(previousTitle) => `${title} - ${previousTitle}`} />
 
-        <div className="markdown-body">
-          <h2>{title}</h2>
-        </div>
-
         <UserForm
           errors={this.state.errors}
           readOnly={false}
