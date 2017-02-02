@@ -42,6 +42,7 @@ def format_date(v):
     return v.isoformat('T')
 
 
+# popen
 def portable_popen(cmd, *args, **kwargs):
     """A portable version of subprocess.Popen that automatically locates
     executables before invoking them.  This also looks for executables
