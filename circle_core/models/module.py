@@ -3,69 +3,49 @@
 """Module Model."""
 
 # system module
-from uuid import UUID
+import datetime
 
 # community module
-from six import PY3
+import sqlalchemy as sa
+from sqlalchemy import orm
+from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
-from .base import UUIDBasedObject
-from ..helpers.metadata import metadata
-
-if PY3:
-    from typing import Dict, List, Optional, Union
+from .base import GUID, MetaDataBase
 
 
-class ModuleError(Exception):
-    pass
-
-
-class Module(UUIDBasedObject):
+class Module(MetaDataBase):
     """Moduleオブジェクト.
 
     :param str key_prefix: ストレージキーのプレフィックス
     :param UUID uuid: Module UUID
-    :param List[UUID] message_box_uuids: MessageBox
+    :param List[MessageBox] message_boxes: MessageBox
     :param str display_name: 表示名
     :param List[str] tags: タグ
     :param Optional[str] memo: メモ
     """
+    __tablename__ = 'modules'
 
-    key_prefix = 'module'
+    uuid = sa.Column(GUID, primary_key=True)
+    display_name = sa.Column(sa.String(255), nullable=False, default='')
+    _tags = sa.Column('_tags', sa.Text, nullable=False, default='')
+    memo = sa.Column(sa.Text, nullable=False, default='')
+    created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
+    updated_at = sa.Column(
+        sa.DateTime, nullable=False,
+        default=datetime.datetime.utcnow,
+        onupdate=datetime.datetime.utcnow)
 
-    def __init__(self, uuid, message_box_uuids, display_name, tags=None, memo=None):
+    message_boxes = orm.relationship('MessageBox', backref='module')
+
+    def __init__(self, **kwargs):
         """init.
-
-        :param Union[str, UUID] uuid: Module UUID
-        :param List[Union[str, UUID]] message_box_uuids: MessageBoxのUUIDリスト
-        :param str display_name: 表示名
-        :param Union[Optional[str], List[str]] tags: タグ
-        :param Optional[str] memo: メモ
         """
-        super(Module, self).__init__(uuid)
 
-        _message_box_uuids = []
-        for message_box_uuid in message_box_uuids:
-            if not isinstance(message_box_uuid, UUID):
-                try:
-                    message_box_uuid = UUID(message_box_uuid)
-                except ValueError:
-                    raise ModuleError('Invalid message_box_uuid : {}'.format(message_box_uuids))
-            _message_box_uuids.append(message_box_uuid)
+        if 'tags' in kwargs:
+            kwargs['_tags'] = ','.join(self.to_tags_list(kwargs.pop('tags')))
 
-        self.message_box_uuids = _message_box_uuids
-        self.display_name = display_name
-        self.memo = memo
-
-        if tags is None:
-            _tags = []
-        elif isinstance(tags, list):
-            _tags = tags
-        else:
-            _tags = tags.split(',')
-        _tags = [tag for tag in _tags if tag != '']     # 空白除去
-        _tags = sorted(set(_tags), key=_tags.index)     # 重複除去
-        self.tags = _tags
+        super(Module, self).__init__(**kwargs)
 
     def __eq__(self, other):
         """return equality.
@@ -74,59 +54,63 @@ class Module(UUIDBasedObject):
         :return: equality
         :rtype: bool
         """
-        return all([self.uuid == other.uuid, self.message_box_uuids == other.message_box_uuids,
+        return all([self.uuid == other.uuid,
                     self.display_name == other.display_name, self.tags == other.tags,
                     self.memo == other.memo])
 
-    @property
-    def stringified_tags(self):
-        """タグを文字列化する.
+    @hybrid_property
+    def tags(self):
+        return self._tags.split(',')
 
-        :return: 文字列化タグ
-        :rtype: str
-        """
-        return ','.join(self.tags)
-
-    @property
-    def stringified_message_box_uuids(self):
-        """MessageBoxのUUIDリストを文字列化する.
-
-        :return: 文字列化MessageBox UUID
-        :rtype: str
-        """
-        return ','.join([str(uuid) for uuid in self.message_box_uuids])
-
-    def to_json(self):
-        """このモデルのJSON表現を返す.
-
-        :return: json表現のdict
-        :rtype: Dict
-        """
-        return {
-            'uuid': str(self.uuid),
-            'message_box_uuids': [str(_uuid) for _uuid in self.message_box_uuids],
-            'display_name': self.display_name,
-            'tags': [tag for tag in self.tags],
-            'memo': self.memo,
-        }
+    @tags.setter
+    def tags(self, tags):
+        self._tags = ','.join(self.to_tags_list(tags))
 
     @classmethod
-    def from_json(cls, json_msg, **kwargs):
-        """JSON表現からの復元.
+    def to_tags_list(cls, tags):
+        if not tags:
+            return []
 
-        :param dict json_msg:
-        :rtype: Module
-        """
-        return cls(**json_msg, **kwargs)
+        if isinstance(tags, str):
+            tags = tags.split(',')
+        if not isinstance(tags, (list, tuple)):
+            raise ValueError('invalid tags type {!r}'.format(tags))
+        for tag in tags:
+            if ',' in tag:
+                raise ValueError('invalid tag, `{}`'.format(tag))
+        return tags
 
-    @property
-    def master_uuid(self):
-        """
-        :rtype Optional[UUID]:
-        """
-        for box_uuid in self.message_box_uuids:
-            master_uuid = metadata().find_message_box(box_uuid).master_uuid
-            if master_uuid:
-                return master_uuid
+    # def to_json(self):
+    #     """このモデルのJSON表現を返す.
 
-        return None
+    #     :return: json表現のdict
+    #     :rtype: Dict
+    #     """
+    #     return {
+    #         'uuid': str(self.uuid),
+    #         'message_box_uuids': [str(_uuid) for _uuid in self.message_box_uuids],
+    #         'display_name': self.display_name,
+    #         'tags': [tag for tag in self.tags],
+    #         'memo': self.memo,
+    #     }
+
+    # @classmethod
+    # def from_json(cls, json_msg, **kwargs):
+    #     """JSON表現からの復元.
+
+    #     :param dict json_msg:
+    #     :rtype: Module
+    #     """
+    #     return cls(**json_msg, **kwargs)
+
+    # @property
+    # def master_uuid(self):
+    #     """
+    #     :rtype Optional[UUID]:
+    #     """
+    #     for box_uuid in self.message_box_uuids:
+    #         master_uuid = metadata().find_message_box(box_uuid).master_uuid
+    #         if master_uuid:
+    #             return master_uuid
+
+    #     return None

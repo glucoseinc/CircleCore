@@ -8,51 +8,11 @@ import datetime
 
 # community module
 import sqlalchemy as sa
+from sqlalchemy import orm
 from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
 from .base import GUID, MetaDataBase
-
-
-# class SchemaError(Exception):
-#     pass
-
-
-# class SchemaProperty(object):
-#     """SchemaPropertyオブジェクト.
-
-#     :param str name: 属性名
-#     :param str type: タイプ
-#     """
-
-#     def __init__(self, name, property_type):
-#         """init.
-
-#         :param str name: キー
-#         :param str property_type: タイプ
-#         """
-#         self.name = name
-#         self.type = property_type
-
-#     def __eq__(self, other):
-#         """return equality.
-
-#         :param SchemaProperty other: other SchemaProperty
-#         :return: equality
-#         :rtype: bool
-#         """
-#         return all([self.name == other.name, self.type == other.type])
-
-#     def to_json(self):
-#         """このモデルのJSON表現を返す.
-
-#         :return: json表現のdict
-#         :rtype: Dict
-#         """
-#         return {
-#             'name': self.name,
-#             'type': self.type,
-#         }
 
 
 class SchemaProperty(collections.namedtuple('SchemaProperty', ['name', 'type'])):
@@ -112,6 +72,8 @@ class Schema(MetaDataBase):
         sa.DateTime, nullable=False,
         default=datetime.datetime.utcnow,
         onupdate=datetime.datetime.utcnow)
+
+    message_boxes = orm.relationship('MessageBox', backref='schema')
 
     def __init__(self, **kwargs):
         """init.

@@ -12,8 +12,8 @@ from six import PY3
 
 # project module
 from .context import CLIContextObject
-from .utils import generate_uuid, output_listing_columns, output_properties
-from ..models import Module
+from .utils import output_listing_columns, output_properties
+from ..models import generate_uuid, MetaDataSession, Module, NoResultFound
 
 if PY3:
     from typing import List, Optional, Tuple
@@ -32,9 +32,7 @@ def module_list(ctx):
 
     :param Context ctx: Context
     """
-    context_object = ctx.obj  # type: ContextObject
-    metadata = context_object.metadata
-    modules = metadata.modules
+    modules = Module.query.all()
     if len(modules):
         data, header = _format_for_columns(modules)
         output_listing_columns(data, header)
@@ -70,11 +68,9 @@ def module_detail(ctx, module_uuid):
     :param Context ctx: Context
     :param UUID module_uuid: モジュールUUID
     """
-    context_object = ctx.obj  # type: ContextObject
-    metadata = context_object.metadata
-
-    module = metadata.find_module(module_uuid)
-    if module is None:
+    try:
+        module = Module.query.filter_by(uuid=module_uuid).one()
+    except NoResultFound:
         click.echo('Module "{}" is not registered.'.format(module_uuid))
         ctx.exit(code=-1)
 
@@ -83,9 +79,6 @@ def module_detail(ctx, module_uuid):
         ('DISPLAY_NAME', module.display_name),
     ]
 
-    for i, message_box_uuid in enumerate(module.message_box_uuids):
-        data.append(('MESSAGE_BOX_UUID' if i == 0 else '', str(message_box_uuid)))
-
     for i, tag in enumerate(module.tags):
         data.append(('TAG' if i == 0 else '', tag))
 
@@ -93,11 +86,9 @@ def module_detail(ctx, module_uuid):
 
     output_properties(data)
 
-    for message_box_uuid in module.message_box_uuids:
-        click.echo('-' * 32)
-        message_box = metadata.find_message_box(message_box_uuid)
+    for message_box in module.message_boxes:
+        click.echo('\n- MESSAGE BOX: {} ----------------------'.format(message_box.uuid))
         data = [
-            ('UUID', str(message_box.uuid)),
             ('DISPLAY_NAME', message_box.display_name),
             ('SCHEMA_UUID', str(message_box.schema_uuid)),
             ('MEMO', message_box.memo or ''),
@@ -107,47 +98,36 @@ def module_detail(ctx, module_uuid):
 
 @cli_module.command('add')
 @click.option('display_name', '--name', required=True)
-@click.option('stringified_message_box_uuids', '--box', required=True)
+# @click.option('stringified_message_box_uuids', '--box', required=True)
 @click.option('tags', '--tag')
 @click.option('--memo')
 @click.pass_context
-def module_add(ctx, display_name, stringified_message_box_uuids, tags, memo):
+def module_add(ctx, display_name, tags, memo):
     """モジュールを登録する.
 
     :param Context ctx: Context
     :param str display_name: モジュール表示名
-    :param str stringified_message_box_uuids: メッセージボックスUUIDリスト(文字列化)
     :param Optional[str] tags: タグ
     :param Optional[str] memo: メモ
     """
-    context_object = ctx.obj  # type: ContextObject
-    metadata = context_object.metadata
+    # message_boxes = []
+    # message_box_uuids = stringified_message_box_uuids.split(',')
+    # for message_box_uuid in message_box_uuids:
+    #     message_box = metadata.find_message_box(message_box_uuid)
+    #     if message_box is None:
+    #         click.echo('MessageBox "{}" is not exist. Do nothing.'.format(message_box_uuid))
+    #         ctx.exit(code=-1)
+    #     message_boxes.append(message_box)
 
-    if not metadata.writable:
-        click.echo('Cannot register to {}.'.format(metadata.stringified_type))
-        ctx.exit(code=-1)
+    with MetaDataSession.begin():
+        module = Module(
+            uuid=generate_uuid(model=Module),
+            display_name=display_name,
+            memo=memo,
+            tags=tags,
+        )
+        MetaDataSession.add(module)
 
-    module_uuid = generate_uuid(existing=[module.uuid for module in metadata.modules])
-
-    message_boxes = []
-    message_box_uuids = stringified_message_box_uuids.split(',')
-    for message_box_uuid in message_box_uuids:
-        message_box = metadata.find_message_box(message_box_uuid)
-        if message_box is None:
-            click.echo('MessageBox "{}" is not exist. Do nothing.'.format(message_box_uuid))
-            ctx.exit(code=-1)
-        message_boxes.append(message_box)
-
-    module = Module(
-        module_uuid,
-        message_box_uuids,
-        display_name,
-        tags,
-        memo
-    )
-
-    metadata.register_module(module)
-    context_object.log_info('module add', uuid=module.uuid)
     click.echo('Module "{}" is added.'.format(module.uuid))
 
 
@@ -160,17 +140,13 @@ def module_remove(ctx, module_uuid):
     :param Context ctx: Context
     :param UUID module_uuid: モジュールUUID
     """
-    context_object = ctx.obj  # type: ContextObject
-    metadata = context_object.metadata
-
-    if not metadata.writable:
-        click.echo('Cannot remove from {}.'.format(metadata.stringified_type))
-        ctx.exit(code=-1)
-
-    module = metadata.find_module(module_uuid)
-    if module is None:
+    try:
+        module = Module.query.filter_by(uuid=module_uuid).one()
+    except NoResultFound:
         click.echo('Module "{}" is not registered. Do nothing.'.format(module_uuid))
         ctx.exit(code=-1)
-    metadata.unregister_module(module)
-    context_object.log_info('module remove', uuid=module_uuid)
+
+    with MetaDataSession.begin():
+        MetaDataSession.delete(module)
+
     click.echo('Module "{}" is removed.'.format(module_uuid))

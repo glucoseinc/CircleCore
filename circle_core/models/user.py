@@ -35,7 +35,7 @@ class User(MetaDataBase):
 
     uuid = sa.Column(GUID, primary_key=True)
     account = sa.Column(sa.String(255), nullable=False, unique=True)
-    _permissions = sa.Column(sa.String(255))
+    _permissions = sa.Column('permissions', sa.String(255))
     work = sa.Column(sa.Text, nullable=False, default='')
     mail_address = sa.Column(sa.Text, nullable=False, default='')
     telephone = sa.Column(sa.Text, nullable=False, default='')
