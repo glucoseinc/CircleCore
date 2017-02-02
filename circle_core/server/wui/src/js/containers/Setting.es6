@@ -1,50 +1,68 @@
 import React, {Component, PropTypes} from 'react'
-// import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
-// import actions from 'src/actions'
+import actions from 'src/actions'
+
+import LoadingIndicator from 'src/components/bases/LoadingIndicator'
+
+import CcInfoEditPaper from 'src/components/CcInfoEditPaper'
+
 
 /**
+ * CircleCore情報変更
  */
 class Setting extends Component {
   static propTypes = {
-    actions: PropTypes.object.isRequired,
+    isFetching: PropTypes.bool.isRequired,
+    isUpdating: PropTypes.bool.isRequired,
+    ccInfos: PropTypes.object.isRequired,
+    onIdCopyButtonTouchTap: PropTypes.func,
+    onUpdateTouchTap: PropTypes.func,
   }
 
   /**
    * @override
    */
   render() {
+    const {
+      isFetching,
+      isUpdating,
+      ccInfos,
+      onIdCopyButtonTouchTap,
+      onUpdateTouchTap,
+    } = this.props
+
+    if (isFetching || isUpdating) {
+      return (
+        <LoadingIndicator />
+      )
+    }
+
+    const ownCcInfo = ccInfos.filter((ccInfo) => ccInfo.myself).first()
+
     return (
-      <div>
-        <h1>Not Implemented</h1>
+      <div className="page">
+        <CcInfoEditPaper
+          ccInfo={ownCcInfo}
+          onIdCopyButtonTouchTap={onIdCopyButtonTouchTap}
+          onUpdateTouchTap={onUpdateTouchTap}
+        />
       </div>
     )
   }
 }
 
 
-/**
- * [mapStateToProps description]
- * @param  {[type]} state [description]
- * @return {[type]}       [description]
- */
-function mapStateToProps(state) {
-  return {
-  }
-}
+const mapStateToProps = (state) => ({
+  isFetching: state.asyncs.isCcInfosFetching,
+  isUpdating: state.asyncs.isCcInfosUpdating,
+  ccInfos: state.entities.ccInfos,
+})
 
-/**
- * [mapDispatchToProps description]
- * @param  {[type]} dispatch [description]
- * @return {[type]}          [description]
- */
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: {
-    },
-  }
-}
+const mapDispatchToProps = (dispatch) => ({
+  onUpdateTouchTap: (ccInfo) => dispatch(actions.ccInfos.updateRequest(ccInfo.toJS())),
+  onIdCopyButtonTouchTap: (uuid) => dispatch(actions.page.showSnackbar('IDをコピーしました')),
+})
 
 export default connect(
   mapStateToProps,

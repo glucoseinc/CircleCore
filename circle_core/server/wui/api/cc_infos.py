@@ -40,12 +40,10 @@ def _post_cores():
     return api_jsonify(**convert_dict_key_camel_case(response))
 
 
-@api.route('/cores/myself', methods=['GET', 'PUT'])
+@api.route('/cores/myself', methods=['GET'])
 def api_core_myself():
     if request.method == 'GET':
         return _get_core_myself()
-    if request.method == 'PUT':
-        return _put_core_myself()
     abort(405)
 
 
@@ -59,16 +57,37 @@ def _get_core_myself():
     return api_jsonify(**convert_dict_key_camel_case(response))
 
 
+@api.route('/cores/<uuid:cc_info_uuid>', methods=['GET', 'PUT'])
+def api_core(cc_info_uuid):
+    if request.method == 'GET':
+        return _get_core(cc_info_uuid)
+    if request.method == 'PUT':
+        return _put_core(cc_info_uuid)
+    abort(405)
+
+
+@oauth_require_read_schema_scope
+def _get_core(cc_info_uuid):
+    metadata = get_metadata()
+
+    response = {
+        'cc_info': metadata.find_cc_info(cc_info_uuid).to_json()
+    }
+    return api_jsonify(**convert_dict_key_camel_case(response))
+
+
 @oauth_require_write_schema_scope
-def _put_core_myself():
+def _put_core(cc_info_uuid):
     response = {}  # TODO: response形式の統一
 
     metadata = get_metadata()
     dic = convert_dict_key_snake_case(request.json)
-    own_cc_info = CcInfo(**dic)
+    cc_info = CcInfo(**dic)
 
-    metadata.update_cc_info(own_cc_info)
+    old_cc_info = metadata.find_cc_info(cc_info_uuid)
+    if cc_info != old_cc_info:
+        metadata.update_cc_info(cc_info)
 
     response['result'] = 'success'
-    response['detail'] = {}
+    response['cc_info'] = cc_info.to_json()
     return api_jsonify(**convert_dict_key_camel_case(response))
