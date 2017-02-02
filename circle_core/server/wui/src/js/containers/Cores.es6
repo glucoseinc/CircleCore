@@ -1,50 +1,69 @@
 import React, {Component, PropTypes} from 'react'
-// import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
-// import actions from 'src/actions'
+import LoadingIndicator from 'src/components/bases/LoadingIndicator'
+
+import CcInfoPaper from 'src/components/CcInfoPaper'
 
 /**
+ * CircleCore一覧
  */
 class Cores extends Component {
   static propTypes = {
-    actions: PropTypes.object.isRequired,
+    isFetching: PropTypes.bool.isRequired,
+    ccInfos: PropTypes.object.isRequired,
+  }
+
+  state = {
   }
 
   /**
    * @override
    */
   render() {
+    // const {
+    // } = this.state
+    const {
+      isFetching,
+      ccInfos,
+    } = this.props
+
+    if (isFetching) {
+      return (
+        <LoadingIndicator />
+      )
+    }
+
+    // remove myself
+    const foreignCcInfos = ccInfos.filter((ccInfo) => !ccInfo.myself)
+
     return (
-      <div>
-        <h1>Not Implemented</h1>
+      <div className="page">
+        {foreignCcInfos.valueSeq().map((ccInfo) =>
+          <CcInfoPaper
+            key={ccInfo.uuid}
+            ccInfo={ccInfo}
+            onDisplayNameTouchTap={
+              () => console.log('onDisplayNameTouchTap')}
+            onIdCopyButtonTouchTap={
+              () => console.log('onIdCopyButtonTouchTap')}
+            onDeleteTouchTap={
+              () => console.log('onDeleteTouchTap')}
+          />
+        )}
       </div>
     )
   }
 }
 
 
-/**
- * [mapStateToProps description]
- * @param  {[type]} state [description]
- * @return {[type]}       [description]
- */
-function mapStateToProps(state) {
-  return {
-  }
-}
+const mapStateToProps = (state) => ({
+  isFetching: state.asyncs.isCcInfosFetching,
+  ccInfos: state.entities.ccInfos,
+})
 
-/**
- * [mapDispatchToProps description]
- * @param  {[type]} dispatch [description]
- * @return {[type]}          [description]
- */
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: {
-    },
-  }
-}
+const mapDispatchToProps = (dispatch) => ({
+})
 
 export default connect(
   mapStateToProps,
