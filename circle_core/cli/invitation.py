@@ -13,8 +13,8 @@ from six import PY3
 
 # project module
 from .context import CLIContextObject
-from .utils import generate_uuid, output_listing_columns, output_properties
-from ..models import Invitation
+from .utils import output_listing_columns, output_properties
+from ..models import generate_uuid, Invitation, MetaDataSession, Module, NoResultFound
 
 if PY3:
     from typing import List, Tuple
@@ -33,9 +33,7 @@ def invitation_list(ctx):
 
     :param Context ctx: Context
     """
-    context_object = ctx.obj  # type: ContextObject
-    metadata = context_object.metadata
-    invitations = metadata.invitations
+    invitations = Invitation.query.all()
     if len(invitations):
         data, header = _format_for_columns(invitations)
         output_listing_columns(data, header)
@@ -53,7 +51,7 @@ def _format_for_columns(invitations):
     header = ['UUID', 'MAX INVITES', 'CURRENT INVITES', 'DATE CREATED']
     data = []  # type: List[List[str]]
     for invitation in invitations:
-        data.append([str(invitation.uuid), invitation.max_invites, invitation.current_invites, invitation.date_created])
+        data.append([str(invitation.uuid), invitation.max_invites, invitation.current_invites, invitation.created_at])
     return data, header
 
 
@@ -66,19 +64,18 @@ def invitation_detail(ctx, invitation_uuid):
     :param Context ctx: Context
     :param UUID invitation_uuid: ユーザUUID
     """
-    context_object = ctx.obj  # type: ContextObject
-    metadata = context_object.metadata
 
-    invitation = metadata.find_invitation(invitation_uuid)
-    if invitation is None:
+    try:
+        invitation = Invitation.query.filter_by(uuid=invitation_uuid).one()
+    except NoResultFound:
         click.echo('Invitation "{}" is not registered.'.format(invitation_uuid))
-        ctx.exit(code=255)
+        ctx.exit(code=-1)
 
     data = [
         ('UUID', invitation.uuid),
         ('MAX INVITES', invitation.max_invites),
         ('CURRENT INVITES', invitation.current_invites),
-        ('DATE CREATED', invitation.date_created.isoformat(' ') if invitation.date_created else '-----'),
+        ('DATE CREATED', invitation.created_at.isoformat(' ') if invitation.created_at else '-----'),
     ]
     output_properties(data)
 
@@ -98,16 +95,14 @@ def invitation_add(ctx, max_invites):
     :param Context ctx: Context
     :param int max_invites: 最大招待可能数. 0にすると無制限
     """
-    context_object = ctx.obj  # type: ContextObject
-    metadata = context_object.metadata
 
-    if not metadata.writable:
-        click.echo('Cannot register to {}.'.format(metadata.stringified_type))
-        ctx.exit(code=-1)
+    with MetaDataSession.begin():
+        invitation = Invitation(
+            uuid=generate_uuid(model=Invitation),
+            max_invites=max_invites
+        )
+        MetaDataSession.add(invitation)
 
-    invitation = Invitation(None, max_invites, datetime.datetime.utcnow())
-    metadata.register_invitation(invitation)
-    context_object.log_info('Invitation add', uuid=invitation.uuid)
     click.echo('Invitation "{}" is added.'.format(invitation.uuid))
 
 
@@ -120,17 +115,13 @@ def invitation_remove(ctx, invitation_uuid):
     :param Context ctx: Context
     :param UUID invitation_uuid: ユーザUUID
     """
-    context_object = ctx.obj  # type: ContextObject
-    metadata = context_object.metadata
-
-    if not metadata.writable:
-        click.echo('Cannot remove from {}.'.format(metadata.stringified_type))
-        ctx.exit(code=-1)
-
-    invitation = metadata.find_invitation(invitation_uuid)
-    if invitation is None:
+    try:
+        invitation = Invitation.query.filter_by(uuid=invitation_uuid).one()
+    except NoResultFound:
         click.echo('Invitation "{}" is not registered. Do nothing.'.format(invitation_uuid))
         ctx.exit(code=-1)
-    metadata.unregister_invitation(invitation)
-    context_object.log_info('invitation remove', uuid=invitation_uuid)
+
+    with MetaDataSession.begin():
+        MetaDataSession.delete(invitation)
+
     click.echo('Invitation "{}" is removed.'.format(invitation_uuid))

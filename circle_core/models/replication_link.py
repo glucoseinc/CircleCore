@@ -3,33 +3,58 @@
 """Replication Link Model."""
 
 # system module
+import datetime
 from uuid import UUID
 
 # community module
-from six import PY3
+import sqlalchemy as sa
+from sqlalchemy import orm
 
-# project module
-from .base import UUIDBasedObject
-
-if PY3:
-    from typing import List, Optional, Union
+from circle_core.utils import format_date, prepare_date
+from .base import GUID, MetaDataBase
 
 
-class ReplicationLinkError(Exception):
-    pass
+replcation_boxes_table = sa.Table(
+    'replication_boxes', MetaDataBase.metadata,
+    sa.Column('link_uuid', GUID, sa.ForeignKey('replication_links.uuid')),
+    sa.Column('box_uuid', GUID, sa.ForeignKey('message_boxes.uuid')),
+)
 
 
-class ReplicationLink(UUIDBasedObject):
+class ReplicationSlave(MetaDataBase):
+    __tablename__ = 'replication_slaves'
+    __table_args__ = (
+        sa.PrimaryKeyConstraint('link_uuid', 'slave_uuid', name='replication_slaves_pk'),
+    )
+
+    link_uuid = sa.Column(GUID, sa.ForeignKey('replication_links.uuid'), nullable=False)
+    slave_uuid = sa.Column(GUID, nullable=False)
+    last_access_at = sa.Column(sa.DateTime)
+
+    link = orm.relationship('ReplicationLink', backref='slaves')
+    info = orm.relationship(
+        'CcInfo', foreign_keys=[slave_uuid], primaryjoin='CcInfo.uuid == ReplicationSlave.slave_uuid', uselist=False)
+
+
+class ReplicationLink(MetaDataBase):
     """ReplicationLinkオブジェクト.
 
-    :param str key_prefix: ストレージキーのプレフィックス
     :param UUID uuid: ReplicationLink UUID
-    :param str display_name: 表示名
-    :param List[UUID] message_box_uuids: MessageBox
     :param Optional[str] memo: メモ
     """
+    __tablename__ = 'replication_links'
 
-    key_prefix = 'replication_link'
+    uuid = sa.Column(GUID, primary_key=True)
+    created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
+    updated_at = sa.Column(
+        sa.DateTime, nullable=False,
+        default=datetime.datetime.utcnow,
+        onupdate=datetime.datetime.utcnow)
+
+    message_boxes = orm.relationship(
+        'MessageBox',
+        secondary=replcation_boxes_table,
+        backref='links')
 
     def __init__(self, uuid, message_box_uuids, display_name, memo=None):
         """init.
@@ -39,20 +64,17 @@ class ReplicationLink(UUIDBasedObject):
         :param str display_name: 表示名
         :param Optional[str] memo: メモ
         """
-        super(ReplicationLink, self).__init__(uuid)
+        super(ReplicationLink, self).__init__(uuid, display_name, memo)
 
-        _message_box_uuids = []
+        from .message_box import MessageBox
+
         for message_box_uuid in message_box_uuids:
             if not isinstance(message_box_uuid, UUID):
                 try:
                     message_box_uuid = UUID(message_box_uuid)
                 except ValueError:
-                    raise ReplicationLinkError('Invalid message_box_uuid : {}'.format(message_box_uuids))
-            _message_box_uuids.append(message_box_uuid)
-
-        self.message_box_uuids = _message_box_uuids
-        self.display_name = display_name
-        self.memo = memo
+                    raise ValueError('Invalid message_box_uuid : {}'.format(message_box_uuids))
+            self.message_boxes.append(MessageBox.query.get(message_box_uuid))
 
     def __eq__(self, other):
         """return equality.
