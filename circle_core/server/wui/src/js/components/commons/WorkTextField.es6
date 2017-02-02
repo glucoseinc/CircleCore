@@ -4,9 +4,9 @@ import TextField from 'material-ui/TextField'
 
 
 /**
- * 表示名テキストフィールド
+ * 所属テキストフィールド
  */
-class DisplayNameTextField extends Component {
+class WorkTextField extends Component {
   static propTypes = {
     obj: PropTypes.object.isRequired,
     floatingLabelText: PropTypes.string,
@@ -19,7 +19,7 @@ class DisplayNameTextField extends Component {
   render() {
     const {
       obj,
-      floatingLabelText = '表示名',
+      floatingLabelText = '所属',
       onChange,
     } = this.props
 
@@ -27,11 +27,11 @@ class DisplayNameTextField extends Component {
       <TextField
         floatingLabelText={floatingLabelText}
         fullWidth={true}
-        value={obj.displayName}
+        value={obj.work}
         onChange={onChange}
       />
     )
   }
 }
 
-export default DisplayNameTextField
+export default WorkTextField
