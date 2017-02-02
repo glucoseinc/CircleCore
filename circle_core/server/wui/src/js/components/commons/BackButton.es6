@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 
-import RaisedButton from 'material-ui/RaisedButton'
+import CCRaisedButton from 'src/components/bases/CCRaisedButton'
 
 
 /**
@@ -26,7 +26,7 @@ class BackButton extends Component {
     }
 
     return (
-      <RaisedButton
+      <CCRaisedButton
         style={style.root}
         label="一覧へ戻る"
         primary={true}

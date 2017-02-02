@@ -24,6 +24,7 @@ class Module extends Component {
     modules: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,
     setTitle: PropTypes.func,
+    onUpdateTouchTap: PropTypes.func,
     onDeleteOkButtonTouchTap: PropTypes.func,
   }
 
@@ -77,6 +78,7 @@ class Module extends Component {
       schemas,
       modules,
       params,
+      onUpdateTouchTap,
     } = this.props
 
     if (isFetching || isUpdating) {
@@ -100,6 +102,7 @@ class Module extends Component {
         <ModuleDetail
           module={module}
           schemas={schemas}
+          onUpdateTouchTap={onUpdateTouchTap}
           onMessageBoxDeleteTouchTap={(...args) => console.log('onMessageBoxDeleteTouchTap', ...args)}
           onMessageBoxDownloadTouchTap={(...args) => console.log('onMessageBoxDownloadTouchTap', ...args)}
           onDeleteTouchTap={::this.onDeleteTouchTap}
@@ -130,6 +133,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   setTitle: (title) => dispatch(actions.page.setTitle(title)),
+  onUpdateTouchTap: (module) => dispatch(actions.modules.updateRequest(module.toJS())),
   onDeleteOkButtonTouchTap: (module) => dispatch(actions.modules.deleteRequest(module.uuid)),
 })
 

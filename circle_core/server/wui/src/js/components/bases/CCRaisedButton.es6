@@ -1,12 +1,12 @@
 import React, {Component, PropTypes} from 'react'
 
-import FlatButton from 'material-ui/FlatButton'
+import RaisedButton from 'material-ui/RaisedButton'
 
 
 /**
- * フラットボタン
+ * レイズドボタン
  */
-class CCFlatButton extends Component {
+class CCRaisedButton extends Component {
   static propTypes = {
     style: PropTypes.object,
     labelStyle: PropTypes.object,
@@ -41,7 +41,7 @@ class CCFlatButton extends Component {
     const Icon = icon
 
     return (
-      <FlatButton
+      <RaisedButton
         style={mergedStyle}
         labelStyle={mergedLabelStyle}
         icon={icon ? <Icon style={iconStyle}/> : null}
@@ -51,4 +51,4 @@ class CCFlatButton extends Component {
   }
 }
 
-export default CCFlatButton
+export default CCRaisedButton

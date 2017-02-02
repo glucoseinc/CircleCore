@@ -1,13 +1,13 @@
 import React, {Component, PropTypes} from 'react'
 
-import FlatButton from 'material-ui/FlatButton'
-
 import ComponentWithTitle from 'src/components/bases/ComponentWithTitle'
 
 import DeleteButton from 'src/components/commons/DeleteButton'
 
-import DisplayNamePaper from './DosplayNamePaper'
+import DisplayNameEditPaper from './DisplayNameEditPaper'
+import DisplayNamePaper from './DisplayNamePaper'
 import MessageBoxPaper from './MessageBoxPaper'
+import MessageBoxAddActionPaper from './MessageBoxAddActionPaper'
 import MetadataPaper from './MetadataPaper'
 
 
@@ -18,6 +18,7 @@ class ModuleDetail extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     schemas: PropTypes.object.isRequired,
+    onUpdateTouchTap: PropTypes.func,
     onMessageBoxDeleteTouchTap: PropTypes.func,
     onMessageBoxDownloadTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
@@ -32,6 +33,7 @@ class ModuleDetail extends Component {
   state = {
     editingArea: null,
     editingAreaIndex: null,
+    editingModule: null,
   }
 
   /**
@@ -43,6 +45,32 @@ class ModuleDetail extends Component {
     this.setState({
       editingArea,
       editingAreaIndex,
+      editingModule: this.props.module,
+    })
+  }
+
+  /**
+   * 保存ボタン押下時の動作
+   */
+  onUpdateTouchTap() {
+    this.props.onUpdateTouchTap(this.state.editingModule)
+    // TODO: 保存失敗時には編集中の状態を復元したい
+    this.setState({
+      editingArea: null,
+      editingAreaIndex: null,
+      editingModule: null,
+    })
+  }
+
+
+  /**
+   * 編集キャンセルボタン押下時の動作
+   */
+  onEditCancelTouchTap() {
+    this.setState({
+      editingArea: null,
+      editingAreaIndex: null,
+      editingModule: null,
     })
   }
 
@@ -50,6 +78,10 @@ class ModuleDetail extends Component {
    * @override
    */
   render() {
+    const {
+      editingArea,
+      editingModule,
+    } = this.state
     const {
       module,
       schemas,
@@ -64,7 +96,7 @@ class ModuleDetail extends Component {
         flexFlow: 'column nowrap',
       },
 
-      displayNamePaper: {
+      displayNameArea: {
       },
 
       metadataArea: {
@@ -73,9 +105,6 @@ class ModuleDetail extends Component {
 
       messageBoxesArea: {
         paddingTop: 32,
-      },
-      messageBoxesAreaAdditional: {
-        lineHeight: 1,
       },
       messageBoxAddButton: {
         height: 16,
@@ -95,13 +124,24 @@ class ModuleDetail extends Component {
       },
     }
 
+    const displayNameArea = editingArea == ModuleDetail.editingArea.displayName ? (
+      <DisplayNameEditPaper
+        module={editingModule}
+        onDisplayNameChange={(e) => this.setState({editingModule: editingModule.updateDisplayName(e.target.value)})}
+        onOKButtonTouchTap={() => this.onUpdateTouchTap()}
+        onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
+      />
+    ) : (
+      <DisplayNamePaper
+        module={module}
+        onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.displayName, null)}
+      />
+    )
+
     return (
       <div style={style.root}>
-        <div style={style.displayNamePaper}>
-          <DisplayNamePaper
-            module={module}
-            onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.displayName, null)}
-          />
+        <div style={style.displayNameArea}>
+          {displayNameArea}
         </div>
 
         <div style={style.metadataArea}>
@@ -114,17 +154,7 @@ class ModuleDetail extends Component {
         </div>
 
         <div style={style.messageBoxesArea}>
-          <ComponentWithTitle
-            title="メッセージボックス"
-            additional={<FlatButton
-              style={style.messageBoxAddButton}
-              label="＋メッセージボックスを追加する"
-              labelStyle={style.messageBoxAddButtonLabel}
-              primary={true}
-              onTouchTap={() => console.log('メッセージボックスを追加する')}
-            />}
-            additionalStyle={style.messageBoxesAreaAdditional}
-          >
+          <ComponentWithTitle title="メッセージボックス">
             {module.messageBoxes.valueSeq().map((messageBox, index) =>
               <MessageBoxPaper
                 key={index}
@@ -136,11 +166,15 @@ class ModuleDetail extends Component {
                 onDownloadTouchTap={onMessageBoxDownloadTouchTap}
               />
             )}
+            <MessageBoxAddActionPaper
+              onTouchTap={() => console.log('メッセージボックスを追加する')}
+            />
           </ComponentWithTitle>
         </div>
 
         <div style={style.actionsArea}>
           <DeleteButton
+            label="このモジュールを削除する"
             onTouchTap={onDeleteTouchTap}
           />
         </div>

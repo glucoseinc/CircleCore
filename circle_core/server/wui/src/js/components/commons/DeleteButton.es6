@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 
-import RaisedButton from 'material-ui/RaisedButton'
+import CCRaisedButton from 'src/components/bases/CCRaisedButton'
 
 
 /**
@@ -8,6 +8,7 @@ import RaisedButton from 'material-ui/RaisedButton'
  */
 class DeleteButton extends Component {
   static propTypes = {
+    label: PropTypes.string,
     disabled: PropTypes.bool,
     onTouchTap: PropTypes.func,
   }
@@ -17,6 +18,7 @@ class DeleteButton extends Component {
    */
   render() {
     const {
+      label = '削除する',
       disabled = false,
       onTouchTap,
     } = this.props
@@ -28,9 +30,9 @@ class DeleteButton extends Component {
     }
 
     return (
-      <RaisedButton
+      <CCRaisedButton
         style={style.root}
-        label="削除する"
+        label={label}
         disabled={disabled}
         onTouchTap={onTouchTap}
        />
