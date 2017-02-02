@@ -46,7 +46,7 @@ export default class CcInfo extends CcInfoRecord {
    * @param {string} value
    * @return {Schema}
    */
-  updateWord(value) {
+  updateWork(value) {
     return this.set('work', value)
   }
 
