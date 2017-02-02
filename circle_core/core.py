@@ -88,7 +88,7 @@ class CircleCore(object):
         """ユーザー操作等を記録するためのロガーの設定を行う
 
         コンソールに出すログの方はcliで初期化する"""
-        pass
+        self.audit_logger = logging.getLogger('circle_core.audit')
 
     def open_metadata_db(self):
         self.metadata_db_engine = sqlalchemy.create_engine('sqlite:///' + os.path.abspath(self.metadata_file_path))
