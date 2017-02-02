@@ -12,8 +12,12 @@ const mergeByFetchingCcInfos = (refresh) => (state, action) => {
 }
 
 const modulesActionsHandler = {
+  // Fetch
   [actionTypes.ccInfos.fetchSucceeded]: mergeByFetchingCcInfos(true),
   [actionTypes.ccInfos.fetchMyselfSucceeded]: mergeByFetchingCcInfos(false),
+
+  // Update
+  [actionTypes.ccInfos.updateSucceeded]: mergeByFetchingCcInfos(false),
 }
 
 export default modulesActionsHandler

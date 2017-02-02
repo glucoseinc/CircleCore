@@ -22,6 +22,9 @@ const initialState = {
   isUsersFetching: false,
 
   isInvitationsFetching: false,
+
+  isCcInfosFetching: false,
+  isCcInfosUpdating: false,
 }
 
 
@@ -143,6 +146,19 @@ const asyncs = handleActions({
   [actionTypes.invitations.fetchRequest]: changeFlagAction('isInvitationsFetching', true),
   [actionTypes.invitations.fetchComplete]: changeFlagAction('isInvitationsFetching', false),
 
+  // Fetch CcInfos
+  [actionTypes.ccInfos.fetchRequest]: changeFlagAction('isCcInfosFetching', true),
+  [actionTypes.ccInfos.fetchSucceeded]: changeFlagAction('isCcInfosFetching', false),
+  [actionTypes.ccInfos.fetchFailed]: changeFlagAction('isCcInfosFetching', false),
+
+  [actionTypes.ccInfos.fetchMyselfRequest]: changeFlagAction('isCcInfosFetching', true),
+  [actionTypes.ccInfos.fetchMyselfSucceeded]: changeFlagAction('isCcInfosFetching', false),
+  [actionTypes.ccInfos.fetchMyselfFailed]: changeFlagAction('isCcInfosFetching', false),
+
+  // Update CcInfos
+  [actionTypes.ccInfos.updateRequest]: changeFlagAction('isCcInfosUpdating', true),
+  [actionTypes.ccInfos.updateSucceeded]: changeFlagAction('isCcInfosUpdating', false),
+  [actionTypes.ccInfos.updateFailed]: changeFlagAction('isCcInfosUpdating', false),
 }, initialState)
 
 export default asyncs
