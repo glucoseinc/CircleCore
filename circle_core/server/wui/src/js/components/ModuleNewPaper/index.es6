@@ -1,18 +1,17 @@
 import React, {Component, PropTypes} from 'react'
 
 import Paper from 'material-ui/Paper'
-import {grey600} from 'material-ui/styles/colors'
 
 import Module from 'src/models/Module'
 
-import AddFlatButton from 'src/components/commons/AddFlatButton'
+import ComponentWithHeader from 'src/components/bases/ComponentWithHeader'
+
 import CreateButton from 'src/components/commons/CreateButton'
-import DeleteIconButton from 'src/components/commons/DeleteIconButton'
 import DisplayNameTextField from 'src/components/commons/DisplayNameTextField'
 import MemoTextField from 'src/components/commons/MemoTextField'
 
-import SchemaSelectField from './SchemaSelectField'
-import TagTextField from './TagTextField'
+import MessageBoxesEditComponent from './MessageBoxesEditComponent'
+import TagsEditComponent from './TagsEditComponent'
 
 
 /**
@@ -46,94 +45,37 @@ class ModuleNewPaper extends Component {
       root: {
         display: 'flex',
         flexFlow: 'column nowrap',
-        padding: 8,
-      },
-      areaLabel: {
-        padding: 8,
-        color: grey600,
+        padding: 24,
       },
 
-      displayName: {
-        padding: 16,
+      displayNameArea: {
       },
 
       metadataArea: {
-        display: 'flex',
-        flexFlow: 'column nowrap',
-        padding: 8,
+        paddingTop: 32,
       },
-      tags: {
-        padding: 8,
+      tagsSection: {
       },
-      tagBlock: {
-        display: 'flex',
-        flexFlow: 'row nowrap',
-        alignItems: 'center',
-        padding: 0,
-      },
-      tag: {
-        paddingRight: 8,
-      },
-      tagDeleteIcon: {
-        padding: '0px 8px',
-      },
-
-      tagActionsBlock: {
-        padding: 8,
-      },
-
-      memo: {
-        padding: 8,
+      memoSection: {
+        paddingTop: 16,
       },
 
       messageBoxesArea: {
-        display: 'flex',
-        flexFlow: 'column nowrap',
-        padding: 8,
-      },
-      messageBoxes: {
-        display: 'flex',
-        flexFlow: 'column nowrap',
-        padding: 0,
-      },
-      messageBoxBlock: {
-        display: 'flex',
-        flexFlow: 'row nowrap',
-        alignItems: 'center',
-        padding: 0,
-      },
-      messageBoxEditPart: {
-        padding: '0px 8px',
-        flexGrow: 1,
-      },
-      messageBoxDisplayName: {
-      },
-      messageBoxSchema: {
-      },
-      messageBoxMemo: {
-      },
-      propertyType: {
-        padding: '0px 8px',
-        flexGrow: 1,
-      },
-      propertyDeleteIcon: {
-        padding: '0px 8px',
-      },
-
-      messageBoxActionsBlock: {
-        padding: 8,
+        paddingTop: 32,
       },
 
       actionsArea: {
-        margin: 'auto',
-        padding: 16,
+        display: 'flex',
+        flexFlow: 'row nowrap',
+        justifyContent: 'space-around',
+        paddingTop: 40,
       },
     }
 
     return (
       <Paper>
         <div style={style.root}>
-          <div style={style.displayName}>
+          <div style={style.displayNameArea}>
             <DisplayNameTextField
               obj={module}
               floatingLabelText="モジュール名"
@@ -142,94 +84,35 @@ class ModuleNewPaper extends Component {
           </div>
 
           <div style={style.metadataArea}>
-            <div style={style.areaLabel}>
-              <span>メタデータ</span>
-            </div>
-            <div style={style.tags}>
-              {module.tags.valueSeq().map((tag, index) =>
-                <div key={index} style={style.tagBlock}>
-                  <div style={style.tag}>
-                    <TagTextField
-                      tag={tag}
-                      suggestions={tagSuggestions}
-                      onChange={
-                        (searchText) => this.setState({module: module.updateTag(index, searchText)})
-                      }
-                    />
-                  </div>
-                  <div style={style.tagDeleteIcon}>
-                    <DeleteIconButton
-                      onTouchTap={() => this.setState({module: module.removeTag(index)})}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-            <div style={style.tagActionsBlock}>
-              <AddFlatButton
-                label="タグを追加する"
-                onTouchTap={() => this.setState({module: module.pushTag()})}
-              />
-            </div>
-            <div style={style.memo}>
-              <MemoTextField
-                obj={module}
-                onChange={(e) => this.setState({module: module.updateMemo(e.target.value)})}
-              />
-            </div>
+            <ComponentWithHeader headerLabel="メタデータ">
+              <div style={style.tagsSection}>
+                <TagsEditComponent
+                  module={module}
+                  suggestions={tagSuggestions}
+                  onUpdate={(index, tag) => this.setState({module: module.updateTag(index, tag)})}
+                  onDeleteTouchTap={(index) => this.setState({module: module.removeTag(index)})}
+                  onAddTouchTap={() => this.setState({module: module.pushTag()})}
+                />
+              </div>
+              <div style={style.memoSection}>
+                <MemoTextField
+                  obj={module}
+                  onChange={(e) => this.setState({module: module.updateMemo(e.target.value)})}
+                />
+              </div>
+            </ComponentWithHeader>
           </div>
 
           <div style={style.messageBoxesArea}>
-            <div style={style.areaLabel}>
-              <span>メッセージボックス</span>
-            </div>
-            <div style={style.messageBoxes}>
-              {module.messageBoxes.valueSeq().map((messageBox, index) =>
-                <div key={index} style={style.messageBoxBlock}>
-                  <div style={style.messageBoxEditPart}>
-                    <div style={style.messageBoxDisplayName}>
-                      <DisplayNameTextField
-                        obj={messageBox}
-                        floatingLabelText="メッセージボックス名"
-                        onChange={(e) => {
-                          const newMessageBox = messageBox.updateDisplayName(e.target.value)
-                          this.setState({module: module.updateMessageBox(index, newMessageBox)})
-                        }}
-                      />
-                    </div>
-                    <div style={style.messageBoxSchema}>
-                      <SchemaSelectField
-                        selectedSchemaId={messageBox.schema}
-                        schemas={schemas}
-                        onChange={(e, i, v) => {
-                          const newMessageBox = messageBox.updateSchema(v)
-                          this.setState({module: module.updateMessageBox(index, newMessageBox)})
-                        }}
-                      />
-                    </div>
-                    <div style={style.messageBoxMemo}>
-                      <MemoTextField
-                        obj={messageBox}
-                        onChange={(e) => {
-                          const newMessageBox = messageBox.updateMemo(e.target.value)
-                          this.setState({module: module.updateMessageBox(index, newMessageBox)})
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <DeleteIconButton
-                    disabled={module.messageBoxes.size <= 1}
-                    onTouchTap={() => this.setState({module: module.removeMessageBox(index)})}
-                  />
-                </div>
-              )}
-            </div>
-            <div style={style.messageBoxActionsBlock}>
-              <AddFlatButton
-                label="メッセージボックスを追加する"
-                onTouchTap={() => this.setState({module: module.pushMessageBox()})}
+            <ComponentWithHeader headerLabel="メッセージボックス">
+              <MessageBoxesEditComponent
+                module={module}
+                schemas={schemas}
+                onUpdate={(index, messageBox) => this.setState({module: module.updateMessageBox(index, messageBox)})}
+                onDeleteTouchTap={(index) => this.setState({module: module.removeMessageBox(index)})}
+                onAddTouchTap={() => this.setState({module: module.pushMessageBox()})}
               />
-            </div>
+            </ComponentWithHeader>
           </div>
 
           <div style={style.actionsArea}>
