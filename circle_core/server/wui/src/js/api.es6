@@ -403,6 +403,16 @@ class CCAPI extends APICaller {
     return res.body
   }
 
+  /**
+   * CircleCoreInfoを更新する
+   * @param {object} rawCcInfo
+   * @return {object} Result
+   */
+  async updateCcInfo(rawCcInfo) {
+    const res = await this._put(`/cores/${rawCcInfo.uuid}`, rawCcInfo)
+    return res.body
+  }
+
   // ModuleGraphData
   /**
    * Moduleのグラフ用データを得る
