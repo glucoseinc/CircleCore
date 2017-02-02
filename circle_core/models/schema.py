@@ -17,6 +17,8 @@ from .base import GUID, MetaDataBase
 
 class SchemaProperty(collections.namedtuple('SchemaProperty', ['name', 'type'])):
     def __new__(cls, name, type=None):
+        if isinstance(name, dict):
+            name, type = name['name'], name['type']
         if type is None and ':' in name:
             name, type = name.split(':', 2)
         if type is None or ':' in type or ':' in name:
@@ -75,7 +77,7 @@ class Schema(MetaDataBase):
 
     message_boxes = orm.relationship('MessageBox', backref='schema')
 
-    def __init__(self, **kwargs):
+    def __init__(self, uuid, display_name, properties=None, **kwargs):
         """init.
 
         :param Union[str, UUID] uuid: Schema UUID
@@ -84,13 +86,10 @@ class Schema(MetaDataBase):
         :param Optional[str] memo: メモ
         """
 
-        if 'properties' in kwargs:
-            properties = kwargs.pop('properties')
-            if not isinstance(properties, SchemaProperties):
-                properties = SchemaProperties(properties)
-            kwargs['_properties'] = str(properties)
+        if not isinstance(properties, SchemaProperties):
+            properties = SchemaProperties(properties)
 
-        super(Schema, self).__init__(**kwargs)
+        super(Schema, self).__init__(uuid=uuid, display_name=display_name, _properties=str(properties), **kwargs)
 
     def __eq__(self, other):
         """return equality.

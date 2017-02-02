@@ -22,9 +22,8 @@ from circle_core.server import ws, wui
 from circle_core.workers import datareceiver
 from circle_core.workers.replication_slave import ReplicationSlave
 from .context import CLIContextObject
-from .utils import generate_uuid, RestartableProcess
+from .utils import RestartableProcess
 from ..database import Database
-from ..models import CcInfo, MetadataError
 
 
 @click.group()
@@ -42,7 +41,7 @@ def cli_main(ctx, config_file_path):
     _init_logging()
 
     if config_file_path:
-        core = CircleCore.load_from_config(config_file_path)
+        core = CircleCore.load_from_config_file(config_file_path)
     else:
         core = CircleCore.load_from_default_config_file()
 
@@ -95,34 +94,31 @@ def validate_replication_master_addr(ctx, param, values):
 
 
 @cli_main.command('run')
-@click.option('--ws-port', type=click.INT, envvar='CRCR_WSPORT', default=5000)
-@click.option('--ws-path', type=click.STRING, envvar='CRCR_WSPATH', default='/module/?')
-@click.option('--wui-port', type=click.INT, envvar='CRCR_WUIPORT', default=5000)
-@click.option('--ipc-socket', type=click.Path(resolve_path=True), envvar='CRCR_IPCSOCK', default='/tmp/circlecore.ipc')
-@click.option('replicate_from', '--replicate', type=click.STRING, envvar='CRCR_REPLICATION', multiple=True,
-              help='module_uuid@hostname:port', callback=validate_replication_master_addr)
-@click.option('database_url', '--database', envvar='CRCR_DATABASE')
-@click.option('--prefix', envvar='CRCR_PREFIX', default=lambda: os.getcwd())
+# @click.option('--ws-port', type=click.INT, envvar='CRCR_WSPORT', default=5000)
+# @click.option('--ws-path', type=click.STRING, envvar='CRCR_WSPATH', default='/module/?')
+# @click.option('--wui-port', type=click.INT, envvar='CRCR_WUIPORT', default=5000)
+# @click.option('--ipc-socket', type=click.Path(resolve_path=True), envvar='CRCR_IPCSOCK', default='/tmp/circlecore.ipc')
+# @click.option('replicate_from', '--replicate', type=click.STRING, envvar='CRCR_REPLICATION', multiple=True,
+#               help='module_uuid@hostname:port', callback=validate_replication_master_addr)
+# @click.option('database_url', '--database', envvar='CRCR_DATABASE')
 @click.option('--debug', is_flag=True)
 @click.pass_context
-def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, replicate_from, database_url, prefix, debug):
+def cli_main_run(ctx, debug):
     """CircleCoreの起動."""
-    ctx.obj.ipc_socket = 'ipc://' + ipc_socket
-    metadata = ctx.obj.metadata
-    metadata.database_url = database_url  # とりあえず...
-    metadata.prefix = prefix  # とりあえず...
+    # ctx.obj.ipc_socket = 'ipc://' + ipc_socket
+    core = ctx.obj.core
 
     for addr, value in groupby([module_and_addr.split('@') for module_and_addr in replicate_from], lambda x: x[1]):
         modules = [module_and_addr[0] for module_and_addr in value]
-        RestartableProcess(target=lambda: ReplicationSlave(metadata, addr, modules).run()).start()
+        RestartableProcess(target=lambda: ReplicationSlave(core, addr, modules).run()).start()
 
-    RestartableProcess(target=datareceiver.run, args=[metadata]).start()
+    RestartableProcess(target=datareceiver.run, args=[core]).start()
 
     if ws_port == wui_port:
-        RestartableProcess(target=server.run, args=[wui_port, metadata, debug]).start()
+        RestartableProcess(target=server.run, args=[wui_port, core, debug]).start()
     else:
-        RestartableProcess(target=ws.run, args=[metadata, ws_path, ws_port]).start()
-        RestartableProcess(target=wui.create_app(metadata).run, kwargs={'port': wui_port}).start()
+        RestartableProcess(target=ws.run, args=[core, ws_path, ws_port]).start()
+        RestartableProcess(target=wui.create_app(core).run, kwargs={'port': wui_port}).start()
 
     click.echo('Websocket : ws://{host}:{port}{path}'.format(path=ws_path, port=ws_port, host='127.0.0.1'), err=True)
     click.echo('WebUI : http://127.0.0.1:{port}{path}'.format(path='/', port=ws_port), err=True)

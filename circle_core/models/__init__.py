@@ -7,7 +7,6 @@ from .base import generate_uuid, MetaDataBase, MetaDataSession, NoResultFound
 from .cc_info import CcInfo
 from .invitation import Invitation
 from .message_box import MessageBox
-from .metadata import Metadata, MetadataError
 from .module import Module
 from .replication_link import ReplicationLink
 from .schema import Schema, SchemaProperties

@@ -76,8 +76,7 @@ class Database(object):
                 sa.Column('_created_at', sa.Numeric(16, 6, asdecimal=True), nullable=False),
                 sa.Column('_counter', sa.Integer(), nullable=False, default=0),
             ]
-            schema = [schema for schema in schemas if schema.uuid == box.schema_uuid][0]
-            for prop in schema.properties:
+            for prop in box.schema.properties:
                 columns.append(make_sqlcolumn_from_datatype(prop.name, prop.type))
             columns.append(
                 sa.PrimaryKeyConstraint('_created_at', '_counter')
@@ -132,16 +131,17 @@ class Database(object):
         # poolの中のconnectionが古いTable情報をキャッシュしちゃってる？とかで怪しい挙動になるので、全部破棄する
         self._engine.dispose()
 
-    def make_table_name_for_message_box(self, box):
+    def make_table_name_for_message_box(self, box_or_uuid):
         """
 
         :param MessageBox or UUID box:
         :return str:
         """
-        if not isinstance(box, uuid.UUID):
-            box = box.uuid
+        if not isinstance(box_or_uuid, uuid.UUID):
+            box_or_uuid = box_or_uuid.uuid
 
-        return 'message_box_' + b58encode(box.bytes)
+        assert(isinstance(box_or_uuid, uuid.UUID), '{!r} is not a UUID'.format(box_or_uuid))
+        return 'message_box_' + b58encode(box_or_uuid.bytes)
 
     def find_table_for_message_box(self, box):  # これらも各modelのメソッドにした方がいいかなあ
         return sa.Table(

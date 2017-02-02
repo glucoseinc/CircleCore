@@ -38,14 +38,12 @@ class Module(MetaDataBase):
 
     message_boxes = orm.relationship('MessageBox', backref='module')
 
-    def __init__(self, **kwargs):
+    def __init__(self, uuid, display_name, tags=None, **kwargs):
         """init.
         """
 
-        if 'tags' in kwargs:
-            kwargs['_tags'] = ','.join(self.to_tags_list(kwargs.pop('tags')))
-
-        super(Module, self).__init__(**kwargs)
+        super(Module, self).__init__(
+            uuid=uuid, display_name=display_name, _tags=','.join(self.to_tags_list(tags)), **kwargs)
 
     def __eq__(self, other):
         """return equality.

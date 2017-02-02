@@ -54,7 +54,7 @@ def _format_for_columns(modules):
         data.append([
             str(module.uuid),
             display_name,
-            module.stringified_tags,
+            ','.join(module.tags),
         ])
     return data, header
 

@@ -22,9 +22,11 @@ from circle_core.server.ws import ModuleHandler
 class DummyMetadata(MetadataReader):
     schemas = [Schema('384e637b-375f-498d-8fc2-73e5cc1e6892', 'DummySchema', [{'name': 'hoge', 'type': 'text'}])]
     message_boxes = [
-        MessageBox('e170a8e5-3157-484e-b7d2-9816b0d97546', '384e637b-375f-498d-8fc2-73e5cc1e6892', 'DummyMessageBox')
+        MessageBox(
+            'e170a8e5-3157-484e-b7d2-9816b0d97546', '384e637b-375f-498d-8fc2-73e5cc1e6892',
+            'e170a8e5-3157-484e-b7d2-9816b0d97546', 'DummyMessageBox')
     ]
-    modules = [Module('4ffab839-cf56-478a-8614-6003a5980855', ['e170a8e5-3157-484e-b7d2-9816b0d97546'], 'DummyModule')]
+    modules = [Module('4ffab839-cf56-478a-8614-6003a5980855', 'DummyModule')]
     users = []
     replication_links = []
     cc_infos = []

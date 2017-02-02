@@ -11,8 +11,8 @@ TEST_MODULE_UUID_1 = 'C7641AA8-32A7-47B8-8CCE-81C433081F59'
 
 test_schemas = [
     Schema(
-        TEST_SCHEMA_UUID, 'test schema',
-        dictified_properties=[
+        uuid=TEST_SCHEMA_UUID, display_name='test schema',
+        properties=[
             {'name': 'test_int', 'type': 'int'},
             {'name': 'test_float', 'type': 'float'},
             {'name': 'test_text', 'type': 'text'},
@@ -21,7 +21,7 @@ test_schemas = [
 ]
 test_modules = [
     Module(
-        TEST_MODULE_UUID_1, [TEST_SCHEMA_UUID], 'Test Module 1'
+        uuid=TEST_MODULE_UUID_1, display_name='Test Module 1'
     )
 ]
 
