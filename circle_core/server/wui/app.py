@@ -3,6 +3,7 @@
 from datetime import datetime, timedelta
 import time
 import uuid
+import os
 
 from flask import abort, Flask, render_template, request
 from six import PY3
@@ -10,6 +11,7 @@ from werkzeug.routing import BaseConverter
 
 # project module
 from circle_core.models.metadata import MetadataIniFile, MetadataRedis
+from circle_core.utils import portable_popen
 
 if PY3:
     from typing import Optional, Union
@@ -49,6 +51,19 @@ class CCWebApp(Flask):
         @self.context_processor
         def global_variables():
             return dict(UPTIME=self.uptime)
+
+        self.build_frontend()
+
+    def build_frontend(self):
+        """WebUI用のフロントエンドのjs, cssをビルドする"""
+        import circle_core
+        basedir = os.path.abspath(
+            os.path.join(
+                os.path.dirname(circle_core.__file__),
+                os.pardir))
+
+        portable_popen(['npm', 'install', '.'], cwd=basedir).wait()
+        portable_popen(['npm', 'run', 'build'], cwd=basedir).wait()
 
 
 class UUIDConverter(BaseConverter):
