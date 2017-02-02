@@ -449,8 +449,8 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         :return: 成功/失敗
         :rtype: bool
         """
-        if self.register_cc_info(cc_info) is True:
-            return self.unregister_cc_info(cc_info)
+        if self.unregister_cc_info(cc_info) is True:
+            return self.register_cc_info(cc_info)
         return False
 
     # Private methods
