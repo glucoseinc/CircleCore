@@ -10,5 +10,5 @@ from .message_box import MessageBox
 from .metadata import Metadata, MetadataError
 from .module import Module
 from .replication_link import ReplicationLink
-from .schema import Schema
+from .schema import Schema, SchemaProperties
 from .user import User

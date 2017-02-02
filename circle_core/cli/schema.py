@@ -12,8 +12,8 @@ from six import PY3
 
 # project module
 from .context import CLIContextObject
-from .utils import generate_uuid, output_listing_columns, output_properties
-from ..models import Schema
+from .utils import output_listing_columns, output_properties
+from ..models import generate_uuid, MetaDataSession, NoResultFound, Schema, SchemaProperties
 
 if PY3:
     from typing import List, Optional, Tuple
@@ -32,9 +32,8 @@ def schema_list(ctx):
 
     :param Context ctx: Context
     """
-    context_object = ctx.obj  # type: ContextObject
-    metadata = context_object.metadata
-    schemas = metadata.schemas
+    schemas = Schema.query.all()
+
     if len(schemas):
         data, header = _format_for_columns(schemas)
         output_listing_columns(data, header)
@@ -53,7 +52,7 @@ def _format_for_columns(schemas):
     data = []  # type: List[List[str]]
     for schema in schemas:
         display_name = schema.display_name
-        data.append([str(schema.uuid), display_name, schema.stringified_properties])
+        data.append([str(schema.uuid), display_name, schema.properties])
     return data, header
 
 
@@ -66,11 +65,9 @@ def schema_detail(ctx, schema_uuid):
     :param Context ctx: Context
     :param UUID schema_uuid: スキーマUUID
     """
-    context_object = ctx.obj  # type: ContextObject
-    metadata = context_object.metadata
-
-    schema = metadata.find_schema(schema_uuid)
-    if schema is None:
+    try:
+        schema = Schema.query.filter_by(uuid=schema_uuid).one()
+    except NoResultFound:
         click.echo('Schema "{}" is not registered.'.format(schema_uuid))
         ctx.exit(code=-1)
 
@@ -82,7 +79,8 @@ def schema_detail(ctx, schema_uuid):
         data.append(('PROPERTIES' if i == 0 else '', '{}:{}'.format(prop.name, prop.type)))
     data.append(('MEMO', schema.memo or ''))
 
-    modules = metadata.find_modules_by_schema(schema_uuid)
+    # modules = metadata.find_modules_by_schema(schema_uuid)
+    modules = []
     if len(modules):
         for i, module in enumerate(modules):
             data.append(('Modules' if i == 0 else '', str(module.uuid)))
@@ -105,27 +103,23 @@ def schema_add(ctx, display_name, memo, name_and_types):
     :param Optional[str] memo: メモ
     :param List[str] name_and_types: プロパティ
     """
-    context_object = ctx.obj  # type: ContextObject
-    metadata = context_object.metadata
-
-    if not metadata.writable:
-        click.echo('Cannot register to {}.'.format(metadata.stringified_type))
+    # make schema properties
+    try:
+        properties = SchemaProperties(name_and_types)
+    except ValueError as exc:
+        click.echo('Invalid properties : {}.'.format(exc))
+        click.echo('Property format must be "name:type".')
         ctx.exit(code=-1)
 
-    schema_uuid = generate_uuid(existing=[schema.uuid for schema in metadata.schemas])
+    with MetaDataSession.begin():
+        schema = Schema(
+            uuid=generate_uuid(model=Schema),
+            display_name=display_name,
+            memo=memo,
+            properties=properties,
+        )
+        MetaDataSession.add(schema)
 
-    for name_and_type in name_and_types:
-        splitted = name_and_type.split(':')
-        if len(splitted) != 2:
-            click.echo('Argument is invalid : {}.'.format(name_and_type))
-            click.echo('Argument format must be "name:type".')
-            ctx.exit(code=-1)
-    dictified_properties = Schema.dictify_properties(','.join(name_and_types))
-
-    schema = Schema(schema_uuid, display_name, dictified_properties, memo)
-
-    metadata.register_schema(schema)
-    context_object.log_info('schema add', uuid=schema.uuid)
     click.echo('Schema "{}" is added.'.format(schema.uuid))
 
 
@@ -138,17 +132,13 @@ def schema_remove(ctx, schema_uuid):
     :param Context ctx: Context
     :param UUID schema_uuid: スキーマUUID
     """
-    context_object = ctx.obj  # type: ContextObject
-    metadata = context_object.metadata
-
-    if not metadata.writable:
-        click.echo('Cannot remove from {}.'.format(metadata.stringified_type))
-        ctx.exit(code=-1)
-
-    schema = metadata.find_schema(schema_uuid)
-    if schema is None:
+    try:
+        schema = Schema.query.filter_by(uuid=schema_uuid).one()
+    except NoResultFound:
         click.echo('Schema "{}" is not registered. Do nothing.'.format(schema_uuid))
         ctx.exit(code=-1)
-    metadata.unregister_schema(schema)
-    context_object.log_info('schema remove', uuid=schema_uuid)
+
+    with MetaDataSession.begin():
+        MetaDataSession.delete(schema)
+
     click.echo('Schema "{}" is removed.'.format(schema_uuid))

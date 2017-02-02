@@ -3,73 +3,117 @@
 """Schema Model."""
 
 # system module
-from uuid import UUID
+import collections
+import datetime
 
 # community module
-from six import PY3
+import sqlalchemy as sa
+from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
-from .base import UUIDBasedObject
-from ..helpers.metadata import metadata
-
-if PY3:
-    from typing import Dict, List, Optional, Union
+from .base import GUID, MetaDataBase
 
 
-class SchemaError(Exception):
-    pass
+# class SchemaError(Exception):
+#     pass
 
 
-class SchemaProperty(object):
-    """SchemaPropertyオブジェクト.
+# class SchemaProperty(object):
+#     """SchemaPropertyオブジェクト.
 
-    :param str name: 属性名
-    :param str type: タイプ
-    """
+#     :param str name: 属性名
+#     :param str type: タイプ
+#     """
 
-    def __init__(self, name, property_type):
-        """init.
+#     def __init__(self, name, property_type):
+#         """init.
 
-        :param str name: キー
-        :param str property_type: タイプ
-        """
-        self.name = name
-        self.type = property_type
+#         :param str name: キー
+#         :param str property_type: タイプ
+#         """
+#         self.name = name
+#         self.type = property_type
 
-    def __eq__(self, other):
-        """return equality.
+#     def __eq__(self, other):
+#         """return equality.
 
-        :param SchemaProperty other: other SchemaProperty
-        :return: equality
-        :rtype: bool
-        """
-        return all([self.name == other.name, self.type == other.type])
+#         :param SchemaProperty other: other SchemaProperty
+#         :return: equality
+#         :rtype: bool
+#         """
+#         return all([self.name == other.name, self.type == other.type])
 
-    def to_json(self):
-        """このモデルのJSON表現を返す.
+#     def to_json(self):
+#         """このモデルのJSON表現を返す.
 
-        :return: json表現のdict
-        :rtype: Dict
-        """
-        return {
-            'name': self.name,
-            'type': self.type,
-        }
+#         :return: json表現のdict
+#         :rtype: Dict
+#         """
+#         return {
+#             'name': self.name,
+#             'type': self.type,
+#         }
 
 
-class Schema(UUIDBasedObject):
+class SchemaProperty(collections.namedtuple('SchemaProperty', ['name', 'type'])):
+    def __new__(cls, name, type=None):
+        if type is None and ':' in name:
+            name, type = name.split(':', 2)
+        if type is None or ':' in type or ':' in name:
+            raise ValueError('invalid property')
+
+        return super(SchemaProperty, cls).__new__(cls, name, type.lower())
+
+    def __str__(self):
+        return '{}:{}'.format(self.name, self.type)
+
+
+class SchemaProperties(object):
+    def __init__(self, props):
+        self._properties = []
+
+        if isinstance(props, str):
+            props = props.split(',')
+        if isinstance(props, (tuple, list)):
+            for p in props:
+                self.append(p)
+
+    def __iter__(self):
+        return iter(self._properties)
+
+    def __len__(self):
+        return len(self._properties)
+
+    def __str__(self):
+        return ','.join(str(p) for p in self)
+
+    def append(self, p):
+        if not isinstance(p, SchemaProperty):
+            p = SchemaProperty(p)
+        return self._properties.append(p)
+
+
+class Schema(MetaDataBase):
     """Schemaオブジェクト.
 
-    :param str key_prefix: ストレージキーのプレフィックス
     :param UUID uuid: Schema UUID
     :param str display_name: 表示名
     :param List[SchemaProperty] properties: プロパティ
     :param Optional[str] memo: メモ
     """
+    __tablename__ = 'schemas'
 
-    key_prefix = 'schema'
+    uuid = sa.Column(GUID, primary_key=True)
+    display_name = sa.Column(sa.String(255), nullable=False, default='')
+    _properties = sa.Column('properties', sa.Text, nullable=False, default='')
+    memo = sa.Column(sa.Text, nullable=False, default='')
+    created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
+    updated_at = sa.Column(
+        sa.DateTime, nullable=False,
+        default=datetime.datetime.utcnow,
+        onupdate=datetime.datetime.utcnow)
 
-    def __init__(self, uuid, display_name, dictified_properties=None, memo=None):
+    def __init__(self, **kwargs):
         """init.
 
         :param Union[str, UUID] uuid: Schema UUID
@@ -77,16 +121,14 @@ class Schema(UUIDBasedObject):
         :param Optional[List[Dict[str, str]]] dictified_properties: 辞書化プロパティ
         :param Optional[str] memo: メモ
         """
-        super(Schema, self).__init__(uuid)
 
-        self.display_name = display_name
-        self.properties = []
-        if dictified_properties is not None:
-            for dictified_property in dictified_properties:
-                _name, _type = dictified_property.get('name'), dictified_property.get('type')
-                if _name is not None and _type is not None:
-                    self.properties.append(SchemaProperty(_name.strip(), _type.strip()))
-        self.memo = memo
+        if 'properties' in kwargs:
+            properties = kwargs.pop('properties')
+            if not isinstance(properties, SchemaProperties):
+                properties = SchemaProperties(properties)
+            kwargs['_properties'] = str(properties)
+
+        super(Schema, self).__init__(**kwargs)
 
     def __eq__(self, other):
         """return equality.
@@ -99,101 +141,111 @@ class Schema(UUIDBasedObject):
                     self.properties == other.properties,
                     self.memo == other.memo])
 
-    @property
-    def stringified_properties(self):
-        """プロパティを文字列化する.
+    @hybrid_property
+    def properties(self):
+        return SchemaProperties(self._properties)
 
-        :return: 文字列化プロパティ
-        :rtype: str
-        """
-        strings = []
-        for prop in self.properties:
-            strings.append('{}:{}'.format(prop.name, prop.type))
-        return ','.join(strings)
+    @properties.setter
+    def properties(self, properties):
+        if not isinstance(properties, SchemaProperties):
+            properties = SchemaProperties(properties)
+        self._properties = str(properties)
 
-    @property
-    def dictified_properties(self):
-        """プロパティを辞書化する.
+    # @property
+    # def stringified_properties(self):
+    #     """プロパティを文字列化する.
 
-        :return: 辞書化プロパティ
-        :rtype: List[Dict[str, str]]
-        """
-        return [prop.to_json() for prop in self.properties]
+    #     :return: 文字列化プロパティ
+    #     :rtype: str
+    #     """
+    #     strings = []
+    #     for prop in self.properties:
+    #         strings.append('{}:{}'.format(prop.name, prop.type))
+    #     return ','.join(strings)
 
-    @classmethod
-    def dictify_properties(cls, stringified_properties):
-        """文字列化プロパティを辞書化する.
+    # @property
+    # def dictified_properties(self):
+    #     """プロパティを辞書化する.
 
-        :param str stringified_properties: 文字列化プロパティ
-        :return: 辞書化プロパティ
-        :rtype: List[Dict[str, str]]
-        """
-        dictified_properties = []
-        property_strings = stringified_properties.split(',')
-        for property_string in property_strings:
-            _name, _type = property_string.split(':')
-            dictified_properties.append({
-                'name': _name,
-                'type': _type,
-            })
-        return dictified_properties
+    #     :return: 辞書化プロパティ
+    #     :rtype: List[Dict[str, str]]
+    #     """
+    #     return [prop.to_json() for prop in self.properties]
 
-    def to_json(self):
-        """このモデルのJSON表現を返す.
+    # @classmethod
+    # def dictify_properties(cls, stringified_properties):
+    #     """文字列化プロパティを辞書化する.
 
-        :return: json表現のdict
-        :rtype: Dict
-        """
-        return {
-            'uuid': str(self.uuid),
-            'display_name': self.display_name,
-            'properties': self.dictified_properties,
-            'memo': self.memo,
-        }
+    #     :param str stringified_properties: 文字列化プロパティ
+    #     :return: 辞書化プロパティ
+    #     :rtype: List[Dict[str, str]]
+    #     """
+    #     dictified_properties = []
+    #     property_strings = stringified_properties.split(',')
+    #     for property_string in property_strings:
+    #         _name, _type = property_string.split(':')
+    #         dictified_properties.append({
+    #             'name': _name,
+    #             'type': _type,
+    #         })
+    #     return dictified_properties
 
-    @classmethod
-    def from_json(cls, json_msg, **kwargs):
-        """JSON表現から復元.
+    # def to_json(self):
+    #     """このモデルのJSON表現を返す.
 
-        :param dict json_msg:
-        :rtype: Schema
-        """
-        properties = json_msg.pop('properties')
-        return Schema(dictified_properties=properties, **json_msg, **kwargs)
+    #     :return: json表現のdict
+    #     :rtype: Dict
+    #     """
+    #     return {
+    #         'uuid': str(self.uuid),
+    #         'displayName': self.display_name,
+    #         'properties': self.dictified_properties,
+    #         'memo': self.memo,
+    #     }
 
-    @property
-    def master_uuid(self):
-        """
-        :rtype Optional[UUID]:
-        """
-        for box in metadata().message_boxes:
-            if box.schema_uuid == self.uuid and box.master_uuid:
-                return box.master_uuid
+    # @classmethod
+    # def from_json(cls, json_msg, **kwargs):
+    #     """JSON表現から復元.
 
-        return None
+    #     :param dict json_msg:
+    #     :rtype: Schema
+    #     """
+    #     properties = json_msg.pop('properties')
+    #     return Schema(dictified_properties=properties, **json_msg, **kwargs)
 
-    def is_valid(self, dic):  # TODO: Schema専用のJSONDecoderを作ってそこで例外を投げたほうがいいかなあ
-        """nanomsg経由で受け取ったメッセージをデシリアライズしたものがこのSchemaに適合しているか.
-        :param dict dic:
-        """
-        if not len(dic) == len(self.properties):
-            return False
+    # @property
+    # def master_uuid(self):
+    #     """
+    #     :rtype Optional[UUID]:
+    #     """
+    #     for box in metadata().message_boxes:
+    #         if box.schema_uuid == self.uuid and box.master_uuid:
+    #             return box.master_uuid
 
-        schema_type_map = {
-            'float': float,
-            'int': int,
-            'text': str
-        }
+    #     return None
 
-        for msg_key, msg_value in dic.items():
-            for property in self.properties:
-                if msg_key == property.name and (
-                    (property.type == 'float' and isinstance(msg_value, int)) or
-                    # float型の値が0だった場合にintだと判定されてしまう
-                    isinstance(msg_value, schema_type_map[property.type])
-                ):
-                    break
-            else:
-                return False
+    # def is_valid(self, dic):  # TODO: Schema専用のJSONDecoderを作ってそこで例外を投げたほうがいいかなあ
+    #     """nanomsg経由で受け取ったメッセージをデシリアライズしたものがこのSchemaに適合しているか.
+    #     :param dict dic:
+    #     """
+    #     if not len(dic) == len(self.properties):
+    #         return False
 
-        return True
+    #     schema_type_map = {
+    #         'float': float,
+    #         'int': int,
+    #         'text': str
+    #     }
+
+    #     for msg_key, msg_value in dic.items():
+    #         for property in self.properties:
+    #             if msg_key == property.name and (
+    #                 (property.type == 'float' and isinstance(msg_value, int)) or
+    #                 # float型の値が0だった場合にintだと判定されてしまう
+    #                 isinstance(msg_value, schema_type_map[property.type])
+    #             ):
+    #                 break
+    #         else:
+    #             return False
+
+    #     return True
