@@ -12,6 +12,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
 from .base import GUID, MetaDataBase
+from ..utils import prepare_uuid
 
 
 class MessageBox(MetaDataBase):
@@ -37,6 +38,13 @@ class MessageBox(MetaDataBase):
         sa.DateTime, nullable=False,
         default=datetime.datetime.utcnow,
         onupdate=datetime.datetime.utcnow)
+
+    def __init__(self, uuid, schema_uuid, module_uuid, display_name, **kwargs):
+        super(MessageBox, self).__init__(
+            uuid=prepare_uuid(uuid),
+            schema_uuid=prepare_uuid(schema_uuid),
+            module_uuid=prepare_uuid(module_uuid),
+            display_name=display_name, **kwargs)
 
     def __eq__(self, other):
         """return equality.

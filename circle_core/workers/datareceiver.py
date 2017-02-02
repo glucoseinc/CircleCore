@@ -14,7 +14,6 @@ from ..database import Database
 from ..exceptions import ModuleNotFoundError, SchemaNotFoundError
 from ..helpers.nanomsg import Receiver
 from ..helpers.topics import ModuleMessageTopic
-from ..models.metadata import MetadataIniFile, MetadataRedis
 from ..timed_db import TimedDBBundle
 
 if PY3:
@@ -24,15 +23,15 @@ if PY3:
 logger = get_stream_logger(__name__)
 
 
-def run(metadata):
+def run(core):
     """clickから起動される.
     """
-    DataReceiver(metadata).run()
+    DataReceiver(core).run()
 
 
 class DataReceiver(object):
-    def __init__(self, metadata, cycle_time=1.0, cycle_count=10, receiver=None):
-        self.metadata = metadata
+    def __init__(self, core, cycle_time=1.0, cycle_count=10, receiver=None):
+        self.core = core
 
         # commitする、メッセージ数と時間
         self.cycle_count = cycle_count

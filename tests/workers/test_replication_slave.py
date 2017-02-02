@@ -33,17 +33,21 @@ from circle_core.workers import replication_slave
 from circle_core.workers.replication_slave import ReplicationSlave
 
 
-class DummyMetadata(MetadataReader):
+class MockMetadata(object):
+    def __init__(self):
+
+
+
+class DummyMetadata(MockMetadata):
     schemas = [Schema('95eef02e-36e5-446e-9fea-aedd10321f6f', 'json', [{'name': 'hoge', 'type': 'int'}])]
     message_boxes = [
-        MessageBox('402a7a37-691d-40ed-b0fe-4aeed9d0bba1', '95eef02e-36e5-446e-9fea-aedd10321f6f', 'DummyMessageBox')
+        MessageBox(
+            '402a7a37-691d-40ed-b0fe-4aeed9d0bba1', '95eef02e-36e5-446e-9fea-aedd10321f6f',
+            '314a578a-6543-4331-90f7-ed80c81d29bf', 'DummyMessageBox')
     ]
-    modules = [Module(
-        '314a578a-6543-4331-90f7-ed80c81d29bf',
-        ['402a7a37-691d-40ed-b0fe-4aeed9d0bba1'],
-        'DummyModule',
-        'foo,bar'
-    )]
+    modules = [
+        Module('314a578a-6543-4331-90f7-ed80c81d29bf', 'DummyModule', 'foo,bar'),
+    ]
     users = []
     replication_links = []
     cc_infos = []

@@ -13,6 +13,7 @@ from circle_core.cli import cli_entry
 from tests import crcr_uuid
 
 
+@pytest.mark.skip
 class TestCliMain(object):
     @pytest.mark.usefixtures('remove_environ')
     @pytest.mark.parametrize(('main_params', 'expected'), [

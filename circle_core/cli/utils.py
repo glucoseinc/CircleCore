@@ -104,20 +104,6 @@ def create_row_strings(rows):
     return row_strings, sizes
 
 
-def generate_uuid(existing=None):
-    """UUIDを生成する.
-
-    :param Optional[List[UUID]] existing: 使用中のUUIDリスト
-    :return: UUID
-    :rtype: UUID
-    """
-    generated = uuid4()
-    if existing is not None:
-        while str(generated) in [str(e) for e in existing]:
-            generated = uuid4()
-    return generated
-
-
 class RestartableProcess:
     """RestartableProcess.
 

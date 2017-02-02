@@ -12,44 +12,19 @@ import tcptest.redis
 
 # project module
 from tests import crcr_uuid
-
-
-@pytest.fixture(autouse=True, scope='session')
-def redis_server(request):
-    server = tcptest.redis.Server()
-    server.start()
-
-    os.environ['CRCR_METADATA'] = 'redis://localhost:{}/0'.format(server.port)
-    os.environ['CRCR_LOG_FILE_PATH'] = '/tmp/test_log.ltsv'
-
-    def stop():
-        server.stop()
-    request.addfinalizer(stop)
-
-    return server
+from circle_core.models import MetaDataBase, MetaDataSession
 
 
 @pytest.fixture()
-def flushall_redis_server(redis_server):
-    redis.Redis(port=redis_server.port).flushall()
-    own_cc_info_dict = {
-        'uuid': crcr_uuid,
-        'display_name': 'CircleCore_{}'.format(crcr_uuid),
-        'myself': 'True',
-    }
-    redis.Redis(port=redis_server.port).hmset('cc_info_{}'.format(crcr_uuid), own_cc_info_dict)
+def clear_metadata(request):
+    path = './tmp/metadata.sqlite'
 
+    def _clear_file():
+        if os.path.exists(path):
+            os.remove(path)
 
-@pytest.fixture()
-def remove_environ(request):
-    crcr_metadata = os.environ.pop('CRCR_METADATA')
-    crcr_log_file_path = os.environ.pop('CRCR_LOG_FILE_PATH')
-
-    def at_exit():
-        os.environ['CRCR_METADATA'] = crcr_metadata
-        os.environ['CRCR_LOG_FILE_PATH'] = crcr_log_file_path
-
-    request.addfinalizer(at_exit)
+    _clear_file()
+    request.addfinalizer(_clear_file)
 
 
 @pytest.fixture()
