@@ -79,15 +79,14 @@ def schema_detail(ctx, schema_uuid):
         data.append(('PROPERTIES' if i == 0 else '', '{}:{}'.format(prop.name, prop.type)))
     data.append(('MEMO', schema.memo or ''))
 
-    # modules = metadata.find_modules_by_schema(schema_uuid)
-    modules = []
-    if len(modules):
-        for i, module in enumerate(modules):
-            data.append(('Modules' if i == 0 else '', str(module.uuid)))
+    boxes = schema.message_boxes
+    if len(boxes):
+        for i, box in enumerate(boxes):
+            data.append(('Message Box' if i == 0 else '', str(box.uuid)))
         output_properties(data)
     else:
         output_properties(data)
-        click.echo('No modules are use this schema.')
+        click.echo('No message boxes are use this schema.')
 
 
 @cli_schema.command('add')
