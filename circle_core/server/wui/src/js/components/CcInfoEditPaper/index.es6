@@ -2,10 +2,9 @@ import React, {Component, PropTypes} from 'react'
 
 import Paper from 'material-ui/Paper'
 
-import ComponentWithIcon from 'src/components/bases/ComponentWithIcon'
 import ComponentWithOkButton from 'src/components/bases/ComponentWithOkButton'
-import {IdIcon} from 'src/components/bases/icons'
 
+import IdLabel from 'src/components/commons/IdLabel'
 
 import DisplayNameTextField from 'src/components/commons/DisplayNameTextField'
 import WorkTextField from 'src/components/commons/WorkTextField'
@@ -17,6 +16,7 @@ import WorkTextField from 'src/components/commons/WorkTextField'
 class CcInfoEditPaper extends Component {
   static propTypes = {
     ccInfo: PropTypes.object.isRequired,
+    onIdCopyButtonTouchTap: PropTypes.func,
     onUpdateTouchTap: PropTypes.func,
   }
 
@@ -39,6 +39,7 @@ class CcInfoEditPaper extends Component {
     } = this.state
     const {
       onUpdateTouchTap,
+      onIdCopyButtonTouchTap,
     } = this.props
 
     const style = {
@@ -75,14 +76,15 @@ class CcInfoEditPaper extends Component {
           >
             <div style={style.contents}>
               <div style={style.displayNameArea}>
+                <IdLabel
+                  obj={editingCcInfo}
+                  onTouchTap={onIdCopyButtonTouchTap}
+                />
                 <DisplayNameTextField
                   obj={editingCcInfo}
                   floatingLabelText="CircleCore名"
                   onChange={(e) => this.setState({editingCcInfo: editingCcInfo.updateDisplayName(e.target.value)})}
                 />
-                <ComponentWithIcon icon={IdIcon}>
-                  <div style={style.id}>{editingCcInfo.uuid}</div>
-                </ComponentWithIcon>
               </div>
               <div style={style.workArea}>
                 <WorkTextField
