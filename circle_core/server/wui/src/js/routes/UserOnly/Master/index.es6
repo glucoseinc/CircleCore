@@ -4,7 +4,6 @@ import Master from 'src/containers/Master'
 
 import ChangeProfile from './ChangeProfile'
 import Cores from './Cores'
-import Dump from './Dump'
 import Invitations from './Invitations'
 import Logout from './Logout'
 import Modules from './Modules'
@@ -35,7 +34,6 @@ const masterRoute = {
   childRoutes: [
     ChangeProfile,
     Cores,
-    Dump,
     Invitations,
     Logout,
     Modules,
