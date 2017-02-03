@@ -11,10 +11,10 @@ const groupNames = [
   'module',
   'modules',
   'page',
+  'replicationLinks',
   'schema',
   'schemas',
   'schemaPropertyTypes',
-  'shareLinks',
   'user',
   'users',
 ]
