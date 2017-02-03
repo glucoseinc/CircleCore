@@ -540,6 +540,37 @@ class MetadataWriter(MetadataBase):
         """
         raise NotImplementedError
 
+    # ReplicationLink
+    @abstractmethod
+    def register_replication_link(self, replication_link):
+        """ReplicationLinkオブジェクトをストレージに登録する.
+
+        :param ReplicationLink replication_link: ReplicationLinkオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def unregister_replication_link(self, replication_link):
+        """ReplicationLinkオブジェクトをストレージから削除する.
+
+        :param ReplicationLink replication_link: ReplicationLinkオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def update_replication_link(self, replication_link):
+        """ストレージ上のReplicationLinkオブジェクトを更新する.
+
+        :param ReplicationLink replication_link: ReplicationLinkオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
+        """
+        raise NotImplementedError
+
     # CcInfo
     @abstractmethod
     def register_cc_info(self, cc_info):

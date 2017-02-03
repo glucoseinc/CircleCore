@@ -179,6 +179,9 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         for key in keys:
             if self.redis_client.type(key) == 'hash':
                 fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]
+                message_box_uuids = fields.pop('message_box_uuids', None)  # type: Union[str, None]
+                if message_box_uuids is not None:
+                    fields['message_box_uuids'] = message_box_uuids.split(',')
                 replication_links.append(ReplicationLink(**fields))
         return replication_links
 
@@ -408,6 +411,46 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         if not val:
             return None
         return prepare_date(val)
+
+    # ReplicationLink
+    def register_replication_link(self, replication_link):
+        """ReplicationLinkオブジェクトをストレージに登録する.
+
+        :param ReplicationLink replication_link: ReplicationLinkオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
+        """
+        mapping = {
+            'uuid': replication_link.uuid,
+            'display_name': replication_link.display_name,
+            'message_box_uuids': replication_link.stringified_message_box_uuids,
+        }
+        if replication_link.memo is not None:
+            mapping['memo'] = replication_link.memo
+
+        self.redis_client.hmset(replication_link.storage_key, mapping)
+        return True
+
+    def unregister_replication_link(self, replication_link):
+        """ReplicationLinkオブジェクトをストレージから削除する.
+
+        :param ReplicationLink replication_link: ReplicationLinkオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
+        """
+        self.redis_client.delete(replication_link.storage_key)
+        return True
+
+    def update_replication_link(self, replication_link):
+        """ストレージ上のReplicationLinkオブジェクトを更新する.
+
+        :param ReplicationLink replication_link: ReplicationLinkオブジェクト
+        :return: 成功/失敗
+        :rtype: bool
+        """
+        if self.unregister_replication_link(replication_link) is True:
+            return self.register_replication_link(replication_link)
+        return False
 
     # CcInfo
     def register_cc_info(self, cc_info):

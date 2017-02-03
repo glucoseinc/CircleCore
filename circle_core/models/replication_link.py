@@ -63,6 +63,15 @@ class ReplicationLink(UUIDBasedObject):
         """
         return all([self.uuid == other.uuid, self.display_name == other.display_name, self.memo == other.memo])
 
+    @property
+    def stringified_message_box_uuids(self):
+        """MessageBoxのUUIDリストを文字列化する.
+
+        :return: 文字列化MessageBox UUID
+        :rtype: str
+        """
+        return ','.join([str(uuid) for uuid in self.message_box_uuids])
+
     def to_json(self):
         """このモデルのJSON表現を返す.
 
