@@ -436,9 +436,6 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         :return: 成功/失敗
         :rtype: bool
         """
-        if len(self.find_modules_by_schema(cc_info.uuid)) != 0:
-            return False
-
         self.redis_client.delete(cc_info.storage_key)
         return True
 
