@@ -1,7 +1,7 @@
 import {fork, put, takeEvery} from 'redux-saga/effects'
 import {routerActions, LOCATION_CHANGE} from 'react-router-redux'
 
-import {actionTypes} from 'src/actions'
+import actions, {actionTypes} from 'src/actions'
 import {urls} from 'src/routes'
 
 
@@ -25,6 +25,10 @@ function* locationChangetoSchemas(action) {
  */
 function* locationChangetoModules(action) {
   yield put(routerActions.push(pathnames.modules))
+
+  if (action.type === actionTypes.replicationLinks.createSucceeded) {
+    yield put(actions.page.showSnackbar('共有リンクを作成しました'))
+  }
 }
 
 /**
@@ -45,6 +49,7 @@ function* handleLocationChangetoModules() {
   const triggerActionTypes = [
     actionTypes.modules.createSucceeded,
     actionTypes.modules.deleteSucceeded,
+    actionTypes.replicationLinks.createSucceeded,
   ]
   yield takeEvery(triggerActionTypes, locationChangetoModules)
 }
