@@ -413,6 +413,38 @@ class CCAPI extends APICaller {
     return res.body
   }
 
+
+  // replicationLink
+  /**
+   * ReplicationLinkを作成する
+   * @param {object} rawReplicationLink
+   * @return {object} Result
+   */
+  async createReplicationLink(rawReplicationLink) {
+    const res = await this._post('/replicas/', rawReplicationLink)
+    return res.body
+  }
+
+  /**
+   * ReplicationLinkの詳細を得る
+   * @param {string} replicationLinkId
+   * @return {object} Result
+   */
+  async fetchReplicationLink(replicationLinkId) {
+    const res = await this._get(`/replicas/${replicationLinkId}`)
+    return res.body
+  }
+
+  /**
+   * ReplicationLinkのリストを得る
+   * @return {object} Result
+   */
+  async fetchAllReplicationLinks() {
+    const res = await this._get('/replicas/')
+    return res.body
+  }
+
+
   // ModuleGraphData
   /**
    * Moduleのグラフ用データを得る
