@@ -1,18 +1,16 @@
 import React, {Component, PropTypes} from 'react'
 
 import Paper from 'material-ui/Paper'
-import {grey600} from 'material-ui/styles/colors'
 
 import Schema from 'src/models/Schema'
 
-import AddFlatButton from 'src/components/commons/AddFlatButton'
+import ComponentWithHeader from 'src/components/bases/ComponentWithHeader'
+
 import CreateButton from 'src/components/commons/CreateButton'
-import DeleteIconButton from 'src/components/commons/DeleteIconButton'
 import DisplayNameTextField from 'src/components/commons/DisplayNameTextField'
 import MemoTextField from 'src/components/commons/MemoTextField'
 
-import PropertyNameTextField from './PropertyNameTextField'
-import PropertyTypeSelectField from './PropertyTypeSelectField'
+import PropertiesEditComponent from './PropertiesEditComponent'
 
 
 /**
@@ -44,68 +42,32 @@ class SchemaNewPaper extends Component {
       root: {
         display: 'flex',
         flexFlow: 'column nowrap',
-        padding: 8,
-      },
-      areaLabel: {
-        padding: 8,
-        color: grey600,
+        padding: 24,
       },
 
-      displayName: {
-        padding: 16,
+      displayNameArea: {
       },
 
       propertiesArea: {
-        display: 'flex',
-        flexFlow: 'column nowrap',
-        padding: 8,
-      },
-      properties: {
-        display: 'flex',
-        flexFlow: 'column nowrap',
-        padding: 0,
-      },
-      propertyBlock: {
-        display: 'flex',
-        flexFlow: 'row nowrap',
-        alignItems: 'center',
-        padding: 0,
-      },
-      propertyName: {
-        padding: '0px 8px',
-        flexGrow: 1,
-      },
-      propertyType: {
-        padding: '0px 8px',
-        flexGrow: 1,
-      },
-      propertyDeleteIcon: {
-        padding: '0px 8px',
-      },
-
-      propertyActionsBlock: {
-        padding: 8,
+        paddingTop: 32,
       },
 
       metadataArea: {
-        display: 'flex',
-        flexFlow: 'column nowrap',
-        padding: 8,
-      },
-      memo: {
-        padding: 8,
+        paddingTop: 32,
       },
 
       actionsArea: {
-        margin: 'auto',
-        padding: 16,
+        display: 'flex',
+        flexFlow: 'row nowrap',
+        justifyContent: 'space-around',
+        paddingTop: 40,
       },
     }
 
     return (
       <Paper>
         <div style={style.root}>
-          <div style={style.displayName}>
+          <div style={style.displayNameArea}>
             <DisplayNameTextField
               obj={schema}
               floatingLabelText="メッセージスキーマ名"
@@ -114,54 +76,26 @@ class SchemaNewPaper extends Component {
           </div>
 
           <div style={style.propertiesArea}>
-            <div style={style.areaLabel}>
-              <span>プロパティ</span>
-            </div>
-            <div style={style.properties}>
-              {schema.properties.valueSeq().map((property, index) =>
-                <div key={index} style={style.propertyBlock}>
-                  <div style={style.propertyName}>
-                    <PropertyNameTextField
-                      property={property}
-                      onChange={
-                        (e) => this.setState({schema: schema.updateSchemaPropertyName(index, e.target.value)})
-                      }
-                    />
-                  </div>
-                  <div style={style.propertyType}>
-                    <PropertyTypeSelectField
-                      selectedProperty={property}
-                      propertyTypes={propertyTypes}
-                      onChange={(e, i, v) => this.setState({schema: schema.updateSchemaPropertyType(index, v)})}
-                    />
-                  </div>
-                  <div style={style.propertyDeleteIcon}>
-                    <DeleteIconButton
-                      disabled={schema.properties.size <= 1}
-                      onTouchTap={() => this.setState({schema: schema.removeSchemaProperty(index)})}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-            <div style={style.propertyActionsBlock}>
-              <AddFlatButton
-                label="プロパティを追加する"
-                onTouchTap={() => this.setState({schema: schema.pushSchemaProperty()})}
+            <ComponentWithHeader headerLabel="プロパティ">
+              <PropertiesEditComponent
+                schema={schema}
+                propertyTypes={propertyTypes}
+                onUpdate={(index, property) => this.setState({schema: schema.updateSchemaProperty(index, property)})}
+                onDeleteTouchTap={(index) => this.setState({schema: schema.removeSchemaProperty(index)})}
+                onAddTouchTap={() => this.setState({schema: schema.pushSchemaProperty()})}
               />
-            </div>
+            </ComponentWithHeader>
           </div>
 
           <div style={style.metadataArea}>
-            <div style={style.areaLabel}>
-              <span>メタデータ</span>
-            </div>
-            <div style={style.memo}>
-              <MemoTextField
-                obj={schema}
-                onChange={(e) => this.setState({schema: schema.updateMemo(e.target.value)})}
-              />
-            </div>
+            <ComponentWithHeader headerLabel="メタデータ">
+              <div style={style.memoSection}>
+                <MemoTextField
+                  obj={schema}
+                  onChange={(e) => this.setState({schema: schema.updateMemo(e.target.value)})}
+                />
+              </div>
+            </ComponentWithHeader>
           </div>
 
           <div style={style.actionsArea}>
