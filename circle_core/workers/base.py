@@ -18,7 +18,10 @@ def make_worker(core, type, key, config):
 
 class CircleWorker(object):
     def __init__(self, core):
-        self.core = weakref.ref(core)
+        self.core = weakref.proxy(core)
 
-    def run(self):
-        raise NotImplementedError
+    def initialize(self):
+        pass
+
+    def fainalize(self):
+        pass

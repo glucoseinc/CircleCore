@@ -16,8 +16,7 @@ import sqlalchemy
 from .hub import CoreHub
 from circle_core.exceptions import ConfigError
 from circle_core.models import CcInfo, generate_uuid, MetaDataBase, MetaDataSession, NoResultFound
-from circle_core.workers import make_worker#, WORKER_DATARECEIVER, WORKER_NORMALIZER
-# from circle_core.helpers.nanomsg import MasterSender
+from circle_core.workers import make_worker, WORKER_DATARECEIVER
 
 
 DFEAULT_CONFIG_FILE_NAME = 'circle_core.ini'
@@ -68,6 +67,9 @@ class CircleCore(object):
             request_socket=core_config['request_socket'],
         )
 
+        # add default workers
+        core.add_worker(WORKER_DATARECEIVER, '', core_config)
+
         # add workers
         for section in config.sections():
             if not section.startswith('circle_core:'):
@@ -100,6 +102,8 @@ class CircleCore(object):
         self.hub_socket = hub_socket
         self.request_socket = request_socket
 
+        self.hub = CoreHub(self.hub_socket, self.request_socket)
+
         # setup
         self.open_log_file()
         self.open_metadata_db()
@@ -117,9 +121,15 @@ class CircleCore(object):
     def add_worker(self, worker_type, worker_key, worker_config):
         self.workers.append(make_worker(self, worker_type, worker_key, worker_config))
 
-    def run_hub(self):
-        hub = CoreHub(self.hub_socket, self.request_socket)
-        hub.run()
+    def run(self):
+        for worker in self.workers:
+            worker.initialize()
+
+        try:
+            self.hub.run()
+        finally:
+            for worker in self.workers:
+                worker.finalize()
 
     # private
     def open_log_file(self):
