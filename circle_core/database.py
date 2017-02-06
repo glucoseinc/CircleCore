@@ -4,6 +4,7 @@
 
 from __future__ import absolute_import
 
+import logging
 from time import mktime
 import uuid
 
@@ -18,8 +19,8 @@ import sqlalchemy.sql.ddl
 
 # project module
 from circle_core.exceptions import MigrationError
-from circle_core.helpers.metadata import metadata
-from circle_core.logger import get_stream_logger
+# from circle_core.helpers.metadata import metadata
+# from circle_core.logger import get_stream_logger
 from .constants import CRDataType
 from .models.module import Module
 from .models.schema import Schema
@@ -33,8 +34,7 @@ TABLE_OPTIONS = {
     'mysql_engine': 'InnoDB',
     'mysql_charset': 'utf8mb4',
 }
-# TODO temporary
-logger = get_stream_logger('crcr.database')
+logger = logging.getLogger(__name__)
 
 
 class Database(object):

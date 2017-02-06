@@ -2,6 +2,7 @@
 """デバイスからのメッセージ."""
 import decimal
 import json
+import logging
 import re
 from time import time
 from uuid import UUID
@@ -13,11 +14,11 @@ from circle_core.utils import prepare_uuid
 from .module import Module
 from .schema import Schema
 from ..exceptions import MessageBoxNotFoundError, SchemaNotFoundError, SchemaNotMatchError
-from ..helpers.metadata import metadata
-from ..logger import get_stream_logger
+# from ..helpers.metadata import metadata
+# from ..logger import get_stream_logger
 
 
-logger = get_stream_logger(__name__)
+logger = logging.getLogger(__name__)
 message_timestamp_context = decimal.Context(16, decimal.ROUND_DOWN)
 
 
