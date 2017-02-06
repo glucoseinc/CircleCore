@@ -7,14 +7,14 @@ from flask import abort, redirect, request, url_for
 from six import PY3
 
 # project module
-from circle_core.cli.utils import generate_uuid
+# from circle_core.cli.utils import generate_uuid
 from circle_core.constants import CRScope
 from circle_core.models import MessageBox, Module
 from circle_core.server.wui.authorize.core import oauth
 from .api import api
 from .utils import respond_failure
 from ..utils import (
-    api_jsonify, convert_dict_key_camel_case, convert_dict_key_snake_case, get_metadata,
+    api_jsonify, convert_dict_key_camel_case, convert_dict_key_snake_case,
     oauth_require_read_users_scope, oauth_require_write_users_scope
 )
 

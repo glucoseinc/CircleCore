@@ -7,11 +7,11 @@ from flask import abort, request
 from six import PY3
 
 # project module
-from circle_core.cli.utils import generate_uuid
+# from circle_core.cli.utils import generate_uuid
 from circle_core.models import Schema
 from .api import api
 from ..utils import (
-    api_jsonify, api_response_failure, convert_dict_key_camel_case, convert_dict_key_snake_case, get_metadata,
+    api_jsonify, api_response_failure, convert_dict_key_camel_case, convert_dict_key_snake_case,
     oauth_require_read_schema_scope, oauth_require_write_schema_scope
 )
 

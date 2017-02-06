@@ -5,25 +5,42 @@
 from collections import defaultdict
 from datetime import datetime
 import logging
-import time
+import math
 import threading
+import time
 from uuid import UUID
 
 from six import PY3
 
 # project module
 from circle_core.constants import RequestType
+from .base import CircleWorker, register_worker_factory
+from ..core.message import ModuleMessage
 from ..database import Database
 from ..exceptions import MessageBoxNotFoundError, ModuleNotFoundError, SchemaNotFoundError
-from ..timed_db import TimedDBBundle
-from ..models import Schema, MessageBox, NoResultFound
-from ..models.message import ModuleMessage
 from ..helpers.topics import make_message_topic
-from .base import CircleWorker, register_worker_factory
+from ..models import MessageBox, NoResultFound, Schema
+from ..timed_db import TimedDBBundle
 
 
 logger = logging.getLogger(__name__)
 WORKER_DATARECEIVER = 'datareceiver'
+
+
+@register_worker_factory(WORKER_DATARECEIVER)
+def create_http_worker(core, type, key, config):
+    assert type == WORKER_DATARECEIVER
+    defaults = {
+        'cyclce_time': '1.0',
+        'cycle_count': '100',
+    }
+    return DataReceiverWorker(
+        core,
+        db_url=config.get('db'),
+        time_db_dir=config.get('time_db_dir'),
+        cycle_time=config.getfloat('cyclce_time', vars=defaults),
+        cycle_count=config.getint('cycle_count', vars=defaults),
+    )
 
 
 class DataReceiverWorker(CircleWorker):
@@ -31,22 +48,6 @@ class DataReceiverWorker(CircleWorker):
     request_socketに届いた、生のメッセージのスキーマをチェックしたあと、プライマリキーを付与してDBに保存する。
     また、同時にhubにも流す。
     """
-
-    @classmethod
-    def create(cls, core, type, key, config):
-        assert type == WORKER_DATARECEIVER
-        defaults = {
-            'cyclce_time': '1.0',
-            'cycle_count': '10',
-        }
-        return cls(
-            core,
-            db_url=config.get('db'),
-            time_db_dir=config.get('time_db_dir'),
-            cycle_time=config.getfloat('cyclce_time', vars=defaults),
-            cycle_count=config.getint('cycle_count', vars=defaults),
-        )
-
     def __init__(self, core, db_url, time_db_dir, cycle_time=1.0, cycle_count=10):
         super(DataReceiverWorker, self).__init__(core)
 
@@ -57,6 +58,8 @@ class DataReceiverWorker(CircleWorker):
         self.db = Database(db_url)
         # self.db.register_message_boxes(MessageBox.query.all(), Schema.query.all())
         self.time_db_bundle = TimedDBBundle(time_db_dir)
+        # timed dbのアップデート用にlist((box_id, timestamp))を記録する
+        self.updates = []
 
         # if not self.db.diff_database().is_ok:
         #     # TODO: 例外処理
@@ -74,8 +77,7 @@ class DataReceiverWorker(CircleWorker):
         self.counters = defaultdict(int)
 
     def finalize(self):
-        if self.write_count:
-            self.commit_transaction()
+        self.commit_transaction(True)
 
     def on_new_message(self, request):
         box_id = request['box_id']
@@ -110,15 +112,25 @@ class DataReceiverWorker(CircleWorker):
         self.transaction = self.conn.begin()
         self.write_count, self.transaction_begin = 0, time.time()
 
-        # timed dbのアップデート用にlist((box_id, timestamp))を記録する
-        self.updates = []
-
-    def commit_transaction(self):
-        logger.debug('commit data count=%d', self.write_count)
+    def commit_transaction(self, flush_all=False):
+        logger.debug('commit, data count=%d, interval=%f', self.write_count, time.time() - self.transaction_begin)
         self.transaction.commit()
-        # TODO: timeddbには1秒前のデータのみ入れる
-        self.time_db_bundle.update(self.updates)
-        self.updates = self.transaction = self.write_count = self.transaction_begin = None
+
+        # update timedb
+        if not flush_all:
+            # 現在の秒のデータは更新中なので、その手前までを保存する...
+            threshold = math.floor(time.time()) - 1
+            for idx, (box_id, timestamp) in enumerate(self.updates):
+                if timestamp >= threshold:
+                    break
+            updates, self.updates = self.updates[:idx], self.updates[idx:]
+            self.time_db_bundle.update(updates)
+            # logger.debug('save updates (%s) %r > %r', threshold, updates, self.updates)
+        else:
+            self.time_db_bundle.update(self.updates)
+            self.updates = []
+
+        self.transaction = self.write_count = self.transaction_begin = None
 
     def rollback_transaction(self):
         self.transaction.rollback()
@@ -163,9 +175,3 @@ class DataReceiverWorker(CircleWorker):
             self.counters[message_box.uuid] = counter
 
         return ModuleMessage(message_box.uuid, timestamp, counter, payload)
-
-
-register_worker_factory(
-    WORKER_DATARECEIVER,
-    DataReceiverWorker.create,
-)

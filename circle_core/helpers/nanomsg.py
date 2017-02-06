@@ -15,7 +15,7 @@ from tornado.ioloop import IOLoop
 
 # project module
 # from circle_core.logger import get_stream_logger
-from ..models.message import ModuleMessage
+# from ..models.message import ModuleMessage
 
 if PY3:
     from json.decoder import JSONDecodeError
@@ -74,7 +74,7 @@ class Receiver(object):
 
     def close(self):
         """Tornadoに叩かれる."""
-        IOLoop.current().remove_handler(self)
+        self._socket.close()
 
     def set_timeout(self, timeout):
         """タイムアウトを設定する.
@@ -176,3 +176,26 @@ class Replier(object):
         """
         data = json.dumps(payload)
         return self._socket.send(data.encode('utf-8'))
+
+    def fileno(self):
+        """Tornadoに叩かれる."""
+        return self._socket.getsockopt(nnpy.SOL_SOCKET, nnpy.RCVFD)
+
+    def close(self):
+        """Tornadoに叩かれる."""
+        self._socket.close()
+
+    def register_ioloop(self, callback):
+        """TornadoのIOLoopにメッセージ受信時のコールバックを登録.
+
+        :param FunctionType callback:
+        """
+        def call_callback(*args):
+            try:
+                msg = self.recv()
+            except Exception as exc:
+                callback(None, exc)
+            else:
+                callback(msg, None)
+
+        IOLoop.current().add_handler(self, call_callback, IOLoop.READ)

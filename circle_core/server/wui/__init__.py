@@ -2,12 +2,12 @@
 """WebUI."""
 
 
-def create_app(metadata=None):
+def create_app(core, base_url=None):
     """App factory.
 
     :param Optional[Union[MetadataIniFile, MetadataRedis]] metadata: Metadata
     :rtype: Flask
     """
     from .app import CCWebApp
-    app = CCWebApp(metadata)
+    app = CCWebApp(core, base_url)
     return app

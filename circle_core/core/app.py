@@ -12,11 +12,12 @@ import uuid
 import alembic
 import alembic.config
 import sqlalchemy
+import sqlalchemy.exc
 
-from .hub import CoreHub
 from circle_core.exceptions import ConfigError
 from circle_core.models import CcInfo, generate_uuid, MetaDataBase, MetaDataSession, NoResultFound
 from circle_core.workers import make_worker, WORKER_DATARECEIVER
+from .hub import CoreHub
 
 
 DFEAULT_CONFIG_FILE_NAME = 'circle_core.ini'
@@ -111,7 +112,7 @@ class CircleCore(object):
 
         self.my_cc_info = self.make_own_cc_info(config_uuid)
         logger.info(
-            'My CiclelCore\nUUID: %s\nDisplay Name:%s',
+            'This CiclelCore > UUID:%s Display Name:%s',
             self.my_cc_info.uuid, self.my_cc_info.display_name)
 
     # public
@@ -124,6 +125,10 @@ class CircleCore(object):
     def run(self):
         for worker in self.workers:
             worker.initialize()
+
+        if self.debug:
+            from tornado import autoreload
+            autoreload.start()
 
         try:
             self.hub.run()
@@ -145,7 +150,11 @@ class CircleCore(object):
     def migrate_metadata_db(self):
         # dbにTableが一個もなかったらcreate allして、revisionをHEADにする
         dummy = sqlalchemy.MetaData()
-        dummy.reflect(self.metadata_db_engine)
+        try:
+            dummy.reflect(self.metadata_db_engine)
+        except sqlalchemy.exc.OperationalError:
+            pass
+
         if not dummy.tables:
             # empty
             logger.info('Initialize metadata database.')
