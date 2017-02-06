@@ -16,39 +16,41 @@ import click
 from click.core import Context
 
 # project module
-from circle_core import server
+# from circle_core import server
 from circle_core.core import CircleCore
-from circle_core.server import ws, wui
-from circle_core.workers import datareceiver
-from circle_core.workers.replication_slave import ReplicationSlave
 from .context import CLIContextObject
 from .utils import RestartableProcess
 from ..database import Database
 
 
+logger = logging.getLogger(__name__)
+
+
 @click.group()
 @click.option('config_file_path', '--config', '-c', type=click.Path())
-# @click.option('metadata_url', '--metadata', envvar='CRCR_METADATA')
-# @click.option('log_file_path', '--log-file', envvar='CRCR_LOG_FILE_PATH', default='var/log.ltsv')
+@click.option('--debug', is_flag=True)
 @click.pass_context
-def cli_main(ctx, config_file_path):
+def cli_main(ctx, config_file_path, debug):
     """`crcr`の起点.
 
     :param Context ctx: Context
     :param str config_file_path: iniファイルのpath
     """
     # initialize console logging
-    _init_logging()
+    _init_logging(debug)
 
     if config_file_path:
         core = CircleCore.load_from_config_file(config_file_path)
     else:
         core = CircleCore.load_from_default_config_file()
 
+    if debug:
+        core.set_debug(True)
+
     ctx.obj = CLIContextObject(core)
 
 
-def _init_logging():
+def _init_logging(debug=False):
     if sys.stderr.isatty():
         # if we are attached to tty, use colorful.
         fh = logging.StreamHandler(sys.stderr)
@@ -65,7 +67,7 @@ def _init_logging():
 
         root_logger = logging.getLogger()
         root_logger.addHandler(fh)
-        root_logger.setLevel(logging.DEBUG)
+        root_logger.setLevel(logging.DEBUG if debug else logging.INFO)
 
 
 @cli_main.command('env')
@@ -101,30 +103,43 @@ def validate_replication_master_addr(ctx, param, values):
 # @click.option('replicate_from', '--replicate', type=click.STRING, envvar='CRCR_REPLICATION', multiple=True,
 #               help='module_uuid@hostname:port', callback=validate_replication_master_addr)
 # @click.option('database_url', '--database', envvar='CRCR_DATABASE')
-@click.option('--debug', is_flag=True)
 @click.pass_context
-def cli_main_run(ctx, debug):
+def cli_main_run(ctx):
     """CircleCoreの起動."""
     # ctx.obj.ipc_socket = 'ipc://' + ipc_socket
     core = ctx.obj.core
 
-    for addr, value in groupby([module_and_addr.split('@') for module_and_addr in replicate_from], lambda x: x[1]):
-        modules = [module_and_addr[0] for module_and_addr in value]
-        RestartableProcess(target=lambda: ReplicationSlave(core, addr, modules).run()).start()
+    logger.info('Master process PID:%s', os.getpid())
 
-    RestartableProcess(target=datareceiver.run, args=[core]).start()
+    # run all workers
+    for worker in core.workers:
+        RestartableProcess(target=worker.run).start()
 
-    if ws_port == wui_port:
-        RestartableProcess(target=server.run, args=[wui_port, core, debug]).start()
-    else:
-        RestartableProcess(target=ws.run, args=[core, ws_path, ws_port]).start()
-        RestartableProcess(target=wui.create_app(core).run, kwargs={'port': wui_port}).start()
+    # run hub
+    core.run_hub()
 
-    click.echo('Websocket : ws://{host}:{port}{path}'.format(path=ws_path, port=ws_port, host='127.0.0.1'), err=True)
-    click.echo('WebUI : http://127.0.0.1:{port}{path}'.format(path='/', port=ws_port), err=True)
-    click.echo('IPC : {}'.format(ctx.obj.ipc_socket), err=True)
-
+    # wait all
     RestartableProcess.wait_all()
+
+
+
+    # for addr, value in groupby([module_and_addr.split('@') for module_and_addr in replicate_from], lambda x: x[1]):
+    #     modules = [module_and_addr[0] for module_and_addr in value]
+    #     RestartableProcess(target=lambda: ReplicationSlave(core, addr, modules).run()).start()
+
+    # RestartableProcess(target=datareceiver.run, args=[core]).start()
+
+    # if ws_port == wui_port:
+    #     RestartableProcess(target=server.run, args=[wui_port, core, debug]).start()
+    # else:
+    #     RestartableProcess(target=ws.run, args=[core, ws_path, ws_port]).start()
+    #     RestartableProcess(target=wui.create_app(core).run, kwargs={'port': wui_port}).start()
+
+    # click.echo('Websocket : ws://{host}:{port}{path}'.format(path=ws_path, port=ws_port, host='127.0.0.1'), err=True)
+    # click.echo('WebUI : http://127.0.0.1:{port}{path}'.format(path='/', port=ws_port), err=True)
+    # click.echo('IPC : {}'.format(ctx.obj.ipc_socket), err=True)
+
+    # RestartableProcess.wait_all()
 
 
 @cli_main.command('migrate')

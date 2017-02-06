@@ -13,8 +13,11 @@ import alembic
 import alembic.config
 import sqlalchemy
 
+from .hub import CoreHub
 from circle_core.exceptions import ConfigError
 from circle_core.models import CcInfo, generate_uuid, MetaDataBase, MetaDataSession, NoResultFound
+from circle_core.workers import make_worker#, WORKER_DATARECEIVER, WORKER_NORMALIZER
+# from circle_core.helpers.nanomsg import MasterSender
 
 
 DFEAULT_CONFIG_FILE_NAME = 'circle_core.ini'
@@ -50,29 +53,52 @@ class CircleCore(object):
         return configparser.ConfigParser(
             delimiters=('=',),
             default_section=None,
+            interpolation=configparser.ExtendedInterpolation(),
         )
 
     @classmethod
     def load_from_config(cls, config):
         core_config = config['circle_core']
 
-        return cls(
+        core = cls(
             config_uuid=core_config.get('uuid', 'auto'),
             metadata_file_path=core_config['metadata_file_path'],
             log_file_path=core_config['log_file_path'],
+            hub_socket=core_config['hub_socket'],
+            request_socket=core_config['request_socket'],
         )
 
-        raise NotImplementedError()
+        # add workers
+        for section in config.sections():
+            if not section.startswith('circle_core:'):
+                continue
 
-    def __init__(self, config_uuid, metadata_file_path, log_file_path):
+            t = section.split(':')[1:]
+            if len(t) == 1:
+                worker_type, worker_key = t[0], ''
+            elif len(t) == 2:
+                worker_type, worker_key = t[:2]
+            else:
+                continue
+
+            worker_config = config[section]
+            core.add_worker(worker_type, worker_key, worker_config)
+
+        return core
+
+    def __init__(self, config_uuid, metadata_file_path, log_file_path, hub_socket, request_socket):
         if config_uuid != 'auto':
             try:
                 config_uuid = uuid.UUID(config_uuid)
             except ValueError:
                 raise ConfigError('invalid uuid `{}`'.fomart(config_uuid))
 
+        self.debug = False
         self.metadata_file_path = metadata_file_path
         self.log_file_path = log_file_path
+        self.workers = []
+        self.hub_socket = hub_socket
+        self.request_socket = request_socket
 
         # setup
         self.open_log_file()
@@ -84,6 +110,18 @@ class CircleCore(object):
             'My CiclelCore\nUUID: %s\nDisplay Name:%s',
             self.my_cc_info.uuid, self.my_cc_info.display_name)
 
+    # public
+    def set_debug(self, debug):
+        self.debug = debug
+
+    def add_worker(self, worker_type, worker_key, worker_config):
+        self.workers.append(make_worker(self, worker_type, worker_key, worker_config))
+
+    def run_hub(self):
+        hub = CoreHub(self.hub_socket, self.request_socket)
+        hub.run()
+
+    # private
     def open_log_file(self):
         """ユーザー操作等を記録するためのロガーの設定を行う
 
@@ -116,7 +154,7 @@ class CircleCore(object):
     def open_alembic(self):
         """metadata dbを対象にalembicの環境を開く"""
         oldwd = os.getcwd()
-        os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__))))
+        os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
 
         try:
             alembic_cfg = alembic.config.Config(os.path.abspath(os.path.join('alembic', 'alembic.ini')))

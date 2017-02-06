@@ -1,52 +1,59 @@
 # -*- coding: utf-8 -*-
-"""センサデータを受け取って保存する"""
+"""センサデータを受け取って保存するCircleModule"""
 
 # system module
 from datetime import datetime
+import logging
 import time
 from uuid import UUID
 
 from six import PY3
 
 # project module
-from circle_core.logger import get_stream_logger
 from ..database import Database
 from ..exceptions import ModuleNotFoundError, SchemaNotFoundError
 from ..helpers.nanomsg import Receiver
 from ..helpers.topics import ModuleMessageTopic
 from ..timed_db import TimedDBBundle
-
-if PY3:
-    from typing import Tuple, Union
-
-
-logger = get_stream_logger(__name__)
+from ..models import Schema, MessageBox
+from .base import CircleWorker, register_worker_factory
 
 
-def run(core):
-    """clickから起動される.
-    """
-    DataReceiver(core).run()
+logger = logging.getLogger(__name__)
+WORKER_DATARECEIVER = 'datareceiver'
 
 
-class DataReceiver(object):
-    def __init__(self, core, cycle_time=1.0, cycle_count=10, receiver=None):
-        self.core = core
+class DataReceiverWorker(CircleWorker):
+    @classmethod
+    def create(cls, core, type, key, config):
+        assert type == WORKER_DATARECEIVER
+        defaults = {
+            'hub': '${circle_core:hub}',
+            'cyclce_time': '1.0',
+            'cycle_count': '10',
+        }
+        return cls(
+            core,
+            db_url=config.get('db'),
+            time_db_dir=config.get('time_db_dir'),
+            hub=config.get('hub', vars=defaults),
+            cycle_time=config.getfloat('cyclce_time', vars=defaults),
+            cycle_count=config.getint('cycle_count', vars=defaults),
+        )
+
+    def __init__(self, core, db_url, hub, time_db_dir, cycle_time=1.0, cycle_count=10):
+        super(DataReceiverWorker, self).__init__(core)
 
         # commitする、メッセージ数と時間
         self.cycle_count = cycle_count
         self.cycle_time = cycle_time
 
-        if receiver is None:
-            self.message_receiver = Receiver(ModuleMessageTopic())
-            self.message_receiver.set_timeout(int(self.cycle_time * 1000))
-        else:
-            self.message_receiver = receiver
+        self.message_receiver = Receiver(hub, ModuleMessageTopic())
+        self.message_receiver.set_timeout(int(self.cycle_time * 1000))
 
-        self.db = Database(metadata.database_url)
-        self.db.register_message_boxes(metadata.message_boxes, metadata.schemas)
-
-        self.time_db_bundle = TimedDBBundle(metadata.prefix)
+        self.db = Database(db_url)
+        self.db.register_message_boxes(MessageBox.query.all(), Schema.query.all())
+        self.time_db_bundle = TimedDBBundle(time_db_dir)
 
         if not self.db.diff_database().is_ok:
             # TODO: 例外処理
@@ -56,9 +63,11 @@ class DataReceiver(object):
         self.transaction = None
 
     def run(self):
+        logger.info('DataReceiver running...')
         self.begin_transaction()
 
         while True:
+            print('hogehoge')
             for msg in self.message_receiver:
                 logger.debug('received a module data for %s-%s : %r', msg.module_uuid, msg.box_id, msg.payload)
 
@@ -114,3 +123,9 @@ class DataReceiver(object):
 
         assert isinstance(msg.box_id, UUID)
         self.updates.append((msg.box_id, msg.timestamp))
+
+
+register_worker_factory(
+    WORKER_DATARECEIVER,
+    DataReceiverWorker.create,
+)
