@@ -2,12 +2,11 @@
 """workers. invoked by `crcr worker run <module_name>`."""
 
 
-from .base import make_worker
 from . import (
     datareceiver,
-#     normalizer,
+    http,
 )
+from .base import make_worker
 
 
 WORKER_DATARECEIVER = datareceiver.WORKER_DATARECEIVER
-# WORKER_NORMALIZER = normalizer.WORKER_NORMALIZER

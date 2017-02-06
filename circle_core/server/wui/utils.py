@@ -10,7 +10,6 @@ from six import PY3
 
 # project module
 from circle_core.constants import CRScope
-from circle_core.models.metadata import MetadataIniFile, MetadataRedis
 
 if PY3:
     from typing import Any, Dict, Union
@@ -51,18 +50,6 @@ def api_response_failure(reason):
         }
     }
     return api_jsonify(**convert_dict_key_camel_case(response))
-
-
-def get_metadata():
-    """Metadataを返す.
-
-    :return:Metadata
-    :rtype: Union[MetadataIniFile, MetadataRedis]
-    """
-    metadata = current_app.config.get('METADATA')
-    if metadata is None:
-        raise Exception  # TODO: 適切な例外投げる
-    return metadata
 
 
 def convert_dict_key_camel_case(obj):

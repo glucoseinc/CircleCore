@@ -7,8 +7,8 @@ import re
 import uuid
 
 # community module
-from six import PY3
-from sqlalchemy import create_engine
+from six import PY3, string_types
+from sqlalchemy import create_engine, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -73,3 +73,47 @@ class GUID(TypeDecorator):
             return value
         else:
             return uuid.UUID(value)
+
+
+class StrListBase(TypeDecorator):
+    """Platform-independent GUID type.
+
+    Uses PostgreSQL's UUID type, otherwise uses
+    CHAR(32), storing as stringified hex values.
+
+    """
+    # impl = CHAR
+    default_delimiter = ','
+
+    def __init__(self, *arg, **kwargs):
+        TypeDecorator.__init__(self, *arg, **kwargs)
+        self.delimiter = kwargs.get('delimiter', self.default_delimiter)
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return value
+        elif isinstance(value, string_types):
+            if self.delimiter in value:
+                raise ValueError('value includs delimiter {!r}'.format(self.delimiter))
+            return value
+        # elif isinstance(value, (tuple, list)):
+        elif hasattr(value, '__iter__'):
+            for v in value:
+                if self.delimiter in v:
+                    raise ValueError('value includs delimiter {!r}'.format(self.delimiter))
+            return self.delimiter.join(value)
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return value
+        else:
+            return value.split(self.delimiter)
+
+
+class StringList(StrListBase):
+    impl = String
+
+
+class TextList(StrListBase):
+    impl = Text
+    default_delimiter = '\n'

@@ -96,13 +96,6 @@ def validate_replication_master_addr(ctx, param, values):
 
 
 @cli_main.command('run')
-# @click.option('--ws-port', type=click.INT, envvar='CRCR_WSPORT', default=5000)
-# @click.option('--ws-path', type=click.STRING, envvar='CRCR_WSPATH', default='/module/?')
-# @click.option('--wui-port', type=click.INT, envvar='CRCR_WUIPORT', default=5000)
-# @click.option('--ipc-socket', type=click.Path(resolve_path=True), envvar='CRCR_IPCSOCK', default='/tmp/circlecore.ipc')
-# @click.option('replicate_from', '--replicate', type=click.STRING, envvar='CRCR_REPLICATION', multiple=True,
-#               help='module_uuid@hostname:port', callback=validate_replication_master_addr)
-# @click.option('database_url', '--database', envvar='CRCR_DATABASE')
 @click.pass_context
 def cli_main_run(ctx):
     """CircleCoreの起動."""
@@ -120,8 +113,6 @@ def cli_main_run(ctx):
 
     # wait all
     # RestartableProcess.wait_all()
-
-
 
     # for addr, value in groupby([module_and_addr.split('@') for module_and_addr in replicate_from], lambda x: x[1]):
     #     modules = [module_and_addr[0] for module_and_addr in value]

@@ -16,7 +16,6 @@ install_requires = [
     'Flask-OAuthlib',
     'nnpy',
     'python-dateutil',
-    'redis',
     'six',
     'sqlalchemy>=1.1.4',
     'tornado',
@@ -53,9 +52,6 @@ setup(
             'pytest-timeout',
             'tcptest',
             'tox',
-        ],
-        'redis': [
-            'redis',
         ],
         'mysql': [
             'mysql-connector-python>=2.2.1',

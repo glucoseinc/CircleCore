@@ -51,6 +51,7 @@ class Database(object):
         self._session = sessionmaker(bind=self._engine, autocommit=True)
 
         self._metadata = sa.MetaData()
+        self._metadata.reflect(self._engine)
         # self._register_meta_table()
 
     # def _register_meta_table(self):
@@ -86,10 +87,11 @@ class Database(object):
             sa.PrimaryKeyConstraint('_created_at', '_counter')
         )
         kwargs = TABLE_OPTIONS.copy()
+        kwargs['autoload_with'] = self._engine
         table = sa.Table(table_name, self._metadata, *columns, **kwargs)
 
         # make table
-        table.create(self._engine)
+        table.create(self._engine, checkfirst=True)
 
         return table
 
@@ -150,16 +152,15 @@ class Database(object):
         if not isinstance(box_or_uuid, uuid.UUID):
             box_or_uuid = box_or_uuid.uuid
 
-        assert(isinstance(box_or_uuid, uuid.UUID), '{!r} is not a UUID'.format(box_or_uuid))
         return 'message_box_' + b58encode(box_or_uuid.bytes)
 
     def find_table_for_message_box(self, message_box):
         table_name = self.make_table_name_for_message_box(message_box)
         if table_name in self._metadata.tables:
-            # table already exists
+            # table already exists and registered to metadata
             table = self._metadata.tables[table_name]
         else:
-            # table not exists
+            # table not exists or not registered to metadata
             table = self.make_table_for_message_box(message_box)
 
         return table

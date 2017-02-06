@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """nanomsgでPubSubする際のTopic(部屋名)を表すクラス群."""
-import json
-import re
+# import json
+# import re
 import uuid
 
 from base58 import b58decode, b58encode
-from werkzeug import cached_property
+# from werkzeug import cached_property
 
-from circle_core.models.message import ModuleMessage
+# from circle_core.models.message import ModuleMessage
 
 
 TOPIC_LENGTH = 48  # Topic name must be shorter than this value

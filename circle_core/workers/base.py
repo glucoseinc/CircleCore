@@ -5,11 +5,12 @@ import weakref
 worker_factories = {}
 
 
-def register_worker_factory(type, factory):
-    if type in worker_factories:
-        raise ValueError('type {} is already registered')
-
-    worker_factories[type] = factory
+def register_worker_factory(type):
+    def _f(f):
+        if type in worker_factories:
+            raise ValueError('type {} is already registered')
+        worker_factories[type] = f
+    return _f
 
 
 def make_worker(core, type, key, config):
@@ -23,5 +24,5 @@ class CircleWorker(object):
     def initialize(self):
         pass
 
-    def fainalize(self):
+    def finalize(self):
         pass

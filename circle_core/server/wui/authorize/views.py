@@ -1,18 +1,21 @@
 # -*- coding: utf-8 -*-
 
 """認証関連APIの実装."""
+import logging
 import time
 
 from flask import abort, g, redirect, render_template, request, session, url_for
 
 from circle_core.constants import CRScope
 from circle_core.exceptions import AuthorizationError
+from circle_core.models import NoResultFound, User
 from .core import authorize, oauth
-from ..utils import api_jsonify, get_metadata
+from ..utils import api_jsonify
 
 
 SESSION_KEY_USER = 'user'
 SESSION_KEY_NONCE = 'nonce'
+logger = logging.getLogger(__name__)
 
 
 def _login(user):
@@ -29,16 +32,17 @@ def before_request():
     """ログイン確認"""
     g.user = None
     user_uuid = session.get(SESSION_KEY_USER)
-
     if not user_uuid:
         return
 
-    metadata = get_metadata()
-    user = metadata.find_user(user_uuid)
+    user = User.query.get(user_uuid)
     if not user:
         return
 
     g.user = user
+
+
+authorize.add_url_rule('/oauth/callback', endpoint='oauth_callback', build_only=True)
 
 
 @authorize.route('/oauth/authorize', methods=['GET', 'POST'])
@@ -56,7 +60,8 @@ def oauth_authorize(*args, **kwargs):
     assert request.method == 'POST'
 
     # check nonce
-    if request.form['nonce'] != str(session.pop(SESSION_KEY_NONCE, None)):
+    saved_nonce = str(session.pop(SESSION_KEY_NONCE, None))
+    if request.form['nonce'] != saved_nonce:
         # nonce not matched
         _logout()
         return False
@@ -88,19 +93,16 @@ def oauth_login():
 
     # ログイン処理
     _login(user)
-
     return redirect(redirect_to)
 
 
 def _find_user_by_password(account, password):
     # TODO: なんかステキなコントローラつくって移す
     # account/passwordが適合するユーザを探す
-    metadata = get_metadata()
 
-    for user in metadata.users:
-        if user.account == account:
-            break
-    else:
+    try:
+        user = User.query.filter_by(account=account).one()
+    except NoResultFound:
         raise AuthorizationError('user not found', account)
 
     if not user.is_password_matched(password):

@@ -68,6 +68,13 @@ class User(MetaDataBase):
 
         super(User, self).__init__(**kwargs)
 
+    def __repr__(self):
+        return '<{module}.User {uuid} ({account})>'.format(
+            module=__name__,
+            uuid=self.uuid,
+            account=self.account,
+        )
+
     @hybrid_property
     def permissions(self):
         return self._permissions.split(',')

@@ -10,9 +10,8 @@ import uuid
 from base58 import b58decode
 from click import get_current_context
 
+from circle_core.models import Module, Schema
 from circle_core.utils import prepare_uuid
-from .module import Module
-from .schema import Schema
 from ..exceptions import MessageBoxNotFoundError, SchemaNotFoundError, SchemaNotMatchError
 # from ..helpers.metadata import metadata
 # from ..logger import get_stream_logger
