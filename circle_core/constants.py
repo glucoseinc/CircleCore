@@ -52,3 +52,9 @@ class CRScope(enum.Enum):
     SCHEMA_R = 'schema+r'
     # モジュール、メッセージスキーマなどの管理
     SCHEMA_RW = 'schema+rw'
+
+
+@enum.unique
+class RequestType(enum.Enum):
+    # 新しいメッセージを登録したい
+    NEW_MESSAGE = 'new_message'

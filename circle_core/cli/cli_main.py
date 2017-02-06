@@ -112,14 +112,14 @@ def cli_main_run(ctx):
     logger.info('Master process PID:%s', os.getpid())
 
     # run all workers
-    for worker in core.workers:
-        RestartableProcess(target=worker.run).start()
+    # for worker in core.workers:
+    #     RestartableProcess(target=worker.run).start()
 
     # run hub
-    core.run_hub()
+    core.run()
 
     # wait all
-    RestartableProcess.wait_all()
+    # RestartableProcess.wait_all()
 
 
 
