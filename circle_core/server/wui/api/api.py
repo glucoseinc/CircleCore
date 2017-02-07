@@ -4,23 +4,28 @@
 
 # community module
 import datetime
+import logging
 
 from flask import abort, Blueprint
 
 api = Blueprint('api', __name__)
+logger = logging.getLogger(__name__)
 
 
 @api.before_request
 def before_request():
     """ログイン確認"""
     from ..authorize.core import oauth
-    from ..utils import get_metadata
 
     t, oauth_requets = oauth.verify_request([])
-    my_uuid = oauth_requets.user
+    user = oauth_requets.user
 
-    if not my_uuid:
+    if not user:
         raise abort(403)
 
-    metadata = get_metadata()
-    metadata.update_user_last_access(my_uuid, datetime.datetime.utcnow())
+    # update user's last access
+    from circle_core.models import MetaDataSession
+
+    with MetaDataSession.begin():
+        user.last_access_at = datetime.datetime.utcnow()
+        MetaDataSession.add(user)

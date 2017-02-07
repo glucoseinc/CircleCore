@@ -49,59 +49,59 @@ def api_response_failure(reason):
             'reason': reason
         }
     }
-    return api_jsonify(**convert_dict_key_camel_case(response))
+    return api_jsonify(**response)
 
 
-def convert_dict_key_camel_case(obj):
-    """辞書のkeyをsnake caseからcamel caseに変換する.
+# def convert_dict_key_camel_case(obj):
+#     """辞書のkeyをsnake caseからcamel caseに変換する.
 
-    :param Union[Dict[str, Any], List, Any] obj: 辞書/リスト/その他
-    :return: 変換後辞書
-    :rtype: Dict[str, Any]
-    """
-    def to_camel(value):
-        if value is None:
-            return None
+#     :param Union[Dict[str, Any], List, Any] obj: 辞書/リスト/その他
+#     :return: 変換後辞書
+#     :rtype: Dict[str, Any]
+#     """
+#     def to_camel(value):
+#         if value is None:
+#             return None
 
-        words = value.lower().split('_')
-        words = [word.capitalize() if i != 0 else word for i, word in enumerate(words)]
+#         words = value.lower().split('_')
+#         words = [word.capitalize() if i != 0 else word for i, word in enumerate(words)]
 
-        return ''.join(words)
+#         return ''.join(words)
 
-    if isinstance(obj, dict):
-        return {to_camel(key): convert_dict_key_camel_case(val) for key, val in obj.items()}
+#     if isinstance(obj, dict):
+#         return {to_camel(key): convert_dict_key_camel_case(val) for key, val in obj.items()}
 
-    if isinstance(obj, list):
-        return [convert_dict_key_camel_case(item) for item in obj]
+#     if isinstance(obj, list):
+#         return [convert_dict_key_camel_case(item) for item in obj]
 
-    return obj
+#     return obj
 
 
-def convert_dict_key_snake_case(obj):
-    """辞書のkeyをcamel caseからsnake caseに変換する.
+# def convert_dict_key_snake_case(obj):
+#     """辞書のkeyをcamel caseからsnake caseに変換する.
 
-    :param Union[Dict[str, Any], List, Any] obj: 辞書/リスト/その他
-    :return: 変換後辞書
-    :rtype: Dict[str, Any]
-    """
-    def to_snake(value):
-        if value is None or value == '':
-            return value
+#     :param Union[Dict[str, Any], List, Any] obj: 辞書/リスト/その他
+#     :return: 変換後辞書
+#     :rtype: Dict[str, Any]
+#     """
+#     def to_snake(value):
+#         if value is None or value == '':
+#             return value
 
-        ret = re.sub(r'([\s|A-Z])', "_\\1", value)
-        ret = re.sub(r'([\s])', "", ret)
-        ret = re.sub(r'^_', "", ret)
-        ret = ret.lower()
+#         ret = re.sub(r'([\s|A-Z])', "_\\1", value)
+#         ret = re.sub(r'([\s])', "", ret)
+#         ret = re.sub(r'^_', "", ret)
+#         ret = ret.lower()
 
-        return ret
+#         return ret
 
-    if isinstance(obj, dict):
-        return {to_snake(key): convert_dict_key_snake_case(val) for key, val in obj.items()}
+#     if isinstance(obj, dict):
+#         return {to_snake(key): convert_dict_key_snake_case(val) for key, val in obj.items()}
 
-    if isinstance(obj, list):
-        return [convert_dict_key_snake_case(item) for item in obj]
+#     if isinstance(obj, list):
+#         return [convert_dict_key_snake_case(item) for item in obj]
 
-    return obj
+#     return obj
 
 
 def oauth_require_read_users_scope(f):

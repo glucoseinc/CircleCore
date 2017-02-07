@@ -39,6 +39,19 @@ class CcInfo(MetaDataBase):
         default=datetime.datetime.utcnow,
         onupdate=datetime.datetime.utcnow)
 
+    def to_json(self):
+        """このモデルのJSON表現を返す.
+
+        :return: json表現のdict
+        :rtype: Dict
+        """
+        return {
+            'uuid': str(self.uuid),
+            'displayName': self.display_name,
+            'work': self.work,
+            'myself': self.myself,
+        }
+
 
 # class CcInfoError(Exception):
 #     pass
