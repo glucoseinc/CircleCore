@@ -103,7 +103,6 @@ def load_token(access_token=None, refresh_token=None):
         token = query.one()
     except NoResultFound:
         token = None
-    logger.debug('Load token %s:%s -> %r', access_token, refresh_token, token)
     return token
 
 
@@ -121,5 +120,3 @@ def save_token(token, request, *args, **kwargs):
             expires_at=expires,
             user_id=request.user.uuid)
         MetaDataSession.add(token_obj)
-
-        logger.debug('Save token %s:%s', token_obj.access_token, token_obj.refresh_token)

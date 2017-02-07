@@ -9,10 +9,10 @@ import datetime
 import sqlalchemy as sa
 
 from circle_core.utils import format_date, prepare_date
-from .base import GUID, MetaDataBase
+from .base import GUID, UUIDMetaDataBase
 
 
-class Invitation(MetaDataBase):
+class Invitation(UUIDMetaDataBase):
     """User招待オブジェクト.
 
     :param str key_prefix: ストレージキーのプレフィックス

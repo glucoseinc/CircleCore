@@ -11,7 +11,7 @@ import sqlalchemy as sa
 from sqlalchemy import orm
 
 from circle_core.utils import format_date, prepare_date
-from .base import GUID, MetaDataBase
+from .base import GUID, MetaDataBase, UUIDMetaDataBase
 
 
 replcation_boxes_table = sa.Table(
@@ -36,7 +36,7 @@ class ReplicationSlave(MetaDataBase):
         'CcInfo', foreign_keys=[slave_uuid], primaryjoin='CcInfo.uuid == ReplicationSlave.slave_uuid', uselist=False)
 
 
-class ReplicationLink(MetaDataBase):
+class ReplicationLink(UUIDMetaDataBase):
     """ReplicationLinkオブジェクト.
 
     :param UUID uuid: ReplicationLink UUID

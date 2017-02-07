@@ -12,14 +12,14 @@ import sqlalchemy as sa
 
 # project module
 from circle_core.utils import format_date, prepare_date
-from .base import GUID, MetaDataBase
+from .base import GUID, UUIDMetaDataBase
 
 
 if PY3:
     from typing import Dict, Optional, Union
 
 
-class CcInfo(MetaDataBase):
+class CcInfo(UUIDMetaDataBase):
     """CircleCoreInfoオブジェクト.
 
     :param str key_prefix: ストレージキーのプレフィックス
@@ -53,6 +53,16 @@ class CcInfo(MetaDataBase):
             'work': self.work,
             'myself': self.myself,
         }
+
+    def update_from_json(self, json_msg):
+        """JSON表現から更新.
+
+        :param Dict json_msg:
+        :param Dict kwargs:
+        :rtype: CcInfo
+        """
+        self.display_name = json_msg.get('displayName', self.display_name)
+        self.work = json_msg.get('work', self.work)
 
 
 # class CcInfoError(Exception):

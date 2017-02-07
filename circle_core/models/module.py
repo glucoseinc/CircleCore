@@ -11,10 +11,10 @@ from sqlalchemy import orm
 from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
-from .base import GUID, MetaDataBase
+from .base import generate_uuid, GUID, UUIDMetaDataBase
 
 
-class Module(MetaDataBase):
+class Module(UUIDMetaDataBase):
     """Moduleオブジェクト.
 
     :param str key_prefix: ストレージキーのプレフィックス
@@ -36,14 +36,16 @@ class Module(MetaDataBase):
         default=datetime.datetime.utcnow,
         onupdate=datetime.datetime.utcnow)
 
-    message_boxes = orm.relationship('MessageBox', backref='module')
+    message_boxes = orm.relationship('MessageBox', backref='module', cascade='all, delete-orphan')
 
-    def __init__(self, uuid, display_name, tags=None, **kwargs):
+    def __init__(self, **kwargs):
         """init.
         """
 
-        super(Module, self).__init__(
-            uuid=uuid, display_name=display_name, _tags=','.join(self.to_tags_list(tags)), **kwargs)
+        if 'tags' in kwargs:
+            kwargs['_tags'] = ','.join(self.to_tags_list(kwargs.pop('tags')))
+
+        super(Module, self).__init__(**kwargs)
 
     def __eq__(self, other):
         """return equality.
@@ -58,7 +60,7 @@ class Module(MetaDataBase):
 
     @hybrid_property
     def tags(self):
-        return self._tags.split(',')
+        return self._tags.split(',') if self._tags is not None else []
 
     @tags.setter
     def tags(self, tags):
@@ -78,7 +80,7 @@ class Module(MetaDataBase):
                 raise ValueError('invalid tag, `{}`'.format(tag))
         return tags
 
-    def to_json(self, with_boxes=True):
+    def to_json(self, with_boxes=False, with_schema=False):
         """このモデルのJSON表現を返す.
 
         :return: json表現のdict
@@ -94,9 +96,31 @@ class Module(MetaDataBase):
         }
 
         if with_boxes:
-            d['messageBoxes'] = [box.to_json(with_schema=True) for box in self.message_boxes]
+            d['messageBoxes'] = [box.to_json(with_schema=with_schema) for box in self.message_boxes]
 
         return d
+
+    def update_from_json(self, jsonobj, with_boxes=False):
+        self.display_name = jsonobj.get('displayName', self.display_name)
+        self.tags = jsonobj.get('tags', self.tags)
+        self.memo = jsonobj.get('memo', self.memo)
+
+        if with_boxes and 'messageBoxes' in jsonobj:
+            from . import MessageBox
+
+            boxes = []
+            # TODO: in queryとか使う
+            for box_data in jsonobj['messageBoxes']:
+                box_uuid = box_data.get('uuid')
+                if not box_uuid:
+                    box = MessageBox(uuid=generate_uuid(model=MessageBox))
+                else:
+                    box = MessageBox.query.get(box_uuid)
+
+                box.update_from_json(box_data)
+                boxes.append(box)
+                # self.message_boxes.append(box)
+            self.message_boxes = boxes
 
     # @classmethod
     # def from_json(cls, json_msg, **kwargs):

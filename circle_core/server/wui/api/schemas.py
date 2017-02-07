@@ -8,10 +8,11 @@ from six import PY3
 
 # project module
 # from circle_core.cli.utils import generate_uuid
-from circle_core.models import Schema
+from circle_core.models import generate_uuid, MetaDataSession, Schema
 from .api import api
+from .utils import respond_failure
 from ..utils import (
-    api_jsonify, api_response_failure,
+    api_jsonify,
     oauth_require_read_schema_scope, oauth_require_write_schema_scope
 )
 
@@ -38,28 +39,12 @@ def _get_schemas():
 
 @oauth_require_write_schema_scope
 def _post_schemas():
-    dic = convert_dict_key_snake_case(request.json)
-    response = {}  # TODO: response形式の統一
-    try:
-        display_name = dic['display_name']
-        properties = dic['properties']
-        properties = [prop for prop in properties
-                      if len(prop['name']) != 0 and len(prop['type']) != 0]
-        memo = dic['memo']
-        if len(memo) == 0:
-            memo = None
-    except KeyError:
-        return api_response_failure('key error')
+    with MetaDataSession.begin():
+        schema = Schema(uuid=generate_uuid(model=Schema))
+        schema.update_from_json(request.json)
+        MetaDataSession.add(schema)
 
-    metadata = get_metadata()
-    schema_uuid = generate_uuid(existing=[schema.uuid for schema in metadata.schemas])
-    schema = Schema(schema_uuid, display_name, properties, memo)
-    metadata.register_schema(schema)
-    response['result'] = 'success'
-    response['detail'] = {
-        'uuid': schema_uuid
-    }
-    return api_jsonify(**convert_dict_key_camel_case(response))
+    return api_jsonify(result='success', detail={'uuid': schema.uuid})
 
 
 @api.route('/schemas/<schema_uuid>', methods=['GET', 'DELETE'])
@@ -74,36 +59,30 @@ def api_schema(schema_uuid):
 
 @oauth_require_read_schema_scope
 def _get_schema(schema_uuid):
-    metadata = get_metadata()
+    schema = Schema.query.get(schema_uuid)
+    if not schema:
+        return respond_failure('not found', _status=404)
 
-    response = {
-        'schema': metadata.json_schema_with_module(schema_uuid)
-    }
-    return api_jsonify(**convert_dict_key_camel_case(response))
+    return api_jsonify(schema=schema.to_json(with_modules=True))
 
 
 @oauth_require_write_schema_scope
 def _delete_schema(schema_uuid):
-    metadata = get_metadata()
-    response = {}  # TODO: response形式の統一
-    schema = metadata.find_schema(schema_uuid)
-    if schema is None:
-        return api_response_failure('not found')
+    schema = Schema.query.get(schema_uuid)
+    if not schema:
+        return respond_failure('not found', _status=404)
 
-    attached_modules = metadata.find_modules_by_schema(schema_uuid)
-    if len(attached_modules) != 0:
-        reason = 'module {uuids} {verb} attached'.format(
-            uuids=', '.join([str(module.uuid) for module in attached_modules]),
-            verb='is' if len(attached_modules) == 1 else 'are'
+    if len(schema.message_boxes) > 0:
+        reason = 'message box {uuids} {verb} attached'.format(
+            uuids=', '.join([str(box.uuid) for box in schema.message_boxes]),
+            verb='is' if len(schema.message_boxes) == 1 else 'are'
         )
-        return api_response_failure(reason)
+        return respond_failure(reason, _status=400)
 
-    metadata.unregister_schema(schema)
-    response['result'] = 'success'
-    response['detail'] = {
-        'uuid': schema_uuid
-    }
-    return api_jsonify(**convert_dict_key_camel_case(response))
+    with MetaDataSession.begin():
+        MetaDataSession.delete(schema)
+
+    return api_jsonify(result='success', detail={'uuid': schema_uuid})
 
 
 @api.route('/schemas/propertytypes')
@@ -111,7 +90,7 @@ def _delete_schema(schema_uuid):
 def api_get_property_types():
     # TODO: constants.pyから引っ張ってくる
     response = {
-        'schema_property_types': [
+        'schemaPropertyTypes': [
             {'name': 'int'},
             {'name': 'float'},
             {'name': 'bool'},
@@ -123,4 +102,4 @@ def api_get_property_types():
             {'name': 'timestamp'},
         ],
     }
-    return api_jsonify(**convert_dict_key_camel_case(response))
+    return api_jsonify(**response)

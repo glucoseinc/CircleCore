@@ -14,10 +14,10 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
 from circle_core.utils import format_date, prepare_date
-from .base import GUID, MetaDataBase
+from .base import GUID, UUIDMetaDataBase
 
 
-class User(MetaDataBase):
+class User(UUIDMetaDataBase):
     """Userオブジェクト.
 
     :param UUID uuid: User UUID
@@ -125,17 +125,15 @@ class User(MetaDataBase):
 
         return d
 
-    @classmethod
-    def from_json(cls, jsonobj):
-        return cls(
-            jsonobj['uuid'],
-            jsonobj['account'],
-            jsonobj['permissions'],
-            jsonobj['work'],
-            jsonobj['mailAddress'],
-            jsonobj['telephone'],
-            encrypted_password=jsonobj['encrypted_password'],
-        )
+    def update_from_json(self, jsonobj):
+        for from_key, to_key in [
+                ('account', 'account'), ('mailAddress', 'mail_address'), ('work', 'work'), ('telephone', 'telephone'),
+                ('permissions', 'permissions')]:
+            if from_key in jsonobj:
+                setattr(self, to_key, jsonobj[from_key])
+
+        if 'newPassword' in jsonobj:
+            self.set_password(jsonobj['newPassword'])
 
 
 def encrypt_password(password, salt=None):

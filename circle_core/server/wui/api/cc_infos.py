@@ -6,8 +6,9 @@
 from flask import abort, request
 
 # project module
-from circle_core.models import CcInfo
+from circle_core.models import CcInfo, MetaDataSession
 from .api import api
+from .utils import respond_failure
 from ..utils import (
     api_jsonify,
     oauth_require_read_schema_scope, oauth_require_write_schema_scope
@@ -26,7 +27,7 @@ def api_cores():
 @oauth_require_read_schema_scope
 def _get_cores():
     response = {
-        'cc_infos': [cc_info.to_json() for cc_info in CcInfo.query]
+        'ccInfos': [cc_info.to_json() for cc_info in CcInfo.query]
     }
     return api_jsonify(**response)
 
@@ -35,7 +36,7 @@ def _get_cores():
 def _post_cores():
     # TODO: implement
     response = {}
-    return api_jsonify(**convert_dict_key_camel_case(response))
+    return api_jsonify(**response)
 
 
 @api.route('/cores/myself', methods=['GET'])
@@ -47,45 +48,35 @@ def api_core_myself():
 
 @oauth_require_read_schema_scope
 def _get_core_myself():
-    metadata = get_metadata()
-
     response = {
-        'cc_info': metadata.find_own_cc_info().to_json()
+        'ccInfo': CcInfo.query.filter_by(myself=True).one().to_json()
     }
-    return api_jsonify(**convert_dict_key_camel_case(response))
+    return api_jsonify(**response)
 
 
 @api.route('/cores/<uuid:cc_info_uuid>', methods=['GET', 'PUT'])
 def api_core(cc_info_uuid):
+    cc_info = CcInfo.query.get(cc_info_uuid)
+    if not cc_info:
+        return respond_failure('not found', _status=404)
+
     if request.method == 'GET':
-        return _get_core(cc_info_uuid)
+        return _get_core(cc_info)
     if request.method == 'PUT':
-        return _put_core(cc_info_uuid)
+        return _put_core(cc_info)
     abort(405)
 
 
 @oauth_require_read_schema_scope
-def _get_core(cc_info_uuid):
-    metadata = get_metadata()
-
-    response = {
-        'cc_info': metadata.find_cc_info(cc_info_uuid).to_json()
-    }
-    return api_jsonify(**convert_dict_key_camel_case(response))
+def _get_core(cc_info):
+    return api_jsonify(ccInfo=cc_info.to_json())
 
 
 @oauth_require_write_schema_scope
-def _put_core(cc_info_uuid):
-    response = {}  # TODO: response形式の統一
+def _put_core(cc_info):
+    with MetaDataSession.begin():
+        cc_info.update_from_json(request.json)
+        MetaDataSession.add(cc_info)
 
-    metadata = get_metadata()
-    dic = convert_dict_key_snake_case(request.json)
-    cc_info = CcInfo(**dic)
-
-    old_cc_info = metadata.find_cc_info(cc_info_uuid)
-    if cc_info != old_cc_info:
-        metadata.update_cc_info(cc_info)
-
-    response['result'] = 'success'
-    response['cc_info'] = cc_info.to_json()
-    return api_jsonify(**convert_dict_key_camel_case(response))
+    # TODO: response形式の統一
+    return api_jsonify(result='success', ccInfo=cc_info.to_json())
