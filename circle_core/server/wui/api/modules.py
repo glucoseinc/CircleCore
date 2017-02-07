@@ -10,10 +10,11 @@ from six import PY3
 
 # project module
 # from circle_core.cli.utils import generate_uuid
-from circle_core.models import MessageBox, Module, NoResultFound
+from circle_core.models import generate_uuid, MessageBox, MetaDataSession, Module, NoResultFound
 from .api import api, logger
+from .utils import respond_failure
 from ..utils import (
-    api_jsonify, api_response_failure,
+    api_jsonify,
     oauth_require_read_schema_scope, oauth_require_write_schema_scope
 )
 
@@ -50,167 +51,59 @@ def _get_modules():
 def _post_modules():
     response = {}  # TODO: response形式の統一
     try:
-        message_boxes = _create_message_boxes_from_request_json(request.json)
-        message_box_uuids = [message_box.uuid for message_box in message_boxes]
-        module = _create_module_from_request_json(request.json, message_box_uuids)
-    except KeyError:
-        return api_response_failure('key error')
+        with MetaDataSession.begin():
+            module = Module(uuid=generate_uuid(model=Module))
+            module.update_from_json(request.json, with_boxes=True)
 
-    metadata = get_metadata()
-    for message_box in message_boxes:
-        metadata.register_message_box(message_box)
-    metadata.register_module(module)
+            MetaDataSession.add(module)
+
+    except KeyError:
+        raise
+        return respond_failure('key error', _status=400)
+
     response['result'] = 'success'
     response['detail'] = {
         'uuid': module.uuid
     }
-    return api_jsonify(**response)
+    return api_jsonify(result='success', detail={'uuid': module.uuid})
 
 
 @api.route('/modules/<module_uuid>', methods=['GET', 'PUT', 'DELETE'])
 def api_module(module_uuid):
+    module = Module.query.get(module_uuid)
+    if not module:
+        return respond_failure('not found', _status=404)
+
     if request.method == 'GET':
-        return _get_module(module_uuid)
+        return _get_module(module)
     if request.method == 'PUT':
-        return _put_module(module_uuid)
+        return _put_module(module)
     if request.method == 'DELETE':
-        return _delete_module(module_uuid)
+        return _delete_module(module)
     abort(405)
 
 
 @oauth_require_read_schema_scope
-def _get_module(module_uuid):
-    metadata = get_metadata()
-
-    response = {
-        'module': metadata.denormalize_json_module(module_uuid)
-    }
-    return api_jsonify(**convert_dict_key_camel_case(response))
+def _get_module(module):
+    return api_jsonify(module=module.to_json(with_boxes=True, with_schema=True))
 
 
 @oauth_require_write_schema_scope
-def _put_module(module_uuid):
-    response = {}  # TODO: response形式の統一
+def _put_module(module):
     try:
-        message_boxes = _create_message_boxes_from_request_json(request.json)
-        message_box_uuids = [message_box.uuid for message_box in message_boxes]
-        module = _create_module_from_request_json(request.json, message_box_uuids)
+        module.update_from_json(request.json, with_boxes=True)
     except KeyError:
-        return api_response_failure('key error')
+        return respond_failure('key error')
 
-    metadata = get_metadata()
-
-    old_module = metadata.find_module(module.uuid)
-    if old_module is None:
-        return api_response_failure('module uuid invalid')
-
-    old_message_box_uuids = old_module.message_box_uuids
-
-    deleting_message_box_uuids = list(set(old_message_box_uuids).difference(set(message_box_uuids)))
-    creating_message_box_uuids = list(set(message_box_uuids).difference(set(old_message_box_uuids)))
-    updating_message_box_uuids = list(set(message_box_uuids).intersection(set(old_message_box_uuids)))
-
-    all_message_box_uuids = [message_box.uuid for message_box in metadata.message_boxes]
-
-    if len(set(updating_message_box_uuids).difference(all_message_box_uuids)) != 0:
-        return api_response_failure('message box uuid invalid')
-
-    for creating_message_box_uuid in creating_message_box_uuids:
-        creating_message_box = [message_box for message_box in message_boxes
-                                if message_box.uuid == creating_message_box_uuid][0]
-        metadata.register_message_box(creating_message_box)
-    for deleting_message_box_uuid in deleting_message_box_uuids:
-        deleting_message_box = metadata.find_message_box(deleting_message_box_uuid)
-        metadata.unregister_message_box(deleting_message_box)
-    for updating_message_box_uuid in updating_message_box_uuids:
-        updating_message_box = [message_box for message_box in message_boxes
-                                if message_box.uuid == updating_message_box_uuid][0]
-        old_updating_message_box = metadata.find_message_box(updating_message_box_uuid)
-        if updating_message_box != old_updating_message_box:
-            metadata.update_message_box(updating_message_box)
-    if module != old_module:
-        metadata.update_module(module)
-
-    response['result'] = 'success'
-    response['detail'] = {
-        'uuid': module.uuid
-    }
-    return api_jsonify(**convert_dict_key_camel_case(response))
+    return api_jsonify(result='success', detail={'uuid': module.uuid})
 
 
 @oauth_require_write_schema_scope
-def _delete_module(module_uuid):
-    metadata = get_metadata()
-    response = {}  # TODO: response形式の統一
-    module = metadata.find_module(module_uuid)
-    if module is None:
-        response['detail'] = {
-            'reason': 'not found'
-        }
-        return api_response_failure('not found')
+def _delete_module(module):
+    with MetaDataSession.begin():
+        MetaDataSession.delete(module)
 
-    metadata.unregister_module(module)
-    # TODO: messageBoxも消す -> unregister_moduleで一緒にやる
-    response['result'] = 'success'
-    response['detail'] = {
-        'uuid': module_uuid
-    }
-    return api_jsonify(**convert_dict_key_camel_case(response))
-
-
-def _create_module_from_request_json(request_json, message_box_uuids):
-    """Create module from json.
-
-    :param Dict request_json:
-    :param List[UUID] message_box_uuids:
-    :return: Module
-    :rtype: Module
-    """
-    metadata = get_metadata()
-    dic = convert_dict_key_snake_case(request_json)
-
-    display_name = dic['display_name']
-    tags = ','.join(dic['tags'])
-    memo = dic['memo']
-    if len(memo) == 0:
-        memo = None
-
-    module_uuid = dic['uuid']
-    if module_uuid == '':
-        module_uuid = generate_uuid(existing=[module.uuid for module in metadata.modules])
-    module = Module(
-        module_uuid,
-        message_box_uuids,
-        display_name,
-        tags,
-        memo)
-
-    return module
-
-
-def _create_message_boxes_from_request_json(request_json):
-    """Create message boxes from json.
-
-    :param Dict request_json:
-    :return: MessageBoxes
-    :rtype: List[MessageBox]
-    """
-    metadata = get_metadata()
-    dic = convert_dict_key_snake_case(request_json)
-
-    message_boxes = []
-    message_box_dics = dic['message_boxes']
-    for message_box_dic in message_box_dics:
-        display_name = message_box_dic['display_name']
-        schema_uuid = message_box_dic['schema']
-        memo = message_box_dic['memo']
-        message_box_uuid = message_box_dic['uuid']
-        if message_box_uuid == '':
-            message_box_uuid = generate_uuid(existing=[_message_box.uuid for _message_box in metadata.message_boxes])
-        message_box = MessageBox(message_box_uuid, schema_uuid, display_name, memo)
-        message_boxes.append(message_box)
-
-    return message_boxes
+    return api_jsonify(result='success', detail={'uuid': module.uuid})
 
 
 @api.route('/modules/<uuid:module_uuid>/graph')
@@ -240,21 +133,6 @@ def api_message_box_graph(module_uuid, messagebox_uuid):
         return abort(400)
 
     return _respond_rickshaw_graph_data([box], graph_range)
-
-
-def _get_module_and_message_boxes(module_uuid):
-    """していされたUUIDのModuleとそのMessageBoxを得る"""
-    metadata = get_metadata()
-    module = metadata.find_module(module_uuid)
-    if module is None:
-        return None, None
-
-    boxes = {}
-    for box in metadata.message_boxes:
-        if box.uuid in module.message_box_uuids:
-            boxes[box.uuid] = box
-
-    return module, boxes
 
 
 def _respond_rickshaw_graph_data(boxes, graph_range):

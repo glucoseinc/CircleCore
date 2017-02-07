@@ -9,7 +9,7 @@ from six import PY3
 # project module
 # from circle_core.cli.utils import generate_uuid
 from circle_core.constants import CRScope
-from circle_core.models import MessageBox, Module, User
+from circle_core.models import MessageBox, MetaDataSession, Module, User
 from circle_core.server.wui.authorize.core import oauth
 from .api import api, logger
 from .utils import respond_failure
@@ -41,51 +41,46 @@ def _get_users():
 
 @api.route('/users/<user_uuid>', methods=['GET', 'PUT', 'DELETE'])
 def api_user(user_uuid):
-    if request.method == 'GET':
-        return _get_user(user_uuid)
-    elif request.method == 'PUT':
-        return _put_user(user_uuid)
-    elif request.method == 'DELETE':
-        return _delete_user(user_uuid)
-    abort(405)
-
-
-@oauth_require_read_users_scope
-def _get_user(user_uuid):
     if user_uuid == 'me':
         # 自分の情報をゲットする
-        return redirect(url_for('.api_user', user_uuid=request.oauth.user.uuid))
+        if request.method == 'GET':
+            return redirect(url_for(request.endpoint, user_uuid=request.oauth.user.uuid))
+        else:
+            return respond_failure('not found', _status=404)
 
     user = User.query.get(user_uuid)
     if user is None:
         return respond_failure('User not found.', _status=404)
 
+    if request.method == 'GET':
+        return _get_user(user)
+    elif request.method == 'PUT':
+        return _put_user(user)
+    elif request.method == 'DELETE':
+        return _delete_user(user)
+    abort(405)
+
+
+@oauth_require_read_users_scope
+def _get_user(user):
     return api_jsonify(user=user.to_json())
 
 
 @oauth_require_write_users_scope
-def _delete_user(user_uuid):
+def _delete_user(user):
     # 自分は削除できない
-    metadata = get_metadata()
-    user = metadata.find_user(user_uuid)
-    if user is None:
-        return respond_failure('User not found.', _status=404)
-
-    if str(user.uuid) == request.oauth.user:
+    if user.uuid == request.oauth.user.uuid:
         return respond_failure('Cannot delete yourself.')
 
-    metadata.unregister_user(user)
+    with MetaDataSession.begin():
+        MetaDataSession.delete(user)
+
     return api_jsonify(user={'uuid': user.uuid})
 
 
 @oauth_require_read_users_scope
-def _put_user(user_uuid):
+def _put_user(user):
     has_write, req = oauth.verify_request([CRScope.USER_RW.value])
-
-    metadata = get_metadata()
-    user = metadata.find_user(user_uuid)
-    if user is None:
-        return respond_failure('User not found.', _status=404)
 
     # TODO: viewでやるな
     # validation
@@ -117,17 +112,7 @@ def _put_user(user_uuid):
         return api_jsonify(_status=400, detail=dict(reason='パラメータにエラーがあります', errors=errors))
 
     # update
-    # TODO(case変換ユーティリティ使えよ...)
-    for fromName, toName in [
-            ('account', 'account'), ('mailAddress', 'mail_address'), ('work', 'work'), ('telephone', 'telephone')]:
-        setattr(user, toName, request.json[fromName])
+    with MetaDataSession.begin():
+        user.update_from_json(request.json)
 
-    if 'permissions' in request.json:
-        user.permissions = request.json['permissions']
-
-    if 'newPassword' in request.json:
-        user.set_password(request.json['newPassword'])
-
-    metadata.unregister_user(user)
-    metadata.register_user(user)
     return api_jsonify(user=user.to_json())

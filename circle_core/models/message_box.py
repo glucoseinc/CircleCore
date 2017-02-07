@@ -11,11 +11,11 @@ from sqlalchemy import orm
 from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
-from .base import GUID, MetaDataBase
+from .base import GUID, UUIDMetaDataBase
 from ..utils import prepare_uuid
 
 
-class MessageBox(MetaDataBase):
+class MessageBox(UUIDMetaDataBase):
     """MessageBoxオブジェクト
 
     :param str key_prefix: ストレージキーのプレフィックス
@@ -39,12 +39,11 @@ class MessageBox(MetaDataBase):
         default=datetime.datetime.utcnow,
         onupdate=datetime.datetime.utcnow)
 
-    def __init__(self, uuid, schema_uuid, module_uuid, display_name, **kwargs):
-        super(MessageBox, self).__init__(
-            uuid=prepare_uuid(uuid),
-            schema_uuid=prepare_uuid(schema_uuid),
-            module_uuid=prepare_uuid(module_uuid),
-            display_name=display_name, **kwargs)
+    def __init__(self, **kwargs):
+        super(MessageBox, self).__init__(**kwargs)
+
+    def __hash__(self):
+        return hash(self.uuid)
 
     def __eq__(self, other):
         """return equality.
@@ -74,6 +73,15 @@ class MessageBox(MetaDataBase):
             d['schema'] = self.schema.to_json()
 
         return d
+
+    def update_from_json(self, jsonobj):
+        self.display_name = jsonobj.get('displayName', self.display_name)
+        self.memo = jsonobj.get('memo', self.memo)
+        if 'schema' in jsonobj:
+            self.schema_uuid = jsonobj['schema']
+        elif 'schemaUuid' in jsonobj:
+            self.schema_uuid = jsonobj['schemaUuid']
+
     # @classmethod
     # def from_json(cls, json_msg, **kwargs):
     #     """JSON表現からの復元.

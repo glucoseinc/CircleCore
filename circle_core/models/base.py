@@ -24,6 +24,13 @@ class MetaDataBase(declarative_base()):
     query = MetaDataSession.query_property()
 
 
+class UUIDMetaDataBase(MetaDataBase):
+    __abstract__ = True
+
+    def __hash__(self):
+        return hash(self.uuid)
+
+
 def generate_uuid(model=None):
     """新しくUUIDを生成する
 

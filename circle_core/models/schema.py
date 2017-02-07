@@ -12,7 +12,7 @@ from sqlalchemy import orm
 from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
-from .base import GUID, MetaDataBase
+from .base import GUID, UUIDMetaDataBase
 
 
 class SchemaProperty(collections.namedtuple('SchemaProperty', ['name', 'type'])):
@@ -58,7 +58,7 @@ class SchemaProperties(object):
         return self._properties.append(p)
 
 
-class Schema(MetaDataBase):
+class Schema(UUIDMetaDataBase):
     """Schemaオブジェクト.
 
     :param UUID uuid: Schema UUID
@@ -80,7 +80,7 @@ class Schema(MetaDataBase):
 
     message_boxes = orm.relationship('MessageBox', backref='schema')
 
-    def __init__(self, uuid, display_name, properties=None, **kwargs):
+    def __init__(self, **kwargs):
         """init.
 
         :param Union[str, UUID] uuid: Schema UUID
@@ -89,10 +89,12 @@ class Schema(MetaDataBase):
         :param Optional[str] memo: メモ
         """
 
-        if not isinstance(properties, SchemaProperties):
-            properties = SchemaProperties(properties)
+        if 'properties' in kwargs:
+            properties = kwargs['properties']
+            if not isinstance(properties, SchemaProperties):
+                kwargs['properties'] = SchemaProperties(properties)
 
-        super(Schema, self).__init__(uuid=uuid, display_name=display_name, _properties=str(properties), **kwargs)
+        super(Schema, self).__init__(**kwargs)
 
     def __eq__(self, other):
         """return equality.
@@ -175,15 +177,16 @@ class Schema(MetaDataBase):
 
         return d
 
-    # @classmethod
-    # def from_json(cls, json_msg, **kwargs):
-    #     """JSON表現から復元.
+    def update_from_json(self, json_msg, **kwargs):
+        """JSON表現から復元.
 
-    #     :param dict json_msg:
-    #     :rtype: Schema
-    #     """
-    #     properties = json_msg.pop('properties')
-    #     return Schema(dictified_properties=properties, **json_msg, **kwargs)
+        :param dict json_msg:
+        :rtype: Schema
+        """
+        self.display_name = json_msg.get('displayName', self.display_name)
+        self.memo = json_msg.get('memo', self.memo)
+        if 'properties' in json_msg:
+            self.properties = SchemaProperties(json_msg['properties'])
 
     # @property
     # def master_uuid(self):
