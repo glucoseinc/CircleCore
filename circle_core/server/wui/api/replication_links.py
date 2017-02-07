@@ -41,6 +41,8 @@ def _post_replicas():
     response = {}  # TODO: response形式の統一
     try:
         display_name = dic['display_name']
+        cc_info_uuids = ['00000000-0000-0000-0000-000000000000']  # TODO: Dummy
+#        cc_info_uuids = dic['cc_infos']
         message_box_uuids = dic['message_boxes']
         memo = dic['memo']
         if len(memo) == 0:
@@ -52,7 +54,7 @@ def _post_replicas():
     replication_link_uuid = generate_uuid(
         existing=[replication_link.uuid for replication_link in metadata.replication_links]
     )
-    replication_link = ReplicationLink(replication_link_uuid, message_box_uuids, display_name, memo)
+    replication_link = ReplicationLink(replication_link_uuid, cc_info_uuids, message_box_uuids, display_name, memo)
     metadata.register_replication_link(replication_link)
     response['result'] = 'success'
     response['replication_link'] = replication_link.to_json()

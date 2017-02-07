@@ -179,6 +179,9 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         for key in keys:
             if self.redis_client.type(key) == 'hash':
                 fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]
+                cc_info_uuids = fields.pop('cc_info_uuids', None)  # type: Union[str, None]
+                if cc_info_uuids is not None:
+                    fields['cc_info_uuids'] = cc_info_uuids.split(',')
                 message_box_uuids = fields.pop('message_box_uuids', None)  # type: Union[str, None]
                 if message_box_uuids is not None:
                     fields['message_box_uuids'] = message_box_uuids.split(',')
@@ -426,6 +429,7 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         mapping = {
             'uuid': replication_link.uuid,
             'display_name': replication_link.display_name,
+            'cc_info_uuids': replication_link.stringified_cc_info_uuids,
             'message_box_uuids': replication_link.stringified_message_box_uuids,
         }
         if replication_link.memo is not None:
