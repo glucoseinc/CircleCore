@@ -40,6 +40,10 @@ class MessageBox(UUIDMetaDataBase):
         onupdate=datetime.datetime.utcnow)
 
     def __init__(self, **kwargs):
+        for key in ('uuid', 'schema_uuid', 'module_uuid'):
+            if key in kwargs:
+                kwargs[key] = prepare_uuid(kwargs[key])
+
         super(MessageBox, self).__init__(**kwargs)
 
     def __hash__(self):
@@ -78,9 +82,9 @@ class MessageBox(UUIDMetaDataBase):
         self.display_name = jsonobj.get('displayName', self.display_name)
         self.memo = jsonobj.get('memo', self.memo)
         if 'schema' in jsonobj:
-            self.schema_uuid = jsonobj['schema']
+            self.schema_uuid = prepare_uuid(jsonobj['schema'])
         elif 'schemaUuid' in jsonobj:
-            self.schema_uuid = jsonobj['schemaUuid']
+            self.schema_uuid = prepare_uuid(jsonobj['schemaUuid'])
 
     # @classmethod
     # def from_json(cls, json_msg, **kwargs):

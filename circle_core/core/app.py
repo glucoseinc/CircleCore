@@ -17,11 +17,12 @@ import sqlalchemy.exc
 from circle_core.exceptions import ConfigError
 from circle_core.models import CcInfo, generate_uuid, MetaDataBase, MetaDataSession, NoResultFound
 from circle_core.workers import make_worker, WORKER_DATARECEIVER
+from . import logger
 from .hub import CoreHub
+from .metadata_event_logger import MetaDataEventLogger
 
 
 DFEAULT_CONFIG_FILE_NAME = 'circle_core.ini'
-logger = logging.getLogger('circle_core.core')
 
 
 class CircleCore(object):
@@ -111,6 +112,7 @@ class CircleCore(object):
         self.open_log_file()
         self.open_metadata_db()
         self.migrate_metadata_db()
+        self.start_metadata_event_logger()
 
         self.my_cc_info = self.make_own_cc_info(config_uuid)
         logger.info(
@@ -210,3 +212,6 @@ class CircleCore(object):
                 MetaDataSession.add(my_cc_info)
 
         return my_cc_info
+
+    def start_metadata_event_logger(self):
+        self.metadata_event_logger = MetaDataEventLogger(self, self.log_file_path)

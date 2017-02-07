@@ -19,8 +19,6 @@ import sqlalchemy.sql.ddl
 
 # project module
 from circle_core.exceptions import MigrationError
-# from circle_core.helpers.metadata import metadata
-# from circle_core.logger import get_stream_logger
 from .constants import CRDataType
 from .models.module import Module
 from .models.schema import Schema

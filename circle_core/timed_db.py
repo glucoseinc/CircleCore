@@ -2,14 +2,13 @@
 
 """メッセージ数などを記録する時間別DBを管理する."""
 from collections import defaultdict
+import logging
 import os
 
 import whisper
 
-from circle_core.logger import get_stream_logger
 
-
-logger = get_stream_logger(__name__)
+logger = logging.getLogger(__name__)
 
 WHISPER_ARCHIVES_STRING = '1s:24h 10s:7d 10m:150d 1h:3y'.split(' ')
 WHISPER_ARCHIVES = [whisper.parseRetentionDef(d) for d in WHISPER_ARCHIVES_STRING]

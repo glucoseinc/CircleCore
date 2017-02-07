@@ -9,10 +9,10 @@ from circle_core.exceptions import CircleCoreException, ModuleNotFoundError
 from circle_core.helpers.metadata import metadata
 from circle_core.helpers.nanomsg import Sender
 from circle_core.helpers.topics import ModuleMessageTopic
-from circle_core.logger import get_stream_logger
+# from circle_core.logger import get_stream_logger
 from ...models.message import ModuleMessageFactory
 
-logger = get_stream_logger(__name__)
+# logger = get_stream_logger(__name__)
 
 
 class ModuleHandler(WebSocketHandler):

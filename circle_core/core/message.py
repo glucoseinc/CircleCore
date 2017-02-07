@@ -13,64 +13,10 @@ from click import get_current_context
 from circle_core.models import Module, Schema
 from circle_core.utils import prepare_uuid
 from ..exceptions import MessageBoxNotFoundError, SchemaNotFoundError, SchemaNotMatchError
-# from ..helpers.metadata import metadata
-# from ..logger import get_stream_logger
 
 
 logger = logging.getLogger(__name__)
 message_timestamp_context = decimal.Context(16, decimal.ROUND_DOWN)
-
-
-# class ModuleMessageFactory(object):
-#     """新しいModuleMessageのためのtimestamp/countを管理する責務を持つ
-
-#     :param Dict[str, ModuleMessage] last_message_per_module:
-#     """
-
-#     last_message_per_module = {}
-
-#     @classmethod
-#     def new(cls, module_uuid, json_msg):
-#         """
-#         :param UUID module_uuid:
-#         :param str plain_msg:
-#         :return ModuleMessage:
-#         """
-#         payload = json_msg.copy()
-
-#         # primary key(timestmap, count)を決定する
-#         timestamp = time()
-#         # TODO: このあたり厳密にはCASをしないとならないはず
-#         last_message = cls.last_message_per_module.get(module_uuid, None)
-#         if last_message is not None and 32767 > last_message.count:
-#             count = last_message.count + 1
-#         else:
-#             count = 0
-
-#         # message boxを決定
-#         box_id = UUID(payload.pop('_box'))
-
-#         # boxがあるか確認
-#         box = metadata().find_message_box(box_id)
-#         if not box:
-#             raise MessageBoxNotFoundError()
-
-#         schema = metadata().find_schema(box.schema_uuid)
-#         if not schema:
-#             raise SchemaNotFoundError()
-
-#         if not schema.is_valid(payload):
-#             logger.error(
-#                 'Schema of the received message: %r',
-#                 {key: type(value) for key, value in payload.items()}
-#             )
-#             raise SchemaNotMatchError()
-
-#         #
-#         new_message = ModuleMessage(module_uuid, box_id, timestamp, count, payload)
-
-#         cls.last_message_per_module[module_uuid] = new_message
-#         return new_message
 
 
 class ModuleMessage(object):
@@ -83,17 +29,6 @@ class ModuleMessage(object):
     :param int counter:
     :param dict payload:
     """
-
-    # @classmethod
-    # def decode(cls, plain_msg):
-    #     """encodeの対.
-
-    #     :param str plain_msg:
-    #     :return ModuleMessage:
-    #     """
-    #     json_msg = json.loads(plain_msg)
-    #     timestamp = message_timestamp_context.create_decimal(json_msg.pop('timestamp'))
-    #     return cls(timestamp=timestamp, **json_msg)
 
     def __init__(self, box_id, timestamp, counter, payload):
         """timestampとcountをMessageの識別子とする.

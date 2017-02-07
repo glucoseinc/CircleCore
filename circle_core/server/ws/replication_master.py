@@ -12,11 +12,11 @@ from ...exceptions import ModuleNotFoundError
 from ...helpers.metadata import metadata
 from ...helpers.nanomsg import Receiver
 from ...helpers.topics import ModuleMessageTopic
-from ...logger import get_stream_logger
+# from ...logger import get_stream_logger
 from ...models.message_box import MessageBox
 
 
-logger = get_stream_logger(__name__)
+# logger = get_stream_logger(__name__)
 
 
 def get_uuid():

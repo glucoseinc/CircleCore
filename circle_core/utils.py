@@ -14,6 +14,8 @@ import six
 
 
 def prepare_uuid(v):
+    if not v:
+        return None
     if not isinstance(v, uuid.UUID):
         v = uuid.UUID(v)
     return v

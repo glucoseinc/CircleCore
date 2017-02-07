@@ -14,8 +14,6 @@ from six import add_metaclass, PY3
 from tornado.ioloop import IOLoop
 
 # project module
-# from circle_core.logger import get_stream_logger
-# from ..models.message import ModuleMessage
 
 if PY3:
     from json.decoder import JSONDecodeError
