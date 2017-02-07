@@ -56,19 +56,24 @@ class MessageBox(MetaDataBase):
         return all([self.uuid == other.uuid,
                     self.display_name == other.display_name, self.memo == other.memo])
 
-    # def to_json(self):
-    #     """このモデルのJSON表現を返す.
+    def to_json(self, with_schema=False):
+        """このモデルのJSON表現を返す.
 
-    #     :return: json表現のdict
-    #     :rtype: Dict
-    #     """
-    #     return {
-    #         'uuid': str(self.uuid),
-    #         'schema_uuid': str(self.schema_uuid),
-    #         'display_name': self.display_name,
-    #         'memo': self.memo,
-    #     }
+        :return: json表現のdict
+        :rtype: Dict
+        """
 
+        d = {
+            'uuid': str(self.uuid),
+            'schemaUuid': str(self.schema_uuid),
+            'displayName': self.display_name,
+            'memo': self.memo,
+        }
+
+        if with_schema:
+            d['schema'] = self.schema.to_json()
+
+        return d
     # @classmethod
     # def from_json(cls, json_msg, **kwargs):
     #     """JSON表現からの復元.

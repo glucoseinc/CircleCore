@@ -9,7 +9,7 @@ from flask import abort, request
 from circle_core.models import CcInfo
 from .api import api
 from ..utils import (
-    api_jsonify, convert_dict_key_camel_case, convert_dict_key_snake_case,
+    api_jsonify,
     oauth_require_read_schema_scope, oauth_require_write_schema_scope
 )
 
@@ -25,12 +25,10 @@ def api_cores():
 
 @oauth_require_read_schema_scope
 def _get_cores():
-    metadata = get_metadata()
-
     response = {
-        'cc_infos': [cc_info.to_json() for cc_info in metadata.cc_infos]
+        'cc_infos': [cc_info.to_json() for cc_info in CcInfo.query]
     }
-    return api_jsonify(**convert_dict_key_camel_case(response))
+    return api_jsonify(**response)
 
 
 @oauth_require_read_schema_scope

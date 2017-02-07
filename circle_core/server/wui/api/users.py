@@ -9,12 +9,12 @@ from six import PY3
 # project module
 # from circle_core.cli.utils import generate_uuid
 from circle_core.constants import CRScope
-from circle_core.models import MessageBox, Module
+from circle_core.models import MessageBox, Module, User
 from circle_core.server.wui.authorize.core import oauth
-from .api import api
+from .api import api, logger
 from .utils import respond_failure
 from ..utils import (
-    api_jsonify, convert_dict_key_camel_case, convert_dict_key_snake_case,
+    api_jsonify,
     oauth_require_read_users_scope, oauth_require_write_users_scope
 )
 
@@ -33,10 +33,8 @@ def api_users():
 
 @oauth_require_read_users_scope
 def _get_users():
-    users = get_metadata().users
-
     response = {
-        'users': [user.to_json() for user in users]
+        'users': [user.to_json() for user in User.query]
     }
     return api_jsonify(**response)
 
@@ -56,11 +54,9 @@ def api_user(user_uuid):
 def _get_user(user_uuid):
     if user_uuid == 'me':
         # 自分の情報をゲットする
-        return redirect(url_for('.api_user', user_uuid=request.oauth.user))
+        return redirect(url_for('.api_user', user_uuid=request.oauth.user.uuid))
 
-    # 自分は削除できない
-    metadata = get_metadata()
-    user = metadata.find_user(user_uuid)
+    user = User.query.get(user_uuid)
     if user is None:
         return respond_failure('User not found.', _status=404)
 

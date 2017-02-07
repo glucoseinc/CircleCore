@@ -11,7 +11,7 @@ from six import PY3
 from circle_core.models import Schema
 from .api import api
 from ..utils import (
-    api_jsonify, api_response_failure, convert_dict_key_camel_case, convert_dict_key_snake_case,
+    api_jsonify, api_response_failure,
     oauth_require_read_schema_scope, oauth_require_write_schema_scope
 )
 
@@ -30,12 +30,10 @@ def api_schemas():
 
 @oauth_require_read_schema_scope
 def _get_schemas():
-    metadata = get_metadata()
-
     response = {
-        'schemas': [metadata.json_schema_with_module(schema.uuid) for schema in metadata.schemas],
+        'schemas': [schema.to_json(with_modules=True) for schema in Schema.query],
     }
-    return api_jsonify(**convert_dict_key_camel_case(response))
+    return api_jsonify(**response)
 
 
 @oauth_require_write_schema_scope

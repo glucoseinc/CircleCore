@@ -102,7 +102,8 @@ def load_token(access_token=None, refresh_token=None):
     try:
         token = query.one()
     except NoResultFound:
-        return None
+        token = None
+    logger.debug('Load token %s:%s -> %r', access_token, refresh_token, token)
     return token
 
 
@@ -116,7 +117,9 @@ def save_token(token, request, *args, **kwargs):
             access_token=token['access_token'],
             refresh_token=token['refresh_token'],
             client_id=request.client.client_id,
-            scopes=token['scope'],
+            scopes=token['scope'].split(' '),
             expires_at=expires,
             user_id=request.user.uuid)
-        MetaDataSession.begin(token_obj)
+        MetaDataSession.add(token_obj)
+
+        logger.debug('Save token %s:%s', token_obj.access_token, token_obj.refresh_token)

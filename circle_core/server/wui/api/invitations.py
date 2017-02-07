@@ -13,7 +13,7 @@ from circle_core.models import Invitation
 from .api import api
 from .utils import respond_failure
 from ..utils import (
-    api_jsonify, convert_dict_key_camel_case, convert_dict_key_snake_case,
+    api_jsonify,
     oauth_require_read_users_scope, oauth_require_write_users_scope
 )
 

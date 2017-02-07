@@ -29,6 +29,9 @@ class SchemaProperty(collections.namedtuple('SchemaProperty', ['name', 'type']))
     def __str__(self):
         return '{}:{}'.format(self.name, self.type)
 
+    def to_json(self):
+        return {'name': self.name, 'type': self.type}
+
 
 class SchemaProperties(object):
     def __init__(self, props):
@@ -151,18 +154,26 @@ class Schema(MetaDataBase):
     #         })
     #     return dictified_properties
 
-    # def to_json(self):
-    #     """このモデルのJSON表現を返す.
+    def to_json(self, with_modules=False):
+        """このモデルのJSON表現を返す.
 
-    #     :return: json表現のdict
-    #     :rtype: Dict
-    #     """
-    #     return {
-    #         'uuid': str(self.uuid),
-    #         'displayName': self.display_name,
-    #         'properties': self.dictified_properties,
-    #         'memo': self.memo,
-    #     }
+        :return: json表現のdict
+        :rtype: Dict
+        """
+        d = {
+            'uuid': str(self.uuid),
+            'displayName': self.display_name,
+            'properties': [prop.to_json() for prop in self.properties],
+            'memo': self.memo,
+        }
+
+        if with_modules:
+            modules = {}
+            for box in self.message_boxes:
+                modules[box.module.uuid] = box.module
+            d['modules'] = [module.to_json() for module in modules.values()]
+
+        return d
 
     # @classmethod
     # def from_json(cls, json_msg, **kwargs):

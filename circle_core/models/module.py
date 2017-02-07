@@ -78,19 +78,25 @@ class Module(MetaDataBase):
                 raise ValueError('invalid tag, `{}`'.format(tag))
         return tags
 
-    # def to_json(self):
-    #     """このモデルのJSON表現を返す.
+    def to_json(self, with_boxes=True):
+        """このモデルのJSON表現を返す.
 
-    #     :return: json表現のdict
-    #     :rtype: Dict
-    #     """
-    #     return {
-    #         'uuid': str(self.uuid),
-    #         'message_box_uuids': [str(_uuid) for _uuid in self.message_box_uuids],
-    #         'display_name': self.display_name,
-    #         'tags': [tag for tag in self.tags],
-    #         'memo': self.memo,
-    #     }
+        :return: json表現のdict
+        :rtype: Dict
+        """
+
+        d = {
+            'uuid': str(self.uuid),
+            'messageBoxUuids': [str(box.uuid) for box in self.message_boxes],
+            'displayName': self.display_name,
+            'tags': [tag for tag in self.tags],
+            'memo': self.memo,
+        }
+
+        if with_boxes:
+            d['messageBoxes'] = [box.to_json(with_schema=True) for box in self.message_boxes]
+
+        return d
 
     # @classmethod
     # def from_json(cls, json_msg, **kwargs):

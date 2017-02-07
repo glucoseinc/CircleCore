@@ -62,6 +62,7 @@ class CircleCore(object):
 
         core = cls(
             config_uuid=core_config.get('uuid', 'auto'),
+            prefix=core_config.get('prefix'),
             metadata_file_path=core_config['metadata_file_path'],
             log_file_path=core_config['log_file_path'],
             hub_socket=core_config['hub_socket'],
@@ -89,7 +90,7 @@ class CircleCore(object):
 
         return core
 
-    def __init__(self, config_uuid, metadata_file_path, log_file_path, hub_socket, request_socket):
+    def __init__(self, config_uuid, prefix, metadata_file_path, log_file_path, hub_socket, request_socket):
         if config_uuid != 'auto':
             try:
                 config_uuid = uuid.UUID(config_uuid)
@@ -97,6 +98,7 @@ class CircleCore(object):
                 raise ConfigError('invalid uuid `{}`'.fomart(config_uuid))
 
         self.debug = False
+        self.prefix = prefix
         self.metadata_file_path = metadata_file_path
         self.log_file_path = log_file_path
         self.workers = []

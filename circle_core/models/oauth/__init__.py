@@ -164,10 +164,16 @@ class OAuthToken(MetaDataBase):
     #     redis_client.set(self._make_redis_key_by_access_token(self.access_token), data)
     #     redis_client.set(self._make_redis_key_by_refresh_token(self.refresh_token), data)
 
+    @property
+    def expires(self):
+        return self.expires_at
+
     def delete(self):
         """tokenの情報をredisから削除する"""
         with MetaDataSession.begin():
             MetaDataSession.delete(self)
+
+            logger.debug('Delete token %s:%s', self.access_token, self.refresh_token)
 
     def to_json(self):
         """tokenのJSON表現を返す"""
