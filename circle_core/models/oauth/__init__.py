@@ -66,27 +66,6 @@ class OAuthGrant(MetaDataBase):
 
     user = orm.relationship('User', backref='grants')
 
-    # def __init__(self, client_id, code, redirect_uri, scopes, user):
-    #     self.client_id = client_id
-    #     self.code = code
-    #     self.redirect_uri = redirect_uri
-    #     self._scopes = [CRScope(s) for s in scopes]
-    #     self.user = user
-
-    # def save(self, redis_client, expires):
-    #     """grantの情報をredisに保存する"""
-    #     key = self._make_redis_key(self.client_id, self.code)
-    #     redis_client.set(key, self.to_json())
-    #     redis_client.expire(key, expires)
-
-    # @classmethod
-    # def load(cls, redis_client, client_id, code):
-    #     """grantの情報をredisから読み込む"""
-    #     key = cls._make_redis_key(client_id, code)
-    #     data = redis_client.get(key)
-    #     if data:
-    #         return cls.from_json(data)
-
     def to_json(self):
         """GRANTのJSON用表現を返す"""
         return json.dumps({
@@ -108,11 +87,6 @@ class OAuthGrant(MetaDataBase):
             d['scopes'],
             d['user'],
         )
-
-    # @classmethod
-    # def _make_redis_key(cls, client_id, code):
-    #     """Redis向けのKeyを返す"""
-    #     return REDIS_GRANT_KEY_PREFIX + '{}:{}'.format(client_id, code)
 
     def delete(self):
         """Grantをストレージ(Redisから)削除する"""
@@ -143,33 +117,12 @@ class OAuthToken(MetaDataBase):
 
     user = orm.relationship('User', backref='tokens')
 
-    # def __init__(self, access_token, refresh_token, client_id, scopes, expires, user):
-    #     if isinstance(scopes, str):
-    #         scopes = scopes.split(' ')
-    #     self.access_token = access_token
-    #     self.refresh_token = refresh_token
-    #     self.client_id = client_id
-    #     self._scopes = [CRScope(s) for s in scopes]
-    #     self.expires = expires
-    #     self.user = user
-
-    # @property
-    # def scopes(self):
-    #     """scopeを(CRScopeではなく)文字列で返す"""
-    #     return [s.value for s in self._scopes]
-
-    # def save(self, redis_client):
-    #     """tokenの情報をredisに保存する"""
-    #     data = self.to_json()
-    #     redis_client.set(self._make_redis_key_by_access_token(self.access_token), data)
-    #     redis_client.set(self._make_redis_key_by_refresh_token(self.refresh_token), data)
-
     @property
     def expires(self):
         return self.expires_at
 
     def delete(self):
-        """tokenの情報をredisから削除する"""
+        """tokenの情報をMetadataDBから削除する"""
         with MetaDataSession.begin():
             MetaDataSession.delete(self)
 
@@ -198,25 +151,3 @@ class OAuthToken(MetaDataBase):
             datetime.datetime.strptime(d['expires'], '%Y-%m-%dT%H:%M:%S.%f'),
             d['user'],
         )
-
-    # @classmethod
-    # def load_token_by_access_token(cls, redis_client, access_token):
-    #     """accessTokenからTokenを読み込む"""
-    #     data = redis_client.get(cls._make_redis_key_by_access_token(access_token))
-    #     if data:
-    #         return cls.from_json(data)
-
-    # @classmethod
-    # def load_token_by_refresh_token(cls, redis_client, refresh_token):
-    #     """refreshTokenからTokenを読み込む"""
-    #     data = redis_client.get(cls._make_redis_key_by_refresh_token(refresh_token))
-    #     if data:
-    #         return cls.from_json(data)
-
-    # @classmethod
-    # def _make_redis_key_by_access_token(cls, access_token):
-    #     return REDIS_TOKEN_KEY_PREFIX + 'access_token:{}'.format(access_token)
-
-    # @classmethod
-    # def _make_redis_key_by_refresh_token(cls, refresh_token):
-    #     return REDIS_TOKEN_KEY_PREFIX + 'refresh_token:{}'.format(refresh_token)

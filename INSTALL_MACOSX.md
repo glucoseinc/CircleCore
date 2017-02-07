@@ -5,14 +5,13 @@
 
 ## 準備
 ### 各パッケージのインストール
-- redis
 - mysql
 - nanomsg
 - node
 - pyenv
 
 ```
-$ brew install redis mysql nanomsg node pyenv
+$ brew install mysql nanomsg node pyenv
 ```
 
 - 各パッケージの初期設定を行う
@@ -53,12 +52,11 @@ $ . .env/3.5.2/bin/activate
 (3.5.2) $ pip install -e git://github.com/nanomsg/nnpy.git#egg=nnpy
 (3.5.2) $ pip install http://cdn.mysql.com//Downloads/Connector-Python/mysql-connector-python-2.2.2.tar.gz
 (3.5.2) $ cd whisper && python setup.py install && cd ..
-(3.5.2) $ pip install -e '.[test,redis,mysql]'
+(3.5.2) $ pip install -e '.[test,mysql]'
 ```
 
 ### 環境変数設定
 ```
-(3.5.2) $ export CRCR_METADATA=redis://localhost:6379/0   # portは必要に応じて変更
 (3.5.2) $ export CRCR_UUID=$(uuidgen)
 (3.5.2) $ export CRCR_DATABASE=mysql+mysqlconnector://root@localhost/crcr
 ```

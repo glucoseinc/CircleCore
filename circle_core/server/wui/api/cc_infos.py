@@ -8,7 +8,7 @@ from flask import abort, request
 # project module
 from circle_core.models import CcInfo, MetaDataSession
 from .api import api
-from .utils import respond_failure
+from .utils import respond_failure, respond_success
 from ..utils import (
     api_jsonify,
     oauth_require_read_schema_scope, oauth_require_write_schema_scope
@@ -26,17 +26,13 @@ def api_cores():
 
 @oauth_require_read_schema_scope
 def _get_cores():
-    response = {
-        'ccInfos': [cc_info.to_json() for cc_info in CcInfo.query]
-    }
-    return api_jsonify(**response)
+    return respond_success(ccInfos=[cc_info.to_json() for cc_info in CcInfo.query])
 
 
 @oauth_require_read_schema_scope
 def _post_cores():
     # TODO: implement
-    response = {}
-    return api_jsonify(**response)
+    return respond_success()
 
 
 @api.route('/cores/myself', methods=['GET'])
@@ -48,10 +44,7 @@ def api_core_myself():
 
 @oauth_require_read_schema_scope
 def _get_core_myself():
-    response = {
-        'ccInfo': CcInfo.query.filter_by(myself=True).one().to_json()
-    }
-    return api_jsonify(**response)
+    return respond_success(ccInfo=CcInfo.query.filter_by(myself=True).one().to_json())
 
 
 @api.route('/cores/<uuid:cc_info_uuid>', methods=['GET', 'PUT'])
@@ -69,7 +62,7 @@ def api_core(cc_info_uuid):
 
 @oauth_require_read_schema_scope
 def _get_core(cc_info):
-    return api_jsonify(ccInfo=cc_info.to_json())
+    return respond_success(ccInfo=cc_info.to_json())
 
 
 @oauth_require_write_schema_scope
@@ -79,4 +72,4 @@ def _put_core(cc_info):
         MetaDataSession.add(cc_info)
 
     # TODO: response形式の統一
-    return api_jsonify(result='success', ccInfo=cc_info.to_json())
+    return respond_success(ccInfo=cc_info.to_json())

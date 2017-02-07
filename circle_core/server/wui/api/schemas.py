@@ -10,9 +10,8 @@ from six import PY3
 # from circle_core.cli.utils import generate_uuid
 from circle_core.models import generate_uuid, MetaDataSession, Schema
 from .api import api
-from .utils import respond_failure
+from .utils import respond_failure, respond_success
 from ..utils import (
-    api_jsonify,
     oauth_require_read_schema_scope, oauth_require_write_schema_scope
 )
 
@@ -31,10 +30,7 @@ def api_schemas():
 
 @oauth_require_read_schema_scope
 def _get_schemas():
-    response = {
-        'schemas': [schema.to_json(with_modules=True) for schema in Schema.query],
-    }
-    return api_jsonify(**response)
+    return respond_success(schemas=[schema.to_json(with_modules=True) for schema in Schema.query])
 
 
 @oauth_require_write_schema_scope
@@ -44,7 +40,7 @@ def _post_schemas():
         schema.update_from_json(request.json)
         MetaDataSession.add(schema)
 
-    return api_jsonify(result='success', detail={'uuid': schema.uuid})
+    return respond_success(schema={'uuid': schema.uuid})
 
 
 @api.route('/schemas/<schema_uuid>', methods=['GET', 'DELETE'])
@@ -63,7 +59,7 @@ def _get_schema(schema_uuid):
     if not schema:
         return respond_failure('not found', _status=404)
 
-    return api_jsonify(schema=schema.to_json(with_modules=True))
+    return respond_success(schema=schema.to_json(with_modules=True))
 
 
 @oauth_require_write_schema_scope
@@ -82,24 +78,22 @@ def _delete_schema(schema_uuid):
     with MetaDataSession.begin():
         MetaDataSession.delete(schema)
 
-    return api_jsonify(result='success', detail={'uuid': schema_uuid})
+    return respond_success(schema={'uuid': schema_uuid})
 
 
 @api.route('/schemas/propertytypes')
 @oauth_require_read_schema_scope
 def api_get_property_types():
     # TODO: constants.pyから引っ張ってくる
-    response = {
-        'schemaPropertyTypes': [
-            {'name': 'int'},
-            {'name': 'float'},
-            {'name': 'bool'},
-            {'name': 'string'},
-            {'name': 'bytes'},
-            {'name': 'date'},
-            {'name': 'datetime'},
-            {'name': 'time'},
-            {'name': 'timestamp'},
-        ],
-    }
-    return api_jsonify(**response)
+    property_types = [
+        {'name': 'int'},
+        {'name': 'float'},
+        {'name': 'bool'},
+        {'name': 'string'},
+        {'name': 'bytes'},
+        {'name': 'date'},
+        {'name': 'datetime'},
+        {'name': 'time'},
+        {'name': 'timestamp'},
+    ]
+    return respond_success(schemaPropertyTypes=property_types)

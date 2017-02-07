@@ -12,9 +12,8 @@ from circle_core.constants import CRScope
 from circle_core.models import MessageBox, MetaDataSession, Module, User
 from circle_core.server.wui.authorize.core import oauth
 from .api import api, logger
-from .utils import respond_failure
+from .utils import respond_failure, respond_success
 from ..utils import (
-    api_jsonify,
     oauth_require_read_users_scope, oauth_require_write_users_scope
 )
 
@@ -33,10 +32,7 @@ def api_users():
 
 @oauth_require_read_users_scope
 def _get_users():
-    response = {
-        'users': [user.to_json() for user in User.query]
-    }
-    return api_jsonify(**response)
+    return respond_success(users=[user.to_json() for user in User.query])
 
 
 @api.route('/users/<user_uuid>', methods=['GET', 'PUT', 'DELETE'])
@@ -63,7 +59,7 @@ def api_user(user_uuid):
 
 @oauth_require_read_users_scope
 def _get_user(user):
-    return api_jsonify(user=user.to_json())
+    return respond_success(user=user.to_json())
 
 
 @oauth_require_write_users_scope
@@ -75,7 +71,7 @@ def _delete_user(user):
     with MetaDataSession.begin():
         MetaDataSession.delete(user)
 
-    return api_jsonify(user={'uuid': user.uuid})
+    return respond_success(user={'uuid': user.uuid})
 
 
 @oauth_require_read_users_scope
@@ -109,10 +105,10 @@ def _put_user(user):
         errors['account'] = u'アカウントは空には出来ません'
 
     if errors:
-        return api_jsonify(_status=400, detail=dict(reason='パラメータにエラーがあります', errors=errors))
+        return respond_failure('パラメータにエラーがあります', _status=400, errors=errors)
 
     # update
     with MetaDataSession.begin():
         user.update_from_json(request.json)
 
-    return api_jsonify(user=user.to_json())
+    return respond_success(user=user.to_json())

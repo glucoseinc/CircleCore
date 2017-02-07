@@ -12,9 +12,8 @@ from six import PY3
 # from circle_core.cli.utils import generate_uuid
 from circle_core.models import generate_uuid, MessageBox, MetaDataSession, Module, NoResultFound
 from .api import api, logger
-from .utils import respond_failure
+from .utils import respond_failure, respond_success
 from ..utils import (
-    api_jsonify,
     oauth_require_read_schema_scope, oauth_require_write_schema_scope
 )
 
@@ -41,10 +40,7 @@ def api_modules():
 
 @oauth_require_read_schema_scope
 def _get_modules():
-    response = {
-        'modules': [module.to_json(with_boxes=True) for module in Module.query],
-    }
-    return api_jsonify(**response)
+    return respond_success(modules=[module.to_json(with_boxes=True) for module in Module.query])
 
 
 @oauth_require_write_schema_scope
@@ -65,7 +61,7 @@ def _post_modules():
     response['detail'] = {
         'uuid': module.uuid
     }
-    return api_jsonify(result='success', detail={'uuid': module.uuid})
+    return respond_success(module={'uuid': module.uuid})
 
 
 @api.route('/modules/<module_uuid>', methods=['GET', 'PUT', 'DELETE'])
@@ -85,7 +81,7 @@ def api_module(module_uuid):
 
 @oauth_require_read_schema_scope
 def _get_module(module):
-    return api_jsonify(module=module.to_json(with_boxes=True, with_schema=True))
+    return respond_success(module=module.to_json(with_boxes=True, with_schema=True))
 
 
 @oauth_require_write_schema_scope
@@ -95,7 +91,7 @@ def _put_module(module):
     except KeyError:
         return respond_failure('key error')
 
-    return api_jsonify(result='success', detail={'uuid': module.uuid})
+    return respond_success(module={'uuid': module.uuid})
 
 
 @oauth_require_write_schema_scope
@@ -103,7 +99,7 @@ def _delete_module(module):
     with MetaDataSession.begin():
         MetaDataSession.delete(module)
 
-    return api_jsonify(result='success', detail={'uuid': module.uuid})
+    return respond_success(module={'uuid': module.uuid})
 
 
 @api.route('/modules/<uuid:module_uuid>/graph')
@@ -182,4 +178,4 @@ def _respond_rickshaw_graph_data(boxes, graph_range):
         })
     graph_data.sort(key=lambda x: x['messageBox']['uuid'])
 
-    return api_jsonify(graphData=graph_data)
+    return respond_success(graphData=graph_data)

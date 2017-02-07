@@ -45,7 +45,7 @@ $ export CRCR_DATABASE=mysql+mysqlconnector://root@localhost/crcr
 
 or grant arguments at command excution.
 ```bash
-$ crcr --metadata redis://localhost:6379/0 --uuid ... subcommand
+$ crcr subcommand
 ```
 
 ### Setup SSL certificate
