@@ -5,6 +5,7 @@ import {Record, List} from 'immutable'
 const ReplicationLinkRecord = Record({
   uuid: '',
   displayName: '',
+  ccInfos: List(),
   messageBoxes: List(),
   memo: '',
 })
@@ -19,6 +20,7 @@ export default class ReplicationLink extends ReplicationLinkRecord {
   constructor(...args) {
     super(...args)
     this.label = this.displayName || this.uuid
+    this.url = `${location.origin}/replication/${this.uuid}` // TODO: 適切なURL指定
   }
 
   /**
@@ -29,6 +31,7 @@ export default class ReplicationLink extends ReplicationLinkRecord {
     return new ReplicationLink({
       uuid: rawReplicationLink.uuid || '',
       displayName: rawReplicationLink.displayName || '',
+      ccInfos: List(rawReplicationLink.ccInfos || []),
       messageBoxes: List(rawReplicationLink.messageBoxes || []),
       memo: rawReplicationLink.memo || '',
     })

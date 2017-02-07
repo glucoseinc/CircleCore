@@ -65,6 +65,7 @@ const replicationLink = new normalizerSchema.Entity(
     processStrategy: (entity) => ({
       uuid: entity.uuid,
       displayName: entity.displayName,
+      ccInfos: entity.ccInfoUuids,
       messageBoxes: entity.messageBoxUuids,
       memo: entity.memo,
     }),
