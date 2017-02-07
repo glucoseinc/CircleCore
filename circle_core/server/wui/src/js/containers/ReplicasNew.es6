@@ -9,7 +9,7 @@ import ReplicationLinkNewPaper from 'src/components/ReplicationLinkNewPaper'
 
 
 /**
- * ReplicationLonk作成
+ * ReplicationLink作成
  */
 class ReplicasNew extends Component {
   static propTypes = {

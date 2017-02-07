@@ -9,7 +9,7 @@ import {ModuleIcon} from 'src/components/bases/icons'
 
 
 /**
- * ReplicationLonk対象選択コンポーネント(タイプ：タグ)
+ * ReplicationLink対象選択コンポーネント(タイプ：タグ)
  */
 class TargetTagSelectComponent extends Component {
   static propTypes = {

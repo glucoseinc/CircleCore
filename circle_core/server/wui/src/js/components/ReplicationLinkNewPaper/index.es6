@@ -13,7 +13,7 @@ import MemoTextField from 'src/components/commons/MemoTextField'
 import TargetSelectComponent from './TargetSelectComponent'
 
 /**
- * ReplicationLonk作成
+ * ReplicationLink作成
  */
 class ReplicationLinkNewPaper extends Component {
   static propTypes = {

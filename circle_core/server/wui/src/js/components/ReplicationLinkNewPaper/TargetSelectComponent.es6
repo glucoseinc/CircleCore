@@ -7,7 +7,7 @@ import TargetTagSelectComponent from './TargetTagSelectComponent'
 
 
 /**
- * ReplicationLonk対象選択コンポーネント
+ * ReplicationLink対象選択コンポーネント
  */
 class TargetSelectComponent extends Component {
   static propTypes = {

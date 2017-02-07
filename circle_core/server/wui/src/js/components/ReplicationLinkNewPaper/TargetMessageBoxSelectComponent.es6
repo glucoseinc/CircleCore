@@ -4,7 +4,7 @@ import Checkbox from 'material-ui/Checkbox'
 
 
 /**
- * ReplicationLonk対象選択コンポーネント(タイプ：モジュール)
+ * ReplicationLink対象選択コンポーネント(タイプ：モジュール)
  */
 class TargetMessageBoxSelectComponent extends Component {
   static propTypes = {
