@@ -48,6 +48,16 @@ or grant arguments at command excution.
 $ crcr --metadata redis://localhost:6379/0 --uuid ... subcommand
 ```
 
+### Setup SSL certificate
+0. キーチェーンアクセス.appを起動
+0. メニューバーのファイル -> 読み込む...をクリック
+0. CircleCore/tests/tls.crtを選択
+0. 検索窓にglucoseと入力、名前がglucoseの証明書を見つけてダブルクリック
+0. ▶信頼を開いて常に信頼を選択
+
+Chrome等だと自己証明している証明書には安全でない旨警告が出るが、それを無視すれば問題ない。
+curlは問題なく通る。
+
 ### Run server
 ```bash
 $ crcr server run

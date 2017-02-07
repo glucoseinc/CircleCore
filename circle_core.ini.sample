@@ -3,7 +3,8 @@ uuid = auto
 prefix = ./cc_dev
 metadata_file_path = %(prefix)s/metadata.sqlite
 log_file_path = $(prefix)s/core.log
-
+tls_key_path = './tests/tls.key'
+tls_crt_path = './tests/tls.crt'
 
 [circle_core:datareceiver]
 db = mysql+mysqlconnector://crcr_dev:crcr@localhost/crcr_dev
