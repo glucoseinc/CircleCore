@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """Master側のWebsocketの口とか、AdminのUIとか"""
-
 import logging
+import ssl
 
+from tornado.httpserver import HTTPServer
 from tornado.web import Application, FallbackHandler
 from tornado.wsgi import WSGIContainer
 
@@ -30,7 +31,9 @@ def create_http_worker(core, type, key, config):
         websocket_on=_config_get_bool('websocket'),
         admin_on=_config_get_bool('admin'),
         admin_base_url=config.get('admin_base_url', fallback='http://${listen}:${port}'),
-        skip_build=_config_get_bool('skip_build')
+        skip_build=_config_get_bool('skip_build'),
+        tls_key_path=config.get('tls_key_path'),
+        tls_crt_path=config.get('tls_crt_path')
     )
 
 
@@ -38,13 +41,16 @@ class HTTPWorker(CircleWorker):
     """
     """
 
-    def __init__(self, core, listen, port, websocket_on, admin_on, admin_base_url, skip_build):
+    def __init__(self, core, listen, port, websocket_on, admin_on, admin_base_url, skip_build,
+                 tls_key_path, tls_crt_path):
         super(HTTPWorker, self).__init__(core)
 
         self.port = port
         self.listen = listen
         self.websocket_on = websocket_on
         self.admin_on = admin_on
+        self.tls_key_path = tls_key_path
+        self.tls_crt_path = tls_crt_path
 
         self.request_handlers = []
 
@@ -73,4 +79,7 @@ class HTTPWorker(CircleWorker):
                 logger.info('Admin UI running on %s', url_for('_index', _external=True))
 
         if self.request_handlers:
-            self.application.listen(self.port, self.listen)
+            ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+            ssl_ctx.load_cert_chain(self.tls_crt_path, self.tls_key_path)
+            server = HTTPServer(self.application, ssl_options=ssl_ctx)
+            server.listen(self.port, self.listen)
