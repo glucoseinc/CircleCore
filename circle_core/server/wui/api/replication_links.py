@@ -29,6 +29,7 @@ def _get_replicas():
     metadata = get_metadata()
 
     response = {
+        'cc_infos': [cc_info.to_json() for cc_info in metadata.cc_infos],
         'modules': [metadata.denormalize_json_module(module.uuid) for module in metadata.modules],  # 必要な分だけに絞るべきか？
         'replication_links': [replication_link.to_json() for replication_link in metadata.replication_links]
     }
