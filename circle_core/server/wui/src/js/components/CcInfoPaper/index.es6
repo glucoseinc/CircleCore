@@ -89,7 +89,7 @@ class CcInfoPaper extends Component {
                 <div style={style.idSection}>
                   <IdLabel
                     obj={ccInfo}
-                    onTouchTap={onIdCopyButtonTouchTap}
+                    onCopyButtonTouchTap={onIdCopyButtonTouchTap}
                   />
                 </div>
                 <div style={style.workSection}>

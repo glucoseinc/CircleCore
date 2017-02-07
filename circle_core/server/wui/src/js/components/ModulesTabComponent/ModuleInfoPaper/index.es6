@@ -96,7 +96,7 @@ class ModuleInfoPaper extends Component {
                 <div style={style.idSection}>
                   <IdLabel
                     obj={module}
-                    onTouchTap={onIdCopyButtonTouchTap}
+                    onCopyButtonTouchTap={onIdCopyButtonTouchTap}
                   />
                 </div>
                 <div style={style.messageBoxesSection}>
