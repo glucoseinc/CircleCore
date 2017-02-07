@@ -7,6 +7,7 @@ const mergeByFetchingReplicationLinks = (refresh) => (state, action) => {
   const newEntities = getNewEntities(action.payload)
   return {
     ...state,
+    ccInfos: refresh ? newEntities.ccInfos : state.ccInfos.merge(newEntities.ccInfos),
     schemas: state.schemas.merge(newEntities.schemas),
     modules: refresh ? newEntities.modules : state.modules.merge(newEntities.modules),
     replicationLinks: (
