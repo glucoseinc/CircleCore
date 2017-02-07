@@ -9,6 +9,7 @@ from tornado.wsgi import WSGIContainer
 
 # project module
 from circle_core.constants import RequestType
+from circle_core.exceptions import ConfigError
 from circle_core.server.wui import create_app
 from .base import CircleWorker, register_worker_factory
 
@@ -49,8 +50,17 @@ class HTTPWorker(CircleWorker):
         self.listen = listen
         self.websocket_on = websocket_on
         self.admin_on = admin_on
-        self.tls_key_path = tls_key_path
-        self.tls_crt_path = tls_crt_path
+
+        if tls_key_path and tls_crt_path:
+            self.tls_key_path = tls_key_path
+            self.tls_crt_path = tls_crt_path
+        elif tls_key_path:
+            raise ConfigError('tls_crt_path is missing')
+        elif tls_crt_path:
+            raise ConfigError('tls_key_path is missing')
+        else:
+            self.tls_key_path = None
+            self.tls_crt_path = None
 
         self.request_handlers = []
 
@@ -79,7 +89,10 @@ class HTTPWorker(CircleWorker):
                 logger.info('Admin UI running on %s', url_for('_index', _external=True))
 
         if self.request_handlers:
-            ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-            ssl_ctx.load_cert_chain(self.tls_crt_path, self.tls_key_path)
-            server = HTTPServer(self.application, ssl_options=ssl_ctx)
-            server.listen(self.port, self.listen)
+            if self.tls_crt_path:
+                ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+                ssl_ctx.load_cert_chain(self.tls_crt_path, self.tls_key_path)
+                server = HTTPServer(self.application, ssl_options=ssl_ctx)
+                server.listen(self.port, self.listen)
+            else:
+                self.application.listen(self.port, self.listen)
