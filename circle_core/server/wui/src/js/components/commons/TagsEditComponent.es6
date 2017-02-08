@@ -1,17 +1,16 @@
 import React, {Component, PropTypes} from 'react'
 
 import AddFlatButton from 'src/components/commons/AddFlatButton'
-
-import MessageBoxEditComponent from './MessageBoxEditComponent'
+import TagEditComponent from 'src/components/commons/TagEditComponent'
 
 
 /**
- * MessageBox編集コンポーネント
+ * タグ編集コンポーネント
  */
-class MessageBoxesEditComponent extends Component {
+class TagsEditComponent extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
-    schemas: PropTypes.object.isRequired,
+    suggestions: PropTypes.array,
     onUpdate: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
     onAddTouchTap: PropTypes.func,
@@ -23,7 +22,7 @@ class MessageBoxesEditComponent extends Component {
   render() {
     const {
       module,
-      schemas,
+      suggestions = [],
       onUpdate,
       onDeleteTouchTap,
       onAddTouchTap,
@@ -36,29 +35,27 @@ class MessageBoxesEditComponent extends Component {
         width: '100%',
       },
 
-      messageBoxes: {
-        marginTop: -40,
+      tags: {
+        marginTop: -8,
       },
-      messageBoxBlock: {
-        paddingTop: 40,
+      tagBlock: {
+        paddingTop: 8,
       },
 
       actionsBlock: {
-        paddingTop: 32,
+        paddingTop: 16,
       },
-
     }
 
     return (
       <div style={style.root}>
-        <div style={style.messageBoxes}>
-          {module.messageBoxes.valueSeq().map((messageBox, index) =>
-            <div key={index} style={style.messageBoxBlock}>
-              <MessageBoxEditComponent
-                messageBox={messageBox}
-                schemas={schemas}
-                deleteDisabled={module.messageBoxes.size <= 1}
-                onUpdate={(newMessageBox) => onUpdate(index, newMessageBox)}
+        <div style={style.tags}>
+          {module.tags.valueSeq().map((tag, index) =>
+            <div key={index} style={style.tagBlock}>
+              <TagEditComponent
+                tag={tag}
+                suggestions={suggestions}
+                onUpdate={(newTag) => onUpdate(index, newTag)}
                 onDeleteTouchTap={() => onDeleteTouchTap(index)}
               />
             </div>
@@ -66,7 +63,7 @@ class MessageBoxesEditComponent extends Component {
         </div>
         <div style={style.actionsBlock}>
           <AddFlatButton
-            label="メッセージボックスを追加する"
+            label="タグを追加する"
             onTouchTap={onAddTouchTap}
           />
         </div>
@@ -75,4 +72,4 @@ class MessageBoxesEditComponent extends Component {
   }
 }
 
-export default MessageBoxesEditComponent
+export default TagsEditComponent
