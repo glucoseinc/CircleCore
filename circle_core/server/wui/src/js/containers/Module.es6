@@ -1,5 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
+import {Set} from 'immutable'
 
 import actions from 'src/actions'
 import {urls} from 'src/routes'
@@ -8,6 +9,7 @@ import LoadingIndicator from 'src/components/bases/LoadingIndicator'
 
 import AddFloatingActionButton from 'src/components/commons/AddFloatingActionButton'
 import CCLink from 'src/components/commons/CCLink'
+import MessageBoxDeleteDialog from 'src/components/commons/MessageBoxDeleteDialog'
 import ModuleDeleteDialog from 'src/components/commons/ModuleDeleteDialog'
 
 import ModuleDetail from 'src/components/ModuleDetail'
@@ -30,6 +32,8 @@ class Module extends Component {
 
   state = {
     isModuleDeleteDialogOpen: false,
+    isMessageBoxDeleteDialogOpen: false,
+    deleteMessageBoxIndex: null,
   }
 
   /**
@@ -50,7 +54,6 @@ class Module extends Component {
     })
   }
 
-
   /**
    * 削除ダイアログのボタン押下時の動作
    * @param {bool} execute
@@ -66,11 +69,40 @@ class Module extends Component {
   }
 
   /**
+   * MessageBox削除ボタン押下時の動作
+   * @param {number} messageBoxIndex
+   */
+  onMessageBoxDeleteTouchTap(messageBoxIndex) {
+    this.setState({
+      isMessageBoxDeleteDialogOpen: true,
+      deleteMessageBoxIndex: messageBoxIndex,
+    })
+  }
+
+  /**
+   * MessageBox削除ダイアログのボタン押下時の動作
+   * @param {bool} execute
+   * @param {object} module
+   */
+  onMessageBoxDeleteDialogButtonTouchTap(execute, module) {
+    console.log(module.toJS())
+    this.setState({
+      isMessageBoxDeleteDialogOpen: false,
+      deleteMessageBoxIndex: null,
+    })
+    if (execute && module) {
+      this.props.onUpdateTouchTap(module)
+    }
+  }
+
+  /**
    * @override
    */
   render() {
     const {
       isModuleDeleteDialogOpen,
+      isMessageBoxDeleteDialogOpen,
+      deleteMessageBoxIndex,
     } = this.state
     const {
       isFetching,
@@ -97,13 +129,19 @@ class Module extends Component {
       )
     }
 
+    const tagSuggestions = modules.reduce(
+      (tagSet, module) => tagSet.union(module.tags)
+      , new Set()
+    ).toArray().sort()
+
     return (
       <div className="page">
         <ModuleDetail
           module={module}
           schemas={schemas}
+          tagSuggestions={tagSuggestions}
           onUpdateTouchTap={onUpdateTouchTap}
-          onMessageBoxDeleteTouchTap={(...args) => console.log('onMessageBoxDeleteTouchTap', ...args)}
+          onMessageBoxDeleteTouchTap={(messageBoxIndex) => this.onMessageBoxDeleteTouchTap(messageBoxIndex)}
           onMessageBoxDownloadTouchTap={(...args) => console.log('onMessageBoxDownloadTouchTap', ...args)}
           onDeleteTouchTap={::this.onDeleteTouchTap}
         />
@@ -117,6 +155,15 @@ class Module extends Component {
           module={module}
           onOkTouchTap={(module) => this.onDeleteDialogButtonTouchTap(true, module)}
           onCancelTouchTap={() => this.onDeleteDialogButtonTouchTap(false)}
+        />
+
+        <MessageBoxDeleteDialog
+          open={isMessageBoxDeleteDialogOpen}
+          module={module}
+          messageBoxIndex={deleteMessageBoxIndex}
+          onOkTouchTap={(messageBoxIndex) =>
+            this.onMessageBoxDeleteDialogButtonTouchTap(true, module.removeMessageBox(messageBoxIndex))}
+          onCancelTouchTap={() => this.onMessageBoxDeleteDialogButtonTouchTap(false)}
         />
       </div>
     )

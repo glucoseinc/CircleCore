@@ -2,19 +2,19 @@ import React, {Component, PropTypes} from 'react'
 
 import Paper from 'material-ui/Paper'
 
-import ComponentWithIcon from 'src/components/bases/ComponentWithIcon'
 import ComponentWithOkCancelButton from 'src/components/bases/ComponentWithOkCancelButton'
-import {IdIcon} from 'src/components/bases/icons'
 
-import DisplayNameTextField from 'src/components/commons/DisplayNameTextField'
+import MemoTextField from 'src/components/commons/MemoTextField'
+import TagsEditComponent from 'src/components/commons/TagsEditComponent'
 
 
 /**
- * 表示名・UUIDエリア(編集状態)
+ * メタデータエリア(編集状態)
  */
-class DisplayNameEditPaper extends Component {
+class MetadataEditPaper extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
+    tagSuggestions: PropTypes.array,
     onUpdate: PropTypes.func,
     onOKButtonTouchTap: PropTypes.func,
     onCancelButtonTouchTap: PropTypes.func,
@@ -26,6 +26,7 @@ class DisplayNameEditPaper extends Component {
   render() {
     const {
       module,
+      tagSuggestions = [],
       onUpdate,
       onOKButtonTouchTap,
       onCancelButtonTouchTap,
@@ -42,9 +43,10 @@ class DisplayNameEditPaper extends Component {
         display: 'flex',
         flexFlow: 'column nowrap',
       },
-      id: {
-        fontSize: 14,
-        lineHeight: 1,
+      tagsSection: {
+      },
+      memoSection: {
+        paddingTop: 16,
       },
     }
 
@@ -58,14 +60,21 @@ class DisplayNameEditPaper extends Component {
             onCancelButtonTouchTap={onCancelButtonTouchTap}
           >
             <div style={style.contents}>
-              <DisplayNameTextField
-                obj={module}
-                floatingLabelText="モジュール名"
-                onChange={(e) => onUpdate(module.updateDisplayName(e.target.value))}
-              />
-              <ComponentWithIcon icon={IdIcon}>
-                <div style={style.id}>{module.uuid}</div>
-              </ComponentWithIcon>
+              <div style={style.tagsSection}>
+                <TagsEditComponent
+                  module={module}
+                  suggestions={tagSuggestions}
+                  onUpdate={(index, tag) => onUpdate(module.updateTag(index, tag))}
+                  onDeleteTouchTap={(index) => onUpdate(module.removeTag(index))}
+                  onAddTouchTap={() => onUpdate(module.pushTag())}
+                />
+              </div>
+              <div style={style.memoSection}>
+                <MemoTextField
+                  obj={module}
+                  onChange={(e) => onUpdate(module.updateMemo(e.target.value))}
+                />
+              </div>
             </div>
           </ComponentWithOkCancelButton>
         </div>
@@ -74,4 +83,5 @@ class DisplayNameEditPaper extends Component {
   }
 }
 
-export default DisplayNameEditPaper
+
+export default MetadataEditPaper

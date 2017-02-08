@@ -6,8 +6,10 @@ import DeleteButton from 'src/components/commons/DeleteButton'
 
 import DisplayNameEditPaper from './DisplayNameEditPaper'
 import DisplayNamePaper from './DisplayNamePaper'
+import MessageBoxEditPaper from './MessageBoxEditPaper'
 import MessageBoxPaper from './MessageBoxPaper'
 import MessageBoxAddActionPaper from './MessageBoxAddActionPaper'
+import MetadataEditPaper from './MetadataEditPaper'
 import MetadataPaper from './MetadataPaper'
 
 
@@ -18,6 +20,7 @@ class ModuleDetail extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     schemas: PropTypes.object.isRequired,
+    tagSuggestions: PropTypes.array,
     onUpdateTouchTap: PropTypes.func,
     onMessageBoxDeleteTouchTap: PropTypes.func,
     onMessageBoxDownloadTouchTap: PropTypes.func,
@@ -46,6 +49,20 @@ class ModuleDetail extends Component {
       editingArea,
       editingAreaIndex,
       editingModule: this.props.module,
+    })
+  }
+
+  /**
+   * メッセージボックス追加ボタン押下時の動作
+   */
+  onMessageBoxAddTouchTap() {
+    const {
+      module,
+    } = this.props
+    this.setState({
+      editingArea: ModuleDetail.editingArea.messageBox,
+      editingAreaIndex: module.messageBoxes.size,
+      editingModule: module.pushMessageBox(),
     })
   }
 
@@ -80,11 +97,13 @@ class ModuleDetail extends Component {
   render() {
     const {
       editingArea,
+      editingAreaIndex,
       editingModule,
     } = this.state
     const {
       module,
       schemas,
+      tagSuggestions = [],
       onMessageBoxDeleteTouchTap,
       onMessageBoxDownloadTouchTap,
       onDeleteTouchTap,
@@ -106,14 +125,9 @@ class ModuleDetail extends Component {
       messageBoxesArea: {
         paddingTop: 32,
       },
-      messageBoxAddButton: {
-        height: 16,
-        lineHeight: 1,
-      },
-      messageBoxAddButtonLabel: {
-        display: 'inline-block',
-        padding: 0,
-        fontWeight: 'bold',
+
+      messageBoxAddingArea: {
+        paddingTop: 40,
       },
 
       actionsArea: {
@@ -124,10 +138,10 @@ class ModuleDetail extends Component {
       },
     }
 
-    const displayNameArea = editingArea == ModuleDetail.editingArea.displayName ? (
+    const displayNamePaper = editingArea === ModuleDetail.editingArea.displayName ? (
       <DisplayNameEditPaper
         module={editingModule}
-        onDisplayNameChange={(e) => this.setState({editingModule: editingModule.updateDisplayName(e.target.value)})}
+        onUpdate={(editingModule) => this.setState({editingModule})}
         onOKButtonTouchTap={() => this.onUpdateTouchTap()}
         onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
       />
@@ -138,37 +152,78 @@ class ModuleDetail extends Component {
       />
     )
 
+    const metadataPaper = editingArea === ModuleDetail.editingArea.metadata ? (
+      <MetadataEditPaper
+        module={editingModule}
+        tagSuggestions={tagSuggestions}
+        onUpdate={(editingModule) => this.setState({editingModule})}
+        onOKButtonTouchTap={() => this.onUpdateTouchTap()}
+        onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
+      />
+    ) : (
+      <MetadataPaper
+        module={module}
+        onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.metadata, null)}
+      />
+    )
+
+    const messageBoxAddPaper = editingArea === ModuleDetail.editingArea.messageBox
+    && editingAreaIndex === module.messageBoxes.size ? (
+      <div style={style.messageBoxAddingArea}>
+        <MessageBoxEditPaper
+          module={editingModule}
+          messageBoxIndex={editingAreaIndex}
+          schemas={schemas}
+          onUpdate={(editingModule) => this.setState({editingModule})}
+          onOKButtonTouchTap={() => this.onUpdateTouchTap()}
+          onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
+        />
+      </div>
+    ) : (
+      <MessageBoxAddActionPaper
+        onTouchTap={() => this.onMessageBoxAddTouchTap()}
+      />
+    )
+
     return (
       <div style={style.root}>
         <div style={style.displayNameArea}>
-          {displayNameArea}
+          {displayNamePaper}
         </div>
 
         <div style={style.metadataArea}>
           <ComponentWithTitle title="メタデータ">
-            <MetadataPaper
-              module={module}
-              onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.metadata, null)}
-            />
+            {metadataPaper}
           </ComponentWithTitle>
         </div>
 
         <div style={style.messageBoxesArea}>
           <ComponentWithTitle title="メッセージボックス">
-            {module.messageBoxes.valueSeq().map((messageBox, index) =>
-              <MessageBoxPaper
-                key={index}
-                module={module}
-                messageBox={messageBox}
-                schema={schemas.get(messageBox.schema)}
-                onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.messageBox, index)}
-                onDeleteTouchTap={() => onMessageBoxDeleteTouchTap(messageBox)}
-                onDownloadTouchTap={onMessageBoxDownloadTouchTap}
-              />
-            )}
-            <MessageBoxAddActionPaper
-              onTouchTap={() => console.log('メッセージボックスを追加する')}
-            />
+            {module.messageBoxes.valueSeq().map((messageBox, index) => {
+              return editingArea === ModuleDetail.editingArea.messageBox && editingAreaIndex === index ? (
+                <MessageBoxEditPaper
+                  key={messageBox.uuid}
+                  module={editingModule}
+                  messageBoxIndex={index}
+                  schemas={schemas}
+                  onUpdate={(editingModule) => this.setState({editingModule})}
+                  onOKButtonTouchTap={() => this.onUpdateTouchTap()}
+                  onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
+                />
+              ) : (
+                <MessageBoxPaper
+                  key={messageBox.uuid}
+                  module={module}
+                  messageBoxIndex={index}
+                  schema={schemas.get(messageBox.schema)}
+                  deleteDispabled={module.messageBoxes.size <= 1}
+                  onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.messageBox, index)}
+                  onDeleteTouchTap={() => onMessageBoxDeleteTouchTap(index)}
+                  onDownloadTouchTap={onMessageBoxDownloadTouchTap}
+                />
+              )
+            })}
+            {messageBoxAddPaper}
           </ComponentWithTitle>
         </div>
 

@@ -1,8 +1,5 @@
 import React, {Component, PropTypes} from 'react'
 
-import ComponentWithIconButton from 'src/components/bases/ComponentWithIconButton'
-import {DeleteIcon} from 'src/components/bases/icons'
-
 import DisplayNameTextField from 'src/components/commons/DisplayNameTextField'
 import MemoTextField from 'src/components/commons/MemoTextField'
 import SchemaSelectField from 'src/components/commons/SchemaSelectField'
@@ -15,9 +12,7 @@ class MessageBoxEditComponent extends Component {
   static propTypes = {
     messageBox: PropTypes.object.isRequired,
     schemas: PropTypes.object.isRequired,
-    deleteDisabled: PropTypes.bool,
     onUpdate: PropTypes.func,
-    onDeleteTouchTap: PropTypes.func,
   }
 
   /**
@@ -27,24 +22,11 @@ class MessageBoxEditComponent extends Component {
     const {
       messageBox,
       schemas,
-      deleteDisabled = false,
       onUpdate,
-      onDeleteTouchTap,
     } = this.props
 
-    const style = {
-      root: {
-        alignItems: 'baseline',
-      },
-    }
-
     return (
-      <ComponentWithIconButton
-        rootStyle={style.root}
-        icon={DeleteIcon}
-        iconButtonDisabled={deleteDisabled}
-        onIconButtonTouchTap={onDeleteTouchTap}
-      >
+      <div>
         <DisplayNameTextField
           obj={messageBox}
           floatingLabelText="メッセージボックス名"
@@ -59,7 +41,7 @@ class MessageBoxEditComponent extends Component {
           obj={messageBox}
           onChange={(e) => onUpdate(messageBox.updateMemo(e.target.value))}
         />
-      </ComponentWithIconButton>
+      </div>
     )
   }
 }

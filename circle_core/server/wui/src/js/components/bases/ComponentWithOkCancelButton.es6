@@ -10,6 +10,8 @@ class ComponentWithOkCancelButton extends Component {
   static propTypes = {
     okButtonLabel: PropTypes.string,
     cancelButtonLabel: PropTypes.string,
+    okButtonDisabled: PropTypes.bool,
+    cancelButtonDisabled: PropTypes.bool,
     onOKButtonTouchTap: PropTypes.func,
     onCancelButtonTouchTap: PropTypes.func,
     children: PropTypes.node,
@@ -22,6 +24,8 @@ class ComponentWithOkCancelButton extends Component {
     const {
         okButtonLabel = 'OK',
         cancelButtonLabel = 'キャンセル',
+        okButtonDisabled = false,
+        cancelButtonDisabled = false,
         onOKButtonTouchTap,
         onCancelButtonTouchTap,
         children,
@@ -53,11 +57,13 @@ class ComponentWithOkCancelButton extends Component {
         <div style={style.actionsArea}>
           <CCFlatButton
             label={cancelButtonLabel}
+            disabled={cancelButtonDisabled}
             onTouchTap={onCancelButtonTouchTap}
           />
           <CCFlatButton
             label={okButtonLabel}
             primary={true}
+            disabled={okButtonDisabled}
             onTouchTap={onOKButtonTouchTap}
           />
         </div>

@@ -2,19 +2,19 @@ import React, {Component, PropTypes} from 'react'
 
 import Paper from 'material-ui/Paper'
 
-import ComponentWithIcon from 'src/components/bases/ComponentWithIcon'
 import ComponentWithOkCancelButton from 'src/components/bases/ComponentWithOkCancelButton'
-import {IdIcon} from 'src/components/bases/icons'
 
-import DisplayNameTextField from 'src/components/commons/DisplayNameTextField'
+import MessageBoxEditComponent from 'src/components/commons/MessageBoxEditComponent'
 
 
 /**
- * 表示名・UUIDエリア(編集状態)
+ * MessageBox追加操作エリア(編集状態)
  */
-class DisplayNameEditPaper extends Component {
+class MessageBoxEditPaper extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
+    messageBoxIndex: PropTypes.number.isRequired,
+    schemas: PropTypes.object.isRequired,
     onUpdate: PropTypes.func,
     onOKButtonTouchTap: PropTypes.func,
     onCancelButtonTouchTap: PropTypes.func,
@@ -26,6 +26,8 @@ class DisplayNameEditPaper extends Component {
   render() {
     const {
       module,
+      messageBoxIndex,
+      schemas,
       onUpdate,
       onOKButtonTouchTap,
       onCancelButtonTouchTap,
@@ -42,11 +44,9 @@ class DisplayNameEditPaper extends Component {
         display: 'flex',
         flexFlow: 'column nowrap',
       },
-      id: {
-        fontSize: 14,
-        lineHeight: 1,
-      },
     }
+
+    const messageBox = module.messageBoxes.get(messageBoxIndex)
 
     return (
       <Paper>
@@ -58,14 +58,11 @@ class DisplayNameEditPaper extends Component {
             onCancelButtonTouchTap={onCancelButtonTouchTap}
           >
             <div style={style.contents}>
-              <DisplayNameTextField
-                obj={module}
-                floatingLabelText="モジュール名"
-                onChange={(e) => onUpdate(module.updateDisplayName(e.target.value))}
+              <MessageBoxEditComponent
+                messageBox={messageBox}
+                schemas={schemas}
+                onUpdate={(newMessageBox) => onUpdate(module.updateMessageBox(messageBoxIndex, newMessageBox))}
               />
-              <ComponentWithIcon icon={IdIcon}>
-                <div style={style.id}>{module.uuid}</div>
-              </ComponentWithIcon>
             </div>
           </ComponentWithOkCancelButton>
         </div>
@@ -74,4 +71,4 @@ class DisplayNameEditPaper extends Component {
   }
 }
 
-export default DisplayNameEditPaper
+export default MessageBoxEditPaper
