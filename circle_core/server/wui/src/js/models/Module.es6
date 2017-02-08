@@ -145,6 +145,16 @@ export default class Module extends ModuleRecord {
     return this.set('messageBoxes', newMessageBoxes)
   }
 
+
+  /**
+   * MessageBoxをまとめて更新
+   * @param {List} messageBoxes
+   * @return {Module}
+   */
+  updateMessageBoxes(messageBoxes) {
+    return this.set('messageBoxes', messageBoxes)
+  }
+
   /**
    * tag追加
    * @param {string} tag
