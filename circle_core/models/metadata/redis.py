@@ -197,7 +197,10 @@ class MetadataRedis(MetadataReader, MetadataWriter):
         for key in keys:
             if self.redis_client.type(key) == 'hash':
                 fields = self.redis_client.hgetall(key)  # type: Dict[str, Any]
-                cc_infos.append(CcInfo(**fields))
+                cc_info = CcInfo(**fields)
+                # TODO: 最終アクセス時刻を追加する
+
+                cc_infos.append(cc_info)
         return cc_infos
 
     # Invitation
