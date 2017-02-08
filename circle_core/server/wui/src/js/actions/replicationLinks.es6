@@ -11,6 +11,11 @@ const payloadCreators = {
   fetchRequest: nullPayloadCreator,
   fetchSucceeded: (response) => response,
   fetchFailed: (message) => message,
+
+  // Delete
+  deleteRequest: (replicationLinkId) => replicationLinkId,
+  deleteSucceeded: (response) => response,
+  deleteFailed: (message) => message,
 }
 
 const ccActions = createCcActions('replicationLinks', payloadCreators)

@@ -20,12 +20,23 @@ const allReplicationLinksFetchParam = createAsyncSagaParam(
   actions.replicationLinks.fetchFailed
 )
 
+// Delete
+const replicationLinkDeleteParam = createAsyncSagaParam(
+  ::CCAPI.deleteReplicationLink,
+  (payload) => payload,
+  actions.replicationLinks.deleteSucceeded,
+  actions.replicationLinks.deleteFailed
+)
+
 const asyncSagaParams = {
   // Create
   [actionTypes.replicationLinks.createRequest]: replicationLinkCreateParam,
 
   // Read all
   [actionTypes.replicationLinks.fetchRequest]: allReplicationLinksFetchParam,
+
+  // Delete
+  [actionTypes.replicationLinks.deleteRequest]: replicationLinkDeleteParam,
 }
 
 export default asyncSagaParams

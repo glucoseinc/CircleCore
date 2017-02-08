@@ -22,6 +22,16 @@ const replicationLinksActionsHandler = {
 
   // Fetch
   [actionTypes.replicationLinks.fetchSucceeded]: mergeByFetchingReplicationLinks(true),
+
+  // Delete
+  [actionTypes.replicationLinks.deleteSucceeded]: (state, action) => {
+    const deletedReplicationLinkId = getNewEntities(action.payload).replicationLinks.first()
+    const replicationLinks = state.replicationLinks.delete(deletedReplicationLinkId)
+    return {
+      ...state,
+      replicationLinks,
+    }
+  },
 }
 
 export default replicationLinksActionsHandler
