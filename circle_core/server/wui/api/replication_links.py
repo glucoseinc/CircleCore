@@ -9,6 +9,7 @@ from flask import abort, request
 from circle_core.cli.utils import generate_uuid
 from circle_core.models import ReplicationLink
 from .api import api
+from .utils import respond_failure
 from ..utils import (
     api_jsonify, api_response_failure, convert_dict_key_camel_case, convert_dict_key_snake_case, get_metadata,
     oauth_require_read_schema_scope, oauth_require_write_schema_scope
@@ -62,10 +63,12 @@ def _post_replicas():
     return api_jsonify(**convert_dict_key_camel_case(response))
 
 
-@api.route('/replicas/<uuid:replication_link_uuid>', methods=['GET'])
+@api.route('/replicas/<uuid:replication_link_uuid>', methods=['GET', 'DELETE'])
 def api_replica(replication_link_uuid):
     if request.method == 'GET':
         return _get_replica(replication_link_uuid)
+    elif request.method == 'DELETE':
+        return _delete_replica(replication_link_uuid)
     abort(405)
 
 
@@ -75,5 +78,19 @@ def _get_replica(replication_link_uuid):
 
     response = {
         'replication_link': metadata.find_replication_link(replication_link_uuid).to_json()
+    }
+    return api_jsonify(**convert_dict_key_camel_case(response))
+
+
+@oauth_require_write_schema_scope
+def _delete_replica(replication_link_uuid):
+    metadata = get_metadata()
+    replication_link = metadata.find_replication_link(replication_link_uuid)
+    if replication_link is None:
+        return respond_failure('Replication Link not found.', _status=404)
+
+    metadata.unregister_replication_link(replication_link)
+    response = {
+        'replication_link': replication_link.to_json()
     }
     return api_jsonify(**convert_dict_key_camel_case(response))
