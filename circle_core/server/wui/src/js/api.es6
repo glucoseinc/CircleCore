@@ -444,6 +444,16 @@ class CCAPI extends APICaller {
     return res.body
   }
 
+  /**
+   * ReplicationLinkを削除する
+   * @param {string} replicationLinkId
+   * @return {object} Result
+   */
+  async deleteReplicationLink(replicationLinkId) {
+    const res = await this._delete(`/replicas/${replicationLinkId}`)
+    return res.body
+  }
+
 
   // ModuleGraphData
   /**
