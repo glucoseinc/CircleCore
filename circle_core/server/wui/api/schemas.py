@@ -114,15 +114,15 @@ def api_get_property_types():
     # TODO: constants.pyから引っ張ってくる
     response = {
         'schema_property_types': [
-            {'name': 'INT'},
-            {'name': 'FLOAT'},
-            {'name': 'BOOL'},
-            {'name': 'STRING'},
-            {'name': 'BYTES'},
-            {'name': 'DATE'},
-            {'name': 'Datetime'},
-            {'name': 'Time'},
-            {'name': 'TIMESTAMP'},
+            {'name': 'int'},
+            {'name': 'float'},
+            {'name': 'bool'},
+            {'name': 'string'},
+            {'name': 'bytes'},
+            {'name': 'date'},
+            {'name': 'datetime'},
+            {'name': 'time'},
+            {'name': 'timestamp'},
         ],
     }
     return api_jsonify(**convert_dict_key_camel_case(response))
