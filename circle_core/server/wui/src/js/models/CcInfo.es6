@@ -7,6 +7,7 @@ const CcInfoRecord = Record({
   displayName: '',
   myself: false,
   work: '',
+  lastAccessTime: '',
 })
 
 /**
@@ -31,6 +32,7 @@ export default class CcInfo extends CcInfoRecord {
       displayName: rawCcInfo.displayName || '',
       myself: rawCcInfo.myself || false,
       work: rawCcInfo.work || '',
+      lastAccessTime: rawCcInfo.lastAccessTime || '',
     })
   }
 
