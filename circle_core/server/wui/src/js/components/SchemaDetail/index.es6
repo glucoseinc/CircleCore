@@ -5,8 +5,8 @@ import ComponentWithTitle from 'src/components/bases/ComponentWithTitle'
 import BackButton from 'src/components/commons/BackButton'
 import DeleteButton from 'src/components/commons/DeleteButton'
 import DisplayNamePaper from 'src/components/commons/DisplayNamePaper'
+import MetadataPaper from 'src/components/commons/MetadataPaper'
 
-import MetadataPaper from './MetadataPaper'
 import PropertiesTableComponent from './PropertiesTableComponent'
 
 
@@ -83,7 +83,7 @@ class SchemaDetail extends Component {
 
         <div style={style.metadataArea}>
           <ComponentWithTitle title="メタデータ">
-            <MetadataPaper schema={schema} />
+            <MetadataPaper obj={schema} />
           </ComponentWithTitle>
         </div>
 

@@ -1,7 +1,8 @@
 import React, {Component, PropTypes} from 'react'
 
 import Paper from 'material-ui/Paper'
-import {grey600, grey900} from 'material-ui/styles/colors'
+
+import MemoComponent from 'src/components/commons/MemoComponent'
 
 
 /**
@@ -9,7 +10,7 @@ import {grey600, grey900} from 'material-ui/styles/colors'
  */
 class MetadataPaper extends Component {
   static propTypes = {
-    schema: PropTypes.object.isRequired,
+    obj: PropTypes.object.isRequired,
   }
 
   /**
@@ -17,39 +18,25 @@ class MetadataPaper extends Component {
    */
   render() {
     const {
-      schema,
+      obj,
     } = this.props
 
     const style = {
       root: {
         display: 'flex',
         flexFlow: 'column nowrap',
-        padding: 20,
-      },
-      memoLabel: {
-        padding: 4,
-        fontSize: 14,
-        color: grey600,
-        lineHeight: 1,
-      },
-      memo: {
-        padding: 4,
-        fontSize: 14,
-        color: grey900,
-        lineHeight: 1.1,
+        padding: 24,
       },
     }
 
     return (
       <Paper>
         <div style={style.root}>
-          <div style={style.memoLabel}>メモ</div>
-          <div style={style.memo}>{schema.memo}</div>
+          <MemoComponent obj={obj}/>
         </div>
       </Paper>
     )
   }
 }
-
 
 export default MetadataPaper
