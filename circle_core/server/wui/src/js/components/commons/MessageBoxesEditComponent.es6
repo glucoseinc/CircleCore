@@ -1,8 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 
 import AddFlatButton from 'src/components/commons/AddFlatButton'
-
-import MessageBoxEditComponent from './MessageBoxEditComponent'
+import MessageBoxEditComponentWithButton from 'src/components/commons/MessageBoxEditComponentWithButton'
 
 
 /**
@@ -54,7 +53,7 @@ class MessageBoxesEditComponent extends Component {
         <div style={style.messageBoxes}>
           {module.messageBoxes.valueSeq().map((messageBox, index) =>
             <div key={index} style={style.messageBoxBlock}>
-              <MessageBoxEditComponent
+              <MessageBoxEditComponentWithButton
                 messageBox={messageBox}
                 schemas={schemas}
                 deleteDisabled={module.messageBoxes.size <= 1}

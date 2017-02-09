@@ -1,8 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 
 import AddFlatButton from 'src/components/commons/AddFlatButton'
-
-import TagEditComponent from './TagEditComponent'
+import TagEditComponent from 'src/components/commons/TagEditComponent'
 
 
 /**

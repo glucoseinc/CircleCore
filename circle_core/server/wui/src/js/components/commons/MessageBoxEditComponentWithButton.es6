@@ -3,15 +3,13 @@ import React, {Component, PropTypes} from 'react'
 import ComponentWithIconButton from 'src/components/bases/ComponentWithIconButton'
 import {DeleteIcon} from 'src/components/bases/icons'
 
-import DisplayNameTextField from 'src/components/commons/DisplayNameTextField'
-import MemoTextField from 'src/components/commons/MemoTextField'
-import SchemaSelectField from 'src/components/commons/SchemaSelectField'
+import MessageBoxEditComponent from 'src/components/commons/MessageBoxEditComponent'
 
 
 /**
- * MessageBox編集コンポーネント
+ * 削除アイコンボタン付きMessageBox編集コンポーネント
  */
-class MessageBoxEditComponent extends Component {
+class MessageBoxEditComponentWithButton extends Component {
   static propTypes = {
     messageBox: PropTypes.object.isRequired,
     schemas: PropTypes.object.isRequired,
@@ -45,23 +43,14 @@ class MessageBoxEditComponent extends Component {
         iconButtonDisabled={deleteDisabled}
         onIconButtonTouchTap={onDeleteTouchTap}
       >
-        <DisplayNameTextField
-          obj={messageBox}
-          floatingLabelText="メッセージボックス名"
-          onChange={(e) => onUpdate(messageBox.updateDisplayName(e.target.value))}
-        />
-        <SchemaSelectField
-          selectedSchemaId={messageBox.schema}
+        <MessageBoxEditComponent
+          messageBox={messageBox}
           schemas={schemas}
-          onChange={(e, i, v) => onUpdate(messageBox.updateSchema(v))}
-        />
-        <MemoTextField
-          obj={messageBox}
-          onChange={(e) => onUpdate(messageBox.updateMemo(e.target.value))}
+          onUpdate={onUpdate}
         />
       </ComponentWithIconButton>
     )
   }
 }
 
-export default MessageBoxEditComponent
+export default MessageBoxEditComponentWithButton

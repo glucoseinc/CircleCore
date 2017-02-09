@@ -9,9 +9,8 @@ import ComponentWithHeader from 'src/components/bases/ComponentWithHeader'
 import CreateButton from 'src/components/commons/CreateButton'
 import DisplayNameTextField from 'src/components/commons/DisplayNameTextField'
 import MemoTextField from 'src/components/commons/MemoTextField'
-
-import MessageBoxesEditComponent from './MessageBoxesEditComponent'
-import TagsEditComponent from './TagsEditComponent'
+import MessageBoxesEditComponent from 'src/components/commons/MessageBoxesEditComponent'
+import TagsEditComponent from 'src/components/commons/TagsEditComponent'
 
 
 /**

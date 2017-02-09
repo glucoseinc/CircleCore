@@ -20,8 +20,9 @@ import ModuleGraph, {RANGES} from 'src/components/commons/ModuleGraph'
 class MessageBoxPaper extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
-    messageBox: PropTypes.object.isRequired,
+    messageBoxIndex: PropTypes.number.isRequired,
     schema: PropTypes.object.isRequired,
+    deleteDispabled: PropTypes.bool,
     onEditTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
     onDownloadTouchTap: PropTypes.func,
@@ -41,12 +42,13 @@ class MessageBoxPaper extends Component {
       downloadEndDate,
     } = this.state
     const {
-        module,
-        messageBox,
-        schema,
-        onEditTouchTap,
-        onDeleteTouchTap,
-        onDownloadTouchTap,
+      module,
+      messageBoxIndex,
+      schema,
+      deleteDispabled = false,
+      onEditTouchTap,
+      onDeleteTouchTap,
+      onDownloadTouchTap,
     } = this.props
 
     const style = {
@@ -110,6 +112,8 @@ class MessageBoxPaper extends Component {
       },
     }
 
+    const messageBox = module.messageBoxes.get(messageBoxIndex)
+
     return (
       <Paper>
         <div style={style.root}>
@@ -122,6 +126,7 @@ class MessageBoxPaper extends Component {
               />,
               <MenuItem
                 primaryText="このメッセージボックスを削除する"
+                disabled={deleteDispabled}
                 leftIcon={<DeleteIcon />}
                 onTouchTap={onDeleteTouchTap}
               />,
