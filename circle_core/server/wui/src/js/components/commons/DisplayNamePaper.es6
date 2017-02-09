@@ -1,15 +1,20 @@
 import React, {Component, PropTypes} from 'react'
 
 import Paper from 'material-ui/Paper'
-import {blue500, grey600, grey900} from 'material-ui/styles/colors'
+import {blue500} from 'material-ui/styles/colors'
+
+import IdLabel from 'src/components/commons/IdLabel'
+import UrlLabel from 'src/components/commons/UrlLabel'
 
 
 /**
- * 表示名・UUIDエリア
+ * 表示名エリア
  */
 class DisplayNamePaper extends Component {
   static propTypes = {
-    schema: PropTypes.object.isRequired,
+    obj: PropTypes.object.isRequired,
+    secondayType: PropTypes.string,
+    onCopyButtonTouchTap: PropTypes.func,
   }
 
   /**
@@ -17,47 +22,40 @@ class DisplayNamePaper extends Component {
    */
   render() {
     const {
-      schema,
+      obj,
+      secondayType = 'id',
+      onCopyButtonTouchTap,
     } = this.props
 
     const style = {
       root: {
         display: 'flex',
         flexFlow: 'column nowrap',
-        padding: 20,
+        padding: 24,
       },
       displayName: {
-        padding: 0,
         fontSize: 20,
         fontWeight: 'bold',
         color: blue500,
       },
-      schemaId: {
-        padding: 0,
-        fontSize: 14,
-        color: grey900,
-      },
-      schemaIdLabel: {
-        padding: 0,
-        fontSize: 12,
-        color: grey600,
-      },
     }
+
+    const SecondaryLabel = secondayType === 'id' ? IdLabel : UrlLabel
 
     return (
       <Paper>
         <div style={style.root}>
           <div style={style.displayName}>
-            {schema.displayName || '(no name)'}
+            {obj.displayName || '(no name)'}
           </div>
-          <div style={style.schemaId}>
-            <span style={style.schemaIdLabel}>ID</span> {schema.uuid}
-          </div>
+          <SecondaryLabel
+            obj={obj}
+            onCopyButtonTouchTap={onCopyButtonTouchTap}
+          />
         </div>
       </Paper>
     )
   }
 }
-
 
 export default DisplayNamePaper
