@@ -10,9 +10,9 @@ import MemoComponent from 'src/components/commons/MemoComponent'
 
 
 /**
- * メタデータエリア
+ * メタデータエリア(編集可能)
  */
-class MetadataPaper extends Component {
+class MetadataEditablePaper extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     onEditTouchTap: PropTypes.func,
@@ -91,4 +91,4 @@ class MetadataPaper extends Component {
 }
 
 
-export default MetadataPaper
+export default MetadataEditablePaper

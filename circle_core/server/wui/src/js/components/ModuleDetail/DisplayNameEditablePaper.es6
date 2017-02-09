@@ -3,17 +3,21 @@ import React, {Component, PropTypes} from 'react'
 import Paper from 'material-ui/Paper'
 import {blue500} from 'material-ui/styles/colors'
 
-import ComponentWithIcon from 'src/components/bases/ComponentWithIcon'
 import ComponentWithIconButton from 'src/components/bases/ComponentWithIconButton'
-import {EditIcon, IdIcon} from 'src/components/bases/icons'
+import {EditIcon} from 'src/components/bases/icons'
+
+import IdLabel from 'src/components/commons/IdLabel'
+import UrlLabel from 'src/components/commons/UrlLabel'
 
 
 /**
- * 表示名・UUIDエリア
+ * 表示名エリア(編集可能)
  */
-class DisplayNamePaper extends Component {
+class DisplayNameEditablePaper extends Component {
   static propTypes = {
-    module: PropTypes.object.isRequired,
+    obj: PropTypes.object.isRequired,
+    secondayType: PropTypes.string,
+    onCopyButtonTouchTap: PropTypes.func,
     onEditTouchTap: PropTypes.func,
   }
 
@@ -22,7 +26,9 @@ class DisplayNamePaper extends Component {
    */
   render() {
     const {
-      module,
+      obj,
+      secondayType = 'id',
+      onCopyButtonTouchTap,
       onEditTouchTap,
     } = this.props
 
@@ -42,11 +48,9 @@ class DisplayNamePaper extends Component {
         fontWeight: 'bold',
         color: blue500,
       },
-      id: {
-        fontSize: 14,
-        lineHeight: 1,
-      },
     }
+
+    const SecondaryLabel = secondayType === 'id' ? IdLabel : UrlLabel
 
     return (
       <Paper>
@@ -56,10 +60,13 @@ class DisplayNamePaper extends Component {
             onIconButtonTouchTap={onEditTouchTap}
           >
             <div style={style.contents}>
-              <div style={style.displayName}>{module.displayName || '(no name)'}</div>
-              <ComponentWithIcon icon={IdIcon}>
-                <div style={style.id}>{module.uuid}</div>
-              </ComponentWithIcon>
+              <div style={style.displayName}>
+                {obj.displayName || '(no name)'}
+              </div>
+              <SecondaryLabel
+                obj={obj}
+                onCopyButtonTouchTap={onCopyButtonTouchTap}
+              />
             </div>
           </ComponentWithIconButton>
         </div>
@@ -68,4 +75,4 @@ class DisplayNamePaper extends Component {
   }
 }
 
-export default DisplayNamePaper
+export default DisplayNameEditablePaper

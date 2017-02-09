@@ -9,20 +9,22 @@ import ComponentWithMoreIconMenu from 'src/components/bases/ComponentWithMoreIco
 import ComponentWithSubTitle from 'src/components/bases/ComponentWithSubTitle'
 import {DeleteIcon, DownloadIcon, EditIcon, SchemaIcon} from 'src/components/bases/icons'
 
+import IdLabel from 'src/components/commons/IdLabel'
 import SchemaPropertiesLabel from 'src/components/commons/SchemaPropertiesLabel'
 import MemoComponent from 'src/components/commons/MemoComponent'
 import ModuleGraph, {RANGES} from 'src/components/commons/ModuleGraph'
 
 
 /**
- * MessageBoxエリア
+ * MessageBoxエリア(編集可能)
  */
-class MessageBoxPaper extends Component {
+class MessageBoxEditablePaper extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     messageBoxIndex: PropTypes.number.isRequired,
     schema: PropTypes.object.isRequired,
     deleteDispabled: PropTypes.bool,
+    onIdCopyButtonTouchTap: PropTypes.func,
     onEditTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
     onDownloadTouchTap: PropTypes.func,
@@ -46,6 +48,7 @@ class MessageBoxPaper extends Component {
       messageBoxIndex,
       schema,
       deleteDispabled = false,
+      onIdCopyButtonTouchTap,
       onEditTouchTap,
       onDeleteTouchTap,
       onDownloadTouchTap,
@@ -67,9 +70,11 @@ class MessageBoxPaper extends Component {
         width: '100%',
       },
 
-      displayName: {
+      displayNameSection: {
         paddingTop: 16,
         paddingLeft: 24,
+      },
+      displayName: {
         fontSize: 14,
         fontWeight: 'bold',
       },
@@ -143,8 +148,14 @@ class MessageBoxPaper extends Component {
               </div>
             </div>
 
-            <div style={style.displayName}>
-              {messageBox.displayName || '(no name)'}
+            <div style={style.displayNameSection}>
+              <div style={style.displayName}>
+                {messageBox.displayName || '(no name)'}
+              </div>
+              <IdLabel
+                obj={messageBox}
+                onCopyButtonTouchTap={onIdCopyButtonTouchTap}
+              />
             </div>
 
             <div style={style.schemaSection}>
@@ -202,4 +213,4 @@ class MessageBoxPaper extends Component {
 }
 
 
-export default MessageBoxPaper
+export default MessageBoxEditablePaper

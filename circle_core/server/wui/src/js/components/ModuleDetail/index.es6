@@ -4,13 +4,13 @@ import ComponentWithTitle from 'src/components/bases/ComponentWithTitle'
 
 import DeleteButton from 'src/components/commons/DeleteButton'
 
-import DisplayNameEditPaper from './DisplayNameEditPaper'
-import DisplayNamePaper from './DisplayNamePaper'
-import MessageBoxEditPaper from './MessageBoxEditPaper'
-import MessageBoxPaper from './MessageBoxPaper'
+import DisplayNameEditablePaper from './DisplayNameEditablePaper'
+import DisplayNameEdittingPaper from './DisplayNameEdittingPaper'
+import MessageBoxEditablePaper from './MessageBoxEditablePaper'
+import MessageBoxEdittingPaper from './MessageBoxEdittingPaper'
 import MessageBoxAddActionPaper from './MessageBoxAddActionPaper'
-import MetadataEditPaper from './MetadataEditPaper'
-import MetadataPaper from './MetadataPaper'
+import MetadataEditablePaper from './MetadataEditablePaper'
+import MetadataEdittingPaper from './MetadataEdittingPaper'
 
 
 /**
@@ -21,6 +21,7 @@ class ModuleDetail extends Component {
     module: PropTypes.object.isRequired,
     schemas: PropTypes.object.isRequired,
     tagSuggestions: PropTypes.array,
+    onIdCopyButtonTouchTap: PropTypes.func,
     onUpdateTouchTap: PropTypes.func,
     onMessageBoxDeleteTouchTap: PropTypes.func,
     onMessageBoxDownloadTouchTap: PropTypes.func,
@@ -104,6 +105,7 @@ class ModuleDetail extends Component {
       module,
       schemas,
       tagSuggestions = [],
+      onIdCopyButtonTouchTap,
       onMessageBoxDeleteTouchTap,
       onMessageBoxDownloadTouchTap,
       onDeleteTouchTap,
@@ -139,21 +141,22 @@ class ModuleDetail extends Component {
     }
 
     const displayNamePaper = editingArea === ModuleDetail.editingArea.displayName ? (
-      <DisplayNameEditPaper
+      <DisplayNameEdittingPaper
         module={editingModule}
         onUpdate={(editingModule) => this.setState({editingModule})}
         onOKButtonTouchTap={() => this.onUpdateTouchTap()}
         onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
       />
     ) : (
-      <DisplayNamePaper
-        module={module}
+      <DisplayNameEditablePaper
+        obj={module}
+        onCopyButtonTouchTap={onIdCopyButtonTouchTap}
         onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.displayName, null)}
       />
     )
 
     const metadataPaper = editingArea === ModuleDetail.editingArea.metadata ? (
-      <MetadataEditPaper
+      <MetadataEdittingPaper
         module={editingModule}
         tagSuggestions={tagSuggestions}
         onUpdate={(editingModule) => this.setState({editingModule})}
@@ -161,7 +164,7 @@ class ModuleDetail extends Component {
         onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
       />
     ) : (
-      <MetadataPaper
+      <MetadataEditablePaper
         module={module}
         onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.metadata, null)}
       />
@@ -170,7 +173,7 @@ class ModuleDetail extends Component {
     const messageBoxAddPaper = editingArea === ModuleDetail.editingArea.messageBox
     && editingAreaIndex === module.messageBoxes.size ? (
       <div style={style.messageBoxAddingArea}>
-        <MessageBoxEditPaper
+        <MessageBoxEdittingPaper
           module={editingModule}
           messageBoxIndex={editingAreaIndex}
           schemas={schemas}
@@ -201,7 +204,7 @@ class ModuleDetail extends Component {
           <ComponentWithTitle title="メッセージボックス">
             {module.messageBoxes.valueSeq().map((messageBox, index) => {
               return editingArea === ModuleDetail.editingArea.messageBox && editingAreaIndex === index ? (
-                <MessageBoxEditPaper
+                <MessageBoxEdittingPaper
                   key={messageBox.uuid}
                   module={editingModule}
                   messageBoxIndex={index}
@@ -211,12 +214,13 @@ class ModuleDetail extends Component {
                   onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
                 />
               ) : (
-                <MessageBoxPaper
+                <MessageBoxEditablePaper
                   key={messageBox.uuid}
                   module={module}
                   messageBoxIndex={index}
                   schema={schemas.get(messageBox.schema)}
                   deleteDispabled={module.messageBoxes.size <= 1}
+                  onIdCopyButtonTouchTap={onIdCopyButtonTouchTap}
                   onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.messageBox, index)}
                   onDeleteTouchTap={() => onMessageBoxDeleteTouchTap(index)}
                   onDownloadTouchTap={onMessageBoxDownloadTouchTap}

@@ -4,17 +4,17 @@ import Paper from 'material-ui/Paper'
 
 import ComponentWithOkCancelButton from 'src/components/bases/ComponentWithOkCancelButton'
 
-import MemoTextField from 'src/components/commons/MemoTextField'
-import TagsEditComponent from 'src/components/commons/TagsEditComponent'
+import MessageBoxEditComponent from 'src/components/commons/MessageBoxEditComponent'
 
 
 /**
- * メタデータエリア(編集状態)
+ * MessageBoxエリア(編集状態)
  */
-class MetadataEditPaper extends Component {
+class MessageBoxEdittingPaper extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
-    tagSuggestions: PropTypes.array,
+    messageBoxIndex: PropTypes.number.isRequired,
+    schemas: PropTypes.object.isRequired,
     onUpdate: PropTypes.func,
     onOKButtonTouchTap: PropTypes.func,
     onCancelButtonTouchTap: PropTypes.func,
@@ -26,7 +26,8 @@ class MetadataEditPaper extends Component {
   render() {
     const {
       module,
-      tagSuggestions = [],
+      messageBoxIndex,
+      schemas,
       onUpdate,
       onOKButtonTouchTap,
       onCancelButtonTouchTap,
@@ -43,12 +44,9 @@ class MetadataEditPaper extends Component {
         display: 'flex',
         flexFlow: 'column nowrap',
       },
-      tagsSection: {
-      },
-      memoSection: {
-        paddingTop: 16,
-      },
     }
+
+    const messageBox = module.messageBoxes.get(messageBoxIndex)
 
     return (
       <Paper>
@@ -60,21 +58,11 @@ class MetadataEditPaper extends Component {
             onCancelButtonTouchTap={onCancelButtonTouchTap}
           >
             <div style={style.contents}>
-              <div style={style.tagsSection}>
-                <TagsEditComponent
-                  module={module}
-                  suggestions={tagSuggestions}
-                  onUpdate={(index, tag) => onUpdate(module.updateTag(index, tag))}
-                  onDeleteTouchTap={(index) => onUpdate(module.removeTag(index))}
-                  onAddTouchTap={() => onUpdate(module.pushTag())}
-                />
-              </div>
-              <div style={style.memoSection}>
-                <MemoTextField
-                  obj={module}
-                  onChange={(e) => onUpdate(module.updateMemo(e.target.value))}
-                />
-              </div>
+              <MessageBoxEditComponent
+                messageBox={messageBox}
+                schemas={schemas}
+                onUpdate={(newMessageBox) => onUpdate(module.updateMessageBox(messageBoxIndex, newMessageBox))}
+              />
             </div>
           </ComponentWithOkCancelButton>
         </div>
@@ -83,5 +71,4 @@ class MetadataEditPaper extends Component {
   }
 }
 
-
-export default MetadataEditPaper
+export default MessageBoxEdittingPaper

@@ -4,17 +4,15 @@ import Paper from 'material-ui/Paper'
 
 import ComponentWithOkCancelButton from 'src/components/bases/ComponentWithOkCancelButton'
 
-import MessageBoxEditComponent from 'src/components/commons/MessageBoxEditComponent'
+import DisplayNameTextField from 'src/components/commons/DisplayNameTextField'
 
 
 /**
- * MessageBox追加操作エリア(編集状態)
+ * 表示名エリア(編集状態)
  */
-class MessageBoxEditPaper extends Component {
+class DisplayNameEdittingPaper extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
-    messageBoxIndex: PropTypes.number.isRequired,
-    schemas: PropTypes.object.isRequired,
     onUpdate: PropTypes.func,
     onOKButtonTouchTap: PropTypes.func,
     onCancelButtonTouchTap: PropTypes.func,
@@ -26,8 +24,6 @@ class MessageBoxEditPaper extends Component {
   render() {
     const {
       module,
-      messageBoxIndex,
-      schemas,
       onUpdate,
       onOKButtonTouchTap,
       onCancelButtonTouchTap,
@@ -46,8 +42,6 @@ class MessageBoxEditPaper extends Component {
       },
     }
 
-    const messageBox = module.messageBoxes.get(messageBoxIndex)
-
     return (
       <Paper>
         <div style={style.root}>
@@ -58,10 +52,10 @@ class MessageBoxEditPaper extends Component {
             onCancelButtonTouchTap={onCancelButtonTouchTap}
           >
             <div style={style.contents}>
-              <MessageBoxEditComponent
-                messageBox={messageBox}
-                schemas={schemas}
-                onUpdate={(newMessageBox) => onUpdate(module.updateMessageBox(messageBoxIndex, newMessageBox))}
+              <DisplayNameTextField
+                obj={module}
+                floatingLabelText="モジュール名"
+                onChange={(e) => onUpdate(module.updateDisplayName(e.target.value))}
               />
             </div>
           </ComponentWithOkCancelButton>
@@ -71,4 +65,4 @@ class MessageBoxEditPaper extends Component {
   }
 }
 
-export default MessageBoxEditPaper
+export default DisplayNameEdittingPaper
