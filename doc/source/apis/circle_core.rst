@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
 
     circle_core.cli
+    circle_core.core
     circle_core.helpers
     circle_core.models
     circle_core.server
@@ -35,6 +36,30 @@ circle_core.exceptions module
 -----------------------------
 
 .. automodule:: circle_core.exceptions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+circle_core.logger module
+-------------------------
+
+.. automodule:: circle_core.logger
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+circle_core.timed_db module
+---------------------------
+
+.. automodule:: circle_core.timed_db
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+circle_core.utils module
+------------------------
+
+.. automodule:: circle_core.utils
     :members:
     :undoc-members:
     :show-inheritance:

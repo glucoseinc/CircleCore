@@ -13,7 +13,7 @@ from websocket import create_connection, WebSocketConnectionClosedException
 
 from circle_core.exceptions import MigrationError
 from ..database import Database
-from ..helpers.metadata import metadata
+# from ..helpers.metadata import metadata
 from ..helpers.nanomsg import Receiver
 from ..models.message import ModuleMessage
 from ..models.message_box import MessageBox

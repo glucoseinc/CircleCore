@@ -12,12 +12,12 @@ from tornado.testing import AsyncHTTPTestCase, gen_test
 from tornado.web import Application
 from tornado.websocket import websocket_connect, WebSocketHandler
 
+from circle_core.core.message import ModuleMessage
 from circle_core.database import Database
 # from circle_core.models import message
 # from circle_core.models import message_box
 # from circle_core.models import module
 # from circle_core.models import schema
-from circle_core.core.message import ModuleMessage
 from circle_core.models import MessageBox, Module, Schema
 # from circle_core.server.ws import module as module_handler, replication_master
 # from circle_core.server.ws import ModuleHandler, ReplicationMaster

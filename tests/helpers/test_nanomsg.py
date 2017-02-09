@@ -4,9 +4,9 @@ import json
 from nnpy import AF_SP, PUB, Socket, SUB, SUB_SUBSCRIBE
 import pytest
 
+from circle_core.core import message
 from circle_core.helpers.nanomsg import Receiver, Sender  # TODO: flake8-import-orderの設定
 # from circle_core.helpers.topics import BaseTopic, TOPIC_LENGTH
-from circle_core.core import message
 # from circle_core.models.message import ModuleMessageFactory
 from circle_core.models import MessageBox, Module, Schema
 
