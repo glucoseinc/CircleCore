@@ -2,6 +2,7 @@
 """レプリケーション先からメッセージを受け取るワーカー."""
 from datetime import datetime
 import json
+import logging
 from select import select
 import traceback
 from uuid import UUID
@@ -11,7 +12,6 @@ import click
 from websocket import create_connection, WebSocketConnectionClosedException
 
 from circle_core.exceptions import MigrationError
-# from circle_core.logger import get_stream_logger
 from ..database import Database
 from ..helpers.metadata import metadata
 from ..helpers.nanomsg import Receiver
@@ -21,7 +21,7 @@ from ..models.module import Module
 from ..models.schema import Schema
 from ..workers.datareceiver import DataReceiver
 
-# logger = get_stream_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def get_uuid():  # テスト時には上書きする

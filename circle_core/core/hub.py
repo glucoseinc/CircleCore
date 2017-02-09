@@ -3,15 +3,12 @@
 nanomsgのhub
 """
 
-import logging
 import os
 
 from tornado.ioloop import IOLoop
 
+from .base import logger
 from ..helpers.nanomsg import Replier, Sender
-
-
-logger = logging.getLogger(__name__)
 
 
 class HubError(Exception):

@@ -5,14 +5,13 @@ import os
 
 # community module
 import pytest
-import redis
 import sqlalchemy as sa
 from sqlalchemy.engine.url import make_url
 import tcptest.redis
 
 # project module
-from tests import crcr_uuid
 from circle_core.models import MetaDataBase, MetaDataSession
+from tests import crcr_uuid
 
 
 @pytest.fixture()

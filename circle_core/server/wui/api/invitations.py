@@ -8,7 +8,7 @@ from flask import abort, request
 from six import PY3
 
 # project module
-from circle_core.models import Invitation, generate_uuid, MetaDataSession
+from circle_core.models import generate_uuid, Invitation, MetaDataSession
 from .api import api
 from .utils import respond_failure, respond_success
 from ..utils import (

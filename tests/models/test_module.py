@@ -9,6 +9,7 @@ TEST_MESSAGE_BOX_UUID1 = '00000000-0000-0000-0000-000000000001'
 TEST_MESSAGE_BOX_UUID2 = '00000000-0000-0000-0000-000000000002'
 
 
+@pytest.mark.skip(reason='rewriting...')
 class TestModule(object):
     @pytest.mark.parametrize(('module_uuid', 'message_box_uuids', 'display_name', 'tags', 'expected'), [
         (TEST_MODULE_UUID,

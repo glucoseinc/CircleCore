@@ -3,6 +3,7 @@
 Metadata操作ログ
 """
 import functools
+
 from sqlalchemy import event
 
 from ..models import CcInfo, Invitation, MessageBox, Module, ReplicationLink, Schema, User

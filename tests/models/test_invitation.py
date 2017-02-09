@@ -11,6 +11,7 @@ TEST_UUID2 = '25a6aee1-8a19-4f23-83c7-c2acbfb17a30'
 # TEST_UUID3 = 'AE2D6831-6255-4953-AD79-5C2E2020B295'
 
 
+@pytest.mark.skip(reason='rewriting...')
 class TestInvitation(object):
     @pytest.mark.parametrize(('uuid', 'max_invites', 'date_created', 'expected'), [
         (TEST_UUID1, '0', None,

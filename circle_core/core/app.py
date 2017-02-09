@@ -17,7 +17,7 @@ import sqlalchemy.exc
 from circle_core.exceptions import ConfigError
 from circle_core.models import CcInfo, generate_uuid, MetaDataBase, MetaDataSession, NoResultFound
 from circle_core.workers import make_worker, WORKER_DATARECEIVER
-from . import logger
+from .base import logger
 from .hub import CoreHub
 from .metadata_event_logger import MetaDataEventLogger
 

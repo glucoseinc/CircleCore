@@ -9,6 +9,7 @@ from circle_core.cli import cli_entry
 from tests import uuid_rex
 
 
+@pytest.mark.skip(reason='rewriting...')
 class TestCliUser(object):
     @pytest.mark.usefixtures('clear_metadata')
     def test_user(self):
