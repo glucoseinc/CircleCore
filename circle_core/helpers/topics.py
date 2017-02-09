@@ -10,7 +10,7 @@ from base58 import b58decode, b58encode
 # from circle_core.models.message import ModuleMessage
 
 
-TOPIC_LENGTH = 48  # Topic name must be shorter than this value
+TOPIC_LENGTH = 64  # Topic name must be shorter than this value
 
 # UUIDをbase58encodeしたものの長さは22chars
 
@@ -22,79 +22,11 @@ def make_topic(topic):
 
 
 def make_message_topic(module_id, box_id):
+    """新しいMessageが投げられた時のtopic"""
     assert isinstance(module_id, uuid.UUID)
     assert isinstance(box_id, uuid.UUID)
-    return 'module:{}:{}'.format(
+
+    return make_topic('message:{}:{}'.format(
         b58encode(module_id.bytes),
         b58encode(box_id.bytes)
-    )
-
-
-# class BaseTopic(object):
-#     """nanomsgのTopicを表す.
-
-#     受け取ったデータをnanomsgで送れるテキストに変換する責務を持つ。
-#     受信後の復元、その後の取り回しはMessageの役割。
-#     """
-
-#     @cached_property
-#     def topic(self):
-#         """Topic名."""
-#         return self.__class__.__name__
-
-#     def encode(self, text):
-#         """Topicとtextを繋げて返す.
-
-#         Senderに使われる
-
-#         :param unicode text: 送りたいプレーンテキスト
-#         :return unicode:
-#         """
-#         return self.topic.ljust(TOPIC_LENGTH) + text
-
-#     def decode(self, plain_msg):
-#         """encodeの対.
-
-#         Receiverに使われる
-
-#         :param str plain_msg:
-#         :return List[ModuleMessage]:
-#         """
-#         raise NotImplementedError
-
-
-# class JustLogging(BaseTopic):
-#     """特に意味のないTopic."""
-
-#     @cached_property
-#     def topic(self):
-#         return ''
-
-
-# class ModuleMessageTopic(BaseTopic):
-#     """センサデータの送受信Topic."""
-
-#     prefix = 'module:'
-
-#     def __init__(self, module=None):
-#         """constructor."""
-#         self.module = module
-
-#     @cached_property
-#     def topic(self):
-#         if self.module:
-#             return self.prefix + b58encode(self.module.uuid.bytes)
-#         else:
-#             return self.prefix
-
-#     def encode(self, json_msg):
-#         return self.topic.ljust(TOPIC_LENGTH) + json.dumps(json_msg)
-
-#     def decode(self, plain_msg):
-#         """nanomsgで送られてきたメッセージがJSONだとしてデシリアライズ.
-
-#         :param str plain_msg:
-#         :return [ModuleMessage]:
-#         """
-#         payload = json.loads(plain_msg[TOPIC_LENGTH:])
-#         return [ModuleMessage.decode(i) for i in payload]
+    ))

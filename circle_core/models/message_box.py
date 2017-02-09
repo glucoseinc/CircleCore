@@ -81,10 +81,13 @@ class MessageBox(UUIDMetaDataBase):
     def update_from_json(self, jsonobj):
         self.display_name = jsonobj.get('displayName', self.display_name)
         self.memo = jsonobj.get('memo', self.memo)
-        if 'schema' in jsonobj:
-            self.schema_uuid = prepare_uuid(jsonobj['schema'])
-        elif 'schemaUuid' in jsonobj:
-            self.schema_uuid = prepare_uuid(jsonobj['schemaUuid'])
+        assert 'schema' not in jsonobj
+        assert 'schemaUuid' not in jsonobj
+        # do not change schema
+        # if 'schema' in jsonobj:
+        #     self.schema_uuid = prepare_uuid(jsonobj['schema'])
+        # elif 'schemaUuid' in jsonobj:
+        #     self.schema_uuid = prepare_uuid(jsonobj['schemaUuid'])
 
     # @classmethod
     # def from_json(cls, json_msg, **kwargs):

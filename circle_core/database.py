@@ -5,6 +5,7 @@
 from __future__ import absolute_import
 
 import logging
+import threading
 from time import mktime
 import uuid
 
@@ -50,6 +51,8 @@ class Database(object):
 
         self._metadata = sa.MetaData()
         self._metadata.reflect(self._engine)
+
+        self._thread_id = None
         # self._register_meta_table()
 
     # def _register_meta_table(self):
@@ -85,7 +88,7 @@ class Database(object):
             sa.PrimaryKeyConstraint('_created_at', '_counter')
         )
         kwargs = TABLE_OPTIONS.copy()
-        kwargs['autoload_with'] = self._engine
+        # kwargs['autoload_with'] = self._engine
         table = sa.Table(table_name, self._metadata, *columns, **kwargs)
 
         # make table
@@ -152,14 +155,16 @@ class Database(object):
 
         return 'message_box_' + b58encode(box_or_uuid.bytes)
 
-    def find_table_for_message_box(self, message_box):
+    def find_table_for_message_box(self, message_box, create_if_not_exsts=True):
         table_name = self.make_table_name_for_message_box(message_box)
+        table = None
         if table_name in self._metadata.tables:
             # table already exists and registered to metadata
             table = self._metadata.tables[table_name]
         else:
-            # table not exists or not registered to metadata
-            table = self.make_table_for_message_box(message_box)
+            if create_if_not_exsts:
+                # table not exists or not registered to metadata
+                table = self.make_table_for_message_box(message_box)
 
         return table
 
@@ -182,6 +187,8 @@ class Database(object):
     def store_message(self, message_box, message, connection=None):
         """databaseにmessageを保存する"""
         assert connection, 'TODO: create new connection if not present it'
+        self._check_thread()
+
         table = self.find_table_for_message_box(message_box)
         query = table.insert().values(
             _created_at=message.timestamp,
@@ -189,6 +196,21 @@ class Database(object):
             **message.payload
         )
         connection.execute(query)
+
+    def drop_message_box(self, message_box, connection=None):
+        assert connection, 'TODO: create new connection if not present it'
+        assert self._thread_id == threading.get_ident()
+        self._check_thread()
+
+        table = self.find_table_for_message_box(message_box, create_if_not_exsts=False)
+        if table is not None:
+            table.drop(self._engine)
+            self._metadata.remove(table)
+
+    def _check_thread(self):
+        if self._thread_id is None:
+            self._thread_id = threading.get_ident()
+        assert self._thread_id == threading.get_ident()
 
 
 # class DiffResult(object):

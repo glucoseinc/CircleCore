@@ -113,11 +113,18 @@ class Module(UUIDMetaDataBase):
             for box_data in jsonobj['messageBoxes']:
                 box_uuid = box_data.get('uuid')
                 if not box_uuid:
-                    box = MessageBox(uuid=generate_uuid(model=MessageBox))
+                    print('new module ', box_data)
+                    box = MessageBox(
+                        uuid=generate_uuid(model=MessageBox),
+                        module_uuid=self.uuid,
+                        schema_uuid=box_data['schema'],
+                        display_name=box_data['displayName'],
+                        memo=box_data['memo'],
+                    )
                 else:
-                    box = MessageBox.query.get(box_uuid)
+                    box = MessageBox.query.get(box_uuid, )
+                    box.update_from_json(box_data)
 
-                box.update_from_json(box_data)
                 boxes.append(box)
                 # self.message_boxes.append(box)
             self.message_boxes = boxes

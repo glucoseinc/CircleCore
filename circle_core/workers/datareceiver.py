@@ -16,6 +16,7 @@ from six import PY3
 from circle_core.constants import RequestType
 from .base import CircleWorker, register_worker_factory
 from ..core.message import ModuleMessage
+from ..core.metadata_event_listener import MetaDataEventListener
 from ..database import Database
 from ..exceptions import MessageBoxNotFoundError, ModuleNotFoundError, SchemaNotFoundError
 from ..helpers.topics import make_message_topic
@@ -71,15 +72,22 @@ class DataReceiverWorker(CircleWorker):
 
         self.core.hub.register_handler(RequestType.NEW_MESSAGE.value, self.on_new_message)
 
+        # metadataに関するイベントを監視する
+        self.listener = MetaDataEventListener()
+        self.listener.on('messagebox', 'after', self.on_change_messagebox)
+
     def initialize(self):
+        """override"""
         # start
         self.begin_transaction()
         self.counters = defaultdict(int)
 
     def finalize(self):
+        """override"""
         self.commit_transaction(True)
 
     def on_new_message(self, request):
+        """新しいメッセージを受けとった"""
         box_id = request['box_id']
         payload = request['payload']
 
@@ -107,6 +115,14 @@ class DataReceiverWorker(CircleWorker):
             self.begin_transaction()
 
         return response
+
+    def on_change_messagebox(self, what, target):
+        """metadataのmessageboxが更新されたら呼ばれる"""
+        if what == 'after_delete':
+            # message boxが削除されたので消す
+            self.commit_transaction()
+            self.db.drop_message_box(target, connection=self.conn)
+            self.begin_transaction()
 
     def begin_transaction(self):
         self.transaction = self.conn.begin()

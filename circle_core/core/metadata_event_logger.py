@@ -3,15 +3,15 @@
 Metadata操作ログ
 """
 import collections
-from sqlalchemy import event, inspect
+from sqlalchemy import inspect
 
 import click
 
 from . import logger
-from ..models import CcInfo, Invitation, MessageBox, Module, ReplicationLink, Schema, User
-
-
-MODELS = (CcInfo, Invitation, MessageBox, Module, ReplicationLink, Schema, User)
+from .metadata_event_listener import MetaDataEventListener
+from circle_core import models
+from circle_core.models import User
+from circle_core.models.base import UUIDMetaDataBase
 
 
 def get_current_user():
@@ -39,58 +39,59 @@ class MetaDataEventLogger(object):
     """
     """
     def __init__(self, core, log_file_path):
-        self._install()
-
+        self.listener = MetaDataEventListener()
         self.log_file = open(log_file_path, 'a')
+
+        self._install()
 
     def _install(self):
         logger.debug('Installing metadata event handlers.')
-        for model in MODELS:
-            for what in ('before_insert', 'before_update', 'before_delete'):
-                event.listen(
-                    model,
-                    what,
-                    getattr(self, 'on_' + what)
-                )
 
-    def on_before_insert(self, mapper, connection, target):
-        self.log('insert', target, uuid=target.uuid, data=target.to_json())
-
-    def on_before_update(self, mapper, connection, target):
-        # get diffs
-        diff = []
-
-        # がんばってdiffをとっているけどSQLAlchemyの仕様がよくわからない
-        for key, attr in inspect(target).attrs.items():
-            hist = attr.history
-            # 普通の属性が変更された場合はこれでいける
-            if hist.added and not hist.unchanged:
-                # key, before, after
-                if hist.added != hist.deleted:
-                    diff.append({
-                        'key': key,
-                        'before': hist.deleted,
-                        'after': hist.added,
-                    })
-            elif hist.unchanged and not hist.added and not hist.deleted:
-                # unchanged attr
+        for key in dir(models):
+            klass = getattr(models, key)
+            try:
+                if klass != UUIDMetaDataBase and issubclass(klass, UUIDMetaDataBase):
+                    self.listener.on(klass.__name__, 'before', self.handle_metadata_event)
+            except TypeError:
                 pass
-            elif not hist.unchanged and not hist.added and not hist.deleted:
-                # unchanged relation
-                pass
-            else:
-                logger.debug('%r: unhandled diff: %s %r', target, key, hist)
 
-        # Userの更新日の処理はスキップする
-        if isinstance(target, User) and len(diff) == 1 and diff[0]['key'] == 'last_access_at':
-            return
-        if not diff:
-            return
+    def handle_metadata_event(self, what, target):
+        if what == 'before_insert':
+            self.log('insert', target, uuid=target.uuid, data=target.to_json())
+        elif what == 'before_delete':
+            self.log('delete', target, uuid=target.uuid)
+        elif what == 'before_update':
+            # get diffs
+            diff = []
 
-        self.log('update', target, diff=diff)
+            # がんばってdiffをとっているけどSQLAlchemyの仕様がよくわからない
+            for key, attr in inspect(target).attrs.items():
+                hist = attr.history
+                # 普通の属性が変更された場合はこれでいける
+                if hist.added and not hist.unchanged:
+                    # key, before, after
+                    if hist.added != hist.deleted:
+                        diff.append({
+                            'key': key,
+                            'before': hist.deleted,
+                            'after': hist.added,
+                        })
+                elif hist.unchanged and not hist.added and not hist.deleted:
+                    # unchanged attr
+                    pass
+                elif not hist.unchanged and not hist.added and not hist.deleted:
+                    # unchanged relation
+                    pass
+                else:
+                    logger.debug('%r: unhandled diff: %s %r', target, key, hist)
 
-    def on_before_delete(self, mapper, connection, target):
-        self.log('delete', target, uuid=target.uuid)
+            # Userの更新日の処理はスキップする
+            if isinstance(target, User) and len(diff) == 1 and diff[0]['key'] == 'last_access_at':
+                return
+            if not diff:
+                return
+
+            self.log('update', target, diff=diff)
 
     def log(self, what, instance, **details):
         data = collections.OrderedDict()
