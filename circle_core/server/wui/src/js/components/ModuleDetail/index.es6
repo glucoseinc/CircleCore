@@ -4,8 +4,8 @@ import ComponentWithTitle from 'src/components/bases/ComponentWithTitle'
 
 import DeleteButton from 'src/components/commons/DeleteButton'
 
-import DisplayNameEditPaper from './DisplayNameEditPaper'
-import DisplayNamePaper from './DisplayNamePaper'
+import DisplayNameEditablePaper from './DisplayNameEditablePaper'
+import DisplayNameEdittingPaper from './DisplayNameEdittingPaper'
 import MessageBoxEditPaper from './MessageBoxEditPaper'
 import MessageBoxPaper from './MessageBoxPaper'
 import MessageBoxAddActionPaper from './MessageBoxAddActionPaper'
@@ -21,6 +21,7 @@ class ModuleDetail extends Component {
     module: PropTypes.object.isRequired,
     schemas: PropTypes.object.isRequired,
     tagSuggestions: PropTypes.array,
+    onIdCopyButtonTouchTap: PropTypes.func,
     onUpdateTouchTap: PropTypes.func,
     onMessageBoxDeleteTouchTap: PropTypes.func,
     onMessageBoxDownloadTouchTap: PropTypes.func,
@@ -104,6 +105,7 @@ class ModuleDetail extends Component {
       module,
       schemas,
       tagSuggestions = [],
+      onIdCopyButtonTouchTap,
       onMessageBoxDeleteTouchTap,
       onMessageBoxDownloadTouchTap,
       onDeleteTouchTap,
@@ -139,15 +141,16 @@ class ModuleDetail extends Component {
     }
 
     const displayNamePaper = editingArea === ModuleDetail.editingArea.displayName ? (
-      <DisplayNameEditPaper
+      <DisplayNameEdittingPaper
         module={editingModule}
         onUpdate={(editingModule) => this.setState({editingModule})}
         onOKButtonTouchTap={() => this.onUpdateTouchTap()}
         onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
       />
     ) : (
-      <DisplayNamePaper
-        module={module}
+      <DisplayNameEditablePaper
+        obj={module}
+        onCopyButtonTouchTap={onIdCopyButtonTouchTap}
         onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.displayName, null)}
       />
     )

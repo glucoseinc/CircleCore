@@ -2,17 +2,15 @@ import React, {Component, PropTypes} from 'react'
 
 import Paper from 'material-ui/Paper'
 
-import ComponentWithIcon from 'src/components/bases/ComponentWithIcon'
 import ComponentWithOkCancelButton from 'src/components/bases/ComponentWithOkCancelButton'
-import {IdIcon} from 'src/components/bases/icons'
 
 import DisplayNameTextField from 'src/components/commons/DisplayNameTextField'
 
 
 /**
- * 表示名・UUIDエリア(編集状態)
+ * 表示名エリア(編集状態)
  */
-class DisplayNameEditPaper extends Component {
+class DisplayNameEdittingPaper extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     onUpdate: PropTypes.func,
@@ -42,10 +40,6 @@ class DisplayNameEditPaper extends Component {
         display: 'flex',
         flexFlow: 'column nowrap',
       },
-      id: {
-        fontSize: 14,
-        lineHeight: 1,
-      },
     }
 
     return (
@@ -63,9 +57,6 @@ class DisplayNameEditPaper extends Component {
                 floatingLabelText="モジュール名"
                 onChange={(e) => onUpdate(module.updateDisplayName(e.target.value))}
               />
-              <ComponentWithIcon icon={IdIcon}>
-                <div style={style.id}>{module.uuid}</div>
-              </ComponentWithIcon>
             </div>
           </ComponentWithOkCancelButton>
         </div>
@@ -74,4 +65,4 @@ class DisplayNameEditPaper extends Component {
   }
 }
 
-export default DisplayNameEditPaper
+export default DisplayNameEdittingPaper
