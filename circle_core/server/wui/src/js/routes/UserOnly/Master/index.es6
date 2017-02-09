@@ -9,6 +9,7 @@ import Logout from './Logout'
 import Modules from './Modules'
 import ModulesNew from './ModulesNew'
 import Module from './Module'
+import Replica from './Replica'
 import Replicas from './Replicas'
 import ReplicasNew from './ReplicasNew'
 import Schemas from './Schemas'
@@ -41,6 +42,7 @@ const masterRoute = {
     Module,
     Replicas,
     ReplicasNew,
+    Replica,
     Schemas,
     SchemasNew,
     Schema,
