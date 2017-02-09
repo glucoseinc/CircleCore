@@ -39,6 +39,7 @@ function* locationChangetoReplicas(action) {
   }
 }
 
+
 /**
  * Schema一覧への遷移をハンドル
  */
@@ -49,6 +50,20 @@ function* handleLocationChangetoSchemas() {
   ]
   yield takeEvery(triggerActionTypes, locationChangetoSchemas)
 }
+
+
+/**
+ * ReplicationLink一覧へ遷移
+ * @param {object} action
+ */
+function* locationChangetoReplicas(action) {
+  yield put(routerActions.push(pathnames.replicas))
+
+  if (action.type === actionTypes.replicationLinks.deleteSucceeded) {
+    yield put(actions.page.showSnackbar('共有リンクを削除しました'))
+  }
+}
+
 
 /**
  * Module一覧への遷移をハンドル
