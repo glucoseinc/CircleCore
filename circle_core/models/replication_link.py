@@ -115,8 +115,8 @@ class ReplicationLink(UUIDMetaDataBase):
         """
         return {
             'uuid': str(self.uuid),
-            'cc_info_uuids': [str(_uuid) for _uuid in self.cc_info_uuids],
-            'message_box_uuids': [str(_uuid) for _uuid in self.message_box_uuids],
-            'display_name': self.display_name,
+            'ccInfoUuids': [str(_uuid) for _uuid in self.cc_info_uuids],
+            'messageBoxUuids': [str(_uuid) for _uuid in self.message_box_uuids],
+            'displayName': self.display_name,
             'memo': self.memo,
         }
