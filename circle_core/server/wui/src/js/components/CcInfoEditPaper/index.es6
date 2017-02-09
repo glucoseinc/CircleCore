@@ -78,7 +78,7 @@ class CcInfoEditPaper extends Component {
               <div style={style.displayNameArea}>
                 <IdLabel
                   obj={editingCcInfo}
-                  onTouchTap={onIdCopyButtonTouchTap}
+                  onCopyButtonTouchTap={onIdCopyButtonTouchTap}
                 />
                 <DisplayNameTextField
                   obj={editingCcInfo}

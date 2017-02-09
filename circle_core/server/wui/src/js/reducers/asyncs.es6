@@ -25,6 +25,9 @@ const initialState = {
 
   isCcInfosFetching: false,
   isCcInfosUpdating: false,
+
+  isReplicationLinksCreating: false,
+  isReplicationLinksFetching: false,
 }
 
 
@@ -159,6 +162,16 @@ const asyncs = handleActions({
   [actionTypes.ccInfos.updateRequest]: changeFlagAction('isCcInfosUpdating', true),
   [actionTypes.ccInfos.updateSucceeded]: changeFlagAction('isCcInfosUpdating', false),
   [actionTypes.ccInfos.updateFailed]: changeFlagAction('isCcInfosUpdating', false),
+
+  // Create replicationLinks
+  [actionTypes.replicationLinks.createRequest]: changeFlagAction('isReplicationLinksCreating', true),
+  [actionTypes.replicationLinks.createSucceeded]: changeFlagAction('isReplicationLinksCreating', false),
+  [actionTypes.replicationLinks.createFailed]: changeFlagAction('isReplicationLinksCreating', false),
+
+  // Fetch replicationLinks
+  [actionTypes.replicationLinks.fetchRequest]: changeFlagAction('isReplicationLinksFetching', true),
+  [actionTypes.replicationLinks.fetchSucceeded]: changeFlagAction('isReplicationLinksFetching', false),
+  [actionTypes.replicationLinks.fetchFailed]: changeFlagAction('isReplicationLinksFetching', false),
 }, initialState)
 
 export default asyncs

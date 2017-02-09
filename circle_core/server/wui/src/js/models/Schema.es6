@@ -23,6 +23,22 @@ export class SchemaProperty extends SchemaPropertyRecord {
   }
 
   /**
+   * @param {string} value
+   * @return {SchemaProperty}
+   */
+  updateName(value) {
+    return this.set('name', value)
+  }
+
+  /**
+   * @param {string} value
+   * @return {SchemaProperty}
+   */
+  updateType(value) {
+    return this.set('type', value)
+  }
+
+  /**
    * @return {bool}
    */
   isFill() {
@@ -34,13 +50,6 @@ export class SchemaProperty extends SchemaPropertyRecord {
    */
   isValid() {
     return this.isFill() || (this.name.length === 0 && this.type.length === 0)
-  }
-
-  /**
-   * @return {string}
-   */
-  toString() {
-    return `${this.name}:${this.type}`
   }
 }
 
@@ -114,22 +123,13 @@ export default class Schema extends SchemaRecord {
   }
 
   /**
+   * SchemaProperty更新
    * @param {number} index
-   * @param {object} value
+   * @param {SchemaProperty} property
    * @return {Schema}
    */
-  updateSchemaPropertyName(index, value) {
-    const newProperties = this.properties.update(index, (property) => property.set('name', value))
-    return this.set('properties', newProperties)
-  }
-
-  /**
-   * @param {number} index
-   * @param {object} value
-   * @return {Schema}
-   */
-  updateSchemaPropertyType(index, value) {
-    const newProperties = this.properties.update(index, (property) => property.set('type', value))
+  updateSchemaProperty(index, property) {
+    const newProperties = this.properties.set(index, property)
     return this.set('properties', newProperties)
   }
 
@@ -155,12 +155,5 @@ export default class Schema extends SchemaRecord {
       return false
     }
     return true
-  }
-
-  /**
-   * @return {string}
-   */
-  propertiesToString() {
-    return this.properties.map((property) => property.toString()).join(', ')
   }
 }

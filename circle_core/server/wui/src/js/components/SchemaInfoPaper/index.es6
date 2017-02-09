@@ -117,15 +117,18 @@ class SchemaInfoPaper extends Component {
                 <div style={style.idSection}>
                   <IdLabel
                     obj={schema}
-                    onTouchTap={onIdCopyButtonTouchTap}
+                    onCopyButtonTouchTap={onIdCopyButtonTouchTap}
                   />
                 </div>
+
                 <div style={style.propertiesSection}>
                   <SchemaPropertiesLabel schema={schema}/>
                 </div>
+
                 <div style={style.memoSection}>
                   <MemoLabel obj={schema}/>
                 </div>
+
                 <div style={style.moduleSection}>
                   <ModuleButtons
                     schema={schema}

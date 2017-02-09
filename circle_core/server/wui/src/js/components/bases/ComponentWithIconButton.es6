@@ -8,7 +8,10 @@ import IconButton from 'material-ui/IconButton'
  */
 class ComponentWithIconButton extends Component {
   static propTypes = {
+    rootStyle: PropTypes.object,
+    childrenStyle: PropTypes.object,
     icon: PropTypes.func.isRequired,
+    iconButtonDisabled: PropTypes.bool,
     onIconButtonTouchTap: PropTypes.func,
     children: PropTypes.node,
   }
@@ -18,9 +21,12 @@ class ComponentWithIconButton extends Component {
    */
   render() {
     const {
-        icon,
-        onIconButtonTouchTap,
-        children,
+      rootStyle = {},
+      childrenStyle = {},
+      icon,
+      iconButtonDisabled = false,
+      onIconButtonTouchTap,
+      children,
     } = this.props
 
     const style = {
@@ -45,17 +51,28 @@ class ComponentWithIconButton extends Component {
       },
     }
 
+    const mergedRootStyle = {
+      ...style.root,
+      ...rootStyle,
+    }
+
+    const mergedChildrenStyle = {
+      ...style.children,
+      ...childrenStyle,
+    }
+
     const Icon = icon
 
     return (
-      <div style={style.root}>
-        <div style={style.children}>
+      <div style={mergedRootStyle}>
+        <div style={mergedChildrenStyle}>
           {children}
         </div>
         <div style={style.icon}>
           <IconButton
             style={style.button}
             iconStyle={style.icon}
+            disabled={iconButtonDisabled}
             onTouchTap={onIconButtonTouchTap}
           >
             <Icon />

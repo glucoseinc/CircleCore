@@ -6,7 +6,9 @@ import Paper from 'material-ui/Paper'
 import ComponentWithMoreIconMenu from 'src/components/bases/ComponentWithMoreIconMenu'
 import {DeleteIcon} from 'src/components/bases/icons'
 
-import IdLabel from 'src/components/commons/IdLabel'
+import UrlLabel from 'src/components/commons/UrlLabel'
+import ReplicationSlavesLabel from 'src/components/commons/ReplicationSlavesLabel'
+import ReplicationTargetsLabel from 'src/components/commons/ReplicationTargetsLabel'
 
 /**
  * ReplicationLink一覧ペーパー
@@ -14,8 +16,11 @@ import IdLabel from 'src/components/commons/IdLabel'
 class ReplicationLinkInfoPaper extends Component {
   static propTypes = {
     replicationLink: PropTypes.object.isRequired,
+    modules: PropTypes.object.isRequired,
+    ccInfos: PropTypes.object.isRequired,
     onDisplayNameTouchTap: PropTypes.func,
-    onIdCopyButtonTouchTap: PropTypes.func,
+    onUrlCopyButtonTouchTap: PropTypes.func,
+    onReplicationSlaveCopyButtonTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
   }
 
@@ -25,8 +30,11 @@ class ReplicationLinkInfoPaper extends Component {
   render() {
     const {
       replicationLink,
+      modules,
+      ccInfos,
       onDisplayNameTouchTap,
-      onIdCopyButtonTouchTap,
+      onUrlCopyButtonTouchTap,
+      onReplicationSlaveCopyButtonTouchTap,
       onDeleteTouchTap,
     } = this.props
 
@@ -57,7 +65,13 @@ class ReplicationLinkInfoPaper extends Component {
         flexFlow: 'column nowrap',
         flexGrow: 1,
       },
-      idSection: {
+      urlSection: {
+      },
+      targetsSection: {
+        paddingTop: 8,
+      },
+      coresSection: {
+        paddingTop: 8,
       },
     }
 
@@ -81,12 +95,28 @@ class ReplicationLinkInfoPaper extends Component {
               </div>
 
               <div style={style.rightArea}>
-                <div style={style.idSection}>
-                  <IdLabel
+                <div style={style.urlSection}>
+                  <UrlLabel
                     obj={replicationLink}
-                    onTouchTap={onIdCopyButtonTouchTap}
+                    onCopyButtonTouchTap={onUrlCopyButtonTouchTap}
                   />
                 </div>
+
+                <div style={style.targetsSection}>
+                  <ReplicationTargetsLabel
+                    replicationLink={replicationLink}
+                    modules={modules}
+                  />
+                </div>
+
+                <div style={style.coresSection}>
+                  <ReplicationSlavesLabel
+                    replicationLink={replicationLink}
+                    ccInfos={ccInfos}
+                    onCopyTouchTap={onReplicationSlaveCopyButtonTouchTap}
+                  />
+                </div>
+
               </div>
             </div>
           </ComponentWithMoreIconMenu>

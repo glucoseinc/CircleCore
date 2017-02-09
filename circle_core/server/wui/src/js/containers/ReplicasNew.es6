@@ -1,39 +1,67 @@
 import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 
-import ReplicationLinkNewPaper from '../components/ReplicationLinkNewPaper'
+import actions from 'src/actions'
+
+import LoadingIndicator from 'src/components/bases/LoadingIndicator'
+
+import ReplicationLinkNewPaper from 'src/components/ReplicationLinkNewPaper'
 
 
 /**
- * ReplicationLonk作成
+ * ReplicationLink作成
  */
 class ReplicasNew extends Component {
   static propTypes = {
-    location: PropTypes.object,
+    isCreating: PropTypes.bool.isRequired,
+    isModulesFetching: PropTypes.bool.isRequired,
     modules: PropTypes.object.isRequired,
-  }
-
-  state = {
+    location: PropTypes.object,
+    onCreateTouchTap: PropTypes.func,
   }
 
   /**
    * @override
    */
   render() {
-    // const {
-    // } = this.state
     const {
+      isCreating,
+      isModulesFetching,
       modules,
       location,
+      onCreateTouchTap,
     } = this.props
-    const query = location.query
+
+    const moduleId = location.query.module_id
+    if (moduleId === undefined) {
+      return (
+        <div>
+          モジュールが選択されていません
+        </div>
+      )
+    }
+
+    if (isCreating || isModulesFetching) {
+      return (
+        <LoadingIndicator />
+      )
+    }
+
+    const selectedModule = modules.get(moduleId)
+    if (selectedModule === undefined) {
+      return (
+        <div>
+          {moduleId}は存在しません
+        </div>
+      )
+    }
 
     return (
       <div className="page">
         <ReplicationLinkNewPaper
           modules={modules}
-          selectedModuleId={query.module_id}
-          onCreateTouchTap={() => console.log('ReplicationLinkNewPaper onCreateTouchTap')}
+          selectedModule={selectedModule}
+          onCreateTouchTap={onCreateTouchTap}
         />
       </div>
     )
@@ -42,10 +70,13 @@ class ReplicasNew extends Component {
 
 
 const mapStateToProps = (state) => ({
+  isCreating: state.asyncs.isReplicationLinksCreating,
+  isModulesFetching: state.asyncs.isModulesFetching,
   modules: state.entities.modules,
 })
 
 const mapDispatchToProps = (dispatch) => ({
+  onCreateTouchTap: (replicationLink) => dispatch(actions.replicationLinks.createRequest(replicationLink.toJS())),
 })
 
 export default connect(

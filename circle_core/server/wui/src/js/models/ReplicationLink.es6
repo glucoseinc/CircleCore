@@ -5,7 +5,8 @@ import {Record, List} from 'immutable'
 const ReplicationLinkRecord = Record({
   uuid: '',
   displayName: '',
-  message_boxes: List(),
+  ccInfos: List(),
+  messageBoxes: List(),
   memo: '',
 })
 
@@ -19,6 +20,7 @@ export default class ReplicationLink extends ReplicationLinkRecord {
   constructor(...args) {
     super(...args)
     this.label = this.displayName || this.uuid
+    this.url = `${location.origin}/replication/${this.uuid}` // TODO: 適切なURL指定
   }
 
   /**
@@ -29,14 +31,15 @@ export default class ReplicationLink extends ReplicationLinkRecord {
     return new ReplicationLink({
       uuid: rawReplicationLink.uuid || '',
       displayName: rawReplicationLink.displayName || '',
-      message_boxes: List(rawReplicationLink.message_boxes || []),
+      ccInfos: List(rawReplicationLink.ccInfos || []),
+      messageBoxes: List(rawReplicationLink.messageBoxes || []),
       memo: rawReplicationLink.memo || '',
     })
   }
 
   /**
    * @param {string} value
-   * @return {Schema}
+   * @return {ReplicationLink}
    */
   updateDisplayName(value) {
     return this.set('displayName', value)
@@ -44,7 +47,43 @@ export default class ReplicationLink extends ReplicationLinkRecord {
 
   /**
    * @param {string} value
-   * @return {Schema}
+   * @return {ReplicationLink}
+   */
+  addMessageBox(value) {
+    if (this.messageBoxes.includes(value)) {
+      return this
+    }
+    const newMessageBox = this.messageBoxes.push(value)
+    return this.set('messageBoxes', newMessageBox)
+  }
+
+  /**
+   * @param {string} value
+   * @return {ReplicationLink}
+   */
+  deleteMessageBox(value) {
+    const newMessageBox = this.messageBoxes.filter((messageBox) => messageBox !== value)
+    return this.set('messageBoxes', newMessageBox)
+  }
+
+  /**
+   * @param {array} valueList
+   * @return {ReplicationLink}
+   */
+  updateMessageBoxes(valueList) {
+    return this.set('messageBoxes', new List(valueList))
+  }
+
+  /**
+   * @return {ReplicationLink}
+   */
+  clearMessageBoxes() {
+    return this.set('messageBoxes', new List())
+  }
+
+  /**
+   * @param {string} value
+   * @return {ReplicationLink}
    */
   updateMemo(value) {
     return this.set('memo', value)
@@ -54,6 +93,12 @@ export default class ReplicationLink extends ReplicationLinkRecord {
    * @return {bool}
    */
   isReadytoCreate() {
+    if (this.messageBoxes.size === 0) {
+      return false
+    }
+    if (this.displayName.length === 0) {
+      return false
+    }
     return true
   }
 }

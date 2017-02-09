@@ -1,12 +1,16 @@
-import {ReplicaIcon} from 'src/components/bases/icons'
+import actions from 'src/actions'
+import {ReplicationLinkIcon} from 'src/components/bases/icons'
 import Replicas from 'src/containers/Replicas'
 
 const replicasRoute = {
   key: 'replicas',
   path: 'replicas',
   label: '共有リンク一覧',
-  icon: ReplicaIcon,
+  icon: ReplicationLinkIcon,
   component: Replicas,
+  onEnterActions: [
+    actions.replicationLinks.fetchRequest,
+  ],
 }
 
 export default replicasRoute

@@ -1,25 +1,24 @@
 import React, {Component, PropTypes} from 'react'
 
 import Paper from 'material-ui/Paper'
-import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton'
-import {grey600} from 'material-ui/styles/colors'
 
 import ReplicationLink from 'src/models/ReplicationLink'
 
-// import AddFlatButton from 'src/components/commons/AddFlatButton'
+import ComponentWithHeader from 'src/components/bases/ComponentWithHeader'
+
 import CreateButton from 'src/components/commons/CreateButton'
-// import DeleteIconButton from 'src/components/commons/DeleteIconButton'
 import DisplayNameTextField from 'src/components/commons/DisplayNameTextField'
 import MemoTextField from 'src/components/commons/MemoTextField'
 
+import TargetSelectComponent from './TargetSelectComponent'
 
 /**
- * ReplicationLonk作成
+ * ReplicationLink作成
  */
 class ReplicationLinkNewPaper extends Component {
   static propTypes = {
     modules: PropTypes.object.isRequired,
-    selectedModuleId: PropTypes.string,
+    selectedModule: PropTypes.object,
     onCreateTouchTap: PropTypes.func,
   }
 
@@ -35,8 +34,8 @@ class ReplicationLinkNewPaper extends Component {
       replicationLink,
     } = this.state
     const {
-      // modules,
-      // selectedModuleId,
+      modules,
+      selectedModule,
       onCreateTouchTap,
     } = this.props
 
@@ -44,75 +43,35 @@ class ReplicationLinkNewPaper extends Component {
       root: {
         display: 'flex',
         flexFlow: 'column nowrap',
-        padding: 8,
-      },
-      areaLabel: {
-        padding: 8,
-        color: grey600,
+        padding: 24,
       },
 
-      displayName: {
-        padding: 16,
+      displayNameArea: {
       },
 
       selectArea: {
-        display: 'flex',
-        flexFlow: 'column nowrap',
-        padding: 8,
+        paddingTop: 32,
       },
-      switches: {
-      },
-      target: {
-      },
-      // propertiesArea: {
-      //   display: 'flex',
-      //   flexFlow: 'column nowrap',
-      //   padding: 8,
-      // },
-      // properties: {
-      //   display: 'flex',
-      //   flexFlow: 'column nowrap',
-      //   padding: 0,
-      // },
-      // propertyBlock: {
-      //   display: 'flex',
-      //   flexFlow: 'row nowrap',
-      //   alignItems: 'center',
-      //   padding: 0,
-      // },
-      // propertyName: {
-      //   padding: '0px 8px',
-      //   flexGrow: 1,
-      // },
-      // propertyType: {
-      //   padding: '0px 8px',
-      //   flexGrow: 1,
-      // },
-      // propertyDeleteIcon: {
-      //
-      // propertyActionsBlock: {
-      //   padding: 8,
-      // },
 
       metadataArea: {
-        display: 'flex',
-        flexFlow: 'column nowrap',
-        padding: 8,
+        paddingTop: 32,
       },
       memo: {
-        padding: 8,
+        paddingTop: 8,
       },
 
       actionsArea: {
-        margin: 'auto',
-        padding: 16,
+        display: 'flex',
+        flexFlow: 'row nowrap',
+        justifyContent: 'space-around',
+        paddingTop: 40,
       },
     }
 
     return (
       <Paper>
         <div style={style.root}>
-          <div style={style.displayName}>
+          <div style={style.displayNameArea}>
             <DisplayNameTextField
               obj={replicationLink}
               floatingLabelText="共有リンク名"
@@ -121,34 +80,25 @@ class ReplicationLinkNewPaper extends Component {
           </div>
 
           <div style={style.selectArea}>
-            <div style={style.switches}>
-              <RadioButtonGroup
-                name="targetType"
-                defaultSelected="module"
-              >
-                <RadioButton
-                  value="module"
-                  label="モジュール"
-                />
-                <RadioButton
-                  value="tag"
-                  label="タグ"
-                />
-              </RadioButtonGroup>
-            </div>
-            <div style={style.target}>
-            </div>
-          </div>
-          <div style={style.metadataArea}>
-            <div style={style.areaLabel}>
-              <span>メタデータ</span>
-            </div>
-            <div style={style.memo}>
-              <MemoTextField
-                obj={replicationLink}
-                onChange={(e) => this.setState({replicationLink: replicationLink.updateMemo(e.target.value)})}
+            <ComponentWithHeader headerLabel="共有リンクタイプ">
+              <TargetSelectComponent
+                replicationLink={replicationLink}
+                modules={modules}
+                selectedModule={selectedModule}
+                onUpdate={((newReplicationLink) => this.setState({replicationLink: newReplicationLink}))}
               />
-            </div>
+            </ComponentWithHeader>
+          </div>
+
+          <div style={style.metadataArea}>
+            <ComponentWithHeader headerLabel="メタデータ">
+              <div style={style.memo}>
+                <MemoTextField
+                  obj={replicationLink}
+                  onChange={(e) => this.setState({replicationLink: replicationLink.updateMemo(e.target.value)})}
+                />
+              </div>
+            </ComponentWithHeader>
           </div>
 
           <div style={style.actionsArea}>

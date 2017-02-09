@@ -145,7 +145,16 @@ class MetadataIniFile(MetadataReader):
         parser.read(self.ini_file_path)
         replication_link_dicts = [dict(parser.items(section)) for section in parser.sections()
                                   if ReplicationLink.is_key_matched(section)]
-        return [ReplicationLink(**replication_link_dict) for replication_link_dict in replication_link_dicts]
+        replication_links = []
+        for replication_link_dict in replication_link_dicts:
+            cc_info_uuids = replication_link_dict.pop('cc_info_uuids', None)  # type: Union[str, None]
+            if cc_info_uuids is not None:
+                replication_link_dict['cc_info_uuids'] = cc_info_uuids.split(',')
+            message_box_uuids = replication_link_dict.pop('message_box_uuids', None)  # type: Union[str, None]
+            if message_box_uuids is not None:
+                replication_link_dict['message_box_uuids'] = message_box_uuids.split(',')
+            replication_links.append(ReplicationLink(**replication_link_dict))
+        return replication_links
 
     @property
     def cc_infos(self):

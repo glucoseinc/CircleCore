@@ -3,17 +3,19 @@
 """CircleCoreInfo Model."""
 
 # system module
+from datetime import datetime
 from uuid import UUID
 
 # community module
 from six import PY3
 
 # project module
+from circle_core.utils import format_date, prepare_date
 from .base import UUIDBasedObject
 
 
 if PY3:
-    from typing import Dict, Union
+    from typing import Dict, Optional, Union
 
 
 class CcInfoError(Exception):
@@ -28,23 +30,26 @@ class CcInfo(UUIDBasedObject):
     :param str display_name: 表示名
     :param bool myself: 自分自身か
     :param Optional[str] work: 所属
+    :param Optional[datetime] last_access_time: 最終アクセス時刻
     """
 
     key_prefix = 'cc_info'
 
-    def __init__(self, uuid, display_name, myself=False, work=None):
+    def __init__(self, uuid, display_name, myself=False, work=None, last_access_time=None):
         """init.
 
         :param Union[str, UUID] uuid: CcInfo UUID
         :param str display_name: 表示名
         :param Optional[bool, str] myself: 自分自身か
         :param Optional[str] work: メモ
+        :param Optional[datetime] last_access_time: 最終アクセス時刻
         """
         super(CcInfo, self).__init__(uuid)
 
         self.display_name = display_name
         self.myself = myself is True or myself == 'True'
         self.work = work
+        self.last_access_time = prepare_date(last_access_time)
 
     def __eq__(self, other):
         """return equality.
@@ -66,6 +71,7 @@ class CcInfo(UUIDBasedObject):
             'display_name': self.display_name,
             'work': self.work,
             'myself': self.myself,
+            'last_access_time': format_date(self.last_access_time)
         }
 
     @classmethod

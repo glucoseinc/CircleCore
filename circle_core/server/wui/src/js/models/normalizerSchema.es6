@@ -57,11 +57,28 @@ const ccInfo = new normalizerSchema.Entity(
   }
 )
 
+const replicationLink = new normalizerSchema.Entity(
+  'replicationLinks',
+  {},
+  {
+    idAttribute: 'uuid',
+    processStrategy: (entity) => ({
+      uuid: entity.uuid,
+      displayName: entity.displayName,
+      ccInfos: entity.ccInfoUuids,
+      messageBoxes: entity.messageBoxUuids,
+      memo: entity.memo,
+    }),
+  }
+)
+
 const response = {
   ccInfo,
   ccInfos: [ccInfo],
   invitation,
   invitations: [invitation],
+  replicationLink,
+  replicationLinks: [replicationLink],
   schema,
   schemas: [schema],
   schemaPropertyTypes: [schemaPropertyType],

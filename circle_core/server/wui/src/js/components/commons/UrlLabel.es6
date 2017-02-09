@@ -1,14 +1,16 @@
 import React, {Component, PropTypes} from 'react'
 
+import {blue500} from 'material-ui/styles/colors'
+
 import ComponentWithIcon from 'src/components/bases/ComponentWithIcon'
 import LabelWithCopyButton from 'src/components/bases/LabelWithCopyButton'
-import {IdIcon} from 'src/components/bases/icons'
+import {ReplicationLinkIcon} from 'src/components/bases/icons'
 
 
 /**
- * IDラベル
+ * URLラベル
  */
-class IdLabel extends Component {
+class UrlLabel extends Component {
   static propTypes = {
     obj: PropTypes.object.isRequired,
     onCopyButtonTouchTap: PropTypes.func,
@@ -23,10 +25,17 @@ class IdLabel extends Component {
       onCopyButtonTouchTap,
     } = this.props
 
+    const style = {
+      label: {
+        fontWeight: 'bold',
+        color: blue500,
+      },
+    }
     return (
-      <ComponentWithIcon icon={IdIcon}>
+      <ComponentWithIcon icon={ReplicationLinkIcon}>
         <LabelWithCopyButton
-          label={obj.uuid}
+          label={obj.url}
+          labelStyle={style.label}
           onTouchTap={onCopyButtonTouchTap}
         />
       </ComponentWithIcon>
@@ -34,4 +43,4 @@ class IdLabel extends Component {
   }
 }
 
-export default IdLabel
+export default UrlLabel
