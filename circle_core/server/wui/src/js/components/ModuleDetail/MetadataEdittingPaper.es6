@@ -11,7 +11,7 @@ import TagsEditComponent from 'src/components/commons/TagsEditComponent'
 /**
  * メタデータエリア(編集状態)
  */
-class MetadataEditPaper extends Component {
+class MetadataEdittingPaper extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     tagSuggestions: PropTypes.array,
@@ -84,4 +84,4 @@ class MetadataEditPaper extends Component {
 }
 
 
-export default MetadataEditPaper
+export default MetadataEdittingPaper

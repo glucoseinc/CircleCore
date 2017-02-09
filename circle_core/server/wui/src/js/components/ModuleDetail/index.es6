@@ -9,8 +9,8 @@ import DisplayNameEdittingPaper from './DisplayNameEdittingPaper'
 import MessageBoxEditPaper from './MessageBoxEditPaper'
 import MessageBoxPaper from './MessageBoxPaper'
 import MessageBoxAddActionPaper from './MessageBoxAddActionPaper'
-import MetadataEditPaper from './MetadataEditPaper'
-import MetadataPaper from './MetadataPaper'
+import MetadataEditablePaper from './MetadataEditablePaper'
+import MetadataEdittingPaper from './MetadataEdittingPaper'
 
 
 /**
@@ -156,7 +156,7 @@ class ModuleDetail extends Component {
     )
 
     const metadataPaper = editingArea === ModuleDetail.editingArea.metadata ? (
-      <MetadataEditPaper
+      <MetadataEdittingPaper
         module={editingModule}
         tagSuggestions={tagSuggestions}
         onUpdate={(editingModule) => this.setState({editingModule})}
@@ -164,7 +164,7 @@ class ModuleDetail extends Component {
         onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
       />
     ) : (
-      <MetadataPaper
+      <MetadataEditablePaper
         module={module}
         onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.metadata, null)}
       />
