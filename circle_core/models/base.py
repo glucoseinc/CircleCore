@@ -4,65 +4,123 @@
 
 # system module
 import re
-from uuid import UUID
+import uuid
 
 # community module
-from six import PY3
+from six import PY3, string_types
+from sqlalchemy import create_engine, String, Text
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.types import CHAR, TypeDecorator
 
-if PY3:
-    from typing import Union
+
+MetaDataSession = scoped_session(sessionmaker(autocommit=True, autoflush=False))
 
 
-class UUIDBasedObject(object):
-    """UUIDを持つ基底オブジェクト.
-    :param str key_prefix: ストレージキーのプレフィックス
-    :param UUID uuid: Object UUID
+class MetaDataBase(declarative_base()):
+    __abstract__ = True
+    query = MetaDataSession.query_property()
+
+
+class UUIDMetaDataBase(MetaDataBase):
+    __abstract__ = True
+
+    def __hash__(self):
+        return hash(self.uuid)
+
+
+def generate_uuid(model=None):
+    """新しくUUIDを生成する
+
+    :param class model: 渡されたら、このmodelの中で重複がないかチェックする
     """
+    while True:
+        new = uuid.uuid4()
 
-    key_prefix = ''
+        if model:
+            check = model.query.filter_by(uuid=new).limit(1).all()
+            if check:
+                continue
 
-    def __init__(self, uuid):
-        """init.
+        break
+    return new
 
-        :param Union[str, UUID] uuid: User UUID
-        """
-        if uuid and not isinstance(uuid, UUID):
-            try:
-                uuid = UUID(uuid)
-            except ValueError:
-                raise ValueError('Invalid uuid : {}'.format(uuid))
 
-        self.uuid = uuid
+class GUID(TypeDecorator):
+    """Platform-independent GUID type.
 
-    @classmethod
-    def make_storage_key(cls, uuid):
-        """ストレージキーを作成する.
+    Uses PostgreSQL's UUID type, otherwise uses
+    CHAR(32), storing as stringified hex values.
 
-        :param UUID uuid: UUID
-        :return: ストレージキー
-        :rtype: str
-        """
-        return '{}_{}'.format(cls.key_prefix, uuid)
+    """
+    impl = CHAR
 
-    @property
-    def storage_key(self):
-        """ストレージキー.
+    def load_dialect_impl(self, dialect):
+        if dialect.name == 'postgresql':
+            return dialect.type_descriptor(UUID())
+        else:
+            return dialect.type_descriptor(CHAR(32))
 
-        :return: ストレージキー
-        :rtype: str
-        """
-        return self.make_storage_key(self.uuid)
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return value
+        elif dialect.name == 'postgresql':
+            return str(value)
+        else:
+            if not isinstance(value, uuid.UUID):
+                return "%.32x" % uuid.UUID(value).int
+            else:
+                # hexstring
+                return "%.32x" % value.int
 
-    @classmethod
-    def is_key_matched(cls, key):
-        """指定のキーがストレージキーの形式にマッチしているか.
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return value
+        else:
+            return uuid.UUID(value)
 
-        :param str key:
-        :return: マッチしているか
-        :rtype: bool
-        """
-        pattern = '^{}_{}'.format(
-            cls.key_prefix,
-            r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-        )
-        return re.match(pattern, key) is not None
+
+class StrListBase(TypeDecorator):
+    """Platform-independent GUID type.
+
+    Uses PostgreSQL's UUID type, otherwise uses
+    CHAR(32), storing as stringified hex values.
+
+    """
+    # impl = CHAR
+    default_delimiter = ','
+
+    def __init__(self, *arg, **kwargs):
+        TypeDecorator.__init__(self, *arg, **kwargs)
+        self.delimiter = kwargs.get('delimiter', self.default_delimiter)
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return value
+        elif isinstance(value, string_types):
+            if self.delimiter in value:
+                raise ValueError('value includs delimiter {!r}'.format(self.delimiter))
+            return value
+        # elif isinstance(value, (tuple, list)):
+        elif hasattr(value, '__iter__'):
+            for v in value:
+                if self.delimiter in v:
+                    raise ValueError('value includs delimiter {!r}'.format(self.delimiter))
+            return self.delimiter.join(value)
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return value
+        else:
+            return value.split(self.delimiter)
+
+
+class StringList(StrListBase):
+    impl = String
+
+
+class TextList(StrListBase):
+    impl = Text
+    default_delimiter = '\n'

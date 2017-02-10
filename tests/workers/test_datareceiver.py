@@ -8,28 +8,29 @@ from sqlalchemy.orm import sessionmaker
 from circle_core import database
 from circle_core.database import Database
 from circle_core.helpers.nanomsg import Sender
-from circle_core.helpers.topics import ModuleMessageTopic
-from circle_core.models import message
+# from circle_core.helpers.topics import ModuleMessageTopic
+# from circle_core.models import message
 from circle_core.models import MessageBox, Module, Schema
-from circle_core.models.message import ModuleMessageFactory
-from circle_core.models.metadata.base import MetadataReader
+# from circle_core.models.message import ModuleMessageFactory
+# from circle_core.models.metadata.base import MetadataReader
 
 
-class DummyMetadata(MetadataReader):
-    schemas = [Schema('95eef02e-36e5-446e-9fea-aedd10321f6f', 'json', [{'name': 'hoge', 'type': 'int'}])]
-    message_boxes = [
-        MessageBox('402a7a37-691d-40ed-b0fe-4aeed9d0bba1', '95eef02e-36e5-446e-9fea-aedd10321f6f', 'DummyMessageBox1'),
-        MessageBox('dba1c788-69b4-4ca2-a7bd-8582eda96064', '95eef02e-36e5-446e-9fea-aedd10321f6f', 'DummyMessageBox2')
-    ]
-    modules = [Module(
-        '314a578a-6543-4331-90f7-ed80c81d29bf',
-        ['402a7a37-691d-40ed-b0fe-4aeed9d0bba1'],
-        'DummyModule',
-        'foo,bar'
-    )]
-    users = []
-    invitations = []
-    parse_url_scheme = None
+# class DummyMetadata(MetadataReader):
+#     schemas = [Schema('95eef02e-36e5-446e-9fea-aedd10321f6f', 'json', [{'name': 'hoge', 'type': 'int'}])]
+#     message_boxes = [
+#         MessageBox(
+#             '402a7a37-691d-40ed-b0fe-4aeed9d0bba1', '95eef02e-36e5-446e-9fea-aedd10321f6f',
+#             '314a578a-6543-4331-90f7-ed80c81d29bf', 'DummyMessageBox1'),
+#         MessageBox(
+#             'dba1c788-69b4-4ca2-a7bd-8582eda96064', '95eef02e-36e5-446e-9fea-aedd10321f6f',
+#             None, 'DummyMessageBox2')
+#     ]
+#     modules = [
+#         Module('314a578a-6543-4331-90f7-ed80c81d29bf', 'DummyModule', 'foo,bar'),
+#     ]
+#     users = []
+#     invitations = []
+#     parse_url_scheme = None
 
 
 def setup_module(module):
@@ -37,7 +38,7 @@ def setup_module(module):
     database.metadata = DummyMetadata
 
 
-@pytest.mark.skip  # FIXME: 単体では通るが通しでやると通らない 前のテストで作られたSenderがここでも生きている...
+@pytest.mark.skip(reason='rewriting...')
 @pytest.mark.timeout(3)
 def test_specific_box(mysql):
     """メッセージが指定したメッセージボックスに格納されるか."""

@@ -11,9 +11,9 @@ from click.core import Context
 from six import PY3
 
 # project module
-from .context import ContextObject
-from .utils import generate_uuid, output_listing_columns, output_properties
-from ..models import User
+from .context import CLIContextObject
+from .utils import output_listing_columns, output_properties
+from ..models import generate_uuid, MetaDataSession, NoResultFound, User
 
 if PY3:
     from typing import List, Tuple
@@ -32,9 +32,8 @@ def user_list(ctx):
 
     :param Context ctx: Context
     """
-    context_object = ctx.obj  # type: ContextObject
-    metadata = context_object.metadata
-    users = metadata.users
+    users = User.query.all()
+
     if len(users):
         data, header = _format_for_columns(users)
         output_listing_columns(data, header)
@@ -52,7 +51,7 @@ def _format_for_columns(users):
     header = ['UUID', 'ACCOUNT', 'PERMISSIONS']
     data = []  # type: List[List[str]]
     for user in users:
-        data.append([str(user.uuid), user.account, user.stringified_permissions])
+        data.append([str(user.uuid), user.account, ','.join(user.permissions)])
     return data, header
 
 
@@ -65,11 +64,9 @@ def user_detail(ctx, user_uuid):
     :param Context ctx: Context
     :param UUID user_uuid: ユーザUUID
     """
-    context_object = ctx.obj  # type: ContextObject
-    metadata = context_object.metadata
-
-    user = metadata.find_user(user_uuid)
-    if user is None:
+    try:
+        user = User.query.filter_by(uuid=user_uuid).one()
+    except NoResultFound:
         click.echo('User "{}" is not registered.'.format(user_uuid))
         ctx.exit(code=-1)
 
@@ -102,25 +99,22 @@ def user_add(ctx, account, password, work, mail_address, telephone, admin_flag):
     :param str password: パスワード
     :param bool admin_flag: ユーザ管理権限
     """
-    context_object = ctx.obj  # type: ContextObject
-    metadata = context_object.metadata
-
-    if not metadata.writable:
-        click.echo('Cannot register to {}.'.format(metadata.stringified_type))
-        ctx.exit(code=-1)
-
-    user_uuid = generate_uuid(existing=[user.uuid for user in metadata.users])
-
     permissions = []
     if admin_flag:
         permissions.append('admin')
 
-    user = User(
-        user_uuid, account, ','.join(permissions), work, mail_address, telephone,
-        password=password)
+    with MetaDataSession.begin():
+        user = User(
+            uuid=generate_uuid(model=User),
+            account=account,
+            password=password,
+            work=work,
+            mail_address=mail_address,
+            telephone=telephone,
+        )
+        user.permissions = permissions
+        MetaDataSession.add(user)
 
-    metadata.register_user(user)
-    context_object.log_info('user add', uuid=user.uuid)
     click.echo('User "{}" is added.'.format(user.uuid))
 
 
@@ -133,17 +127,13 @@ def user_remove(ctx, user_uuid):
     :param Context ctx: Context
     :param UUID user_uuid: ユーザUUID
     """
-    context_object = ctx.obj  # type: ContextObject
-    metadata = context_object.metadata
-
-    if not metadata.writable:
-        click.echo('Cannot remove from {}.'.format(metadata.stringified_type))
-        ctx.exit(code=-1)
-
-    user = metadata.find_user(user_uuid)
-    if user is None:
+    try:
+        user = User.query.filter_by(uuid=user_uuid).one()
+    except NoResultFound:
         click.echo('User "{}" is not registered. Do nothing.'.format(user_uuid))
         ctx.exit(code=-1)
-    metadata.unregister_user(user)
-    context_object.log_info('user remove', uuid=user_uuid)
+
+    with MetaDataSession.begin():
+        MetaDataSession.delete(user)
+
     click.echo('User "{}" is removed.'.format(user_uuid))

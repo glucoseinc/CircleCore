@@ -9,6 +9,7 @@ from circle_core.models import Schema
 TEST_UUID = '550e8400-e29b-41d4-a716-446655440000'
 
 
+@pytest.mark.skip(reason='rewriting...')
 class TestSchema(object):
     @pytest.mark.parametrize(('uuid', 'display_name', 'stringified_properties', 'expected'), [
         (TEST_UUID, 'DISP_NAME', 'prop1:int,prop2:float',

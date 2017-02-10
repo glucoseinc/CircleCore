@@ -6,99 +6,53 @@ from click.testing import CliRunner
 import pytest
 
 from circle_core.cli import cli_entry
-from tests import url_scheme_ini_file
+from tests import uuid_rex
 
 
+@pytest.mark.skip(reason='rewriting...')
 class TestCliInvitation(object):
-    @pytest.mark.usefixtures('flushall_redis_server')
-    @pytest.mark.parametrize(('main_params', 'expected_output_length'), [
-        (['--metadata', url_scheme_ini_file],  # main_params
-         1 + 1 + 2),  # expected_output_length
-
-        ([],  # main_params
-         1),  # expected_output_length
-    ])
-    def test_invitation_list(self, main_params, expected_output_length):
+    @pytest.mark.usefixtures('clear_metadata')
+    def test_invitation(self):
         runner = CliRunner()
-        result = runner.invoke(cli_entry, main_params + ['invitation', 'list'])
+
+        def _call(*args):
+            from circle_core.models import MetaDataSession
+            MetaDataSession.remove()
+            return runner.invoke(cli_entry, ['-c', './tests/circle_core.ini', 'invitation'] + list(args))
+
+        # has no user
+        result = _call('list')
         assert result.exit_code == 0
-        assert len(result.output.splitlines()) == expected_output_length
+        mo = uuid_rex.search(result.output)
+        assert mo is None, result.output
 
-    @pytest.mark.parametrize(('main_params', 'detail_params', 'expected_exit_code', 'expected_output_length'), [
-        (['--metadata', url_scheme_ini_file],  # main_params
-         ['b898884b-19ee-49ef-95c9-f77a4955a54b'],  # detail_params test_manager@test.test
-         0,  # expected_exit_code
-         4),  # expected_output_length
-
-        (['--metadata', url_scheme_ini_file],  # main_params
-         ['00000000-0000-0000-0000-000000000000'],  # detail_params 登録なし
-         255,  # expected_exit_code
-         1),  # expected_output_length
-    ])
-    def test_invitation_detail(self, main_params, detail_params, expected_exit_code, expected_output_length):
-        runner = CliRunner()
-        result = runner.invoke(cli_entry, main_params + ['invitation', 'detail'] + detail_params)
-        assert result.exit_code == expected_exit_code
-        assert len(result.output.splitlines()) == expected_output_length
-
-    @pytest.mark.usefixtures('flushall_redis_server')
-    @pytest.mark.parametrize(('main_params', 'add_params', 'expected_exit_code', 'expected_output'), [
-        (['--metadata', url_scheme_ini_file],  # main_params
-         ['--max', '3'],  # add_params
-         -1,  # expected_exit_code
-         'Cannot register to INI File.\n'),  # expected_output
-
-        (['--metadata', 'redis://localhost:65535/16'],  # main_params
-         ['--max', '0'],  # add_params
-         -1,  # expected_exit_code
-         'Invalid metadata url / Cannot connect to Redis server. : redis://localhost:65535/16\n'),  # expected_output
-    ])
-    def test_invitation_add_failure(self, main_params, add_params, expected_exit_code, expected_output):
-        runner = CliRunner()
-        result = runner.invoke(cli_entry, main_params + ['invitation', 'add'] + add_params)
-        assert result.exit_code == expected_exit_code
-        assert result.output == expected_output
-
-    @pytest.mark.usefixtures('flushall_redis_server')
-    @pytest.mark.parametrize(('add_params', 'expected_exit_code', 'expected_output_regexp'), [
-        (['--max', '4'],  # add_params
-         0,
-         r'Invitation '
-         r'"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"'  # uuid
-         r' is added.\n'),  # expected
-    ])
-    def test_invitation_add_success(self, add_params, expected_exit_code, expected_output_regexp):
-        runner = CliRunner()
-        result = runner.invoke(cli_entry, ['invitation', 'add'] + add_params)
-        assert result.exit_code == expected_exit_code
-        assert re.match(expected_output_regexp, result.output) is not None
-
-    @pytest.mark.usefixtures('flushall_redis_server')
-    @pytest.mark.parametrize(('main_params', 'remove_params', 'expected_exit_code', 'expected_output'), [
-        (['--metadata', url_scheme_ini_file],  # main_params
-         ['b898884b-19ee-49ef-95c9-f77a4955a54b'],  # remove_params
-         -1,  # expected_exit_code
-         'Cannot remove from INI File.\n'),  # expected_output
-
-        ([],  # main_params
-         ['00000000-0000-0000-0000-000000000000'],  # remove_params
-         -1,  # expected_exit_code
-         'Invitation "00000000-0000-0000-0000-000000000000" is not registered. Do nothing.\n'),  # expected_output
-    ])
-    def test_invitation_remove_failure(self, main_params, remove_params, expected_exit_code, expected_output):
-        runner = CliRunner()
-        result = runner.invoke(cli_entry, main_params + ['invitation', 'remove'] + remove_params)
-        assert result.exit_code == expected_exit_code
-        assert result.output == expected_output
-
-    @pytest.mark.usefixtures('flushall_redis_server')
-    def test_invitation_remove_success(self):
-        # setup
-        runner = CliRunner()
-        result = runner.invoke(cli_entry, ['invitation', 'add', '--max', '9999'])
-        uuid = result.output.split()[1][1:-1]  # User "{uuid}" is added.\n
-
-        # test
-        result = runner.invoke(cli_entry, ['invitation', 'remove', uuid])
+        # can add invitation
+        result = _call('add')
         assert result.exit_code == 0
-        assert result.output == 'Invitation "{}" is removed.\n'.format(uuid)
+        mo = uuid_rex.search(result.output)
+        assert mo is not None, result.output
+        invitation_uuid = mo.group(1)
+
+        # can list added invitation
+        result = _call('list')
+        assert result.exit_code == 0
+        assert invitation_uuid in result.output
+
+        # can detail added inviation
+        result = _call('detail', invitation_uuid)
+        assert result.exit_code == 0
+        assert invitation_uuid in result.output
+
+        # can fail to remove bad invitation
+        result = _call('remove', '00000000-0000-0000-0000-000000000000')
+        assert result.exit_code != 0
+
+        # can remove invitation
+        result = _call('remove', invitation_uuid)
+        assert result.exit_code == 0
+
+        # can list
+        result = _call('list')
+        assert result.exit_code == 0
+        mo = uuid_rex.search(result.output)
+        assert mo is None, result.output

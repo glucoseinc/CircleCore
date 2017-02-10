@@ -155,7 +155,6 @@ class OAuthAuthorize extends Component {
    */
   componentDidMount() {
     const form = this.refs.form
-
     form.submit()
   }
 

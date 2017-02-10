@@ -7,51 +7,11 @@ import uuid
 import click
 import websocket
 
-from ..logger import get_stream_logger
-
-
-logger = get_stream_logger()
-
 
 @click.group('bot')
 def cli_bot():
     """`crcr bot`の起点."""
     pass
-
-
-@cli_bot.command()
-@click.option('receive_from', '--from', type=click.STRING, default='ws://api.coi.bodic.org/websocket')
-@click.option('send_to', '--to', type=click.STRING, default='ws://localhost:5000/module/?')
-@click.option('box_id', '--box-id', type=uuid.UUID, required=True)
-def echo(receive_from, send_to, box_id):
-    """--fromから--toへメッセージをたらい回し.
-
-    スキーマ登録: crcr schema add --name echobot \
-      speed:float lat:float direction:int x:float y:float timestamp:int lng:float pid:int psen:int
-
-    :param str receive_from:
-    :param str send_to:
-    """
-    websocket.enableTrace(True)
-    receiver = websocket.create_connection(receive_from)
-    sender = websocket.create_connection(send_to)
-    box_id = str(box_id)
-
-    while True:
-        receiver = websocket.create_connection(receive_from, timeout=10)
-
-        i = 0
-        while True:
-            i += 1
-            try:
-                msg = receiver.recv()
-            except websocket.WebSocketTimeoutException:
-                logger.error("I'm not received new messages anymore. Reconnecting...")
-                break
-
-            for j, dic in enumerate(json.loads(msg)):
-                dic['_box'] = box_id
-                sender.send(json.dumps(dic))
 
 
 @cli_bot.command()

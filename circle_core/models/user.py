@@ -3,29 +3,23 @@
 """User Model."""
 
 # system module
+import datetime
 from hashlib import sha512
-from uuid import UUID
+import random
+import string
 
 # community module
-from six import PY3
+import sqlalchemy as sa
+from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
 from circle_core.utils import format_date, prepare_date
-from .base import UUIDBasedObject
+from .base import GUID, UUIDMetaDataBase
 
 
-if PY3:
-    from typing import List, Union
-
-
-class UserError(Exception):
-    pass
-
-
-class User(UUIDBasedObject):
+class User(UUIDMetaDataBase):
     """Userオブジェクト.
 
-    :param str key_prefix: ストレージキーのプレフィックス
     :param UUID uuid: User UUID
     :param str account: アカウント
     :param List[str] permissions: 権限
@@ -33,14 +27,28 @@ class User(UUIDBasedObject):
     :param str mail_address: メールアドレス
     :param str telephone: 電話番号
     :param str encrypted_password: 暗号化パスワード
-    :param datetime.datetime date_last_access: 最終アクセス時刻
+    :param datetime.datetime created_at: 作成時
+    :param datetime.datetime updated_at: 最終更新時
+    :param datetime.datetime last_access_at: 最終アクセス時刻
     """
+    __tablename__ = 'users'
 
-    key_prefix = 'user'
+    uuid = sa.Column(GUID, primary_key=True)
+    account = sa.Column(sa.String(255), nullable=False, unique=True)
+    _permissions = sa.Column('permissions', sa.String(255))
+    work = sa.Column(sa.Text, nullable=False, default='')
+    mail_address = sa.Column(sa.Text, nullable=False, default='')
+    telephone = sa.Column(sa.Text, nullable=False, default='')
+    encrypted_password = sa.Column(sa.String(255), nullable=False)
+    created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
+    updated_at = sa.Column(
+        sa.DateTime, nullable=False,
+        default=datetime.datetime.utcnow,
+        onupdate=datetime.datetime.utcnow)
+    last_access_at = sa.Column(
+        sa.DateTime, nullable=True)
 
-    def __init__(
-            self, uuid, account, permissions, work, mail_address, telephone,
-            encrypted_password=None, password=None, date_last_access=None):
+    def __init__(self, **kwargs):
         """init.
 
         :param Union[str, UUID] uuid: User UUID
@@ -52,45 +60,28 @@ class User(UUIDBasedObject):
         :param str encrypted_password: 暗号化パスワード
         :param str password: パスワード
         """
-        assert uuid
-        assert (password or encrypted_password) and not (password and encrypted_password)
 
-        super(User, self).__init__(uuid)
+        if 'password' in kwargs:
+            if 'encrypted_password' in kwargs:
+                raise ValueError('password and encrypted_password cannot set both at same time.')
+            kwargs['encrypted_password'] = encrypt_password(kwargs.pop('password'))
 
-        if isinstance(permissions, str):
-            permissions = permissions.split(',') if permissions else []
-            permissions = list(set(x.strip() for x in permissions))
+        super(User, self).__init__(**kwargs)
 
-        if password:
-            encrypted_password = encrypt_password(password, uuid.hex)
+    def __repr__(self):
+        return '<{module}.User {uuid} ({account})>'.format(
+            module=__name__,
+            uuid=self.uuid,
+            account=self.account,
+        )
 
-        self.account = account
-        self.mail_address = mail_address
-        self.encrypted_password = encrypted_password
-        self.permissions = permissions
-        self.work = work
-        self.mail_address = mail_address
-        self.telephone = telephone
-        self.date_last_access = prepare_date(date_last_access)
+    @hybrid_property
+    def permissions(self):
+        return self._permissions.split(',')
 
-    @property
-    def stringified_permissions(self):
-        """権限を文字列化する.
-
-        :return: 文字列化権限
-        :rtype: str
-        """
-        return ','.join(self.permissions)
-
-    @classmethod
-    def make_key_for_last_access(cls, uuid):
-        """最終アクセス時刻保存用のキーを返す
-
-        :param str uuid: ユーザのID
-        :return: Key
-        :rtype: str
-        """
-        return 'user_{}:last_access'.format(uuid)
+    @permissions.setter
+    def permissions(self, permissions):
+        self._permissions = ','.join(permissions)
 
     def is_password_matched(self, password):
         """指定のパスワードがマッチしているか.
@@ -99,7 +90,7 @@ class User(UUIDBasedObject):
         :return: マッチしているか
         :rtype: bool
         """
-        return self.encrypted_password == encrypt_password(password, self.uuid.hex)
+        return is_password_matched(password, self.encrypted_password)
 
     def is_admin(self):
         """ユーザがadmin権限をもっているかどうか
@@ -110,7 +101,7 @@ class User(UUIDBasedObject):
 
     def set_password(self, new_password):
         assert self.uuid
-        self.encrypted_password = encrypt_password(new_password, self.uuid.hex)
+        self.encrypted_password = encrypt_password(new_password)
 
     def to_json(self, full=False):
         """このモデルのJSON表現を返す.
@@ -125,27 +116,27 @@ class User(UUIDBasedObject):
             'mailAddress': self.mail_address,
             'telephone': self.telephone,
             'permissions': self.permissions,
-            'dateLastAccess': format_date(self.date_last_access)
+            'createdAt': format_date(self.created_at),
+            'updatedAt': format_date(self.updated_at),
+            'lastAccessAt': format_date(self.last_access_at),
         }
         if full:
-            d['encrypted_password'] = self.encrypted_password
+            d['encryptedPassword'] = self.encrypted_password
 
         return d
 
-    @classmethod
-    def from_json(cls, jsonobj):
-        return cls(
-            jsonobj['uuid'],
-            jsonobj['account'],
-            jsonobj['permissions'],
-            jsonobj['work'],
-            jsonobj['mailAddress'],
-            jsonobj['telephone'],
-            encrypted_password=jsonobj['encrypted_password'],
-        )
+    def update_from_json(self, jsonobj):
+        for from_key, to_key in [
+                ('account', 'account'), ('mailAddress', 'mail_address'), ('work', 'work'), ('telephone', 'telephone'),
+                ('permissions', 'permissions')]:
+            if from_key in jsonobj:
+                setattr(self, to_key, jsonobj[from_key])
+
+        if 'newPassword' in jsonobj:
+            self.set_password(jsonobj['newPassword'])
 
 
-def encrypt_password(password, salt):
+def encrypt_password(password, salt=None):
     """パスワードを暗号化する.
 
     :param str password:パスワード
@@ -153,5 +144,22 @@ def encrypt_password(password, salt):
     :return: 暗号化パスワード
     :rtype: str
     """
+    if not salt:
+        # generate salt
+        salt = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(32))
+        assert '$' not in salt
+
     hashed = sha512((salt + password).encode('utf-8')).hexdigest()
     return '$6${}${}'.format(salt, hashed)
+
+
+def is_password_matched(test, encrypted):
+    """パスワードをチェックする"""
+    try:
+        _, six, salt, hashed = encrypted.split('$')
+        if six != '6':
+            raise ValueError('invalid encrypted password')
+    except ValueError:
+        raise ValueError('invalid encrypted password')
+
+    return sha512((salt + test).encode('utf-8')).hexdigest() == hashed

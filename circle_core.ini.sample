@@ -1,0 +1,27 @@
+# circle_coreの基本情報
+[circle_core]
+# 省略可, uuidを指定する場合に使う。　autoの場合は自動生成
+uuid = auto
+# crcrのデータを保存するディレクトリ
+prefix = ./cc_dev
+# metadataを保存するファイルのパス
+metadata_file_path = ${prefix}/metadata.sqlite
+# metadata変更ログを保存するファイルのパス
+log_file_path = ${prefix}/core.log
+# nanomsgのメッセージが流通するHubのSocket
+hub_socket = ipc:///tmp/crcr_hub.ipc
+# nanomsgへのリクエストを受け付けるSoket
+request_socket = ipc:///tmp/crcr_request.ipc
+# messageを保存する先のURL
+db = mysql+mysqlconnector://crcr_dev:crcr@localhost/crcr_dev
+# グラフ用DBを保存するディレクトリ
+time_db_dir = ${prefix}
+
+# websocket, admin uiインタフェースのモジュール
+[circle_core:http]
+listen = 127.0.0.1
+port = 8080
+websocket = on
+admin = on
+admin_base_url = http://${listen}:${port}
+skip_build = on

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """他のCircleCoreとの同期."""
 import json
+import logging
 from uuid import UUID
 
 from click import get_current_context
@@ -9,14 +10,13 @@ from tornado.ioloop import IOLoop
 from tornado.websocket import WebSocketHandler
 
 from ...exceptions import ModuleNotFoundError
-from ...helpers.metadata import metadata
+# from ...helpers.metadata import metadata
 from ...helpers.nanomsg import Receiver
-from ...helpers.topics import ModuleMessageTopic
-from ...logger import get_stream_logger
+# from ...helpers.topics import ModuleMessageTopic
 from ...models.message_box import MessageBox
 
 
-logger = get_stream_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def get_uuid():

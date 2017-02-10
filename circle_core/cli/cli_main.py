@@ -6,6 +6,7 @@
 from __future__ import absolute_import, print_function
 
 from itertools import groupby
+import logging
 import os
 import re
 import sys
@@ -15,64 +16,57 @@ import click
 from click.core import Context
 
 # project module
-from circle_core import server
-from circle_core.server import ws, wui
-from circle_core.workers import datareceiver
-from circle_core.workers.replication_slave import ReplicationSlave
-from .context import ContextObject
-from .utils import generate_uuid, RestartableProcess
+# from circle_core import server
+from circle_core.core import CircleCore
+from .context import CLIContextObject
 from ..database import Database
-from ..models import CcInfo, MetadataError
-from ..models.metadata import parse_url_scheme
+
+
+logger = logging.getLogger(__name__)
 
 
 @click.group()
-@click.option('metadata_url', '--metadata', envvar='CRCR_METADATA')
-@click.option('log_file_path', '--log-file', envvar='CRCR_LOG_FILE_PATH', default='var/log.ltsv')
+@click.option('config_file_path', '--config', '-c', type=click.Path())
+@click.option('--debug', is_flag=True)
 @click.pass_context
-def cli_main(ctx, metadata_url, log_file_path):
+def cli_main(ctx, config_file_path, debug):
     """`crcr`の起点.
 
     :param Context ctx: Context
-    :param str metadata_url: MetadataのURLスキーム
-    :param str log_file_path: ログファイルのパス
+    :param str config_file_path: iniファイルのpath
     """
-    # temporary
-    import logging
+    # initialize console logging
+    _init_logging(debug)
 
-    root_logger = logging.getLogger()
-    if sys.stdout.isatty():
-        # コマンドラインから直接起動されていれば、stdoutにログを吐く
-        root_logger.setLevel(logging.DEBUG)
-        root_logger.addHandler(logging.StreamHandler())
+    if config_file_path:
+        core = CircleCore.load_from_config_file(config_file_path)
+    else:
+        core = CircleCore.load_from_default_config_file()
 
-    if metadata_url is None:
-        click.echo('Metadata is not set.')
-        click.echo('Please set metadata to argument `crcr --metadata URL_SCHEME ...`')
-        click.echo('or set to environment variable `export CRCR_METADATA=URL_SCHEME`.')
-        ctx.exit(code=-1)
+    if debug:
+        core.set_debug(True)
 
-    try:
-        metadata = parse_url_scheme(metadata_url)
-    except MetadataError as e:
-        click.echo('Invalid metadata url / {} : {}'.format(e, metadata_url))
-        ctx.exit(code=-1)
-        return      # TODO: remove
+    ctx.obj = CLIContextObject(core)
 
-    own_cc_info = metadata.find_own_cc_info()
-    if own_cc_info is None:
-        if metadata.writable is False:
-            click.echo('Your Circle Core Info is not set in metadata, and metadata is not writable.')
-            click.echo('Please manually set Your Circle Core Info in metadata.')
-            ctx.exit(code=-1)
-            return      # TODO: remove
-        own_cc_info_uuid = generate_uuid(existing=[cc_info.uuid for cc_info in metadata.cc_infos])
-        own_cc_info = CcInfo(own_cc_info_uuid, 'CircleCore_{}'.format(own_cc_info_uuid), myself=True)
-        metadata.register_cc_info(own_cc_info)
-        click.echo('Your Circle Core Info has been registered in metadata.')
-        click.echo('UUID is {}.'.format(own_cc_info.uuid))
 
-    ctx.obj = ContextObject(metadata_url, metadata, own_cc_info.uuid, log_file_path)
+def _init_logging(debug=False):
+    if sys.stderr.isatty():
+        # if we are attached to tty, use colorful.
+        fh = logging.StreamHandler(sys.stderr)
+        try:
+            from ..logger import NiceColoredFormatter
+            # 色指示子で9charsとる
+            fh.setFormatter(NiceColoredFormatter(
+                '%(nice_levelname)-14s %(nice_name)-33s: %(message)s',
+            ))
+        except ImportError:
+            fh.setFormatter(logging.Formatter(
+                '%(levelname)-5s %(name)-24s: %(message)s',
+            ))
+
+        root_logger = logging.getLogger()
+        root_logger.addHandler(fh)
+        root_logger.setLevel(logging.DEBUG if debug else logging.INFO)
 
 
 @cli_main.command('env')
@@ -82,10 +76,14 @@ def cli_main_env(ctx):
 
     :param Context ctx: Context
     """
-    context_object = ctx.obj  # type: ContextObject
-    click.echo(context_object.metadata_url)
-    click.echo(context_object.uuid)
-    click.echo(context_object.log_file_path)
+    core = ctx.obj.core
+
+    click.echo(
+        'Circle Core: {display_name}({uuid})'.format(
+            display_name=core.my_cc_info.display_name,
+            uuid=core.my_cc_info.uuid))
+    click.echo('Metadata File path: {}'.format(core.metadata_file_path))
+    click.echo('Log File path: {}'.format(core.log_file_path))
 
 
 def validate_replication_master_addr(ctx, param, values):
@@ -97,40 +95,16 @@ def validate_replication_master_addr(ctx, param, values):
 
 
 @cli_main.command('run')
-@click.option('--ws-port', type=click.INT, envvar='CRCR_WSPORT', default=5000)
-@click.option('--ws-path', type=click.STRING, envvar='CRCR_WSPATH', default='/module/?')
-@click.option('--wui-port', type=click.INT, envvar='CRCR_WUIPORT', default=5000)
-@click.option('--ipc-socket', type=click.Path(resolve_path=True), envvar='CRCR_IPCSOCK', default='/tmp/circlecore.ipc')
-@click.option('replicate_from', '--replicate', type=click.STRING, envvar='CRCR_REPLICATION', multiple=True,
-              help='module_uuid@hostname:port', callback=validate_replication_master_addr)
-@click.option('database_url', '--database', envvar='CRCR_DATABASE')
-@click.option('--prefix', envvar='CRCR_PREFIX', default=lambda: os.getcwd())
-@click.option('--debug', is_flag=True)
 @click.pass_context
-def cli_main_run(ctx, ws_port, ws_path, wui_port, ipc_socket, replicate_from, database_url, prefix, debug):
+def cli_main_run(ctx):
     """CircleCoreの起動."""
-    ctx.obj.ipc_socket = 'ipc://' + ipc_socket
-    metadata = ctx.obj.metadata
-    metadata.database_url = database_url  # とりあえず...
-    metadata.prefix = prefix  # とりあえず...
+    # ctx.obj.ipc_socket = 'ipc://' + ipc_socket
+    core = ctx.obj.core
 
-    for addr, value in groupby([module_and_addr.split('@') for module_and_addr in replicate_from], lambda x: x[1]):
-        modules = [module_and_addr[0] for module_and_addr in value]
-        RestartableProcess(target=lambda: ReplicationSlave(metadata, addr, modules).run()).start()
+    logger.info('Master process PID:%s', os.getpid())
 
-    RestartableProcess(target=datareceiver.run, args=[metadata]).start()
-
-    if ws_port == wui_port:
-        RestartableProcess(target=server.run, args=[wui_port, metadata, debug]).start()
-    else:
-        RestartableProcess(target=ws.run, args=[metadata, ws_path, ws_port]).start()
-        RestartableProcess(target=wui.create_app(metadata).run, kwargs={'port': wui_port}).start()
-
-    click.echo('Websocket : ws://{host}:{port}{path}'.format(path=ws_path, port=ws_port, host='127.0.0.1'), err=True)
-    click.echo('WebUI : http://127.0.0.1:{port}{path}'.format(path='/', port=ws_port), err=True)
-    click.echo('IPC : {}'.format(ctx.obj.ipc_socket), err=True)
-
-    RestartableProcess.wait_all()
+    # run hub
+    core.run()
 
 
 @cli_main.command('migrate')
