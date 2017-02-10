@@ -6,7 +6,7 @@ import invitationsActionsHandler from './invitations'
 import modulesActionsHandler from './modules'
 import replicationLinksActionsHandler from './replicationLinks'
 import schemasActionsHandler from './schemas'
-import usersActionsHandler from './users'
+import userActionsHandler from './user'
 
 const initialState = {
   ccInfos: new Map(),
@@ -26,7 +26,7 @@ const entities = handleActions({
   ...modulesActionsHandler,
   ...replicationLinksActionsHandler,
   ...schemasActionsHandler,
-  ...usersActionsHandler,
+  ...userActionsHandler,
 }, initialState)
 
 export default entities

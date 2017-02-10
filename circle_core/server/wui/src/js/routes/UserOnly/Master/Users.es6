@@ -9,7 +9,7 @@ const usersRoute = {
   icon: UserIcon,
   component: Users,
   onEnterActions: [
-    actions.users.fetchRequest,
+    actions.user.fetchAllRequest,
   ],
 }
 

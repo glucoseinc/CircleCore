@@ -18,13 +18,6 @@ const misc = handleActions({
   // Location change
   [LOCATION_CHANGE]: initialize(),
 
-  // User
-  [actionTypes.users.deleteComplete]: (state, {payload: {error}}) => {
-    if(error)
-      return {...state, errorMessage: error.message}
-    return state
-  },
-
   [actionTypes.misc.clearErrorMessage]: (state, action) => {
     return {
       ...state,

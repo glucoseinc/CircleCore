@@ -3,7 +3,6 @@ import auth from './auth'
 import async from './async'
 import invitations from './invitations'
 import location from './location'
-import users from './users'
 
 
 /**
@@ -14,5 +13,4 @@ export default function* rootSaga() {
   yield fork(async)
   yield fork(invitations)
   yield fork(location)
-  yield fork(users)
 }

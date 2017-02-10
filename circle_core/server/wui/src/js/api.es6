@@ -287,49 +287,60 @@ class CCAPI extends APICaller {
 
   // User
   /**
-   * Userのリストを得る
-   * @return {Object} Userのリスト
+   * Userを作成する
+   * @param {object} rawUser
+   * @return {object} Result
    */
-  async listUsers() {
-    const res = await this._get('/users/')
+  async createUser(rawUser) {
+    const res = await this._post('/users/', rawUser)
     return res.body
   }
 
   /**
-   * 特定Userを得る
-   * @param {str} userId
-   * @return {Object} Userのリスト
+   * Userの詳細を得る
+   * @param {string} userId
+   * @return {object} Result
    */
-  async getUser(userId) {
+  async fetchUser(userId) {
     const res = await this._get(`/users/${userId}`)
     return res.body
   }
 
   /**
-   * ログインしている自分の情報を得る
-   * @return {Object} Userのリスト
+   * Userのリストを得る
+   * @return {object} Result
    */
-  async getMe() {
-    return this.getUser('me')
+  async fetchAllUsersNew() {
+    const res = await this._get('/users/')
+    return res.body
+  }
+
+  /**
+   * 自分自身の詳細を得る
+   * @return {object} Result
+   */
+  async fetchMyselfUser() {
+    const res = await this._get('/users/me')
+    return res.body
   }
 
   /**
    * Userを更新する
-   * @param {Object} payload 更新データ Userオブジェクトではないことに注意
-   * @return {Object} Result
+   * @param {object} rawUser
+   * @return {object} Result
    */
-  async updateUser(payload) {
-    const res = await this._put(`/users/${payload.uuid}`, payload)
+  async updateUser(rawUser) {
+    const res = await this._put(`/users/${rawUser.uuid}`, rawUser)
     return res.body
   }
 
   /**
    * Userを削除する
-   * @param {User} user User
-   * @return {Object} Result
+   * @param {string} userId
+   * @return {object} Result
    */
-  async deleteUser(user) {
-    const res = await this._delete(`/users/${user.uuid}`)
+  async deleteUser(userId) {
+    const res = await this._delete(`/users/${userId}`)
     return res.body
   }
 
@@ -384,6 +395,7 @@ class CCAPI extends APICaller {
     return res.body
   }
 
+
   // CcInfo
   /**
    * CircleCoreInfoのリストを得る
@@ -414,7 +426,7 @@ class CCAPI extends APICaller {
   }
 
 
-  // replicationLink
+  // ReplicationLink
   /**
    * ReplicationLinkを作成する
    * @param {object} rawReplicationLink

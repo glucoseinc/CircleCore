@@ -16,7 +16,6 @@ const groupNames = [
   'schemas',
   'schemaPropertyTypes',
   'user',
-  'users',
 ]
 groupNames.forEach((group) => {
   let mod = require(`./${group}`)

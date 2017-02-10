@@ -6,6 +6,7 @@ import Module from 'src/models/Module'
 import ReplicationLink from 'src/models/ReplicationLink'
 import Schema from 'src/models/Schema'
 import SchemaPropertyType from 'src/models/SchemaPropertyType'
+import User from 'src/models/User'
 import normalizerSchema from 'src/models/normalizerSchema'
 
 
@@ -28,5 +29,6 @@ export const getNewEntities = (response) => {
     replicationLinks: new Map(convertValues(entities.replicationLinks, ReplicationLink.fromObject)),
     schemas: new Map(convertValues(entities.schemas, Schema.fromObject)),
     schemaPropertyTypes: new Map(convertValues(entities.schemaPropertyTypes, SchemaPropertyType.fromObject)),
+    users: new Map(convertValues(entities.users, User.fromObject)),
   }
 }

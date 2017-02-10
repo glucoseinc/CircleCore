@@ -103,7 +103,7 @@ class Users extends Component {
 
 
 const mapStateToProps = (state) => ({
-  isFetching: state.asyncs.isUsersFetching,
+  isFetching: state.asyncs.isUserFetching,
   users: state.entities.users,
   token: state.auth.token,
 })
@@ -111,7 +111,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   onDisplayNameTouchTap: (userId) => dispatch(routerActions.push(createPathName(urls.user, {userId}))),
-  onDeleteOkButtonTouchTap: (user) => dispatch(actions.users.deleteRequest(user)),  // TODO: user.uuidに
+  onDeleteOkButtonTouchTap: (user) => dispatch(actions.user.deleteRequest(user.uuid)),
 })
 
 export default connect(

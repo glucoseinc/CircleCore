@@ -18,8 +18,10 @@ const initialState = {
 
   isModuleFetching: false,
 
-  isMeFetching: false,
-  isUsersFetching: false,
+  isUserCreating: false,
+  isUserFetching: false,
+  isUserUpdating: false,
+  isUserDeleting: false,
 
   isInvitationsFetching: false,
 
@@ -137,14 +139,6 @@ const asyncs = handleActions({
   [actionTypes.module.fetchSucceeded]: setModuleFetching(false),
   [actionTypes.module.fetchFailed]: setModuleFetching(false),
 
-  // Fetch Users
-  [actionTypes.users.fetchRequest]: changeFlagAction('isUsersFetching', true),
-  [actionTypes.users.fetchComplete]: changeFlagAction('isUsersFetching', false),
-
-  // Fetch me
-  [actionTypes.users.fetchMeRequest]: changeFlagAction('isMeFetching', true),
-  [actionTypes.users.fetchMeComplete]: changeFlagAction('isMeFetching', false),
-
   // Fetch Invitations
   [actionTypes.invitations.fetchRequest]: changeFlagAction('isInvitationsFetching', true),
   [actionTypes.invitations.fetchComplete]: changeFlagAction('isInvitationsFetching', false),
@@ -172,6 +166,31 @@ const asyncs = handleActions({
   [actionTypes.replicationLinks.fetchRequest]: changeFlagAction('isReplicationLinksFetching', true),
   [actionTypes.replicationLinks.fetchSucceeded]: changeFlagAction('isReplicationLinksFetching', false),
   [actionTypes.replicationLinks.fetchFailed]: changeFlagAction('isReplicationLinksFetching', false),
+
+
+  // Create user
+  [actionTypes.user.createRequest]: changeFlagAction('isUserCreating', true),
+  [actionTypes.user.createSucceeded]: changeFlagAction('isUserCreating', false),
+  [actionTypes.user.createFailed]: changeFlagAction('isUserCreating', false),
+  // Fetch user
+  [actionTypes.user.fetchRequest]: changeFlagAction('isUserFetching', true),
+  [actionTypes.user.fetchSucceeded]: changeFlagAction('isUserFetching', false),
+  [actionTypes.user.fetchFailed]: changeFlagAction('isUserFetching', false),
+  [actionTypes.user.fetchAllRequest]: changeFlagAction('isUserFetching', true),
+  [actionTypes.user.fetchAllSucceeded]: changeFlagAction('isUserFetching', false),
+  [actionTypes.user.fetchAllFailed]: changeFlagAction('isUserFetching', false),
+  [actionTypes.user.fetchMyselfRequest]: changeFlagAction('isUserFetching', true),
+  [actionTypes.user.fetchMyselfSucceeded]: changeFlagAction('isUserFetching', false),
+  [actionTypes.user.fetchMyselfFailed]: changeFlagAction('isUserFetching', false),
+  // Update user
+  [actionTypes.user.updateRequest]: changeFlagAction('isUserUpdating', true),
+  [actionTypes.user.updateSucceeded]: changeFlagAction('isUserUpdating', false),
+  [actionTypes.user.updateFailed]: changeFlagAction('isUserUpdating', false),
+  // Delete user
+  [actionTypes.user.deleteRequest]: changeFlagAction('isUserDeleting', true),
+  [actionTypes.user.deleteSucceeded]: changeFlagAction('isUserDeleting', false),
+  [actionTypes.user.deleteFailed]: changeFlagAction('isUserDeleting', false),
+
 }, initialState)
 
 export default asyncs
