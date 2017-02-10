@@ -1,5 +1,6 @@
 export {default as AddIcon} from 'material-ui/svg-icons/content/add'
 export {default as ChangeProfileIcon} from 'material-ui/svg-icons/action/account-circle'
+export {default as CheckIcon} from 'material-ui/svg-icons/navigation/check'
 export {default as ClearIcon} from 'material-ui/svg-icons/content/clear'
 export {default as CopyIcon} from 'material-ui/svg-icons/content/content-copy'
 export {default as CoreIcon} from 'material-ui/svg-icons/action/group-work'
