@@ -107,13 +107,12 @@ class PropertiesTableComponent extends Component {
       root: {
         display: 'flex',
         flexFlow: 'column nowrap',
-        padding: 0,
       },
-      propertyHeader: {
+      header: {
         display: 'flex',
         flexFlow: 'row nowrap',
       },
-      propertyRow: {
+      row: {
         display: 'flex',
         flexFlow: 'row nowrap',
       },
@@ -122,14 +121,14 @@ class PropertiesTableComponent extends Component {
     return (
       <div style={style.root}>
         <div>
-          <div style={style.propertyHeader}>
+          <div style={style.header}>
             <PropertyHeader />
           </div>
           <Paper>
             {schema.properties.valueSeq().map((property, index) => {
               const backgroundColor = index % 2 ? white :grey300
               return (
-                <div key={index} style={style.propertyRow}>
+                <div key={index} style={style.row}>
                   <PropertyRow
                     property={property}
                     backgroundColor={backgroundColor}
