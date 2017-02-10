@@ -6,11 +6,13 @@ import actions from 'src/actions'
 import {urls, createPathName} from 'src/routes'
 
 import LoadingIndicator from 'src/components/bases/LoadingIndicator'
+import {SchemaIcon} from 'src/components/bases/icons'
 
 import AddFloatingActionButton from 'src/components/commons/AddFloatingActionButton'
 import CCLink from 'src/components/commons/CCLink'
 import SchemaDeleteDialog from 'src/components/commons/SchemaDeleteDialog'
 
+import Empty from 'src/components/Empty'
 import SchemaInfoPaper from 'src/components/SchemaInfoPaper'
 
 
@@ -83,17 +85,26 @@ class Schemas extends Component {
     }
 
     return (
-      <div className="page">
-        {schemas.valueSeq().map((schema) =>
-          <SchemaInfoPaper
-            key={schema.uuid}
-            schema={schema}
-            modules={modules}
-            onDisplayNameTouchTap={(schema) => onDisplayNameTouchTap(schema.uuid)}
-            onIdCopyButtonTouchTap={onIdCopyButtonTouchTap}
-            onModuleButtonTouchTap={onModuleButtonTouchTap}
-            onDeleteTouchTap={::this.onDeleteTouchTap}
+      <div>
+        {schemas.size === 0 ? (
+          <Empty
+            icon={SchemaIcon}
+            itemName="メッセージスキーマ"
           />
+        ) : (
+          <div className="page">
+            {schemas.valueSeq().map((schema) =>
+              <SchemaInfoPaper
+                key={schema.uuid}
+                schema={schema}
+                modules={modules}
+                onDisplayNameTouchTap={(schema) => onDisplayNameTouchTap(schema.uuid)}
+                onIdCopyButtonTouchTap={onIdCopyButtonTouchTap}
+                onModuleButtonTouchTap={onModuleButtonTouchTap}
+                onDeleteTouchTap={::this.onDeleteTouchTap}
+              />
+            )}
+          </div>
         )}
 
         <CCLink url={urls.schemasNew}>
