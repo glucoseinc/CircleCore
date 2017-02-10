@@ -5,7 +5,7 @@
     ["module-resolver", {
       "root": ["./circle_core/server/wui/src"],
       "alias": {
-        "src": "js",
+        "src": "./circle_core/server/wui/src/js",
       }
     }]
   ],

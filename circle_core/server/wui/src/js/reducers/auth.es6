@@ -31,5 +31,10 @@ const entities = handleActions({
     return {...state, tokenIsValid}
   },
 
+  [actionTypes.auth.tokenInvalidated]: (state, action) => {
+    state.token.clear()
+    return {...state, tokenIsValid: false}
+  },
+
 }, initialState)
 export default entities

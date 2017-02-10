@@ -6,7 +6,7 @@ import {checkHasAuthCodeReceived, fetchTokenByAuthorizationCode} from 'src/Autho
 
 
 /**
- * [deleteInvitation description]
+ * [checkAuthorizationHash description]
  * @param  {[type]}    action [description]
  */
 function* checkAuthorizationHash({payload: {hash}}) {
