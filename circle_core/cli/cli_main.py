@@ -19,7 +19,6 @@ from click.core import Context
 # from circle_core import server
 from circle_core.core import CircleCore
 from .context import CLIContextObject
-from .utils import RestartableProcess
 from ..database import Database
 
 
@@ -104,33 +103,8 @@ def cli_main_run(ctx):
 
     logger.info('Master process PID:%s', os.getpid())
 
-    # run all workers
-    # for worker in core.workers:
-    #     RestartableProcess(target=worker.run).start()
-
     # run hub
     core.run()
-
-    # wait all
-    # RestartableProcess.wait_all()
-
-    # for addr, value in groupby([module_and_addr.split('@') for module_and_addr in replicate_from], lambda x: x[1]):
-    #     modules = [module_and_addr[0] for module_and_addr in value]
-    #     RestartableProcess(target=lambda: ReplicationSlave(core, addr, modules).run()).start()
-
-    # RestartableProcess(target=datareceiver.run, args=[core]).start()
-
-    # if ws_port == wui_port:
-    #     RestartableProcess(target=server.run, args=[wui_port, core, debug]).start()
-    # else:
-    #     RestartableProcess(target=ws.run, args=[core, ws_path, ws_port]).start()
-    #     RestartableProcess(target=wui.create_app(core).run, kwargs={'port': wui_port}).start()
-
-    # click.echo('Websocket : ws://{host}:{port}{path}'.format(path=ws_path, port=ws_port, host='127.0.0.1'), err=True)
-    # click.echo('WebUI : http://127.0.0.1:{port}{path}'.format(path='/', port=ws_port), err=True)
-    # click.echo('IPC : {}'.format(ctx.obj.ipc_socket), err=True)
-
-    # RestartableProcess.wait_all()
 
 
 @cli_main.command('migrate')
