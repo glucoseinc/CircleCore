@@ -60,7 +60,9 @@ class Module(UUIDMetaDataBase):
 
     @hybrid_property
     def tags(self):
-        return self._tags.split(',') if self._tags is not None else []
+        if self._tags is None or len(self._tags) == 0:
+            return []
+        return self._tags.split(',')
 
     @tags.setter
     def tags(self, tags):
