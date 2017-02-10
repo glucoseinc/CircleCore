@@ -102,3 +102,14 @@ def create_row_strings(rows):
         row_strings.append(row_string)
 
     return row_strings, sizes
+
+
+def validate_stringified_uuid_list(ctx, param, value):
+    """カンマ区切りUUIDを、List[uuid.UUID]に変換"""
+    if value is None:
+        return value
+
+    try:
+        return list(UUID(x) for x in value.split(','))
+    except ValueError as exc:
+        raise click.BadParameter('bad uuid list {!r}'.format(exc))

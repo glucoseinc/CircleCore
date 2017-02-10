@@ -10,8 +10,8 @@ from uuid import UUID
 import sqlalchemy as sa
 from sqlalchemy import orm
 
-from circle_core.utils import format_date, prepare_date
-from .base import GUID, MetaDataBase, UUIDMetaDataBase
+from circle_core.utils import format_date, prepare_date, prepare_uuid
+from .base import GUID, MetaDataBase, UUIDList, UUIDMetaDataBase
 
 
 replcation_boxes_table = sa.Table(
@@ -48,6 +48,9 @@ class ReplicationLink(UUIDMetaDataBase):
     __tablename__ = 'replication_links'
 
     uuid = sa.Column(GUID, primary_key=True)
+    display_name = sa.Column(sa.String(255), nullable=False, default='')
+    memo = sa.Column(sa.Text, nullable=False, default='')
+    target_cores = sa.Column(UUIDList, nullable=False, default=[])
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
     updated_at = sa.Column(
         sa.DateTime, nullable=False,
@@ -59,26 +62,51 @@ class ReplicationLink(UUIDMetaDataBase):
         secondary=replcation_boxes_table,
         backref='links')
 
-    def __init__(self, uuid, cc_info_uuids, message_box_uuids, display_name, memo=None):
+    ALL_MESSAGE_BOXES = object()
+
+    @classmethod
+    def create(cls, display_name, memo, target_cores, message_box_uuids):
+        """ReplicationLinkを作成する。
+        message boxの存在チェックとかを行う
+
+        :param Union[str, UUID] uuid: Module UUID
+        :param str display_name: 表示名
+        :param Optional[str] memo: メモ
+        :param List[Union[str, UUID]] target_cores: CircleCoreInfoのUUIDリスト
+        :param Union[ALL_MESSAGE_BOXES, List[Union[str, UUID]]] message_box_uuids: MessageBoxのUUIDリスト
+        """
+        from . import generate_uuid, MessageBox
+
+        obj = ReplicationLink(
+            uuid=generate_uuid(model=cls),
+            display_name=display_name,
+            memo=memo,
+            target_cores=target_cores,
+        )
+
+        if message_box_uuids is cls.ALL_MESSAGE_BOXES:
+            query = MessageBox.query
+        else:
+            if not message_box_uuids:
+                raise ValueError('no box specified')
+            query = MessageBox.query.filter(MessageBox.uuid.in_(message_box_uuids))
+        obj.message_boxes = list(box.uuid for box in query)
+
+        return obj
+
+    def __init__(self, **kwargs):
         """init.
 
         :param Union[str, UUID] uuid: Module UUID
-        :param List[Union[str, UUID]] cc_info_uuids: CircleCoreInfoのUUIDリスト
+        :param List[Union[str, UUID]] target_cores: CircleCoreInfoのUUIDリスト
         :param List[Union[str, UUID]] message_box_uuids: MessageBoxのUUIDリスト
         :param str display_name: 表示名
         :param Optional[str] memo: メモ
         """
-        super(ReplicationLink, self).__init__(uuid, display_name, memo)
+        if 'target_cores' in kwargs:
+            kwargs['target_cores'] = list(prepare_uuid(x) for x in kwargs['target_cores'])
 
-        from .message_box import MessageBox
-
-        for message_box_uuid in message_box_uuids:
-            if not isinstance(message_box_uuid, UUID):
-                try:
-                    message_box_uuid = UUID(message_box_uuid)
-                except ValueError:
-                    raise ValueError('Invalid message_box_uuid : {}'.format(message_box_uuids))
-            self.message_boxes.append(MessageBox.query.get(message_box_uuid))
+        super(ReplicationLink, self).__init__(**kwargs)
 
     def __eq__(self, other):
         """return equality.
@@ -89,23 +117,23 @@ class ReplicationLink(UUIDMetaDataBase):
         """
         return all([self.uuid == other.uuid, self.display_name == other.display_name, self.memo == other.memo])
 
-    @property
-    def stringified_cc_info_uuids(self):
-        """CircleCoreInfoのUUIDリストを文字列化する.
+    # @property
+    # def stringified_cc_info_uuids(self):
+    #     """CircleCoreInfoのUUIDリストを文字列化する.
 
-        :return: 文字列化CircleCoreInfo UUID
-        :rtype: str
-        """
-        return ','.join([str(uuid) for uuid in self.cc_info_uuids])
+    #     :return: 文字列化CircleCoreInfo UUID
+    #     :rtype: str
+    #     """
+    #     return ','.join([str(uuid) for uuid in self.cc_info_uuids])
 
-    @property
-    def stringified_message_box_uuids(self):
-        """MessageBoxのUUIDリストを文字列化する.
+    # @property
+    # def stringified_message_box_uuids(self):
+    #     """MessageBoxのUUIDリストを文字列化する.
 
-        :return: 文字列化MessageBox UUID
-        :rtype: str
-        """
-        return ','.join([str(uuid) for uuid in self.message_box_uuids])
+    #     :return: 文字列化MessageBox UUID
+    #     :rtype: str
+    #     """
+    #     return ','.join([str(uuid) for uuid in self.message_box_uuids])
 
     def to_json(self):
         """このモデルのJSON表現を返す.
@@ -115,8 +143,8 @@ class ReplicationLink(UUIDMetaDataBase):
         """
         return {
             'uuid': str(self.uuid),
-            'ccInfoUuids': [str(_uuid) for _uuid in self.cc_info_uuids],
-            'messageBoxUuids': [str(_uuid) for _uuid in self.message_box_uuids],
+            # 'ccInfoUuids': [str(_uuid) for _uuid in self.cc_info_uuids],
+            # 'messageBoxUuids': [str(_uuid) for _uuid in self.message_box_uuids],
             'displayName': self.display_name,
             'memo': self.memo,
         }
