@@ -109,6 +109,7 @@ class CircleCore(object):
         self.hub = CoreHub(self.hub_socket, self.request_socket)
 
         # setup
+        self.prepare_directories()
         self.open_log_file()
         self.open_metadata_db()
         self.migrate_metadata_db()
@@ -141,6 +142,17 @@ class CircleCore(object):
                 worker.finalize()
 
     # private
+    def prepare_directories(self):
+        """
+        """
+        def _makedirs_safe(p):
+            if not os.path.exists(p):
+                os.makedirs(p)
+
+        _makedirs_safe(self.prefix)
+        _makedirs_safe(os.path.dirname(self.metadata_file_path))
+        _makedirs_safe(os.path.dirname(self.log_file_path))
+
     def open_log_file(self):
         """ユーザー操作等を記録するためのロガーの設定を行う
 
