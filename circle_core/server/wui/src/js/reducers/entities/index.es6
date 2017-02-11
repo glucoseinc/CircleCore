@@ -3,7 +3,7 @@ import {Map} from 'immutable'
 
 import ccInfosActionsHandler from './ccInfos'
 import invitationsActionsHandler from './invitations'
-import modulesActionsHandler from './modules'
+import moduleActionsHandler from './module'
 import replicationLinksActionsHandler from './replicationLinks'
 import schemaActionsHandler from './schema'
 import userActionsHandler from './user'
@@ -23,7 +23,7 @@ const initialState = {
 const entities = handleActions({
   ...ccInfosActionsHandler,
   ...invitationsActionsHandler,
-  ...modulesActionsHandler,
+  ...moduleActionsHandler,
   ...replicationLinksActionsHandler,
   ...schemaActionsHandler,
   ...userActionsHandler,

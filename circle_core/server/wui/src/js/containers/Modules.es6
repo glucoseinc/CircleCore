@@ -23,7 +23,7 @@ import ModulesTabComponent from 'src/components/ModulesTabComponent'
  */
 class Modules extends Component {
   static propTypes = {
-    isFetching: PropTypes.bool.isRequired,
+    isModuleFetching: PropTypes.bool.isRequired,
     modules: PropTypes.object.isRequired,
     onModuleInfoPaperTouchTap: PropTypes.func,
     onIdCopyButtonTouchTap: PropTypes.func,
@@ -71,14 +71,14 @@ class Modules extends Component {
       isModuleDeleteDialogOpen,
     } = this.state
     const {
-      isFetching,
+      isModuleFetching,
       modules,
       onModuleInfoPaperTouchTap,
       onIdCopyButtonTouchTap,
       width,
     } = this.props
 
-    if(isFetching) {
+    if (isModuleFetching) {
       return (
         <LoadingIndicator />
       )
@@ -118,14 +118,14 @@ class Modules extends Component {
 
 
 const mapStateToProps = (state) => ({
-  isFetching: state.asyncs.isModulesFetching,
+  isModuleFetching: state.asyncs.isModuleFetching,
   modules: state.entities.modules,
 })
 
 const mapDispatchToProps = (dispatch) => ({
   onModuleInfoPaperTouchTap: (moduleId) => dispatch(routerActions.push(createPathName(urls.module, {moduleId}))),
   onIdCopyButtonTouchTap: (uuid) => dispatch(actions.page.showSnackbar('IDをコピーしました')),
-  onDeleteOkButtonTouchTap: (module) => dispatch(actions.modules.deleteRequest(module.uuid)),
+  onDeleteOkButtonTouchTap: (module) => dispatch(actions.module.deleteRequest(module.uuid)),
 })
 
 export default connect(

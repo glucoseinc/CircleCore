@@ -9,7 +9,6 @@ const groupNames = [
   'invitations',
   'misc',
   'module',
-  'modules',
   'page',
   'replicationLinks',
   'schema',

@@ -20,8 +20,8 @@ import ModuleDetail from 'src/components/ModuleDetail'
  */
 class Module extends Component {
   static propTypes = {
-    isFetching: PropTypes.bool.isRequired,
-    isUpdating: PropTypes.bool.isRequired,
+    isModuleFetching: PropTypes.bool.isRequired,
+    isModuleUpdating: PropTypes.bool.isRequired,
     schemas: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,
@@ -106,8 +106,8 @@ class Module extends Component {
       deleteMessageBoxIndex,
     } = this.state
     const {
-      isFetching,
-      isUpdating,
+      isModuleFetching,
+      isModuleUpdating,
       schemas,
       modules,
       params,
@@ -115,7 +115,7 @@ class Module extends Component {
       onUpdateTouchTap,
     } = this.props
 
-    if (isFetching || isUpdating) {
+    if (isModuleFetching || isModuleUpdating) {
       return (
         <LoadingIndicator />
       )
@@ -175,8 +175,8 @@ class Module extends Component {
 
 
 const mapStateToProps = (state) => ({
-  isFetching: state.asyncs.isModuleFetching,
-  isUpdating: state.asyncs.isModulesUpdating,
+  isModuleFetching: state.asyncs.isModuleFetching,
+  isModuleUpdating: state.asyncs.isModuleUpdating,
   schemas: state.entities.schemas,
   modules: state.entities.modules,
 })
@@ -184,8 +184,8 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
   setTitle: (title) => dispatch(actions.page.setTitle(title)),
   onIdCopyButtonTouchTap: (uuid) => dispatch(actions.page.showSnackbar('IDをコピーしました')),
-  onUpdateTouchTap: (module) => dispatch(actions.modules.updateRequest(module.toJS())),
-  onDeleteOkButtonTouchTap: (module) => dispatch(actions.modules.deleteRequest(module.uuid)),
+  onUpdateTouchTap: (module) => dispatch(actions.module.updateRequest(module.toJS())),
+  onDeleteOkButtonTouchTap: (module) => dispatch(actions.module.deleteRequest(module.uuid)),
 })
 
 export default connect(

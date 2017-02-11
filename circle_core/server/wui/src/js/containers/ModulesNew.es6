@@ -15,7 +15,7 @@ import ModuleNewPaper from 'src/components/ModuleNewPaper'
 class ModulesNew extends Component {
   static propTypes = {
     isSchemaFetching: PropTypes.bool.isRequired,
-    isModulesFetching: PropTypes.bool.isRequired,
+    isModuleFetching: PropTypes.bool.isRequired,
     schemas: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
     onCreateTouchTap: PropTypes.func,
@@ -27,13 +27,13 @@ class ModulesNew extends Component {
   render() {
     const {
       isSchemaFetching,
-      isModulesFetching,
+      isModuleFetching,
       schemas,
       modules,
       onCreateTouchTap,
     } = this.props
 
-    if (isSchemaFetching || isModulesFetching) {
+    if (isSchemaFetching || isModuleFetching) {
       return (
         <LoadingIndicator />
       )
@@ -59,13 +59,13 @@ class ModulesNew extends Component {
 
 const mapStateToProps = (state) => ({
   isSchemaFetching: state.asyncs.isSchemaFetching,
-  isModulesFetching: state.asyncs.isModulesFetching,
+  isModuleFetching: state.asyncs.isModuleFetching,
   schemas: state.entities.schemas,
   modules: state.entities.modules,
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  onCreateTouchTap: (module) => dispatch(actions.modules.createRequest(module.toJS())),
+  onCreateTouchTap: (module) => dispatch(actions.module.createRequest(module.toJS())),
 })
 
 export default connect(

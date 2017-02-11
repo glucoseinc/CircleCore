@@ -8,8 +8,8 @@ const modulesNewRoute = {
   // icon: null,
   component: ModulesNew,
   onEnterActions: [
+    actions.module.fetchAllRequest,
     actions.schema.fetchAllRequest,
-    actions.modules.fetchRequest,
   ],
 }
 

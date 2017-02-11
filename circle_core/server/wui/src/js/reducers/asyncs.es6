@@ -4,18 +4,16 @@ import {actionTypes} from 'src/actions'
 
 
 const initialState = {
-  isModulesCreating: false,
-  isModulesFetching: false,
-  isModulesUpdating: false,
-  isModulesDeleteAsking: false,
+  isModuleCreating: false,
+  isModuleFetching: false,
+  isModuleUpdating: false,
+  isModuleDeleting: false,
 
   isSchemaCreating: false,
   isSchemaFetching: false,
   isSchemaDeleting: false,
 
   isSchemaPropertyTypesFetching: false,
-
-  isModuleFetching: false,
 
   isUserCreating: false,
   isUserFetching: false,
@@ -51,30 +49,29 @@ const setSchemaPropertyTypesFetching = (newState) => (state, action) => ({
   isSchemaPropertyTypesFetching: newState,
 })
 
-// Modules
-const setModulesFetching = (newState) => (state, action) => ({
-  ...state,
-  isModulesFetching: newState,
-})
-
-const setModulesUpdating = (newState) => (state, action) => ({
-  ...state,
-  isModulesUpdating: newState,
-})
-
-const setModulesDeleteAsking = (newState) => (state, action) => ({
-  ...state,
-  isModulesDeleteAsking: newState,
-})
-
-// Module
-const setModuleFetching = (newState) => (state, action) => ({
-  ...state,
-  isModuleFetching: newState,
-})
-
 
 const asyncs = handleActions({
+  // Create Module
+  [actionTypes.module.createRequest]: changeFlagAction('isModuleCreating', true),
+  [actionTypes.module.createSucceeded]: changeFlagAction('isModuleCreating', false),
+  [actionTypes.module.createFailed]: changeFlagAction('isModuleCreating', false),
+  // Fetch Module
+  [actionTypes.module.fetchRequest]: changeFlagAction('isModuleFetching', true),
+  [actionTypes.module.fetchSucceeded]: changeFlagAction('isModuleFetching', false),
+  [actionTypes.module.fetchFailed]: changeFlagAction('isModuleFetching', false),
+  [actionTypes.module.fetchAllRequest]: changeFlagAction('isModuleFetching', true),
+  [actionTypes.module.fetchAllSucceeded]: changeFlagAction('isModuleFetching', false),
+  [actionTypes.module.fetchAllFailed]: changeFlagAction('isModuleFetching', false),
+  // Update Module
+  [actionTypes.module.updateRequest]: changeFlagAction('isModuleUpdating', true),
+  [actionTypes.module.updateSucceeded]: changeFlagAction('isModuleUpdating', false),
+  [actionTypes.module.updateFailed]: changeFlagAction('isModuleUpdating', false),
+  // Delete Module
+  [actionTypes.module.deleteRequest]: changeFlagAction('isModuleDeleting', true),
+  [actionTypes.module.deleteSucceeded]: changeFlagAction('isModuleDeleting', false),
+  [actionTypes.module.deleteFailed]: changeFlagAction('isModuleDeleting', false),
+
+
   // Create Schema
   [actionTypes.schema.createRequest]: changeFlagAction('isSchemaCreating', true),
   [actionTypes.schema.createSucceeded]: changeFlagAction('isSchemaCreating', false),
@@ -97,23 +94,6 @@ const asyncs = handleActions({
   [actionTypes.schemaPropertyTypes.fetchSucceeded]: setSchemaPropertyTypesFetching(false),
   [actionTypes.schemaPropertyTypes.fetchFailed]: setSchemaPropertyTypesFetching(false),
 
-  // Fetch Modules
-  [actionTypes.modules.fetchRequest]: setModulesFetching(true),
-  [actionTypes.modules.fetchSucceeded]: setModulesFetching(false),
-  [actionTypes.modules.fetchFailed]: setModulesFetching(false),
-
-  // Update Modules
-  [actionTypes.modules.updateRequest]: setModulesUpdating(true),
-  [actionTypes.modules.updateSucceeded]: (setModulesUpdating(false)),
-  [actionTypes.modules.updateFailed]: setModulesUpdating(false),
-
-  // Delete Modules
-  [actionTypes.modules.deleteRequest]: setModulesDeleteAsking(false),
-
-  // Fetch Module
-  [actionTypes.module.fetchRequest]: setModuleFetching(true),
-  [actionTypes.module.fetchSucceeded]: setModuleFetching(false),
-  [actionTypes.module.fetchFailed]: setModuleFetching(false),
 
   // Fetch Invitations
   [actionTypes.invitations.fetchRequest]: changeFlagAction('isInvitationsFetching', true),
