@@ -5,7 +5,7 @@ import ccInfosActionsHandler from './ccInfos'
 import invitationsActionsHandler from './invitations'
 import modulesActionsHandler from './modules'
 import replicationLinksActionsHandler from './replicationLinks'
-import schemasActionsHandler from './schemas'
+import schemaActionsHandler from './schema'
 import userActionsHandler from './user'
 
 const initialState = {
@@ -25,7 +25,7 @@ const entities = handleActions({
   ...invitationsActionsHandler,
   ...modulesActionsHandler,
   ...replicationLinksActionsHandler,
-  ...schemasActionsHandler,
+  ...schemaActionsHandler,
   ...userActionsHandler,
 }, initialState)
 

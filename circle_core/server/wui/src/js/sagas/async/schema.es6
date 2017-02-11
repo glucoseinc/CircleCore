@@ -8,11 +8,11 @@ import {createAsyncSagaParam} from './utils'
 const schemaCreateParam = createAsyncSagaParam(
     ::CCAPI.createSchema,
     (payload) => payload,
-    actions.schemas.createSucceeded,
-    actions.schemas.createFailed,
+    actions.schema.createSucceeded,
+    actions.schema.createFailed,
 )
 
-// Read
+// Fetch
 const schemaFetchParam = createAsyncSagaParam(
   ::CCAPI.fetchSchema,
   (payload) => payload,
@@ -20,37 +20,35 @@ const schemaFetchParam = createAsyncSagaParam(
   actions.schema.fetchFailed
 )
 
-// Read all
+// Fetch all
 const allSchemasFetchParam = createAsyncSagaParam(
   ::CCAPI.fetchAllSchemas,
   () => null,
-  actions.schemas.fetchSucceeded,
-  actions.schemas.fetchFailed
+  actions.schema.fetchAllSucceeded,
+  actions.schema.fetchAllFailed
 )
 
 // Delete
 const schemaDeleteParam = createAsyncSagaParam(
   ::CCAPI.deleteSchema,
   (payload) => payload,
-  actions.schemas.deleteSucceeded,
-  actions.schemas.deleteFailed,
+  actions.schema.deleteSucceeded,
+  actions.schema.deleteFailed,
 )
 
 
 const asyncSagaParams = {
   // Create
-  [actionTypes.schemas.createRequest]: schemaCreateParam,
+  [actionTypes.schema.createRequest]: schemaCreateParam,
 
-  // Read
+  // Fetch
   [actionTypes.schema.fetchRequest]: schemaFetchParam,
 
-  // Read all
-  [actionTypes.schemas.fetchRequest]: allSchemasFetchParam,
-  [actionTypes.schemas.createSucceeded]: allSchemasFetchParam,
-  [actionTypes.schemas.deleteSucceeded]: allSchemasFetchParam,
+  // Fetch all
+  [actionTypes.schema.fetchAllRequest]: allSchemasFetchParam,
 
   // Delete
-  [actionTypes.schemas.deleteRequest]: schemaDeleteParam,
+  [actionTypes.schema.deleteRequest]: schemaDeleteParam,
 }
 
 export default asyncSagaParams

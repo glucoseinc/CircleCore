@@ -36,8 +36,8 @@ function* locationChangetoModules(action) {
  */
 function* handleLocationChangetoSchemas() {
   const triggerActionTypes = [
-    actionTypes.schemas.createSucceeded,
-    actionTypes.schemas.deleteSucceeded,
+    actionTypes.schema.createSucceeded,
+    actionTypes.schema.deleteSucceeded,
   ]
   yield takeEvery(triggerActionTypes, locationChangetoSchemas)
 }

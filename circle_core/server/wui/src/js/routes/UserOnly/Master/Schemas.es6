@@ -9,7 +9,7 @@ const schemasRoute = {
   icon: SchemaIcon,
   component: Schemas,
   onEnterActions: [
-    actions.schemas.fetchRequest,
+    actions.schema.fetchAllRequest,
   ],
 }
 

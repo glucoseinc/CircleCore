@@ -9,12 +9,11 @@ const initialState = {
   isModulesUpdating: false,
   isModulesDeleteAsking: false,
 
-  isSchemasCreating: false,
-  isSchemasFetching: false,
-  isSchemasDeleteAsking: false,
-  isSchemaPropertyTypesFetching: false,
-
+  isSchemaCreating: false,
   isSchemaFetching: false,
+  isSchemaDeleting: false,
+
+  isSchemaPropertyTypesFetching: false,
 
   isModuleFetching: false,
 
@@ -47,22 +46,6 @@ function changeFlagAction(stateName, newState) {
   }
 }
 
-// Schemas
-const setSchemasCreating = (newState) => (state, action) => ({
-  ...state,
-  isSchemasCreating: newState,
-})
-
-const setSchemasFetching = (newState) => (state, action) => ({
-  ...state,
-  isSchemasFetching: newState,
-})
-
-const setSchemasDeleteAsking = (newState) => (state, action) => ({
-  ...state,
-  isSchemasDeleteAsking: newState,
-})
-
 const setSchemaPropertyTypesFetching = (newState) => (state, action) => ({
   ...state,
   isSchemaPropertyTypesFetching: newState,
@@ -84,12 +67,6 @@ const setModulesDeleteAsking = (newState) => (state, action) => ({
   isModulesDeleteAsking: newState,
 })
 
-// Schema
-const setSchemaFetching = (newState) => (state, action) => ({
-  ...state,
-  isSchemaFetching: newState,
-})
-
 // Module
 const setModuleFetching = (newState) => (state, action) => ({
   ...state,
@@ -98,18 +75,22 @@ const setModuleFetching = (newState) => (state, action) => ({
 
 
 const asyncs = handleActions({
-  // Create Schemas
-  [actionTypes.schemas.createRequest]: setSchemasCreating(true),
-  [actionTypes.schemas.createSucceeded]: setSchemasCreating(false),
-  [actionTypes.schemas.createFailed]: setSchemasCreating(false),
+  // Create Schema
+  [actionTypes.schema.createRequest]: changeFlagAction('isSchemaCreating', true),
+  [actionTypes.schema.createSucceeded]: changeFlagAction('isSchemaCreating', false),
+  [actionTypes.schema.createFailed]: changeFlagAction('isSchemaCreating', false),
+  // Fetch Schema
+  [actionTypes.schema.fetchRequest]: changeFlagAction('isSchemaFetching', true),
+  [actionTypes.schema.fetchSucceeded]: changeFlagAction('isSchemaFetching', false),
+  [actionTypes.schema.fetchFailed]: changeFlagAction('isSchemaFetching', false),
+  [actionTypes.schema.fetchAllRequest]: changeFlagAction('isSchemaFetching', true),
+  [actionTypes.schema.fetchAllSucceeded]: changeFlagAction('isSchemaFetching', false),
+  [actionTypes.schema.fetchAllFailed]: changeFlagAction('isSchemaFetching', false),
+  // Delete Schema
+  [actionTypes.schema.deleteRequest]: changeFlagAction('isSchemaDeleting', true),
+  [actionTypes.schema.deleteSucceeded]: changeFlagAction('isSchemaDeleting', false),
+  [actionTypes.schema.deleteFailed]: changeFlagAction('isSchemaDeleting', false),
 
-  // Fetch Schemas
-  [actionTypes.schemas.fetchRequest]: setSchemasFetching(true),
-  [actionTypes.schemas.fetchSucceeded]: setSchemasFetching(false),
-  [actionTypes.schemas.fetchFailed]: setSchemasFetching(false),
-
-  // Delete Schemas
-  [actionTypes.schemas.deleteRequest]: setSchemasDeleteAsking(false),
 
   // Fetch Schema property types
   [actionTypes.schemaPropertyTypes.fetchRequest]: setSchemaPropertyTypesFetching(true),
@@ -128,11 +109,6 @@ const asyncs = handleActions({
 
   // Delete Modules
   [actionTypes.modules.deleteRequest]: setModulesDeleteAsking(false),
-
-  // Fetch Schema
-  [actionTypes.schema.fetchRequest]: setSchemaFetching(true),
-  [actionTypes.schema.fetchSucceeded]: setSchemaFetching(false),
-  [actionTypes.schema.fetchFailed]: setSchemaFetching(false),
 
   // Fetch Module
   [actionTypes.module.fetchRequest]: setModuleFetching(true),
@@ -168,11 +144,11 @@ const asyncs = handleActions({
   [actionTypes.replicationLinks.fetchFailed]: changeFlagAction('isReplicationLinksFetching', false),
 
 
-  // Create user
+  // Create User
   [actionTypes.user.createRequest]: changeFlagAction('isUserCreating', true),
   [actionTypes.user.createSucceeded]: changeFlagAction('isUserCreating', false),
   [actionTypes.user.createFailed]: changeFlagAction('isUserCreating', false),
-  // Fetch user
+  // Fetch User
   [actionTypes.user.fetchRequest]: changeFlagAction('isUserFetching', true),
   [actionTypes.user.fetchSucceeded]: changeFlagAction('isUserFetching', false),
   [actionTypes.user.fetchFailed]: changeFlagAction('isUserFetching', false),
@@ -182,11 +158,11 @@ const asyncs = handleActions({
   [actionTypes.user.fetchMyselfRequest]: changeFlagAction('isUserFetching', true),
   [actionTypes.user.fetchMyselfSucceeded]: changeFlagAction('isUserFetching', false),
   [actionTypes.user.fetchMyselfFailed]: changeFlagAction('isUserFetching', false),
-  // Update user
+  // Update User
   [actionTypes.user.updateRequest]: changeFlagAction('isUserUpdating', true),
   [actionTypes.user.updateSucceeded]: changeFlagAction('isUserUpdating', false),
   [actionTypes.user.updateFailed]: changeFlagAction('isUserUpdating', false),
-  // Delete user
+  // Delete User
   [actionTypes.user.deleteRequest]: changeFlagAction('isUserDeleting', true),
   [actionTypes.user.deleteSucceeded]: changeFlagAction('isUserDeleting', false),
   [actionTypes.user.deleteFailed]: changeFlagAction('isUserDeleting', false),
