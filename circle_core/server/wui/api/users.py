@@ -3,22 +3,17 @@
 """ユーザー関連APIの実装."""
 
 # community module
-from flask import abort, redirect, request, url_for
-from six import PY3
+from flask import abort, request
 
 # project module
-# from circle_core.cli.utils import generate_uuid
 from circle_core.constants import CRScope
-from circle_core.models import MessageBox, MetaDataSession, Module, User
+from circle_core.models import MetaDataSession, User
 from circle_core.server.wui.authorize.core import oauth
-from .api import api, logger
+from .api import api
 from .utils import respond_failure, respond_success
 from ..utils import (
     oauth_require_read_users_scope, oauth_require_write_users_scope
 )
-
-if PY3:
-    from typing import Any, Dict
 
 
 @api.route('/users/', methods=['GET', 'POST'])
@@ -35,15 +30,30 @@ def _get_users():
     return respond_success(users=[user.to_json() for user in User.query])
 
 
-@api.route('/users/<user_uuid>', methods=['GET', 'PUT', 'DELETE'])
-def api_user(user_uuid):
-    if user_uuid == 'me':
-        # 自分の情報をゲットする
-        if request.method == 'GET':
-            return redirect(url_for(request.endpoint, user_uuid=request.oauth.user.uuid))
-        else:
-            return respond_failure('not found', _status=404)
+# @oauth_require_write_users_scope
+# def _post_modules():
+#     # TODO: implement
+#     return respond_success()
 
+
+@api.route('/users/me', methods=['GET'])
+def api_user_me():
+    if request.method == 'GET':
+        return _get_user_me()
+    abort(405)
+
+
+@oauth_require_read_users_scope
+def _get_user_me():
+    user_uuid = request.oauth.user.uuid
+    user = User.query.get(user_uuid)
+    if user is None:
+        return respond_failure('User not found.', _status=404)
+    return respond_success(user=user.to_json())
+
+
+@api.route('/users/<uuid:user_uuid>', methods=['GET', 'PUT', 'DELETE'])
+def api_user(user_uuid):
     user = User.query.get(user_uuid)
     if user is None:
         return respond_failure('User not found.', _status=404)
