@@ -86,7 +86,6 @@ class Module extends Component {
    * @param {object} module
    */
   onMessageBoxDeleteDialogButtonTouchTap(execute, module) {
-    console.log(module.toJS())
     this.setState({
       isMessageBoxDeleteDialogOpen: false,
       deleteMessageBoxIndex: null,

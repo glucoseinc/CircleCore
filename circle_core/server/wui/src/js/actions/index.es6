@@ -10,7 +10,7 @@ const groupNames = [
   'misc',
   'module',
   'page',
-  'replicationLinks',
+  'replicationLink',
   'schema',
   'schemaPropertyType',
   'user',

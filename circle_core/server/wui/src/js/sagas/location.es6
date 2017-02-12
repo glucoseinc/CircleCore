@@ -26,7 +26,7 @@ function* locationChangetoSchemas(action) {
 function* locationChangetoModules(action) {
   yield put(routerActions.push(pathnames.modules))
 
-  if (action.type === actionTypes.replicationLinks.createSucceeded) {
+  if (action.type === actionTypes.replicationLink.createSucceeded) {
     yield put(actions.page.showSnackbar('共有リンクを作成しました'))
   }
 }
@@ -49,7 +49,7 @@ function* handleLocationChangetoModules() {
   const triggerActionTypes = [
     actionTypes.module.createSucceeded,
     actionTypes.module.deleteSucceeded,
-    actionTypes.replicationLinks.createSucceeded,
+    actionTypes.replicationLink.createSucceeded,
   ]
   yield takeEvery(triggerActionTypes, locationChangetoModules)
 }

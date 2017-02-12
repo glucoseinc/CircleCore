@@ -25,8 +25,8 @@ const initialState = {
   isCcInfoFetching: false,
   isCcInfoUpdating: false,
 
-  isReplicationLinksCreating: false,
-  isReplicationLinksFetching: false,
+  isReplicationLinkCreating: false,
+  isReplicationLinkFetching: false,
 }
 
 
@@ -107,15 +107,14 @@ const asyncs = handleActions({
   [actionTypes.ccInfo.updateFailed]: changeFlagAction('isCcInfoUpdating', false),
 
 
-  // Create replicationLinks
-  [actionTypes.replicationLinks.createRequest]: changeFlagAction('isReplicationLinksCreating', true),
-  [actionTypes.replicationLinks.createSucceeded]: changeFlagAction('isReplicationLinksCreating', false),
-  [actionTypes.replicationLinks.createFailed]: changeFlagAction('isReplicationLinksCreating', false),
-
-  // Fetch replicationLinks
-  [actionTypes.replicationLinks.fetchRequest]: changeFlagAction('isReplicationLinksFetching', true),
-  [actionTypes.replicationLinks.fetchSucceeded]: changeFlagAction('isReplicationLinksFetching', false),
-  [actionTypes.replicationLinks.fetchFailed]: changeFlagAction('isReplicationLinksFetching', false),
+  // Create ReplicationLinks
+  [actionTypes.replicationLink.createRequest]: changeFlagAction('isReplicationLinkCreating', true),
+  [actionTypes.replicationLink.createSucceeded]: changeFlagAction('isReplicationLinkCreating', false),
+  [actionTypes.replicationLink.createFailed]: changeFlagAction('isReplicationLinkCreating', false),
+  // Fetch ReplicationLinks
+  [actionTypes.replicationLink.fetchAllRequest]: changeFlagAction('isReplicationLinkFetching', true),
+  [actionTypes.replicationLink.fetchAllSucceeded]: changeFlagAction('isReplicationLinkFetching', false),
+  [actionTypes.replicationLink.fetchAllFailed]: changeFlagAction('isReplicationLinkFetching', false),
 
 
   // Create User

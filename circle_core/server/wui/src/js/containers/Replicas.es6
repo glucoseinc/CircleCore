@@ -17,7 +17,7 @@ import ReplicationLinkInfoPaper from 'src/components/ReplicationLinkInfoPaper'
  */
 class Replicas extends Component {
   static propTypes = {
-    isFetching: PropTypes.bool.isRequired,
+    isReplicationLinkFetching: PropTypes.bool.isRequired,
     replicationLinks: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
@@ -67,7 +67,7 @@ class Replicas extends Component {
       isReplicationLinkDeleteDialogOpen,
     } = this.state
     const {
-      isFetching,
+      isReplicationLinkFetching,
       replicationLinks,
       modules,
       ccInfos,
@@ -76,7 +76,7 @@ class Replicas extends Component {
       onReplicationSlaveCopyButtonTouchTap,
     } = this.props
 
-    if (isFetching) {
+    if (isReplicationLinkFetching) {
       return (
         <LoadingIndicator />
       )
@@ -110,7 +110,7 @@ class Replicas extends Component {
 
 
 const mapStateToProps = (state) => ({
-  isFetching: state.asyncs.isReplicationLinksFetching,
+  isReplicationLinkFetching: state.asyncs.isReplicationLinkFetching,
   replicationLinks: state.entities.replicationLinks,
   modules: state.entities.modules,
   ccInfos: state.entities.ccInfos,
@@ -122,7 +122,7 @@ const mapDispatchToProps = (dispatch) => ({
   ),
   onUrlCopyButtonTouchTap: (url) => dispatch(actions.page.showSnackbar('URLをコピーしました')),
   onReplicationSlaveCopyButtonTouchTap: (uuid) => dispatch(actions.page.showSnackbar('IDをコピーしました')),
-  onDeleteOkButtonTouchTap: (replicationLink) => dispatch(actions.replicationLinks.deleteRequest(replicationLink.uuid)),
+  onDeleteOkButtonTouchTap: (replicationLink) => dispatch(actions.replicationLink.deleteRequest(replicationLink.uuid)),
 })
 
 export default connect(

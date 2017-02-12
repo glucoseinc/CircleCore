@@ -4,7 +4,7 @@ import {Map} from 'immutable'
 import ccInfoActionsHandler from './ccInfo'
 import invitationsActionsHandler from './invitations'
 import moduleActionsHandler from './module'
-import replicationLinksActionsHandler from './replicationLinks'
+import replicationLinkActionsHandler from './replicationLink'
 import schemaActionsHandler from './schema'
 import schemaPropertyTypeActionsHandler from './schemaPropertyType'
 import userActionsHandler from './user'
@@ -25,7 +25,7 @@ const entities = handleActions({
   ...ccInfoActionsHandler,
   ...invitationsActionsHandler,
   ...moduleActionsHandler,
-  ...replicationLinksActionsHandler,
+  ...replicationLinkActionsHandler,
   ...schemaActionsHandler,
   ...schemaPropertyTypeActionsHandler,
   ...userActionsHandler,
