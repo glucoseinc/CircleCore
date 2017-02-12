@@ -13,8 +13,8 @@ import CcInfoEditPaper from 'src/components/CcInfoEditPaper'
  */
 class Setting extends Component {
   static propTypes = {
-    isFetching: PropTypes.bool.isRequired,
-    isUpdating: PropTypes.bool.isRequired,
+    isCcInfoFetching: PropTypes.bool.isRequired,
+    isCcInfoUpdating: PropTypes.bool.isRequired,
     ccInfos: PropTypes.object.isRequired,
     onIdCopyButtonTouchTap: PropTypes.func,
     onUpdateTouchTap: PropTypes.func,
@@ -25,14 +25,14 @@ class Setting extends Component {
    */
   render() {
     const {
-      isFetching,
-      isUpdating,
+      isCcInfoFetching,
+      isCcInfoUpdating,
       ccInfos,
       onIdCopyButtonTouchTap,
       onUpdateTouchTap,
     } = this.props
 
-    if (isFetching || isUpdating) {
+    if (isCcInfoFetching || isCcInfoUpdating) {
       return (
         <LoadingIndicator />
       )
@@ -54,13 +54,13 @@ class Setting extends Component {
 
 
 const mapStateToProps = (state) => ({
-  isFetching: state.asyncs.isCcInfosFetching,
-  isUpdating: state.asyncs.isCcInfosUpdating,
+  isCcInfoFetching: state.asyncs.isCcInfoFetching,
+  isCcInfoUpdating: state.asyncs.isCcInfoUpdating,
   ccInfos: state.entities.ccInfos,
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  onUpdateTouchTap: (ccInfo) => dispatch(actions.ccInfos.updateRequest(ccInfo.toJS())),
+  onUpdateTouchTap: (ccInfo) => dispatch(actions.ccInfo.updateRequest(ccInfo.toJS())),
   onIdCopyButtonTouchTap: (uuid) => dispatch(actions.page.showSnackbar('IDをコピーしました')),
 })
 

@@ -22,8 +22,8 @@ const initialState = {
 
   isInvitationsFetching: false,
 
-  isCcInfosFetching: false,
-  isCcInfosUpdating: false,
+  isCcInfoFetching: false,
+  isCcInfoUpdating: false,
 
   isReplicationLinksCreating: false,
   isReplicationLinksFetching: false,
@@ -93,19 +93,19 @@ const asyncs = handleActions({
   [actionTypes.invitations.fetchRequest]: changeFlagAction('isInvitationsFetching', true),
   [actionTypes.invitations.fetchComplete]: changeFlagAction('isInvitationsFetching', false),
 
-  // Fetch CcInfos
-  [actionTypes.ccInfos.fetchRequest]: changeFlagAction('isCcInfosFetching', true),
-  [actionTypes.ccInfos.fetchSucceeded]: changeFlagAction('isCcInfosFetching', false),
-  [actionTypes.ccInfos.fetchFailed]: changeFlagAction('isCcInfosFetching', false),
 
-  [actionTypes.ccInfos.fetchMyselfRequest]: changeFlagAction('isCcInfosFetching', true),
-  [actionTypes.ccInfos.fetchMyselfSucceeded]: changeFlagAction('isCcInfosFetching', false),
-  [actionTypes.ccInfos.fetchMyselfFailed]: changeFlagAction('isCcInfosFetching', false),
+  // Fetch CcInfo
+  [actionTypes.ccInfo.fetchAllRequest]: changeFlagAction('isCcInfoFetching', true),
+  [actionTypes.ccInfo.fetchAllSucceeded]: changeFlagAction('isCcInfoFetching', false),
+  [actionTypes.ccInfo.fetchAllFailed]: changeFlagAction('isCcInfoFetching', false),
+  [actionTypes.ccInfo.fetchMyselfRequest]: changeFlagAction('isCcInfoFetching', true),
+  [actionTypes.ccInfo.fetchMyselfSucceeded]: changeFlagAction('isCcInfoFetching', false),
+  [actionTypes.ccInfo.fetchMyselfFailed]: changeFlagAction('isCcInfoFetching', false),
+  // Update CcInfo
+  [actionTypes.ccInfo.updateRequest]: changeFlagAction('isCcInfoUpdating', true),
+  [actionTypes.ccInfo.updateSucceeded]: changeFlagAction('isCcInfoUpdating', false),
+  [actionTypes.ccInfo.updateFailed]: changeFlagAction('isCcInfoUpdating', false),
 
-  // Update CcInfos
-  [actionTypes.ccInfos.updateRequest]: changeFlagAction('isCcInfosUpdating', true),
-  [actionTypes.ccInfos.updateSucceeded]: changeFlagAction('isCcInfosUpdating', false),
-  [actionTypes.ccInfos.updateFailed]: changeFlagAction('isCcInfosUpdating', false),
 
   // Create replicationLinks
   [actionTypes.replicationLinks.createRequest]: changeFlagAction('isReplicationLinksCreating', true),
