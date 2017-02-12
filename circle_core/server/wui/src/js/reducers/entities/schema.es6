@@ -50,15 +50,6 @@ const schemaActionsHandler = {
 
   // Delete
   [actionTypes.schema.deleteSucceeded]: deleteSchemas,
-
-  // TODO: 分離
-  [actionTypes.schemaPropertyTypes.fetchSucceeded]: (state, action) => {
-    const newEntities = getNewEntities(action.payload)
-    return {
-      ...state,
-      schemaPropertyTypes: newEntities.schemaPropertyTypes, // do not merge
-    }
-  },
 }
 
 export default schemaActionsHandler

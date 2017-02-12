@@ -13,7 +13,7 @@ import SchemaNewPaper from 'src/components/SchemaNewPaper'
  */
 class SchemasNew extends Component {
   static propTypes = {
-    isSchemaPropertyTypesFetching: PropTypes.bool.isRequired,
+    isSchemaPropertyTypeFetching: PropTypes.bool.isRequired,
     schemaPropertyTypes: PropTypes.object.isRequired,
     onCreateTouchTap: PropTypes.func,
   }
@@ -23,12 +23,12 @@ class SchemasNew extends Component {
    */
   render() {
     const {
-      isSchemaPropertyTypesFetching,
+      isSchemaPropertyTypeFetching,
       schemaPropertyTypes,
       onCreateTouchTap,
     } = this.props
 
-    if (isSchemaPropertyTypesFetching) {
+    if (isSchemaPropertyTypeFetching) {
       return (
         <LoadingIndicator />
       )
@@ -47,7 +47,7 @@ class SchemasNew extends Component {
 
 
 const mapStateToProps = (state) => ({
-  isSchemaPropertyTypesFetching: state.asyncs.isSchemaPropertyTypesFetching,
+  isSchemaPropertyTypeFetching: state.asyncs.isSchemaPropertyTypeFetching,
   schemaPropertyTypes: state.entities.schemaPropertyTypes,
 })
 

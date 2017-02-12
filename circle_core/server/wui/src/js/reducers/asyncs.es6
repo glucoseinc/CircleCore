@@ -13,7 +13,7 @@ const initialState = {
   isSchemaFetching: false,
   isSchemaDeleting: false,
 
-  isSchemaPropertyTypesFetching: false,
+  isschemaPropertyTypeFetching: false,
 
   isUserCreating: false,
   isUserFetching: false,
@@ -43,12 +43,6 @@ function changeFlagAction(stateName, newState) {
     return Object.assign({}, state, up)
   }
 }
-
-const setSchemaPropertyTypesFetching = (newState) => (state, action) => ({
-  ...state,
-  isSchemaPropertyTypesFetching: newState,
-})
-
 
 const asyncs = handleActions({
   // Create Module
@@ -89,10 +83,10 @@ const asyncs = handleActions({
   [actionTypes.schema.deleteFailed]: changeFlagAction('isSchemaDeleting', false),
 
 
-  // Fetch Schema property types
-  [actionTypes.schemaPropertyTypes.fetchRequest]: setSchemaPropertyTypesFetching(true),
-  [actionTypes.schemaPropertyTypes.fetchSucceeded]: setSchemaPropertyTypesFetching(false),
-  [actionTypes.schemaPropertyTypes.fetchFailed]: setSchemaPropertyTypesFetching(false),
+  // Fetch Schema property type
+  [actionTypes.schemaPropertyType.fetchAllRequest]: changeFlagAction('isschemaPropertyTypeFetching', true),
+  [actionTypes.schemaPropertyType.fetchAllSucceeded]: changeFlagAction('isschemaPropertyTypeFetching', false),
+  [actionTypes.schemaPropertyType.fetchAllFailed]: changeFlagAction('isschemaPropertyTypeFetching', false),
 
 
   // Fetch Invitations

@@ -12,7 +12,7 @@ const groupNames = [
   'page',
   'replicationLinks',
   'schema',
-  'schemaPropertyTypes',
+  'schemaPropertyType',
   'user',
 ]
 groupNames.forEach((group) => {

@@ -6,6 +6,7 @@ import invitationsActionsHandler from './invitations'
 import moduleActionsHandler from './module'
 import replicationLinksActionsHandler from './replicationLinks'
 import schemaActionsHandler from './schema'
+import schemaPropertyTypeActionsHandler from './schemaPropertyType'
 import userActionsHandler from './user'
 
 const initialState = {
@@ -26,6 +27,7 @@ const entities = handleActions({
   ...moduleActionsHandler,
   ...replicationLinksActionsHandler,
   ...schemaActionsHandler,
+  ...schemaPropertyTypeActionsHandler,
   ...userActionsHandler,
 }, initialState)
 

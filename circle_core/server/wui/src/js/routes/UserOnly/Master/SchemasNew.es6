@@ -8,7 +8,7 @@ const schemasNewRoute = {
   // icon: null,
   component: SchemasNew,
   onEnterActions: [
-    actions.schemaPropertyTypes.fetchRequest,
+    actions.schemaPropertyType.fetchAllRequest,
   ],
 }
 
