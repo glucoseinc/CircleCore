@@ -45,8 +45,8 @@ class UserInfoPaper extends Component {
       mailAddress: {
         ...tableStyle.mailAddress,
       },
-      dateLastAccess: {
-        ...tableStyle.dateLastAccess,
+      lastAccessAt: {
+        ...tableStyle.lastAccessAt,
       },
       isAdmin: {
         ...tableStyle.isAdmin,
@@ -73,7 +73,7 @@ class UserInfoPaper extends Component {
         <div style={style.root}>
           <div style={style.displayName} onTouchTap={() => onDisplayNameTouchTap(user)}>{user.displayName}</div>
           <div style={style.mailAddress}>{user.mailAddress}</div>
-          <div style={style.dateLastAccess}>{user.dateLastAccess.format('YY/MM/DD HH:mm')}</div>
+          <div style={style.lastAccessAt}>{user.lastAccessAt}</div>
           <div style={style.isAdmin}>{user.isAdmin ? <CheckIcon color={blue500} /> : null}</div>
           <div style={style.moreIconMenu}>{moreIconMenu}</div>
         </div>

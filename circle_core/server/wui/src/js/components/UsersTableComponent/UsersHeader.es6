@@ -28,8 +28,8 @@ class UsersHeader extends Component {
       mailAddress: {
         ...tableStyle.mailAddress,
       },
-      dateLastAccess: {
-        ...tableStyle.dateLastAccess,
+      lastAccessAt: {
+        ...tableStyle.lastAccessAt,
       },
       isAdmin: {
         ...tableStyle.isAdmin,
@@ -40,7 +40,7 @@ class UsersHeader extends Component {
       <div style={style.root}>
         <div style={style.displayName}>アカウント</div>
         <div style={style.mailAddress}>メールアドレス</div>
-        <div style={style.dateLastAccess}>最終ログイン日時</div>
+        <div style={style.lastAccessAt}>最終ログイン日時</div>
         <div style={style.isAdmin}>管理権限</div>
       </div>
     )

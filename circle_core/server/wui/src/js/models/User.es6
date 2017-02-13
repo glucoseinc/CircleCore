@@ -10,7 +10,9 @@ const UserRecord = Record({
   telephone: '',
   mailAddress: '',
   permissions: [],
-  dateLastAccess: null,
+  _createdAt: null,
+  _updatedAt: null,
+  _lastAccessAt: null,
 })
 
 /**
@@ -36,7 +38,9 @@ export default class User extends UserRecord {
       telephone: rawUser.telephone,
       mailAddress: rawUser.mailAddress,
       permissions: rawUser.permissions,
-      dateLastAccess: moment(rawUser.dateLastAccess),
+      _createdAt: moment.utc(rawUser.createdAt),
+      _updatedAt: moment.utc(rawUser.updatedAt),
+      _lastAccessAt: moment.utc(rawUser.lastAccessAt),
     })
   }
 
@@ -54,5 +58,29 @@ export default class User extends UserRecord {
    */
   get isAdmin() {
     return this.permissions.indexOf('admin') >= 0
+  }
+
+  /**
+   * 作成日時を返す
+   * @return {string}
+   */
+  get createdAt() {
+    return this._createdAt.isValid() ? this._createdAt.local().format('YY/MM/DD HH:mm') : ''
+  }
+
+  /**
+   * 更新日時を返す
+   * @return {string}
+   */
+  get updatedAt() {
+    return this._updatedAt.isValid() ? this._updatedAt.local().format('YY/MM/DD HH:mm') : ''
+  }
+
+  /**
+   * 最終ログイン日時を返す
+   * @return {string}
+   */
+  get lastAccessAt() {
+    return this._lastAccessAt.isValid() ? this._lastAccessAt.local().format('YY/MM/DD HH:mm') : ''
   }
 }

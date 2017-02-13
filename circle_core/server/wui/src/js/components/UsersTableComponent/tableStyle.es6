@@ -17,7 +17,7 @@ const tableStyle = {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   },
-  dateLastAccess: {
+  lastAccessAt: {
     width: '25%',
   },
   isAdmin: {
