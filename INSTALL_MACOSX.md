@@ -55,17 +55,14 @@ $ . .env/3.5.2/bin/activate
 (3.5.2) $ pip install -e '.[test,mysql]'
 ```
 
-### 環境変数設定
-```
-(3.5.2) $ export CRCR_UUID=$(uuidgen)
-(3.5.2) $ export CRCR_DATABASE=mysql+mysqlconnector://root@localhost/crcr
-```
-
 ### JavaScriptビルド
 ```
 $ npm install
 $ npm run build
 ```
+
+### iniファイル設定
+- [circle_core.ini.sample](/circle_core.ini.sample)をコピー、`circle_core.ini`にリネームし、内容を適宜修正する
 
 ## サーバ起動
 ```
