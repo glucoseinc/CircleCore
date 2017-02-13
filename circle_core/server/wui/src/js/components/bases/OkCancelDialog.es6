@@ -11,8 +11,10 @@ class OkCancelDialog extends Component {
   static propTypes = {
     title: PropTypes.string,
     okLabel: PropTypes.string,
+    okDisabled: PropTypes.bool,
     onOkTouchTap: PropTypes.func.isRequired,
     cancelLabel: PropTypes.string,
+    cancelDisabled: PropTypes.bool,
     onCancelTouchTap: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired,
     children: PropTypes.node,
@@ -25,8 +27,10 @@ class OkCancelDialog extends Component {
     const {
       title,
       okLabel = 'OK',
+      okDisabled = false,
       onOkTouchTap,
       cancelLabel = 'Cancel',
+      cancelDisabled = false,
       onCancelTouchTap,
       open,
       children,
@@ -43,8 +47,8 @@ class OkCancelDialog extends Component {
       <Dialog
         title={title}
         actions={[
-          <FlatButton label={cancelLabel} secondary={true} onTouchTap={onCancelTouchTap} />,
-          <FlatButton label={okLabel} primary={true} onTouchTap={onOkTouchTap}/>,
+          <FlatButton label={cancelLabel} secondary={true} disabled={cancelDisabled} onTouchTap={onCancelTouchTap} />,
+          <FlatButton label={okLabel} primary={true} disabled={okDisabled} onTouchTap={onOkTouchTap}/>,
         ]}
         actionsContainerStyle={style.actions}
         modal={true}

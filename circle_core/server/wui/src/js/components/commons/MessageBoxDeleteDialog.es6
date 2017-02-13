@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 
-import OkCancelDialog from 'src/components/bases/OkCancelDialog'
+import DeleteDialog from 'src/components/commons/DeleteDialog'
 
 
 /**
@@ -30,16 +30,13 @@ class MessageBoxDeleteDialog extends Component {
     const messageBox = module && messageBoxIndex && module.messageBoxes.get(messageBoxIndex)
 
     return (
-      <OkCancelDialog
-        title="メッセージボックスを削除しますか？"
-        okLabel="削除する"
+      <DeleteDialog
+        obj={messageBox}
+        title="このメッセージボックスを削除しますか？"
         onOkTouchTap={() => onOkTouchTap(messageBoxIndex)}
-        cancelLabel="キャンセル"
         onCancelTouchTap={onCancelTouchTap}
         open={open}
-      >
-        <p>{messageBox && messageBox.label || ''}</p>
-      </OkCancelDialog>
+      />
     )
   }
 }

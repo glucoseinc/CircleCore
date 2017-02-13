@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 
-import OkCancelDialog from 'src/components/bases/OkCancelDialog'
+import DeleteDialog from 'src/components/commons/DeleteDialog'
 
 
 /**
@@ -19,23 +19,20 @@ class SchemaDeleteDialog extends Component {
    */
   render() {
     const {
-      open = false,
+      open,
       schema,
       onOkTouchTap,
       onCancelTouchTap,
     } = this.props
 
     return (
-      <OkCancelDialog
-        title="メッセージスキーマを削除しますか？"
-        okLabel="削除する"
-        onOkTouchTap={() => onOkTouchTap(schema)}
-        cancelLabel="キャンセル"
+      <DeleteDialog
+        obj={schema}
+        title="このメッセージスキーマを削除しますか？"
+        onOkTouchTap={onOkTouchTap}
         onCancelTouchTap={onCancelTouchTap}
         open={open}
-      >
-        <p>{schema && schema.label || ''}</p>
-      </OkCancelDialog>
+      />
     )
   }
 }
