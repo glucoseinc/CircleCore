@@ -6,7 +6,7 @@
 from flask import abort, request
 
 # project module
-from circle_core.models import CcInfo, Module, ReplicationLink
+from circle_core.models import CcInfo, MetaDataSession, Module, ReplicationLink
 from .api import api
 from .utils import respond_failure, respond_success
 from ..utils import (
@@ -31,7 +31,7 @@ def _get_replicas():
 
     return respond_success(
         ccInfos=[cc_info.to_json() for cc_info in cc_infos],
-        modules=[metadata.denormalize_json_module(module.uuid) for module in modules],  # 必要な分だけに絞るべきか？
+        modules=[module.to_json() for module in modules],  # 必要な分だけに絞るべきか？
         replicationLinks=[replication_link.to_json() for replication_link in replication_links]
     )
 

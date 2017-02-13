@@ -68,6 +68,7 @@ const replicationLink = new normalizerSchema.Entity(
       ccInfos: entity.ccInfoUuids,
       messageBoxes: entity.messageBoxUuids,
       memo: entity.memo,
+      link: entity.link,
     }),
   }
 )

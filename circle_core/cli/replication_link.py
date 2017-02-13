@@ -75,15 +75,16 @@ def show_replication_link_detail(ctx, link_uuid):
     data = [
         ('UUID', str(replication_link.uuid)),
         ('DISPLAY_NAME', replication_link.display_name),
+        ('LINK', replication_link.link),
+        ('MEMO', replication_link.memo or ''),
     ]
-    data.append(('MEMO', replication_link.memo or ''))
 
     output_properties(data)
 
     click.echo('\n- TARGET CORES: -----------------------')
-    for uuid in replication_link.target_cores:
+    for slave in replication_link.slaves:
         data = [
-            ('UUID', str(uuid)),
+            ('UUID', str(slave.slave_uuid)),
         ]
         output_properties(data)
 
@@ -127,7 +128,7 @@ def add_replication_link(ctx, display_name, memo, cc_uuids, message_box_uuids, a
         replication_link = ReplicationLink.create(
             display_name=display_name,
             memo=memo,
-            target_cores=cc_uuids,
+            slaves=cc_uuids,
             message_box_uuids=message_box_uuids,
         )
         print('replication_link', replication_link)

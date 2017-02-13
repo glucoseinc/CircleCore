@@ -18,8 +18,11 @@ def make_worker(core, type, key, config):
 
 
 class CircleWorker(object):
-    def __init__(self, core):
+    worker_type = None
+
+    def __init__(self, core, worker_key):
         self.core = weakref.proxy(core)
+        self.worker_key = worker_key
 
     def initialize(self):
         pass

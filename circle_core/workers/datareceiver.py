@@ -32,11 +32,11 @@ WORKER_DATARECEIVER = 'datareceiver'
 def create_http_worker(core, type, key, config):
     assert type == WORKER_DATARECEIVER
     defaults = {
-        'cyclce_time': '1.0',
+        'cyclce_time': '5.0',
         'cycle_count': '100',
     }
     return DataReceiverWorker(
-        core,
+        core, key,
         db_url=config.get('db'),
         time_db_dir=config.get('time_db_dir'),
         cycle_time=config.getfloat('cyclce_time', vars=defaults),
@@ -49,42 +49,44 @@ class DataReceiverWorker(CircleWorker):
     request_socketに届いた、生のメッセージのスキーマをチェックしたあと、プライマリキーを付与してDBに保存する。
     また、同時にhubにも流す。
     """
-    def __init__(self, core, db_url, time_db_dir, cycle_time=1.0, cycle_count=10):
-        super(DataReceiverWorker, self).__init__(core)
+    worker_type = WORKER_DATARECEIVER
+
+    def __init__(self, core, key, db_url, time_db_dir, cycle_time=1.0, cycle_count=10):
+        super(DataReceiverWorker, self).__init__(core, key)
 
         # commitする、メッセージ数と時間
         self.cycle_count = cycle_count
         self.cycle_time = cycle_time
 
         self.db = Database(db_url)
-        # self.db.register_message_boxes(MessageBox.query.all(), Schema.query.all())
+        self.writer = self.db.make_writer(cycle_time=cycle_time, cycle_count=cycle_count)
+        self.writer.on_commit_transaction = self.on_commit
+
         self.time_db_bundle = TimedDBBundle(time_db_dir)
         # timed dbのアップデート用にlist((box_id, timestamp))を記録する
         self.updates = []
 
-        # if not self.db.diff_database().is_ok:
-        #     # TODO: 例外処理
-        #     raise Exception
-
-        self.conn = self.db._engine.connect()
-        self.transaction = None
         self.counter_lock = threading.Lock()
-
-        self.core.hub.register_handler(RequestType.NEW_MESSAGE.value, self.on_new_message)
 
         # metadataに関するイベントを監視する
         self.listener = MetaDataEventListener()
         self.listener.on('messagebox', 'after', self.on_change_messagebox)
 
+        # messageに関するイベントを監視する
+        self.core.hub.register_handler(RequestType.NEW_MESSAGE.value, self.on_new_message)
+
     def initialize(self):
         """override"""
         # start
-        self.begin_transaction()
         self.counters = defaultdict(int)
 
     def finalize(self):
         """override"""
-        self.commit_transaction(True)
+        self.writer.commit()
+
+        # flush all updates
+        self.time_db_bundle.update(self.updates)
+        self.updates = []
 
     def on_new_message(self, request):
         """新しいメッセージを受けとった"""
@@ -105,14 +107,12 @@ class DataReceiverWorker(CircleWorker):
         response = {'response': 'message_accepted', 'message': message}
 
         # pusblish
+        logger.debug('publish %r', request)
         self.core.hub.publish(
             make_message_topic(message_box.module.uuid, message_box.uuid),
             message
         )
-
-        if self.should_commit():
-            self.commit_transaction()
-            self.begin_transaction()
+        logger.debug('published %r', request)
 
         return response
 
@@ -120,44 +120,8 @@ class DataReceiverWorker(CircleWorker):
         """metadataのmessageboxが更新されたら呼ばれる"""
         if what == 'after_delete':
             # message boxが削除されたので消す
-            self.commit_transaction()
+            self.writer.commit()
             self.db.drop_message_box(target, connection=self.conn)
-            self.begin_transaction()
-
-    def begin_transaction(self):
-        self.transaction = self.conn.begin()
-        self.write_count, self.transaction_begin = 0, time.time()
-
-    def commit_transaction(self, flush_all=False):
-        logger.debug('commit, data count=%d, interval=%f', self.write_count, time.time() - self.transaction_begin)
-        self.transaction.commit()
-
-        # update timedb
-        if not flush_all:
-            # 現在の秒のデータは更新中なので、その手前までを保存する...
-            threshold = math.floor(time.time()) - 1
-            for idx, (box_id, timestamp) in enumerate(self.updates):
-                if timestamp >= threshold:
-                    break
-            updates, self.updates = self.updates[:idx], self.updates[idx:]
-            self.time_db_bundle.update(updates)
-            # logger.debug('save updates (%s) %r > %r', threshold, updates, self.updates)
-        else:
-            self.time_db_bundle.update(self.updates)
-            self.updates = []
-
-        self.transaction = self.write_count = self.transaction_begin = None
-
-    def rollback_transaction(self):
-        self.transaction.rollback()
-        self.updates = self.transaction = self.write_count = self.transaction_begin = None
-
-    def should_commit(self):
-        return (
-            self.write_count and
-            self.transaction_begin and
-            (self.write_count >= self.cycle_count or (time.time() - self.transaction_begin) >= self.cycle_time)
-        )
 
     def find_message_box(self, box_id):
         # DBに直接触っちゃう
@@ -169,14 +133,11 @@ class DataReceiverWorker(CircleWorker):
         return box
 
     def store_message(self, message_box, payload):
-        assert self.transaction is not None
-
         # make primary key
         msg = self.make_primary_key(message_box, payload)
-        self.db.store_message(message_box, msg, connection=self.conn)
-        self.write_count += 1
+        self.writer.store(message_box, msg)
 
-        self.updates.append((message_box.uuid, msg.timestamp))
+        self.updates.append((msg.box_id, msg.timestamp))
 
         return msg
 
@@ -191,3 +152,13 @@ class DataReceiverWorker(CircleWorker):
             self.counters[message_box.uuid] = counter
 
         return ModuleMessage(message_box.uuid, timestamp, counter, payload)
+
+    def on_commit(self, writer):
+        """DBにコミットするタイミングで時系列DBも更新する"""
+        # 現在の秒のデータは更新中なので、その手前までを保存する...
+        threshold = math.floor(time.time()) - 1
+        for idx, (box_id, timestamp) in enumerate(self.updates):
+            if timestamp >= threshold:
+                break
+        updates, self.updates = self.updates[:idx], self.updates[idx:]
+        self.time_db_bundle.update(updates)

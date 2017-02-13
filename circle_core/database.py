@@ -5,21 +5,25 @@
 from __future__ import absolute_import
 
 import logging
+import datetime
 import threading
-from time import mktime
+import time
 import uuid
 
 from base58 import b58encode
 from click import get_current_context
 from six import PY3
 import sqlalchemy as sa
+from sqlalchemy import sql
 from sqlalchemy.dialects import mysql
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.schema import CreateColumn, SchemaVisitor
 import sqlalchemy.sql.ddl
+import tornado.ioloop
 
 # project module
 from circle_core.exceptions import MigrationError
+from circle_core.core.message import ModuleMessage
 from .constants import CRDataType
 from .models.module import Module
 from .models.schema import Schema
@@ -53,6 +57,9 @@ class Database(object):
         self._metadata.reflect(self._engine)
 
         self._thread_id = None
+
+    def connect(self):
+        return self._engine.connect()
         # self._register_meta_table()
 
     # def _register_meta_table(self):
@@ -212,6 +219,44 @@ class Database(object):
             self._thread_id = threading.get_ident()
         assert self._thread_id == threading.get_ident()
 
+    def get_latest_primary_key(self, message_box, connection=None):
+        if not connection:
+            connection = self._engine.connect()
+
+        table = self.find_table_for_message_box(message_box)
+        query = (
+            sql.select([table.c._created_at, table.c._counter])
+            .order_by(table.c._created_at.desc(), table.c._counter.desc())
+            .limit(1)
+        )
+        rows = connection.execute(query).fetchall()
+        if not rows:
+            return None
+        return rows[0]
+
+    def enum_message_from(self, message_box, head=None, connection=None):
+        assert connection, 'TODO: create new connection if not present it'
+
+        table = self.find_table_for_message_box(message_box, create_if_not_exsts=False)
+        if table is None:
+            return
+
+        query = sql.select([table]).order_by(table.c._created_at.asc(), table.c._counter.asc())
+        if head:
+            head_timestamp, head_counter = ModuleMessage.make_timestamp(head['timestamp']), head['counter']
+            query = query.where(table.c._created_at >= head_timestamp)
+
+        for row in connection.execute(query):
+            row = dict(row)
+            message = ModuleMessage(message_box.uuid, row.pop('_created_at'), row.pop('_counter'), row)
+
+            if head:
+                if message.timestamp < head_timestamp or \
+                   (message.timestamp == head_timestamp and message.counter <= head_counter):
+                    logger.info('skip message %s', message)
+                    continue
+
+            yield message
 
 # class DiffResult(object):
 #     """
@@ -325,6 +370,8 @@ class Database(object):
 #                     # 空っぽであればdrop->createで作り直せる
 #                     logger.info('    table is empty')
 #                     self.diff_result.alter_tables.append(table)
+    def make_writer(self, cycle_time=10.0, cycle_count=100):
+        return QueuedWriter(self, cycle_time, cycle_count)
 
 
 def make_sqlcolumn_from_datatype(name, datatype):
@@ -348,3 +395,60 @@ def make_sqlcolumn_from_datatype(name, datatype):
         assert 0, 'not implemented yet'
 
     return sa.Column(name, coltype)
+
+
+class QueuedWriter(object):
+    def __init__(self, database, cycle_time=10.0, cycle_count=100):
+        if cycle_time < 0:
+            raise ValueError
+        if cycle_count < 0:
+            raise ValueError
+        self.database = database
+        self.cycle_count = cycle_count
+        self.cycle_time = datetime.timedelta(seconds=cycle_time)
+
+        self.connection = self.database.connect()
+        self.transaction = None
+        self.timeout = None
+
+        # hook
+        self.on_commit_transaction = None
+
+    def store(self, message_box, message):
+        if not isinstance(message, ModuleMessage):
+            raise ValueError
+
+        if not self.transaction:
+            self.begin_transaction()
+
+        self.database.store_message(message_box, message, connection=self.connection)
+        self.write_count += 1
+
+        if self.write_count >= self.cycle_count:
+            self.commit_transaction()
+
+    def commit(self):
+        if not self.transaction:
+            return
+        self.commit_transaction()
+
+    def begin_transaction(self):
+        assert self.transaction is None
+        assert self.timeout is None
+        self.transaction, self.write_count, self.transaction_begin = self.connection.begin(), 0, time.time()
+        self.timeout = tornado.ioloop.IOLoop.current().add_timeout(self.cycle_time, self.on_timeout)
+
+    def commit_transaction(self):
+        logger.debug('commit, data count=%d, interval=%f', self.write_count, time.time() - self.transaction_begin)
+        self.transaction.commit()
+        if self.timeout:
+            tornado.ioloop.IOLoop.current().remove_timeout(self.timeout)
+            self.timeout = None
+        self.transaction = self.write_count = self.transaction_begin = None
+
+        if self.on_commit_transaction:
+            self.on_commit_transaction(self)
+
+    def on_timeout(self):
+        self.timeout = None
+        self.commit_transaction()

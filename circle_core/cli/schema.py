@@ -13,7 +13,7 @@ from six import PY3
 # project module
 from .context import CLIContextObject
 from .utils import output_listing_columns, output_properties
-from ..models import generate_uuid, MetaDataSession, NoResultFound, Schema, SchemaProperties
+from ..models import MetaDataSession, NoResultFound, Schema, SchemaProperties
 
 if PY3:
     from typing import List, Optional, Tuple
@@ -111,8 +111,7 @@ def schema_add(ctx, display_name, memo, name_and_types):
         ctx.exit(code=-1)
 
     with MetaDataSession.begin():
-        schema = Schema(
-            uuid=generate_uuid(model=Schema),
+        schema = Schema.create(
             display_name=display_name,
             memo=memo,
             properties=properties,

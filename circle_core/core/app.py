@@ -16,7 +16,8 @@ import sqlalchemy.exc
 
 from circle_core.exceptions import ConfigError
 from circle_core.models import CcInfo, generate_uuid, MetaDataBase, MetaDataSession, NoResultFound
-from circle_core.workers import make_worker, WORKER_DATARECEIVER
+from circle_core.helpers.nanomsg import Receiver
+from circle_core.workers import make_worker, WORKER_DATARECEIVER, WORKER_SLAVE_DRIVER
 from .base import logger
 from .hub import CoreHub
 from .metadata_event_logger import MetaDataEventLogger
@@ -72,6 +73,7 @@ class CircleCore(object):
 
         # add default workers
         core.add_worker(WORKER_DATARECEIVER, '', core_config)
+        core.add_worker(WORKER_SLAVE_DRIVER, '', core_config)
 
         # add workers
         for section in config.sections():
@@ -127,7 +129,24 @@ class CircleCore(object):
     def add_worker(self, worker_type, worker_key, worker_config):
         self.workers.append(make_worker(self, worker_type, worker_key, worker_config))
 
+    def find_worker(self, worker_type, worker_key=None):
+        for worker in self.workers:
+            if worker.worker_type != worker_type:
+                continue
+
+            if worker_key is not None and worker.worker_key != worker_key:
+                continue
+
+            return worker
+
     def run(self):
+
+        test = self.make_hub_receiver('message:')
+        test.set_timeout(1000)
+        def callback(*args):
+            logger.debug('test callback %r', args)
+        test.register_ioloop(callback)
+
         for worker in self.workers:
             worker.initialize()
 
@@ -140,6 +159,16 @@ class CircleCore(object):
         finally:
             for worker in self.workers:
                 worker.finalize()
+
+    def get_database(self):
+        """Messageを保存している方のデータベース.
+
+        今のとこおｒDatareceiverが握っているのでそれを返す
+        CircleCoreが持っているべき???"""
+        return self.find_worker(WORKER_DATARECEIVER).db
+
+    def make_hub_receiver(self, topic=None):
+        return Receiver(self.hub_socket, topic)
 
     # private
     def prepare_directories(self):
@@ -184,6 +213,9 @@ class CircleCore(object):
 
             with self.open_alembic() as alembic_cfg:
                 alembic.command.upgrade(alembic_cfg, 'head')
+
+        # DEBUG
+        MetaDataBase.metadata.create_all(self.metadata_db_engine)
 
     @contextlib.contextmanager
     def open_alembic(self):

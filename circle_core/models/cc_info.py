@@ -36,6 +36,13 @@ class CcInfo(UUIDMetaDataBase):
     myself = sa.Column(sa.Boolean, nullable=False)
     work = sa.Column(sa.Text, nullable=False)
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
+
+    replication_master_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey(
+            'replication_masters.replication_master_id',
+            name='fk_cc_informations_replication_masters'))
+
     updated_at = sa.Column(
         sa.DateTime, nullable=False,
         default=datetime.datetime.utcnow,

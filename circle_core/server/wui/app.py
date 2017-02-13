@@ -60,6 +60,7 @@ class CCWebApp(Flask):
             return render_template('index.html')
 
         self.add_url_rule('/invitation/<uuid:link_uuid>', endpoint='invitation_endpoint', build_only=True)
+        self.add_url_rule('/replication/<uuid:link_uuid>', endpoint='replication_endpoint', build_only=True)
 
         @self.context_processor
         def global_variables():

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """デバイスからのメッセージ."""
 import decimal
-import json
 import re
 import time
 import uuid
@@ -46,6 +45,15 @@ class ModuleMessage(object):
         self.payload = payload
 
     @classmethod
+    def from_json(cls, data):
+        return cls(
+            prepare_uuid(data['boxId']),
+            data['timestamp'],
+            data['counter'],
+            data['payload']
+        )
+
+    @classmethod
     def make_timestamp(cls, timestamp=None):
         if not timestamp:
             timestamp = time.time()
@@ -64,16 +72,20 @@ class ModuleMessage(object):
         ).is_zero()
 
     def __repr__(self):
-        return '<circle_core.models.message.ModuleMessage %s>' % self.encode()
+        return '<ModuleMessage box={} timestamp={} counter={}>'.format(
+            str(self.box_id),
+            str(self.timestamp),
+            self.counter,
+        )
 
     def to_json(self):
         """slaveのCircleCoreに送られる際に使われる.
 
         :return str:
         """
-        return json.dumps({
+        return {
             'timestamp': str(self.timestamp),
             'counter': self.counter,
-            'box_id': self.box_id.hex,
+            'boxId': self.box_id.hex,
             'payload': self.payload
-        })
+        }

@@ -12,7 +12,7 @@ from sqlalchemy import orm
 from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
-from .base import GUID, UUIDMetaDataBase
+from .base import GUID, UUIDMetaDataBase, generate_uuid
 
 
 class SchemaProperty(collections.namedtuple('SchemaProperty', ['name', 'type'])):
@@ -69,6 +69,7 @@ class Schema(UUIDMetaDataBase):
     __tablename__ = 'schemas'
 
     uuid = sa.Column(GUID, primary_key=True)
+    cc_uuid = sa.Column(GUID, sa.ForeignKey('cc_informations.uuid', name='fk_schemas_cc_uuid'), nullable=False)
     display_name = sa.Column(sa.String(255), nullable=False, default='')
     _properties = sa.Column('properties', sa.Text, nullable=False, default='')
     memo = sa.Column(sa.Text, nullable=False, default='')
@@ -96,6 +97,9 @@ class Schema(UUIDMetaDataBase):
 
         super(Schema, self).__init__(**kwargs)
 
+    def __hash__(self):
+        return hash('{}:{!r}'.format(self.__class__.__name__, hash(self.uuid)))
+
     def __eq__(self, other):
         """return equality.
 
@@ -106,6 +110,18 @@ class Schema(UUIDMetaDataBase):
         return all([self.uuid == other.uuid, self.display_name == other.display_name,
                     self.properties == other.properties,
                     self.memo == other.memo])
+
+    @classmethod
+    def create(cls, **kwargs):
+        if 'cc_uuid' not in kwargs:
+            from .cc_info import CcInfo
+            kwargs['cc_uuid'] = CcInfo.query.filter_by(myself=True).one().uuid
+
+        schema = cls(
+            uuid=generate_uuid(model=cls),
+            **kwargs
+        )
+        return schema
 
     @hybrid_property
     def properties(self):

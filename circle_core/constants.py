@@ -58,3 +58,48 @@ class CRScope(enum.Enum):
 class RequestType(enum.Enum):
     # 新しいメッセージを登録したい
     NEW_MESSAGE = 'new_message'
+
+
+@enum.unique
+class ReplicationState(enum.Enum):
+    """
+    ReplicationのStateを表す
+    """
+
+    # 初期状態
+    HANDSHAKING = 'handshaking'
+    MIGRATING = 'migrating'
+    SYNCING = 'syncing'
+
+
+@enum.unique
+class SlaveCommand(enum.Enum):
+    """
+    Slaveから送られてくるコマンド
+    """
+
+    HELLO = 'hello'
+    MIGRATED = 'migrated'
+
+    FAILURE = 'failure'
+
+
+@enum.unique
+class MasterCommand(enum.Enum):
+    """
+    Masterから送るコマンド
+    """
+
+    MIGRATE = 'migrate'
+    SYNC_MESSAGE = 'sync_message'
+    NEW_MESSAGE = 'new_message'
+
+
+@enum.unique
+class WebsocketStatusCode(enum.Enum):
+    CLOSE_NORMALY = 1000
+    GOING_AWAY = 1001
+    PROTOCOL_ERROR = 1002
+    DATA_CANNOT_ACCEPT = 1003
+    VIOLATE_POLICY = 1008
+    MESSAGE_IS_TOO_BIG = 1009

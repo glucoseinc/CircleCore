@@ -27,6 +27,7 @@ class Module(UUIDMetaDataBase):
     __tablename__ = 'modules'
 
     uuid = sa.Column(GUID, primary_key=True)
+    cc_uuid = sa.Column(GUID, sa.ForeignKey('cc_informations.uuid', name='fk_modules_cc_uuid'), nullable=False)
     display_name = sa.Column(sa.String(255), nullable=False, default='')
     _tags = sa.Column('_tags', sa.Text, nullable=False, default='')
     memo = sa.Column(sa.Text, nullable=False, default='')
@@ -47,6 +48,9 @@ class Module(UUIDMetaDataBase):
 
         super(Module, self).__init__(**kwargs)
 
+    def __hash__(self):
+        return hash('{}:{!r}'.format(self.__class__.__name__, hash(self.uuid)))
+
     def __eq__(self, other):
         """return equality.
 
@@ -55,8 +59,21 @@ class Module(UUIDMetaDataBase):
         :rtype: bool
         """
         return all([self.uuid == other.uuid,
-                    self.display_name == other.display_name, self.tags == other.tags,
+                    self.display_name == other.display_name,
+                    self.tags == other.tags,
                     self.memo == other.memo])
+
+    @classmethod
+    def create(cls, **kwargs):
+        if 'cc_uuid' not in kwargs:
+            from .cc_info import CcInfo
+            kwargs['cc_uuid'] = CcInfo.query.filter_by(myself=True).one().uuid
+
+        module = cls(
+            uuid=generate_uuid(model=cls),
+            **kwargs
+        )
+        return module
 
     @hybrid_property
     def tags(self):

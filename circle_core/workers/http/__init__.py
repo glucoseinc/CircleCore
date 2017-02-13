@@ -11,8 +11,8 @@ from tornado.wsgi import WSGIContainer
 from circle_core.constants import RequestType
 from circle_core.exceptions import ConfigError
 from circle_core.server.wui import create_app
-from .base import CircleWorker, register_worker_factory
-
+from ..base import CircleWorker, register_worker_factory
+from .replication_master import ReplicationMaster
 
 logger = logging.getLogger(__name__)
 WORKER_HTTP = 'http'
@@ -26,7 +26,7 @@ def create_http_worker(core, type, key, config):
         return config.get(*key, **kwargs).lower() in ('on', 'true')
 
     return HTTPWorker(
-        core,
+        core, key,
         listen=config.get('listen'),
         port=config.getint('port'),
         websocket_on=_config_get_bool('websocket'),
@@ -41,10 +41,11 @@ def create_http_worker(core, type, key, config):
 class HTTPWorker(CircleWorker):
     """
     """
+    worker_type = WORKER_HTTP
 
-    def __init__(self, core, listen, port, websocket_on, admin_on, admin_base_url, skip_build,
+    def __init__(self, core, worker_key, listen, port, websocket_on, admin_on, admin_base_url, skip_build,
                  tls_key_path, tls_crt_path):
-        super(HTTPWorker, self).__init__(core)
+        super(HTTPWorker, self).__init__(core, worker_key)
 
         self.port = port
         self.listen = listen
@@ -65,7 +66,9 @@ class HTTPWorker(CircleWorker):
         self.request_handlers = []
 
         if self.websocket_on:
-            pass
+            self.request_handlers.append(
+                (r'/replication/(?P<link_uuid>[0-9A-Fa-f-]+)', ReplicationMaster),
+            )
 
         self.flask_app = None
         if self.admin_on:
@@ -75,7 +78,7 @@ class HTTPWorker(CircleWorker):
                 (r'.*', FallbackHandler, {'fallback': WSGIContainer(self.flask_app)})
             )
 
-        kwargs = {}
+        kwargs = {'_core': core}
         self.application = Application(self.request_handlers, **kwargs)
         self.skip_build = skip_build
 
