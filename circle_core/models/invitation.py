@@ -4,22 +4,29 @@
 
 # system module
 import datetime
+from uuid import UUID
 
 # community module
+import click
+from flask import url_for
+from six import PY3
 import sqlalchemy as sa
 
 from circle_core.utils import format_date, prepare_date
 from .base import GUID, UUIDMetaDataBase
 
+if PY3:
+    from typing import Dict, Optional, Union
+
 
 class Invitation(UUIDMetaDataBase):
     """User招待オブジェクト.
 
-    :param str key_prefix: ストレージキーのプレフィックス
     :param UUID uuid: User UUID
-    :param int max_invites: 最大招待可能人数. 0は無制限
-    :param int current_invites: 招待済人数.
-    :param datetime.datetime created_at: 招待作成日 なければNone
+    :param int max_invites: 最大招待可能人数 0は無制限
+    :param int current_invites: 招待済人数
+    :param Optional[datetime.datetime] created_at: 作成日時
+    :param Optional[datetime.datetime] created_at: 更新日時
     """
     __tablename__ = 'invitations'
 
@@ -27,17 +34,17 @@ class Invitation(UUIDMetaDataBase):
     max_invites = sa.Column(sa.Integer, nullable=False, default=1)
     current_invites = sa.Column(sa.Integer, nullable=False, default=0)
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
-    updated_at = sa.Column(
-        sa.DateTime, nullable=False,
-        default=datetime.datetime.utcnow,
-        onupdate=datetime.datetime.utcnow)
+    updated_at = sa.Column(sa.DateTime, nullable=False,
+                           default=datetime.datetime.utcnow,
+                           onupdate=datetime.datetime.utcnow)
 
-    def __init__(self, uuid, max_invites, created_at=None, current_invites=0):
+    def __init__(self, uuid, max_invites, current_invites=0, created_at=None):
         """init.
 
         :param Union[str, UUID] uuid: User UUID
         :param int max_invites: 招待可能人数. 0は無制限
-        :param datetime.datetime created_at: 招待作成日 なければNone
+        :param int current_invites: 招待済人数
+        :param Optional[datetime.datetime] created_at: 作成日時
         """
         if isinstance(max_invites, str):
             max_invites = int(max_invites, 10)
@@ -47,8 +54,33 @@ class Invitation(UUIDMetaDataBase):
         if created_at and not isinstance(created_at, datetime.datetime):
             raise ValueError('created_at must be datetime.datetime or None, ({!r})'.format(created_at))
 
-        super(Invitation, self).__init__(
-            uuid=uuid, max_invites=max_invites, created_at=created_at, current_invites=current_invites)
+        super(Invitation, self).__init__(uuid=uuid, max_invites=max_invites,
+                                         current_invites=current_invites, created_at=created_at)
+
+    @property
+    def url(self):
+        """このCircleCoreでのInvitationのEndpointのURLを返す.
+
+        :return: URL
+        :rtype: str
+        """
+        def build_url():
+            return url_for('invitation_endpoint', link_uuid=self.uuid, _external=True)
+
+        try:
+            return build_url()
+        except RuntimeError:
+            flask_app = None
+            ctx = click.get_current_context()
+            if ctx:
+                http_worker = ctx.obj.core.find_worker('http')
+                if http_worker:
+                    flask_app = http_worker.flask_app
+
+            if flask_app:
+                with flask_app.test_request_context('/'):
+                    return build_url()
+        return None
 
     def to_json(self):
         """このモデルのJSON表現を返す.
@@ -58,17 +90,19 @@ class Invitation(UUIDMetaDataBase):
         """
         return {
             'uuid': str(self.uuid),
+            'url': self.url,
             'maxInvites': self.max_invites,
             'currentInvites': self.current_invites,
-            'createdAt': format_date(self.created_at)
+            'createdAt': format_date(self.created_at),
         }
 
     @classmethod
     def from_json(cls, jsonobj):
         """JSON表現からモデルを生成する.
 
-        :param jsonobj: json表現のdict
+        :param Dict jsonobj: json表現のdict
         :return: User招待オブジェクト.
         :rtype: Invitation
         """
-        return cls(jsonobj['uuid'], jsonobj['maxInvites'], jsonobj['createdAt'])
+        return cls(jsonobj['uuid'], jsonobj['maxInvites'],
+                   jsonobj.get('currentInvites', 0), jsonobj.get('createdAt', None))

@@ -13,36 +13,34 @@ TEST_UUID2 = '25a6aee1-8a19-4f23-83c7-c2acbfb17a30'
 
 @pytest.mark.skip(reason='rewriting...')
 class TestInvitation(object):
-    @pytest.mark.parametrize(('uuid', 'max_invites', 'date_created', 'expected'), [
+    @pytest.mark.parametrize(('uuid', 'max_invites', 'created_at', 'expected'), [
         (TEST_UUID1, '0', None,
          {'uuid': TEST_UUID1,
           'max_invites': 0,
-          'date_created': None,
+          'created_at': None,
           }),
         (TEST_UUID2, 3, '2008-08-12T12:20:30.656234Z',
          {'uuid': TEST_UUID2,
           'max_invites': 3,
-          'date_created': '2008-08-12T12:20:30.656234+00:00'
+          'created_at': '2008-08-12T12:20:30.656234+00:00'
           }),
     ])
-    def test_init(self, uuid, max_invites, date_created, expected):
-        user = Invitation(
-            uuid, max_invites,
-            date_created)
+    def test_init(self, uuid, max_invites, created_at, expected):
+        invitation = Invitation(uuid, max_invites, created_at=created_at)
 
-        assert str(user.uuid) == expected['uuid']
-        assert user.max_invites == expected['max_invites']
+        assert str(invitation.uuid) == expected['uuid']
+        assert invitation.max_invites == expected['max_invites']
 
-        datestr = user.date_created.isoformat('T') if user.date_created else user.date_created
-        assert datestr == expected['date_created']
+        datestr = invitation.created_at.isoformat('T') if invitation.created_at else invitation.created_at
+        assert datestr == expected['created_at']
 
-    @pytest.mark.parametrize(('uuid', 'max_invites', 'date_craeted'), [
+    @pytest.mark.parametrize(('uuid', 'max_invites', 'created_at'), [
         (TEST_UUID1, -1, None),
         (TEST_UUID1, 0, 'hanage'),
     ])
-    def test_bad_init(self, uuid, max_invites, date_craeted):
+    def test_bad_init(self, uuid, max_invites, created_at):
         with pytest.raises(ValueError):
-            Invitation(uuid, max_invites, date_craeted)
+            Invitation(uuid, max_invites, created_at=created_at)
 
     def test_is_key_matched(self):
         assert Invitation.is_key_matched('invitation_{}'.format(TEST_UUID1)) is True
