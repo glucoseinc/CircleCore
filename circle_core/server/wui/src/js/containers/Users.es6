@@ -17,7 +17,7 @@ import UsersTableComponent from 'src/components/UsersTableComponent'
  */
 class Users extends Component {
   static propTypes = {
-    isFetching: PropTypes.bool.isRequired,
+    isUserFetching: PropTypes.bool.isRequired,
     users: PropTypes.object.isRequired,
     myID: PropTypes.string,
     token: PropTypes.object.isRequired,
@@ -66,14 +66,14 @@ class Users extends Component {
       isUserDeleteDialogOpen,
     } = this.state
     const {
-      isFetching,
+      isUserFetching,
       users,
       myID,
       token,
       onDisplayNameTouchTap,
     } = this.props
 
-    if (isFetching) {
+    if (isUserFetching) {
       return (
         <LoadingIndicator />
       )
@@ -106,7 +106,7 @@ class Users extends Component {
 
 
 const mapStateToProps = (state) => ({
-  isFetching: state.asyncs.isUserFetching,
+  isUserFetching: state.asyncs.isUserFetching,
   users: state.entities.users,
   myID: state.entities.myID,
   token: state.auth.token,

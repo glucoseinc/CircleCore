@@ -18,7 +18,7 @@ import UserForm from 'src/components/UserForm'
  */
 class ChangeProfile extends Component {
   static propTypes = {
-    isFetching: PropTypes.bool.isRequired,
+    isUserFetching: PropTypes.bool.isRequired,
     myID: PropTypes.string,
     users: PropTypes.object,
   }
@@ -44,12 +44,12 @@ class ChangeProfile extends Component {
       openUpdatedSnackbar,
     } = this.state
     const {
-      isFetching,
+      isUserFetching,
       myID,
       users,
     } = this.props
 
-    if (isFetching) {
+    if (isUserFetching) {
       return (
         <LoadingIndicator />
       )
@@ -108,7 +108,7 @@ class ChangeProfile extends Component {
 
 
 const mapStateToProps = (state) => ({
-  isFetching: state.asyncs.isUserFetching,
+  isUserFetching: state.asyncs.isUserFetching,
   myID: state.entities.myID,
   users: state.entities.users,
 })

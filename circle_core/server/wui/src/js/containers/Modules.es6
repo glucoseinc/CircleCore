@@ -25,7 +25,7 @@ class Modules extends Component {
   static propTypes = {
     isModuleFetching: PropTypes.bool.isRequired,
     modules: PropTypes.object.isRequired,
-    onModuleInfoPaperTouchTap: PropTypes.func,
+    onDisplayNameTouchTap: PropTypes.func,
     onDeleteOkButtonTouchTap: PropTypes.func,
     width: PropTypes.number.isRequired,
   }
@@ -72,7 +72,7 @@ class Modules extends Component {
     const {
       isModuleFetching,
       modules,
-      onModuleInfoPaperTouchTap,
+      onDisplayNameTouchTap,
       width,
     } = this.props
 
@@ -93,7 +93,7 @@ class Modules extends Component {
           <ModulesTabComponent
             modules={modules}
             width={width}
-            onModuleInfoPaperTouchTap={onModuleInfoPaperTouchTap}
+            onDisplayNameTouchTap={(module) => onDisplayNameTouchTap(module.uuid)}
             onDeleteTouchTap={::this.onDeleteTouchTap}
           />
         )}
@@ -120,7 +120,7 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  onModuleInfoPaperTouchTap: (moduleId) => dispatch(routerActions.push(createPathName(urls.module, {moduleId}))),
+  onDisplayNameTouchTap: (moduleId) => dispatch(routerActions.push(createPathName(urls.module, {moduleId}))),
   onDeleteOkButtonTouchTap: (module) => dispatch(actions.module.deleteRequest(module.uuid)),
 })
 
