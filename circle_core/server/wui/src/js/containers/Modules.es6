@@ -8,11 +8,13 @@ import actions from 'src/actions'
 import {urls, createPathName} from 'src/routes'
 
 import LoadingIndicator from 'src/components/bases/LoadingIndicator'
+import {ModuleIcon} from 'src/components/bases/icons'
 
 import AddFloatingActionButton from 'src/components/commons/AddFloatingActionButton'
 import CCLink from 'src/components/commons/CCLink'
 import ModuleDeleteDialog from 'src/components/commons/ModuleDeleteDialog'
 
+import Empty from 'src/components/Empty'
 import ModulesTabComponent from 'src/components/ModulesTabComponent'
 
 
@@ -83,14 +85,21 @@ class Modules extends Component {
     }
 
     return (
-      <div className="page pageModules">
-        <ModulesTabComponent
-          modules={modules}
-          width={width}
-          onModuleInfoPaperTouchTap={onModuleInfoPaperTouchTap}
-          onDeleteTouchTap={::this.onDeleteTouchTap}
-          onIdCopyButtonTouchTap={onIdCopyButtonTouchTap}
-        />
+      <div>
+        {modules.size === 0 ? (
+          <Empty
+            icon={ModuleIcon}
+            itemName="モジュール"
+          />
+        ) : (
+          <ModulesTabComponent
+            modules={modules}
+            width={width}
+            onModuleInfoPaperTouchTap={onModuleInfoPaperTouchTap}
+            onDeleteTouchTap={::this.onDeleteTouchTap}
+            onIdCopyButtonTouchTap={onIdCopyButtonTouchTap}
+          />
+        )}
 
         <CCLink url={urls.modulesNew}>
           <AddFloatingActionButton />

@@ -42,10 +42,6 @@ table.props th {
 /* module系 */
 $moduleCardsMargin: 16px;
 
-.page.pageModules {
-  margin: 0;
-}
-
 .moduleCardsTab {
   .moduleCardsTab-timeRanges {
     background: $colorGray200;
