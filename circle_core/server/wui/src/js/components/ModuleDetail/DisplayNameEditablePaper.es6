@@ -16,7 +16,7 @@ import UrlLabel from 'src/components/commons/UrlLabel'
 class DisplayNameEditablePaper extends Component {
   static propTypes = {
     obj: PropTypes.object.isRequired,
-    secondayType: PropTypes.string,
+    secondaryType: PropTypes.string,
     onCopyButtonTouchTap: PropTypes.func,
     onEditTouchTap: PropTypes.func,
   }
@@ -27,7 +27,7 @@ class DisplayNameEditablePaper extends Component {
   render() {
     const {
       obj,
-      secondayType = 'id',
+      secondaryType = 'id',
       onCopyButtonTouchTap,
       onEditTouchTap,
     } = this.props
@@ -50,7 +50,7 @@ class DisplayNameEditablePaper extends Component {
       },
     }
 
-    const SecondaryLabel = secondayType === 'id' ? IdLabel : UrlLabel
+    const SecondaryLabel = secondaryType === 'id' ? IdLabel : UrlLabel
 
     return (
       <Paper>
