@@ -64,7 +64,7 @@ class OAuthGrant(MetaDataBase):
     user_id = sa.Column(GUID, sa.ForeignKey('users.uuid'), nullable=False)
     expires_at = sa.Column(sa.DateTime, nullable=False)
 
-    user = orm.relationship('User', backref='grants')
+    user = orm.relationship('User', backref=orm.backref('grants', cascade='all, delete-orphan'))
 
     def to_json(self):
         """GRANTのJSON用表現を返す"""
@@ -115,7 +115,7 @@ class OAuthToken(MetaDataBase):
     expires_at = sa.Column(sa.DateTime, nullable=False)
     user_id = sa.Column(GUID, sa.ForeignKey('users.uuid'), nullable=False)
 
-    user = orm.relationship('User', backref='tokens')
+    user = orm.relationship('User', backref=orm.backref('tokens', cascade='all, delete-orphan'))
 
     @property
     def expires(self):
