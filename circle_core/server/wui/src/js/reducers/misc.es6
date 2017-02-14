@@ -3,9 +3,12 @@ import {LOCATION_CHANGE} from 'react-router-redux'
 
 import {actionTypes} from 'src/actions'
 
+import Invitation from 'src/models/Invitation'
 
 const initialState = {
   errorMessage: null,
+  isInvitationCreatedDialogOpen: false,
+  newInvitation: null,
 }
 
 
@@ -24,6 +27,22 @@ const misc = handleActions({
       errorMessage: action.payload,
     }
   },
+
+  [actionTypes.invitation.createSucceeded]: (state, action) => {
+    return {
+      ...state,
+      isInvitationCreatedDialogOpen: true,
+      newInvitation: Invitation.fromObject(action.payload.invitation),
+    }
+  },
+  [actionTypes.invitation.createdDialogClose]: (state, action) => {
+    return {
+      ...state,
+      isInvitationCreatedDialogOpen: false,
+      newInvitation: null,
+    }
+  },
+
 }, initialState)
 
 export default misc

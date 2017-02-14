@@ -7,6 +7,8 @@ const payloadCreators = {
   createSucceeded: (response) => response,
   createFailed: (message) => message,
 
+  createdDialogClose: () => null,
+
   // Fetch
   fetchRequest: (params) => params.invitationId,
   fetchSucceeded: (response) => response,
