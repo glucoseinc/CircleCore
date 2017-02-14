@@ -6,6 +6,7 @@ from __future__ import absolute_import
 
 import logging
 import datetime
+import math
 import threading
 import time
 import uuid
@@ -27,6 +28,7 @@ from circle_core.core.message import ModuleMessage, ModuleMessagePrimaryKey
 from .constants import CRDataType
 from .models.module import Module
 from .models.schema import Schema
+from .timed_db import TimedDBBundle
 
 if PY3:
     from typing import List
@@ -43,7 +45,7 @@ logger = logging.getLogger(__name__)
 class Database(object):
     """CircleCoreでのセンサデータ書き込み先DBを管理するクラス"""
 
-    def __init__(self, database_url):
+    def __init__(self, database_url, time_db_dir):
         """
         @constructor
 
@@ -55,6 +57,8 @@ class Database(object):
 
         self._metadata = sa.MetaData()
         self._metadata.reflect(self._engine)
+
+        self._time_db_dir = time_db_dir
 
         self._thread_id = None
 
@@ -371,7 +375,7 @@ class Database(object):
 #                     logger.info('    table is empty')
 #                     self.diff_result.alter_tables.append(table)
     def make_writer(self, cycle_time=10.0, cycle_count=100):
-        return QueuedWriter(self, cycle_time, cycle_count)
+        return QueuedWriter(self, self._time_db_dir, cycle_time, cycle_count)
 
 
 def make_sqlcolumn_from_datatype(name, datatype):
@@ -398,21 +402,25 @@ def make_sqlcolumn_from_datatype(name, datatype):
 
 
 class QueuedWriter(object):
-    def __init__(self, database, cycle_time=10.0, cycle_count=100):
+    def __init__(self, database, time_db_dir, cycle_time=10.0, cycle_count=100):
         if cycle_time < 0:
             raise ValueError
         if cycle_count < 0:
             raise ValueError
+
+        # RDB
         self.database = database
+        # 時系列DB
+        self.time_db_bundle = TimedDBBundle(time_db_dir)
+        # timed dbのアップデート用にlist((box_id, timestamp))を記録する
+        self.updates = []
+
         self.cycle_count = cycle_count
         self.cycle_time = datetime.timedelta(seconds=cycle_time)
 
         self.connection = self.database.connect()
         self.transaction = None
         self.timeout = None
-
-        # hook
-        self.on_commit_transaction = None
 
     def store(self, message_box, message):
         if not isinstance(message, ModuleMessage):
@@ -422,15 +430,16 @@ class QueuedWriter(object):
             self.begin_transaction()
 
         self.database.store_message(message_box, message, connection=self.connection)
+        self.updates.append((message.box_id, message.timestamp))
         self.write_count += 1
 
         if self.write_count >= self.cycle_count:
             self.commit_transaction()
 
-    def commit(self):
+    def commit(self, flush_all=False):
         if not self.transaction:
             return
-        self.commit_transaction()
+        self.commit_transaction(flush_all)
 
     def begin_transaction(self):
         assert self.transaction is None
@@ -438,16 +447,30 @@ class QueuedWriter(object):
         self.transaction, self.write_count, self.transaction_begin = self.connection.begin(), 0, time.time()
         self.timeout = tornado.ioloop.IOLoop.current().add_timeout(self.cycle_time, self.on_timeout)
 
-    def commit_transaction(self):
+    def commit_transaction(self, flush_all=False):
+        # commit RDB
         logger.debug('commit, data count=%d, interval=%f', self.write_count, time.time() - self.transaction_begin)
         self.transaction.commit()
+
+        # commit TimeDB
+        if flush_all:
+            self.time_db_bundle.update(self.updates)
+            self.updates = []
+        elif self.updates:
+            # lastのtimestamp秒以外を反映
+            last_timestamp = math.floor(self.updates[-1][1])
+            for idx, (box_id, timestamp) in enumerate(self.updates):
+                if timestamp >= last_timestamp:
+                    break
+            if idx:
+                updates, self.updates = self.updates[:idx - 1], self.updates[idx - 1:]
+                self.time_db_bundle.update(updates)
+
+        # remove timeout and reset
         if self.timeout:
             tornado.ioloop.IOLoop.current().remove_timeout(self.timeout)
             self.timeout = None
         self.transaction = self.write_count = self.transaction_begin = None
-
-        if self.on_commit_transaction:
-            self.on_commit_transaction(self)
 
     def on_timeout(self):
         self.timeout = None

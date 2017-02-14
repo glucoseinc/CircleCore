@@ -4,6 +4,7 @@
 from collections import defaultdict
 import logging
 import os
+import threading
 
 import whisper
 
@@ -12,6 +13,17 @@ logger = logging.getLogger(__name__)
 
 WHISPER_ARCHIVES_STRING = '1s:24h 10s:7d 10m:150d 1h:3y'.split(' ')
 WHISPER_ARCHIVES = [whisper.parseRetentionDef(d) for d in WHISPER_ARCHIVES_STRING]
+
+
+WHISPER_GLOBAL_LOCK = threading.Lock()
+WHISPER_GLOBAL_LOCKS = {}
+
+
+def get_lock(filepath):
+    with WHISPER_GLOBAL_LOCK:
+        if filepath not in WHISPER_GLOBAL_LOCKS:
+            WHISPER_GLOBAL_LOCKS[filepath] = threading.Lock()
+        return WHISPER_GLOBAL_LOCKS[filepath]
 
 
 class TimedDBBundle(object):
@@ -48,9 +60,10 @@ class TimedDBBundle(object):
                     aggregationMethod='sum', sparse=False, useFallocate=True)
 
             logger.debug('update timed db (%s): %r', box_id, timestamps)
-            whisper.update_many(
-                db_path, timestamps
-            )
+            with get_lock(db_path):
+                whisper.update_many(
+                    db_path, timestamps
+                )
 
     def find_db(self, box_id):
         return TimedDB(os.path.join(self.dir_prefix, TimedDB.make_db_name(box_id)))
@@ -84,7 +97,8 @@ class TimedDB(object):
 
     def fetch(self, start_time, end_time):
         try:
-            data = whisper.fetch(self.filepath, start_time, end_time)
+            with get_lock(self.filepath):
+                data = whisper.fetch(self.filepath, start_time, end_time)
         except FileNotFoundError:
             return None
 

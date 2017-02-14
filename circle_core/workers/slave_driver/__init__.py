@@ -127,6 +127,9 @@ class Replicator(object):
     def clear(self):
         if self.ws:
             self.ws.close()
+        if self.writer:
+            self.writer.commit(flush_all=True)
+
         self.ws = None
         self.target_boxes = None
         self.writer = None
@@ -136,6 +139,8 @@ class Replicator(object):
         self.ws = yield websocket_connect(self.endpoint_url)
         self.state = ReplicationState.HANDSHAKING
 
+        logger.info('Replication connection to %s: established', self.endpoint_url)
+
         # HANDSHAKING
         self.send_hello_command()
         assert self.state == ReplicationState.MIGRATING
@@ -144,6 +149,9 @@ class Replicator(object):
         # MIGRATING
         self.send_migrated_command()
         assert self.state == ReplicationState.SYNCING
+
+        logger.info('Replication connection to %s: migrated, start syncing', self.endpoint_url)
+
         while True:
             yield self.wait_command([MasterCommand.SYNC_MESSAGE, MasterCommand.NEW_MESSAGE])
 

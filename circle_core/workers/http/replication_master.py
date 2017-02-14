@@ -56,7 +56,6 @@ class SyncState(object):
         self.master_head = None
 
     def is_synced(self):
-        logger.info('check is synced %r %r == %r', self.box.uuid, self.slave_head, self.master_head)
         return self.slave_head == self.master_head
 
 
@@ -214,7 +213,6 @@ class ReplicationMaster(WebSocketHandler):
     def on_new_message(self, topic, jsonobj):
         """新しいメッセージを受けとった"""
         message = ModuleMessage.from_json(jsonobj)
-        logger.debug('!? on_new_message %r %r', topic, message)
 
         if message.box_id not in self.sync_states:
             # not interested

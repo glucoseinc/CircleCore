@@ -5,7 +5,6 @@
 from collections import defaultdict
 from datetime import datetime
 import logging
-import math
 import threading
 import time
 from uuid import UUID
@@ -21,7 +20,6 @@ from ..database import Database
 from ..exceptions import MessageBoxNotFoundError, ModuleNotFoundError, SchemaNotFoundError
 from ..helpers.topics import make_message_topic
 from ..models import MessageBox, NoResultFound, Schema
-from ..timed_db import TimedDBBundle
 
 
 logger = logging.getLogger(__name__)
@@ -58,13 +56,8 @@ class DataReceiverWorker(CircleWorker):
         self.cycle_count = cycle_count
         self.cycle_time = cycle_time
 
-        self.db = Database(db_url)
+        self.db = Database(db_url, time_db_dir)
         self.writer = self.db.make_writer(cycle_time=cycle_time, cycle_count=cycle_count)
-        self.writer.on_commit_transaction = self.on_commit
-
-        self.time_db_bundle = TimedDBBundle(time_db_dir)
-        # timed dbのアップデート用にlist((box_id, timestamp))を記録する
-        self.updates = []
 
         self.counter_lock = threading.Lock()
 
@@ -82,11 +75,7 @@ class DataReceiverWorker(CircleWorker):
 
     def finalize(self):
         """override"""
-        self.writer.commit()
-
-        # flush all updates
-        self.time_db_bundle.update(self.updates)
-        self.updates = []
+        self.writer.commit(flush_all=True)
 
     def on_new_message(self, request):
         """新しいメッセージを受けとった"""
@@ -135,8 +124,6 @@ class DataReceiverWorker(CircleWorker):
         msg = self.make_primary_key(message_box, payload)
         self.writer.store(message_box, msg)
 
-        self.updates.append((msg.box_id, msg.timestamp))
-
         return msg
 
     def make_primary_key(self, message_box, payload):
@@ -150,13 +137,3 @@ class DataReceiverWorker(CircleWorker):
             self.counters[message_box.uuid] = counter
 
         return ModuleMessage(message_box.uuid, timestamp, counter, payload)
-
-    def on_commit(self, writer):
-        """DBにコミットするタイミングで時系列DBも更新する"""
-        # 現在の秒のデータは更新中なので、その手前までを保存する...
-        threshold = math.floor(time.time()) - 1
-        for idx, (box_id, timestamp) in enumerate(self.updates):
-            if timestamp >= threshold:
-                break
-        updates, self.updates = self.updates[:idx], self.updates[idx:]
-        self.time_db_bundle.update(updates)
