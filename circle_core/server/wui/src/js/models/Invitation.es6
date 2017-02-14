@@ -5,6 +5,7 @@ import moment from 'moment'
 
 const InvitationRecord = Record({
   uuid: '',
+  url: '',
   maxInvites: -1,
   currentInvites: -1,
   _createdAt: null,
@@ -28,6 +29,7 @@ export default class Invitation extends InvitationRecord {
   static fromObject(rawInvitation) {
     return new Invitation({
       uuid: rawInvitation.uuid,
+      url: rawInvitation.url,
       maxInvites: rawInvitation.maxInvites,
       currentInvites: rawInvitation.currentInvites,
       _createdAt: moment.utc(rawInvitation.dateCreated),
@@ -40,13 +42,6 @@ export default class Invitation extends InvitationRecord {
    */
   get displayName() {
     return this.uuid
-  }
-
-  /**
-   * ユーザー招待リンクのパス
-   */
-  get url() {
-    return `${location.origin}/invitation/${this.uuid}`
   }
 
   /**
