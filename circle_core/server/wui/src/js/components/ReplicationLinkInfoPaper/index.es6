@@ -19,8 +19,6 @@ class ReplicationLinkInfoPaper extends Component {
     modules: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
     onDisplayNameTouchTap: PropTypes.func,
-    onUrlCopyButtonTouchTap: PropTypes.func,
-    onReplicationSlaveCopyButtonTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
   }
 
@@ -33,8 +31,6 @@ class ReplicationLinkInfoPaper extends Component {
       modules,
       ccInfos,
       onDisplayNameTouchTap,
-      onUrlCopyButtonTouchTap,
-      onReplicationSlaveCopyButtonTouchTap,
       onDeleteTouchTap,
     } = this.props
 
@@ -98,7 +94,6 @@ class ReplicationLinkInfoPaper extends Component {
                 <div style={style.urlSection}>
                   <UrlLabel
                     obj={replicationLink}
-                    onCopyButtonTouchTap={onUrlCopyButtonTouchTap}
                   />
                 </div>
 
@@ -113,7 +108,6 @@ class ReplicationLinkInfoPaper extends Component {
                   <ReplicationSlavesLabel
                     replicationLink={replicationLink}
                     ccInfos={ccInfos}
-                    onCopyTouchTap={onReplicationSlaveCopyButtonTouchTap}
                   />
                 </div>
 

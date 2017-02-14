@@ -45,8 +45,6 @@ class Cores extends Component {
             ccInfo={ccInfo}
             onDisplayNameTouchTap={
               () => console.log('onDisplayNameTouchTap')}
-            onIdCopyButtonTouchTap={
-              () => console.log('onIdCopyButtonTouchTap')}
             onDeleteTouchTap={
               () => console.log('onDeleteTouchTap')}
           />

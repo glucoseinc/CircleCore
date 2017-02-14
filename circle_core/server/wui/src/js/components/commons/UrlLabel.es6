@@ -3,7 +3,7 @@ import React, {Component, PropTypes} from 'react'
 import {blue500} from 'material-ui/styles/colors'
 
 import ComponentWithIcon from 'src/components/bases/ComponentWithIcon'
-import LabelWithCopyButton from 'src/components/bases/LabelWithCopyButton'
+import LabelWithCopyButton from 'src/containers/bases/LabelWithCopyButton'
 import {ReplicationLinkIcon} from 'src/components/bases/icons'
 
 
@@ -13,7 +13,6 @@ import {ReplicationLinkIcon} from 'src/components/bases/icons'
 class UrlLabel extends Component {
   static propTypes = {
     obj: PropTypes.object.isRequired,
-    onCopyButtonTouchTap: PropTypes.func,
   }
 
   /**
@@ -22,7 +21,6 @@ class UrlLabel extends Component {
   render() {
     const {
       obj,
-      onCopyButtonTouchTap,
     } = this.props
 
     const style = {
@@ -36,7 +34,7 @@ class UrlLabel extends Component {
         <LabelWithCopyButton
           label={obj.url}
           labelStyle={style.label}
-          onTouchTap={onCopyButtonTouchTap}
+          messageWhenCopying="URLをコピーしました"
         />
       </ComponentWithIcon>
     )

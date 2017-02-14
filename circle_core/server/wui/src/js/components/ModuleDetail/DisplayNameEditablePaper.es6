@@ -17,7 +17,6 @@ class DisplayNameEditablePaper extends Component {
   static propTypes = {
     obj: PropTypes.object.isRequired,
     secondaryType: PropTypes.string,
-    onCopyButtonTouchTap: PropTypes.func,
     onEditTouchTap: PropTypes.func,
   }
 
@@ -28,7 +27,6 @@ class DisplayNameEditablePaper extends Component {
     const {
       obj,
       secondaryType = 'id',
-      onCopyButtonTouchTap,
       onEditTouchTap,
     } = this.props
 
@@ -65,7 +63,6 @@ class DisplayNameEditablePaper extends Component {
               </div>
               <SecondaryLabel
                 obj={obj}
-                onCopyButtonTouchTap={onCopyButtonTouchTap}
               />
             </div>
           </ComponentWithIconButton>

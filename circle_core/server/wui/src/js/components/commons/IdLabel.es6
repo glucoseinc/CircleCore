@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 
 import ComponentWithIcon from 'src/components/bases/ComponentWithIcon'
-import LabelWithCopyButton from 'src/components/bases/LabelWithCopyButton'
+import LabelWithCopyButton from 'src/containers/bases/LabelWithCopyButton'
 import {IdIcon} from 'src/components/bases/icons'
 
 
@@ -11,7 +11,6 @@ import {IdIcon} from 'src/components/bases/icons'
 class IdLabel extends Component {
   static propTypes = {
     obj: PropTypes.object.isRequired,
-    onCopyButtonTouchTap: PropTypes.func,
   }
 
   /**
@@ -20,14 +19,13 @@ class IdLabel extends Component {
   render() {
     const {
       obj,
-      onCopyButtonTouchTap,
     } = this.props
 
     return (
       <ComponentWithIcon icon={IdIcon}>
         <LabelWithCopyButton
           label={obj.uuid}
-          onTouchTap={onCopyButtonTouchTap}
+          messageWhenCopying="IDをコピーしました"
         />
       </ComponentWithIcon>
     )

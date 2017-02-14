@@ -22,8 +22,6 @@ class Replicas extends Component {
     modules: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
     onDisplayNameTouchTap: PropTypes.func,
-    onUrlCopyButtonTouchTap: PropTypes.func,
-    onReplicationSlaveCopyButtonTouchTap: PropTypes.func,
     onDeleteOkButtonTouchTap: PropTypes.func,
   }
 
@@ -72,8 +70,6 @@ class Replicas extends Component {
       modules,
       ccInfos,
       onDisplayNameTouchTap,
-      onUrlCopyButtonTouchTap,
-      onReplicationSlaveCopyButtonTouchTap,
     } = this.props
 
     if (isReplicationLinkFetching) {
@@ -91,8 +87,6 @@ class Replicas extends Component {
             modules={modules}
             ccInfos={ccInfos}
             onDisplayNameTouchTap={(replicationLink) => onDisplayNameTouchTap(replicationLink.uuid)}
-            onUrlCopyButtonTouchTap={onUrlCopyButtonTouchTap}
-            onReplicationSlaveCopyButtonTouchTap={onReplicationSlaveCopyButtonTouchTap}
             onDeleteTouchTap={::this.onDeleteTouchTap}
           />
         )}
@@ -120,8 +114,6 @@ const mapDispatchToProps = (dispatch) => ({
   onDisplayNameTouchTap: (replicationLinkId) => (
     dispatch(routerActions.push(createPathName(urls.replica, {replicationLinkId})))
   ),
-  onUrlCopyButtonTouchTap: (url) => dispatch(actions.page.showSnackbar('URLをコピーしました')),
-  onReplicationSlaveCopyButtonTouchTap: (uuid) => dispatch(actions.page.showSnackbar('IDをコピーしました')),
   onDeleteOkButtonTouchTap: (replicationLink) => dispatch(actions.replicationLink.deleteRequest(replicationLink.uuid)),
 })
 

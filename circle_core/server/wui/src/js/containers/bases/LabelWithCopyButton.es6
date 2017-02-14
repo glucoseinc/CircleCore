@@ -1,5 +1,8 @@
 import React, {Component, PropTypes} from 'react'
+import {connect} from 'react-redux'
 import {findDOMNode} from 'react-dom'
+
+import actions from 'src/actions'
 
 import IconButton from 'material-ui/IconButton'
 import {grey500} from 'material-ui/styles/colors'
@@ -39,20 +42,24 @@ class LabelWithCopyButton extends Component {
   static propTypes = {
     label: PropTypes.string.isRequired,
     labelStyle: PropTypes.object,
+    messageWhenCopying: PropTypes.string.isRequired,
     onTouchTap: PropTypes.func,
   }
 
   /**
    * コピーボタン押下時、クリップボードにUUIDをコピーし親にイベントを送る
-   * @param {object} e
    */
-  onTouchTap(e) {
+  onTouchTap() {
+    const {
+      messageWhenCopying,
+      onTouchTap,
+    } = this.props
     const dom = findDOMNode(this.refs.hiddenTextArea)
     dom.focus()
     dom.select()
     document.execCommand('copy')
     dom.blur()
-    this.props.onTouchTap(this.props.label)
+    onTouchTap(messageWhenCopying)
   }
 
 
@@ -102,7 +109,7 @@ class LabelWithCopyButton extends Component {
         <IconButton
           style={style.iconButton}
           iconStyle={style.icon}
-          onTouchTap={::this.onTouchTap}
+          onTouchTap={() => this.onTouchTap()}
         >
           <CopyIcon color={grey500}/>
         </IconButton>
@@ -111,4 +118,15 @@ class LabelWithCopyButton extends Component {
   }
 }
 
-export default LabelWithCopyButton
+
+const mapStateToProps = (state) => ({
+})
+
+const mapDispatchToProps = (dispatch) => ({
+  onTouchTap: (message) => dispatch(actions.page.showSnackbar(message)),
+})
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(LabelWithCopyButton)

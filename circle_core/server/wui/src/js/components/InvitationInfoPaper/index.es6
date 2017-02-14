@@ -18,8 +18,6 @@ class InvitationInfoPaper extends Component {
   static propTypes = {
     invitation: PropTypes.object.isRequired,
     readOnly: PropTypes.bool,
-    onIdCopyButtonTouchTap: PropTypes.func,
-    onURLCopyButtonTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
   }
 
@@ -30,8 +28,6 @@ class InvitationInfoPaper extends Component {
     const {
       invitation,
       readOnly = true,
-      onIdCopyButtonTouchTap,
-      onURLCopyButtonTouchTap,
       onDeleteTouchTap,
     } = this.props
 
@@ -94,13 +90,11 @@ class InvitationInfoPaper extends Component {
             <div style={style.urlSection}>
               <UrlLabel
                 obj={invitation}
-                onCopyButtonTouchTap={onURLCopyButtonTouchTap}
               />
             </div>
             <div style={style.idSection}>
               <IdLabel
                 obj={invitation}
-                onCopyButtonTouchTap={onIdCopyButtonTouchTap}
               />
             </div>
           </div>

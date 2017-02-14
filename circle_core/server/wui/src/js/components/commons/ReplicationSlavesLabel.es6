@@ -15,7 +15,6 @@ class ReplicationSlavesLabel extends Component {
   static propTypes = {
     replicationLink: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
-    onCopyTouchTap: PropTypes.func,
   }
 
   /**
@@ -25,7 +24,6 @@ class ReplicationSlavesLabel extends Component {
     const {
       replicationLink,
       ccInfos,
-      onCopyTouchTap,
     } = this.props
 
     const slaveCcInfos = ccInfos.filter((ccInfo) =>
@@ -41,7 +39,6 @@ class ReplicationSlavesLabel extends Component {
             rootStyle={{
               backgroundColor: index % 2 ? white :grey300,
             }}
-            onCopyTouchTap={onCopyTouchTap}
           />
         )}
       </ComponentWithIcon>

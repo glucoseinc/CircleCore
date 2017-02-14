@@ -22,7 +22,6 @@ class SchemaInfoPaper extends Component {
     schema: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
     onDisplayNameTouchTap: PropTypes.func,
-    onIdCopyButtonTouchTap: PropTypes.func,
     onModuleButtonTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
   }
@@ -35,7 +34,6 @@ class SchemaInfoPaper extends Component {
       schema,
       modules,
       onDisplayNameTouchTap,
-      onIdCopyButtonTouchTap,
       onModuleButtonTouchTap,
       onDeleteTouchTap,
     } = this.props
@@ -117,7 +115,6 @@ class SchemaInfoPaper extends Component {
                 <div style={style.idSection}>
                   <IdLabel
                     obj={schema}
-                    onCopyButtonTouchTap={onIdCopyButtonTouchTap}
                   />
                 </div>
 

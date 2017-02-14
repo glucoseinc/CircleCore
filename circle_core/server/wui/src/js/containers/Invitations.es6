@@ -26,8 +26,6 @@ class Invitations extends Component {
     newInvitation: PropTypes.object,
     token: PropTypes.object.isRequired,
     onCreateTouchTap: PropTypes.func,
-    onIdCopyButtonTouchTap: PropTypes.func,
-    onURLCopyButtonTouchTap: PropTypes.func,
     onCreatedDialogClose: PropTypes.func,
     onDeleteOkButtonTouchTap: PropTypes.func,
   }
@@ -79,8 +77,6 @@ class Invitations extends Component {
       newInvitation,
       token,
       onCreateTouchTap,
-      onIdCopyButtonTouchTap,
-      onURLCopyButtonTouchTap,
       onCreatedDialogClose,
     } = this.props
 
@@ -106,8 +102,6 @@ class Invitations extends Component {
                 key={invitation.uuid}
                 invitation={invitation}
                 readOnly={isReadOnly}
-                onIdCopyButtonTouchTap={onIdCopyButtonTouchTap}
-                onURLCopyButtonTouchTap={onURLCopyButtonTouchTap}
                 onDeleteTouchTap={::this.onDeleteTouchTap}
               />
             )}
@@ -147,8 +141,6 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   onCreateTouchTap: () => dispatch(actions.invitation.createRequest({maxInvites: 1})),
-  onIdCopyButtonTouchTap: (uuid) => dispatch(actions.page.showSnackbar('IDをコピーしました')),
-  onURLCopyButtonTouchTap: (uuid) => dispatch(actions.page.showSnackbar('URLをコピーしました')),
   onCreatedDialogClose: () => dispatch(actions.invitation.createdDialogClose()),
   onDeleteOkButtonTouchTap: (invitation) => dispatch(actions.invitation.deleteRequest(invitation.uuid)),
 })

@@ -19,7 +19,6 @@ class ModuleCards extends Component {
     timeAxisUnit: PropTypes.number,
     modules: PropTypes.object.isRequired,
     onDisplayNameTouchTap: PropTypes.func,
-    onIdCopyButtonTouchTap: PropTypes.func,
   }
 
   static defaultProps = {
@@ -46,7 +45,6 @@ class ModuleCards extends Component {
       cols,
       modules,
       onDisplayNameTouchTap,
-      onIdCopyButtonTouchTap,
     } = this.props
     const {
       autoUpdate,
@@ -135,7 +133,6 @@ class ModuleCards extends Component {
                 autoUpdate={autoUpdate}
                 graphRange={graphRange}
                 onDisplayNameTouchTap={onDisplayNameTouchTap}
-                onIdCopyButtonTouchTap={onIdCopyButtonTouchTap}
               />
             </GridTile>
           ))}

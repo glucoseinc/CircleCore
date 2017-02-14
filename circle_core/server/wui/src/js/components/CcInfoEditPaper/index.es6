@@ -16,7 +16,6 @@ import WorkTextField from 'src/components/commons/WorkTextField'
 class CcInfoEditPaper extends Component {
   static propTypes = {
     ccInfo: PropTypes.object.isRequired,
-    onIdCopyButtonTouchTap: PropTypes.func,
     onUpdateTouchTap: PropTypes.func,
   }
 
@@ -39,7 +38,6 @@ class CcInfoEditPaper extends Component {
     } = this.state
     const {
       onUpdateTouchTap,
-      onIdCopyButtonTouchTap,
     } = this.props
 
     const style = {
@@ -78,7 +76,6 @@ class CcInfoEditPaper extends Component {
               <div style={style.displayNameArea}>
                 <IdLabel
                   obj={editingCcInfo}
-                  onCopyButtonTouchTap={onIdCopyButtonTouchTap}
                 />
                 <DisplayNameTextField
                   obj={editingCcInfo}

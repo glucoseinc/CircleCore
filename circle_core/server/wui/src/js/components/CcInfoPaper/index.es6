@@ -17,7 +17,6 @@ class CcInfoPaper extends Component {
   static propTypes = {
     ccInfo: PropTypes.object.isRequired,
     onDisplayNameTouchTap: PropTypes.func,
-    onIdCopyButtonTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
   }
 
@@ -28,7 +27,6 @@ class CcInfoPaper extends Component {
     const {
       ccInfo,
       onDisplayNameTouchTap,
-      onIdCopyButtonTouchTap,
       onDeleteTouchTap,
     } = this.props
 
@@ -89,7 +87,6 @@ class CcInfoPaper extends Component {
                 <div style={style.idSection}>
                   <IdLabel
                     obj={ccInfo}
-                    onCopyButtonTouchTap={onIdCopyButtonTouchTap}
                   />
                 </div>
                 <div style={style.workSection}>

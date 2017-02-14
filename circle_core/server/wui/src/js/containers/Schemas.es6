@@ -26,7 +26,6 @@ class Schemas extends Component {
     modules: PropTypes.object.isRequired,
     onDisplayNameTouchTap: PropTypes.func,
     onModuleButtonTouchTap: PropTypes.func,
-    onIdCopyButtonTouchTap: PropTypes.func,
     onDeleteOkButtonTouchTap: PropTypes.func,
   }
 
@@ -75,7 +74,6 @@ class Schemas extends Component {
       modules,
       onDisplayNameTouchTap,
       onModuleButtonTouchTap,
-      onIdCopyButtonTouchTap,
     } = this.props
 
     if (isSchemaFetching) {
@@ -99,7 +97,6 @@ class Schemas extends Component {
                 schema={schema}
                 modules={modules}
                 onDisplayNameTouchTap={(schema) => onDisplayNameTouchTap(schema.uuid)}
-                onIdCopyButtonTouchTap={onIdCopyButtonTouchTap}
                 onModuleButtonTouchTap={onModuleButtonTouchTap}
                 onDeleteTouchTap={::this.onDeleteTouchTap}
               />
@@ -132,7 +129,6 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
   onDisplayNameTouchTap: (schemaId) => dispatch(routerActions.push(createPathName(urls.schema, {schemaId}))),
   onModuleButtonTouchTap: (moduleId) => dispatch(routerActions.push(createPathName(urls.module, {moduleId}))),
-  onIdCopyButtonTouchTap: (uuid) => dispatch(actions.page.showSnackbar('IDをコピーしました')),
   onDeleteOkButtonTouchTap: (schema) => dispatch(actions.schema.deleteRequest(schema.uuid)),
 })
 

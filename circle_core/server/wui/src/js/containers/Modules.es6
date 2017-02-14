@@ -26,7 +26,6 @@ class Modules extends Component {
     isModuleFetching: PropTypes.bool.isRequired,
     modules: PropTypes.object.isRequired,
     onModuleInfoPaperTouchTap: PropTypes.func,
-    onIdCopyButtonTouchTap: PropTypes.func,
     onDeleteOkButtonTouchTap: PropTypes.func,
     width: PropTypes.number.isRequired,
   }
@@ -74,7 +73,6 @@ class Modules extends Component {
       isModuleFetching,
       modules,
       onModuleInfoPaperTouchTap,
-      onIdCopyButtonTouchTap,
       width,
     } = this.props
 
@@ -97,7 +95,6 @@ class Modules extends Component {
             width={width}
             onModuleInfoPaperTouchTap={onModuleInfoPaperTouchTap}
             onDeleteTouchTap={::this.onDeleteTouchTap}
-            onIdCopyButtonTouchTap={onIdCopyButtonTouchTap}
           />
         )}
 
@@ -124,7 +121,6 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   onModuleInfoPaperTouchTap: (moduleId) => dispatch(routerActions.push(createPathName(urls.module, {moduleId}))),
-  onIdCopyButtonTouchTap: (uuid) => dispatch(actions.page.showSnackbar('IDをコピーしました')),
   onDeleteOkButtonTouchTap: (module) => dispatch(actions.module.deleteRequest(module.uuid)),
 })
 

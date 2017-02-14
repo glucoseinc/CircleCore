@@ -16,7 +16,6 @@ class ModuleCard extends Component {
     autoUpdate: PropTypes.bool.isRequired,
     graphRange: PropTypes.string.isRequired,
     onDisplayNameTouchTap: PropTypes.func,
-    onIdCopyButtonTouchTap: PropTypes.func,
   }
 
   /**
@@ -28,7 +27,6 @@ class ModuleCard extends Component {
       autoUpdate,
       graphRange,
       onDisplayNameTouchTap,
-      onIdCopyButtonTouchTap,
     } = this.props
 
     const style = {
@@ -63,7 +61,6 @@ class ModuleCard extends Component {
             <div style={style.id}>
               <IdLabel
                 obj={module}
-                onCopyButtonTouchTap={onIdCopyButtonTouchTap}
               />
             </div>
           </div>

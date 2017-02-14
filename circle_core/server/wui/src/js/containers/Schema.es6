@@ -21,7 +21,6 @@ class Schema extends Component {
     schemas: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,
     setTitle: PropTypes.func,
-    onIdCopyButtonTouchTap: PropTypes.func,
     onBackButtonTouchTap: PropTypes.func,
     onDeleteOkButtonTouchTap: PropTypes.func,
   }
@@ -73,7 +72,6 @@ class Schema extends Component {
       isFetching,
       schemas,
       params,
-      onIdCopyButtonTouchTap,
       onBackButtonTouchTap,
     } = this.props
 
@@ -97,7 +95,6 @@ class Schema extends Component {
       <div className="page">
         <SchemaDetail
           schema={schema}
-          onIdCopyButtonTouchTap={onIdCopyButtonTouchTap}
           onBackTouchTap={onBackButtonTouchTap}
           onDeleteTouchTap={::this.onDeleteTouchTap}
         />
@@ -121,7 +118,6 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   setTitle: (title) => dispatch(actions.page.setTitle(title)),
-  onIdCopyButtonTouchTap: (uuid) => dispatch(actions.page.showSnackbar('IDをコピーしました')),
   onBackButtonTouchTap: () => dispatch(routerActions.push(urls.schemas.fullPath)),
   onDeleteOkButtonTouchTap: (schema) => dispatch(actions.schema.deleteRequest(schema.uuid)),
 })

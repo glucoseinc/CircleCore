@@ -24,7 +24,6 @@ class MessageBoxEditablePaper extends Component {
     messageBoxIndex: PropTypes.number.isRequired,
     schema: PropTypes.object.isRequired,
     deleteDispabled: PropTypes.bool,
-    onIdCopyButtonTouchTap: PropTypes.func,
     onEditTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
     onDownloadTouchTap: PropTypes.func,
@@ -48,7 +47,6 @@ class MessageBoxEditablePaper extends Component {
       messageBoxIndex,
       schema,
       deleteDispabled = false,
-      onIdCopyButtonTouchTap,
       onEditTouchTap,
       onDeleteTouchTap,
       onDownloadTouchTap,
@@ -154,7 +152,6 @@ class MessageBoxEditablePaper extends Component {
               </div>
               <IdLabel
                 obj={messageBox}
-                onCopyButtonTouchTap={onIdCopyButtonTouchTap}
               />
             </div>
 
