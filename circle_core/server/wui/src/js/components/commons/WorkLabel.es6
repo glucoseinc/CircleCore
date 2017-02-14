@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 
 import ComponentWithIcon from 'src/components/bases/ComponentWithIcon'
-import {MemoIcon} from 'src/components/bases/icons'
+import {WorkIcon} from 'src/components/bases/icons'
 
 
 /**
@@ -29,7 +29,7 @@ class WorkLabel extends Component {
     }
 
     return (
-      <ComponentWithIcon icon={MemoIcon}>
+      <ComponentWithIcon icon={WorkIcon}>
         <div style={style.work}>
           {obj.work}
         </div>
