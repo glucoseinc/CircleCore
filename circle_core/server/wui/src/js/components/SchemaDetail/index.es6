@@ -4,9 +4,9 @@ import ComponentWithTitle from 'src/components/bases/ComponentWithTitle'
 
 import BackButton from 'src/components/commons/BackButton'
 import DeleteButton from 'src/components/commons/DeleteButton'
+import DisplayNamePaper from 'src/components/commons/DisplayNamePaper'
+import MetadataPaper from 'src/components/commons/MetadataPaper'
 
-import DisplayNamePaper from './DisplayNamePaper'
-import MetadataPaper from './MetadataPaper'
 import PropertiesTableComponent from './PropertiesTableComponent'
 
 
@@ -16,6 +16,7 @@ import PropertiesTableComponent from './PropertiesTableComponent'
 class SchemaDetail extends Component {
   static propTypes = {
     schema: PropTypes.object.isRequired,
+    onIdCopyButtonTouchTap: PropTypes.func,
     onBackTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
   }
@@ -26,6 +27,7 @@ class SchemaDetail extends Component {
   render() {
     const {
       schema,
+      onIdCopyButtonTouchTap,
       onBackTouchTap,
       onDeleteTouchTap,
     } = this.props
@@ -66,7 +68,11 @@ class SchemaDetail extends Component {
     return (
       <div style={style.root}>
         <div style={style.displayNamePaper}>
-          <DisplayNamePaper schema={schema} />
+          <DisplayNamePaper
+            obj={schema}
+            secondayType="id"
+            onCopyButtonTouchTap={onIdCopyButtonTouchTap}
+          />
         </div>
 
         <div style={style.propertiesArea}>
@@ -77,7 +83,7 @@ class SchemaDetail extends Component {
 
         <div style={style.metadataArea}>
           <ComponentWithTitle title="メタデータ">
-            <MetadataPaper schema={schema} />
+            <MetadataPaper obj={schema} />
           </ComponentWithTitle>
         </div>
 

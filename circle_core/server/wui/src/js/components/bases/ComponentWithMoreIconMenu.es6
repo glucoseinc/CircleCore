@@ -1,8 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 
-import IconButton from 'material-ui/IconButton'
-import IconMenu from 'material-ui/IconMenu'
-import NavigarionMoreVert from 'material-ui/svg-icons/navigation/more-vert'
+import MoreIconMenu from './MoreIconMenu'
 
 
 /**
@@ -33,32 +31,6 @@ class ComponentWithMoreIconMenu extends Component {
       children: {
         flexGrow: 1,
       },
-
-      icon: {
-        width: 24,
-        height: 24,
-      },
-      button: {
-        width: 24,
-        height: 24,
-        padding: 0,
-      },
-
-      list: {
-        paddingTop: 0,
-        paddingBottom: 0,
-      },
-
-      menuItemInnerDiv: {
-        fontSize: 14,
-        paddingLeft: 32,
-        paddingRight: 8,
-      },
-      menuItemIcon: {
-        margin: '16px 4px',
-        width: 16,
-        height: 16,
-      },
     }
 
     return (
@@ -66,33 +38,9 @@ class ComponentWithMoreIconMenu extends Component {
         <div style={style.children}>
           {children}
         </div>
-        <div style={style.icon}>
-          <IconMenu
-            iconButtonElement={
-              <IconButton
-                style={style.button}
-                iconStyle={style.icon}
-              >
-                <NavigarionMoreVert />
-              </IconButton>
-            }
-            anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
-            targetOrigin={{vertical: 'top', horizontal: 'right'}}
-            listStyle={style.list}
-          >
-            {React.Children.map(menuItems, (menuItem) => {
-              const innerDivStyle = style.menuItemInnerDiv
-              const leftIcon = React.cloneElement(
-                menuItem.props.leftIcon,
-                {style: style.menuItemIcon},
-              )
-              return React.cloneElement(
-                menuItem,
-                {innerDivStyle, leftIcon},
-              )
-            })}
-          </IconMenu>
-        </div>
+        <MoreIconMenu>
+          {React.Children.map(menuItems, (menuItem) => menuItem)}
+        </MoreIconMenu>
       </div>
     )
   }

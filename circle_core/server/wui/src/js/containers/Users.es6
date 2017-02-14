@@ -1,129 +1,118 @@
 import React, {Component, PropTypes} from 'react'
-import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
+import {routerActions} from 'react-router-redux'
 
 import actions from 'src/actions'
+import {urls, createPathName} from 'src/routes'
 
 import LoadingIndicator from 'src/components/bases/LoadingIndicator'
-import OkCancelDialog from 'src/components/bases/OkCancelDialog'
 
-import UsersTable from 'src/components/UsersTable'
+import UserDeleteDialog from 'src/components/commons/UserDeleteDialog'
+
+import UsersTableComponent from 'src/components/UsersTableComponent'
 
 
 /**
+ * User一覧
  */
 class Users extends Component {
   static propTypes = {
     isFetching: PropTypes.bool.isRequired,
     users: PropTypes.object.isRequired,
     token: PropTypes.object.isRequired,
-    actions: PropTypes.object.isRequired,
+    onDisplayNameTouchTap: PropTypes.func,
+    onDeleteOkButtonTouchTap: PropTypes.func,
+  }
+
+  state = {
+    deleteUser: null,
+    isUserDeleteDialogOpen: false,
   }
 
   /**
-   * @constructor
+   * 追加メニュー 削除の選択時の動作
+   * @param {object} user
    */
-  constructor(...args) {
-    super(...args)
+  onDeleteTouchTap(user) {
+    this.setState({
+      deleteUser: user,
+      isUserDeleteDialogOpen: true,
+    })
+  }
 
-    this.state = {
-      // 削除対象のユーザ
-      deleteTargetUser: null,
+  /**
+   * 削除ダイアログのボタン押下時の動作
+   * @param {bool} execute
+   * @param {object} user
+   */
+  onDeleteDialogButtonTouchTap(execute, user) {
+    this.setState({
+      deleteUser: null,
+      isUserDeleteDialogOpen: false,
+    })
+    if (execute && user) {
+      this.props.onDeleteOkButtonTouchTap(user)
     }
   }
+
 
   /**
    * @override
    */
   render() {
-    if(this.props.isFetching) {
+    const {
+      deleteUser,
+      isUserDeleteDialogOpen,
+    } = this.state
+    const {
+      isFetching,
+      users,
+      token,
+      onDisplayNameTouchTap,
+    } = this.props
+
+    if (isFetching) {
       return (
         <LoadingIndicator />
       )
     }
 
-    const {
-      users,
-      token,
-    } = this.props
-
-    const {
-      deleteTargetUser,
-    } = this.state
-
     const isReadOnly = token.hasScope('user+rw') ? false : true
 
     return (
-      <div className="page">
-        <UsersTable
-          users={users}
-          onDeleteUser={::this.onDeleteUser}
-          readOnly={isReadOnly}
-        />
+      <div>
+        <div className="page">
+          <UsersTableComponent
+            users={users}
+            readOnly={isReadOnly}
+            onDisplayNameTouchTap={(user) => onDisplayNameTouchTap(user.uuid)}
+            onDeleteTouchTap={(user) => this.onDeleteTouchTap(user)}
+          />
+        </div>
 
-        {deleteTargetUser &&
-          <OkCancelDialog
-            title="ユーザを削除しますか？"
-            okLabel="削除する"
-            onOkTouchTap={::this.onDeleteUserConfirmed}
-            cancelLabel="キャンセル"
-            onCancelTouchTap={() => this.setState({deleteTargetUser: null})}
-            open={true}
-          >
-            <p>{`${deleteTargetUser.displayName} を削除しますか？`}</p>
-          </OkCancelDialog>
-        }
+        <UserDeleteDialog
+          open={isUserDeleteDialogOpen}
+          user={deleteUser}
+          onOkTouchTap={(user) => this.onDeleteDialogButtonTouchTap(true, user)}
+          onCancelTouchTap={() => this.onDeleteDialogButtonTouchTap(false)}
+        />
       </div>
     )
   }
-
-  /**
-   * ユーザの削除ボタンが押されたら呼ばれる
-   * @param {User} user 削除対象ユーザ
-   */
-  onDeleteUser(user) {
-    this.setState({
-      deleteTargetUser: user,
-    })
-  }
-
-  /**
-   * ユーザーの削除確認でOKが押されたら呼ばれる
-   */
-  onDeleteUserConfirmed() {
-    this.props.actions.users.deleteRequest(this.state.deleteTargetUser)
-    this.setState({deleteTargetUser: null})
-  }
 }
 
 
-/**
- * [mapStateToProps description]
- * @param  {[type]} state [description]
- * @return {[type]}       [description]
- */
-function mapStateToProps(state) {
-  return {
-    isFetching: state.asyncs.isUsersFetching,
-    users: state.entities.users,
-    token: state.auth.token,
-  }
-}
+const mapStateToProps = (state) => ({
+  isFetching: state.asyncs.isUserFetching,
+  users: state.entities.users,
+  token: state.auth.token,
+})
 
 
-/**
- * [mapDispatchToProps description]
- * @param  {[type]} dispatch [description]
- * @return {[type]}          [description]
- */
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: {
-      users: bindActionCreators(actions.users, dispatch),
-    },
-  }
-}
-
+const mapDispatchToProps = (dispatch) => ({
+  onDisplayNameTouchTap: (userId) => dispatch(routerActions.push(createPathName(urls.user, {userId}))),
+  onDeleteOkButtonTouchTap: (user) => dispatch(actions.user.deleteRequest(user.uuid)),
+})
 
 export default connect(
   mapStateToProps,

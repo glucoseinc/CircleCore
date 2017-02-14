@@ -9,7 +9,7 @@ const settingRoute = {
   icon: SettingIcon,
   component: Setting,
   onEnterActions: [
-    actions.ccInfos.fetchMyselfRequest,
+    actions.ccInfo.fetchMyselfRequest,
   ],
 }
 

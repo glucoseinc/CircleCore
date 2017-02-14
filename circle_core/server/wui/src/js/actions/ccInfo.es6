@@ -3,9 +3,9 @@ import {createCcActions, nullPayloadCreator} from './utils'
 
 const payloadCreators = {
   // Fetch all
-  fetchRequest: nullPayloadCreator,
-  fetchSucceeded: (response) => response,
-  fetchFailed: (message) => message,
+  fetchAllRequest: nullPayloadCreator,
+  fetchAllSucceeded: (response) => response,
+  fetchAllFailed: (message) => message,
 
   // Fetch myself
   fetchMyselfRequest: nullPayloadCreator,
@@ -18,7 +18,7 @@ const payloadCreators = {
   updateFailed: (message) => message,
 }
 
-const ccActions = createCcActions('ccInfos', payloadCreators)
+const ccActions = createCcActions('ccInfo', payloadCreators)
 
 export default ccActions.actions
 export const actionTypes = ccActions.actionTypes

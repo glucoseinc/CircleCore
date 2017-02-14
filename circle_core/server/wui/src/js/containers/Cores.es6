@@ -10,7 +10,7 @@ import CcInfoPaper from 'src/components/CcInfoPaper'
  */
 class Cores extends Component {
   static propTypes = {
-    isFetching: PropTypes.bool.isRequired,
+    isCcInfoFetching: PropTypes.bool.isRequired,
     ccInfos: PropTypes.object.isRequired,
   }
 
@@ -24,11 +24,11 @@ class Cores extends Component {
     // const {
     // } = this.state
     const {
-      isFetching,
+      isCcInfoFetching,
       ccInfos,
     } = this.props
 
-    if (isFetching) {
+    if (isCcInfoFetching) {
       return (
         <LoadingIndicator />
       )
@@ -58,7 +58,7 @@ class Cores extends Component {
 
 
 const mapStateToProps = (state) => ({
-  isFetching: state.asyncs.isCcInfosFetching,
+  isCcInfoFetching: state.asyncs.isCcInfoFetching,
   ccInfos: state.entities.ccInfos,
 })
 

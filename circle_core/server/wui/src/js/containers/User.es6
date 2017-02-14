@@ -1,12 +1,12 @@
 import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 import Title from 'react-title-component'
-import {bindActionCreators} from 'redux'
-import {put, take} from 'redux-saga/effects'
+// import {bindActionCreators} from 'redux'
+// import {put, take} from 'redux-saga/effects'
 import {Snackbar} from 'material-ui'
 
-import actions, {actionTypes} from 'src/actions'
-import {store} from 'src/main'
+// import actions, {actionTypes} from 'src/actions'
+// import {store} from 'src/main'
 
 import LoadingIndicator from 'src/components/bases/LoadingIndicator'
 
@@ -22,7 +22,6 @@ class User extends Component {
     users: PropTypes.object.isRequired,
     token: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,
-    actions: PropTypes.object.isRequired,
   }
 
   /**
@@ -41,16 +40,26 @@ class User extends Component {
    * @override
    */
   render() {
-    if(this.props.isFetching) {
+    const {
+      errors,
+      openUpdatedSnackbar,
+    } = this.state
+    const {
+      isFetching,
+      users,
+      token,
+      params,
+    } = this.props
+
+    if (isFetching) {
       return (
         <LoadingIndicator />
       )
     }
-    // const {
-    // } = this.props
 
-    const user = this.props.users.get(this.props.params.userId)
-    if(!user) {
+    const user = users.get(params.userId)
+
+    if (user === undefined) {
       // TODO: React-routerで404的なページに遷移できない?
       return (
         <div>
@@ -70,13 +79,13 @@ class User extends Component {
         </div>
 
         <UserForm
-          errors={this.state.errors}
-          readOnly={this.props.token.hasScope('user+rw') ? false : true}
+          errors={errors}
+          readOnly={token.hasScope('user+rw') ? false : true}
           user={user}
           onSubmitUserForm={this.onSubmitUserForm.bind(this, user)}
           />
         <Snackbar
-          open={this.state.openUpdatedSnackbar}
+          open={openUpdatedSnackbar}
           message="ユーザー情報を変更しました。"
           autoHideDuration={2000}
           onRequestClose={() => this.setState({openUpdatedSnackbar: false})}
@@ -95,48 +104,34 @@ class User extends Component {
     this.setState({errors: {}})
 
     // send update
-    const self = this
+    // const self = this
 
     // TODO(絶対使い方間違ってる.  create -> completeまで一貫性を持たせる方法が分からん...)
-    store.runSaga(function* () {
-      yield put(actions.user.updateRequest({...params, uuid: user.uuid}))
-      let {payload: {response, detail}} = yield take(actionTypes.user.updateComplete)
-      if(response) {
-        self.setState({openUpdatedSnackbar: true})
-      } else {
-        self.setState({errors: detail.errors})
-        // alert(error.message)
-      }
-    })
+    // store.runSaga(function* () {
+    //   yield put(actions.userOld.updateRequest({...params, uuid: user.uuid}))
+    //   let {payload: {response, detail}} = yield take(actionTypes.userOld.updateComplete)
+    //   if(response) {
+    //     self.setState({openUpdatedSnackbar: true})
+    //   } else {
+    //     self.setState({errors: detail.errors})
+    //     // alert(error.message)
+    //   }
+    // })
   }
 }
 
 
-/**
- * [mapStateToProps description]
- * @param  {[type]} state [description]
- * @return {[type]}       [description]
- */
-function mapStateToProps(state) {
-  return {
-    isFetching: state.asyncs.isUsersFetching,
-    users: state.entities.users,
-    token: state.auth.token,
-  }
-}
+const mapStateToProps = (state) => ({
+  isFetching: state.asyncs.isUserFetching,
+  users: state.entities.users,
+  token: state.auth.token,
+})
 
-/**
- * [mapDispatchToProps description]
- * @param  {[type]} dispatch [description]
- * @return {[type]}          [description]
- */
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: {
-      users: bindActionCreators(actions.users, dispatch),
-    },
-  }
-}
+const mapDispatchToProps = (dispatch) => ({
+  // actions: {
+  //   users: bindActionCreators(actions.users, dispatch),
+  // },
+})
 
 export default connect(
   mapStateToProps,

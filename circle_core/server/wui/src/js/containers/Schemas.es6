@@ -21,7 +21,7 @@ import SchemaInfoPaper from 'src/components/SchemaInfoPaper'
  */
 class Schemas extends Component {
   static propTypes = {
-    isFetching: PropTypes.bool.isRequired,
+    isSchemaFetching: PropTypes.bool.isRequired,
     schemas: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
     onDisplayNameTouchTap: PropTypes.func,
@@ -70,7 +70,7 @@ class Schemas extends Component {
       isSchemaDeleteDialogOpen,
     } = this.state
     const {
-      isFetching,
+      isSchemaFetching,
       schemas,
       modules,
       onDisplayNameTouchTap,
@@ -78,7 +78,7 @@ class Schemas extends Component {
       onIdCopyButtonTouchTap,
     } = this.props
 
-    if (isFetching) {
+    if (isSchemaFetching) {
       return (
         <LoadingIndicator />
       )
@@ -124,7 +124,7 @@ class Schemas extends Component {
 
 
 const mapStateToProps = (state) => ({
-  isFetching: state.asyncs.isSchemasFetching,
+  isSchemaFetching: state.asyncs.isSchemaFetching,
   schemas: state.entities.schemas,
   modules: state.entities.modules,
 })
@@ -133,7 +133,7 @@ const mapDispatchToProps = (dispatch) => ({
   onDisplayNameTouchTap: (schemaId) => dispatch(routerActions.push(createPathName(urls.schema, {schemaId}))),
   onModuleButtonTouchTap: (moduleId) => dispatch(routerActions.push(createPathName(urls.module, {moduleId}))),
   onIdCopyButtonTouchTap: (uuid) => dispatch(actions.page.showSnackbar('IDをコピーしました')),
-  onDeleteOkButtonTouchTap: (schema) => dispatch(actions.schemas.deleteRequest(schema.uuid)),
+  onDeleteOkButtonTouchTap: (schema) => dispatch(actions.schema.deleteRequest(schema.uuid)),
 })
 
 export default connect(

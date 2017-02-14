@@ -8,7 +8,7 @@ const userRoute = {
   // icon: null,
   component: User,
   onEnterActions: [
-    actions.users.fetchRequest,
+    actions.user.fetchRequest,
   ],
 }
 

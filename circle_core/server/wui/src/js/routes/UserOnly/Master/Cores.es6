@@ -9,7 +9,7 @@ const coresRoute = {
   icon: CoreIcon,
   component: Cores,
   onEnterActions: [
-    actions.ccInfos.fetchRequest,
+    actions.ccInfo.fetchAllRequest,
   ],
 }
 

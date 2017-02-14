@@ -13,8 +13,8 @@ import ReplicationLinkNewPaper from 'src/components/ReplicationLinkNewPaper'
  */
 class ReplicasNew extends Component {
   static propTypes = {
-    isCreating: PropTypes.bool.isRequired,
-    isModulesFetching: PropTypes.bool.isRequired,
+    isReplicationLinkCreating: PropTypes.bool.isRequired,
+    isModuleFetching: PropTypes.bool.isRequired,
     modules: PropTypes.object.isRequired,
     location: PropTypes.object,
     onCreateTouchTap: PropTypes.func,
@@ -25,8 +25,8 @@ class ReplicasNew extends Component {
    */
   render() {
     const {
-      isCreating,
-      isModulesFetching,
+      isReplicationLinkCreating,
+      isModuleFetching,
       modules,
       location,
       onCreateTouchTap,
@@ -41,7 +41,7 @@ class ReplicasNew extends Component {
       )
     }
 
-    if (isCreating || isModulesFetching) {
+    if (isReplicationLinkCreating || isModuleFetching) {
       return (
         <LoadingIndicator />
       )
@@ -70,13 +70,13 @@ class ReplicasNew extends Component {
 
 
 const mapStateToProps = (state) => ({
-  isCreating: state.asyncs.isReplicationLinksCreating,
-  isModulesFetching: state.asyncs.isModulesFetching,
+  isReplicationLinkCreating: state.asyncs.isReplicationLinkCreating,
+  isModuleFetching: state.asyncs.isModuleFetching,
   modules: state.entities.modules,
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  onCreateTouchTap: (replicationLink) => dispatch(actions.replicationLinks.createRequest(replicationLink.toJS())),
+  onCreateTouchTap: (replicationLink) => dispatch(actions.replicationLink.createRequest(replicationLink.toJS())),
 })
 
 export default connect(

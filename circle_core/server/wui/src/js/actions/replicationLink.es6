@@ -8,9 +8,9 @@ const payloadCreators = {
   createFailed: (message) => message,
 
   // Fetch all
-  fetchRequest: nullPayloadCreator,
-  fetchSucceeded: (response) => response,
-  fetchFailed: (message) => message,
+  fetchAllRequest: nullPayloadCreator,
+  fetchAllSucceeded: (response) => response,
+  fetchAllFailed: (message) => message,
 
   // Delete
   deleteRequest: (replicationLinkId) => replicationLinkId,
@@ -18,7 +18,7 @@ const payloadCreators = {
   deleteFailed: (message) => message,
 }
 
-const ccActions = createCcActions('replicationLinks', payloadCreators)
+const ccActions = createCcActions('replicationLink', payloadCreators)
 
 export default ccActions.actions
 export const actionTypes = ccActions.actionTypes

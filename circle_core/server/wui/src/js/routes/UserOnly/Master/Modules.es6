@@ -9,7 +9,7 @@ const modulesRoute = {
   icon: ModuleIcon,
   component: Modules,
   onEnterActions: [
-    actions.modules.fetchRequest,
+    actions.module.fetchAllRequest,
   ],
 }
 

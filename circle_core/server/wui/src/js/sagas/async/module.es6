@@ -8,11 +8,11 @@ import {createAsyncSagaParam} from './utils'
 const moduleCreateParam = createAsyncSagaParam(
     ::CCAPI.createModule,
     (payload) => payload,
-    actions.modules.createSucceeded,
-    actions.modules.createFailed,
+    actions.module.createSucceeded,
+    actions.module.createFailed,
 )
 
-// Read
+// Fetch
 const moduleFetchParam = createAsyncSagaParam(
   ::CCAPI.fetchModule,
   (payload) => payload,
@@ -20,49 +20,46 @@ const moduleFetchParam = createAsyncSagaParam(
   actions.module.fetchFailed
 )
 
-// Read all
+// Fetch all
 const allModulesFetchParam = createAsyncSagaParam(
   ::CCAPI.fetchAllModules,
   () => null,
-  actions.modules.fetchSucceeded,
-  actions.modules.fetchFailed
+  actions.module.fetchAllSucceeded,
+  actions.module.fetchAllFailed
 )
 
 // Update
 const moduleUpdateParam = createAsyncSagaParam(
   ::CCAPI.updateModule,
   (payload) => payload,
-  actions.modules.updateSucceeded,
-  actions.modules.updateFailed,
+  actions.module.updateSucceeded,
+  actions.module.updateFailed,
 )
 
 // Delete
 const moduleDeleteParam = createAsyncSagaParam(
   ::CCAPI.deleteModule,
   (payload) => payload,
-  actions.modules.deleteSucceeded,
-  actions.modules.deleteFailed,
+  actions.module.deleteSucceeded,
+  actions.module.deleteFailed,
 )
 
 
 const asyncSagaParams = {
   // Create
-  [actionTypes.modules.createRequest]: moduleCreateParam,
+  [actionTypes.module.createRequest]: moduleCreateParam,
 
-  // Read
+  // Fetch
   [actionTypes.module.fetchRequest]: moduleFetchParam,
 
-  // Read all
-  [actionTypes.modules.fetchRequest]: allModulesFetchParam,
-  [actionTypes.modules.createSucceeded]: allModulesFetchParam,
-  [actionTypes.modules.updateSucceeded]: allModulesFetchParam,
-  [actionTypes.modules.deleteSucceeded]: allModulesFetchParam,
+  // Fetch all
+  [actionTypes.module.fetchAllRequest]: allModulesFetchParam,
 
   // Update
-  [actionTypes.modules.updateRequest]: moduleUpdateParam,
+  [actionTypes.module.updateRequest]: moduleUpdateParam,
 
   // Delete
-  [actionTypes.modules.deleteRequest]: moduleDeleteParam,
+  [actionTypes.module.deleteRequest]: moduleDeleteParam,
 }
 
 export default asyncSagaParams

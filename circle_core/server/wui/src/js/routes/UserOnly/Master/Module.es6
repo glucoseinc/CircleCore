@@ -9,7 +9,7 @@ const moduleRoute = {
   component: Module,
   onEnterActions: [
     actions.module.fetchRequest,
-    actions.schemas.fetchRequest,
+    actions.schema.fetchAllRequest,
   ],
 }
 

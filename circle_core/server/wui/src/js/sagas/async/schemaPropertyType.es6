@@ -4,18 +4,18 @@ import actions, {actionTypes} from 'src/actions'
 import {createAsyncSagaParam} from './utils'
 
 
-// Read all
+// Fetch all
 const allSchemaPropertyTypesFetchParam = createAsyncSagaParam(
   ::CCAPI.fetchAllSchemaPropertyTypes,
   () => null,
-  actions.schemaPropertyTypes.fetchSucceeded,
-  actions.schemaPropertyTypes.fetchFailed
+  actions.schemaPropertyType.fetchAllSucceeded,
+  actions.schemaPropertyType.fetchAllFailed
 )
 
 
 const asyncSagaParams = {
-  // Read all
-  [actionTypes.schemaPropertyTypes.fetchRequest]: allSchemaPropertyTypesFetchParam,
+  // Fetch all
+  [actionTypes.schemaPropertyType.fetchAllRequest]: allSchemaPropertyTypesFetchParam,
 }
 
 export default asyncSagaParams

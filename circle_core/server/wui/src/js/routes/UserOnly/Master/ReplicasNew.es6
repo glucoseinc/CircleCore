@@ -11,7 +11,7 @@ const replicasNewRoute = {
   // icon: null,
   component: ReplicasNew,
   onEnterActions: [
-    actions.modules.fetchRequest,
+    actions.module.fetchAllRequest,
   ],
 }
 

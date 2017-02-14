@@ -10,7 +10,6 @@ from circle_core.models import CcInfo, MetaDataSession
 from .api import api
 from .utils import respond_failure, respond_success
 from ..utils import (
-    api_jsonify,
     oauth_require_read_schema_scope, oauth_require_write_schema_scope
 )
 
@@ -29,7 +28,7 @@ def _get_cores():
     return respond_success(ccInfos=[cc_info.to_json() for cc_info in CcInfo.query])
 
 
-@oauth_require_read_schema_scope
+@oauth_require_write_schema_scope
 def _post_cores():
     # TODO: implement
     return respond_success()
@@ -71,5 +70,4 @@ def _put_core(cc_info):
         cc_info.update_from_json(request.json)
         MetaDataSession.add(cc_info)
 
-    # TODO: response形式の統一
     return respond_success(ccInfo=cc_info.to_json())

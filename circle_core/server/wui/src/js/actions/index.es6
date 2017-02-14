@@ -5,18 +5,15 @@ let actionTypes = {}
 // load action groups
 const groupNames = [
   'auth',
-  'ccInfos',
+  'ccInfo',
   'invitations',
   'misc',
   'module',
-  'modules',
   'page',
-  'replicationLinks',
+  'replicationLink',
   'schema',
-  'schemas',
-  'schemaPropertyTypes',
+  'schemaPropertyType',
   'user',
-  'users',
 ]
 groupNames.forEach((group) => {
   let mod = require(`./${group}`)

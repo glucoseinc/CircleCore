@@ -4,39 +4,39 @@ import actions, {actionTypes} from 'src/actions'
 import {createAsyncSagaParam} from './utils'
 
 
-// Read myself
-const myselfCcInfoFetchParam = createAsyncSagaParam(
-  ::CCAPI.fetchMyselfCcInfo,
-  () => null,
-  actions.ccInfos.fetchMyselfSucceeded,
-  actions.ccInfos.fetchMyselfFailed
-)
-
-// Read all
+// Fetch all
 const allCcInfosFetchParam = createAsyncSagaParam(
   ::CCAPI.fetchAllCcInfos,
   () => null,
-  actions.ccInfos.fetchSucceeded,
-  actions.ccInfos.fetchFailed
+  actions.ccInfo.fetchAllSucceeded,
+  actions.ccInfo.fetchAllFailed
+)
+
+// Fetch myself
+const myselfCcInfoFetchParam = createAsyncSagaParam(
+  ::CCAPI.fetchMyselfCcInfo,
+  () => null,
+  actions.ccInfo.fetchMyselfSucceeded,
+  actions.ccInfo.fetchMyselfFailed
 )
 
 // Update
 const ccInfoUpdateParam = createAsyncSagaParam(
   ::CCAPI.updateCcInfo,
   (payload) => payload,
-  actions.ccInfos.updateSucceeded,
-  actions.ccInfos.updateFailed
+  actions.ccInfo.updateSucceeded,
+  actions.ccInfo.updateFailed
 )
 
 const asyncSagaParams = {
-  // Read myself
-  [actionTypes.ccInfos.fetchMyselfRequest]: myselfCcInfoFetchParam,
+  // Fetch all
+  [actionTypes.ccInfo.fetchAllRequest]: allCcInfosFetchParam,
 
-  // Read all
-  [actionTypes.ccInfos.fetchRequest]: allCcInfosFetchParam,
+  // Fetch myself
+  [actionTypes.ccInfo.fetchMyselfRequest]: myselfCcInfoFetchParam,
 
   // Update
-  [actionTypes.ccInfos.updateRequest]: ccInfoUpdateParam,
+  [actionTypes.ccInfo.updateRequest]: ccInfoUpdateParam,
 }
 
 export default asyncSagaParams

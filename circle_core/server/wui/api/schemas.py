@@ -40,7 +40,7 @@ def _post_schemas():
         schema.update_from_json(request.json)
         MetaDataSession.add(schema)
 
-    return respond_success(schema={'uuid': schema.uuid})
+    return respond_success(schema=schema.to_json(with_modules=True))
 
 
 @api.route('/schemas/<schema_uuid>', methods=['GET', 'DELETE'])
