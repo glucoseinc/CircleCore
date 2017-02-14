@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 
-import OkCancelDialog from 'src/components/bases/OkCancelDialog'
+import DeleteDialog from 'src/components/commons/DeleteDialog'
 
 
 /**
@@ -26,16 +26,13 @@ class ModuleDeleteDialog extends Component {
     } = this.props
 
     return (
-      <OkCancelDialog
-        title="モジュールを削除しますか？"
-        okLabel="削除する"
-        onOkTouchTap={() => onOkTouchTap(module)}
-        cancelLabel="キャンセル"
+      <DeleteDialog
+        obj={module}
+        title="このモジュールを削除しますか？"
+        onOkTouchTap={onOkTouchTap}
         onCancelTouchTap={onCancelTouchTap}
         open={open}
-      >
-        <p>{module && module.label || ''}</p>
-      </OkCancelDialog>
+      />
     )
   }
 }

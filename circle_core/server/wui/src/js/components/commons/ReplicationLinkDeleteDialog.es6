@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 
-import OkCancelDialog from 'src/components/bases/OkCancelDialog'
+import DeleteDialog from 'src/components/commons/DeleteDialog'
 
 
 /**
@@ -26,16 +26,13 @@ class ReplicationLinkDeleteDialog extends Component {
     } = this.props
 
     return (
-      <OkCancelDialog
-        title="共有リンクを削除しますか？"
-        okLabel="削除する"
-        onOkTouchTap={() => onOkTouchTap(replicationLink)}
-        cancelLabel="キャンセル"
+      <DeleteDialog
+        obj={replicationLink}
+        title="この共有リンクを削除しますか？"
+        onOkTouchTap={onOkTouchTap}
         onCancelTouchTap={onCancelTouchTap}
         open={open}
-      >
-        <p>{replicationLink && replicationLink.label || ''}</p>
-      </OkCancelDialog>
+      />
     )
   }
 }

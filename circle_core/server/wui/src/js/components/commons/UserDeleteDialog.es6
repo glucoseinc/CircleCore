@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 
-import OkCancelDialog from 'src/components/bases/OkCancelDialog'
+import DeleteDialog from 'src/components/commons/DeleteDialog'
 
 
 /**
@@ -26,16 +26,13 @@ class UserDeleteDialog extends Component {
     } = this.props
 
     return (
-      <OkCancelDialog
-        title="ユーザーを削除しますか？"
-        okLabel="削除する"
-        onOkTouchTap={() => onOkTouchTap(user)}
-        cancelLabel="キャンセル"
+      <DeleteDialog
+        obj={user}
+        title="このユーザーを削除しますか？"
+        onOkTouchTap={onOkTouchTap}
         onCancelTouchTap={onCancelTouchTap}
         open={open}
-      >
-        <p>{user && user.displayName || ''}</p>
-      </OkCancelDialog>
+      />
     )
   }
 }
