@@ -16,6 +16,7 @@ import tableStyle from './tableStyle'
 class UserInfoPaper extends Component {
   static propTypes = {
     user: PropTypes.object.isRequired,
+    deleteDisabled: PropTypes.bool,
     readOnly: PropTypes.bool,
     onDisplayNameTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
@@ -27,6 +28,7 @@ class UserInfoPaper extends Component {
   render() {
     const {
       user,
+      deleteDisabled = true,
       readOnly = true,
       onDisplayNameTouchTap,
       onDeleteTouchTap,
@@ -63,6 +65,7 @@ class UserInfoPaper extends Component {
         <MenuItem
           primaryText="このユーザーを削除する"
           leftIcon={<DeleteIcon />}
+          disabled={deleteDisabled}
           onTouchTap={() => onDeleteTouchTap(user)}
         />
       </MoreIconMenu>

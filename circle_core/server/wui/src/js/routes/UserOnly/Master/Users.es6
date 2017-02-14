@@ -10,6 +10,7 @@ const usersRoute = {
   component: Users,
   onEnterActions: [
     actions.user.fetchAllRequest,
+    actions.user.fetchMyselfRequest,
   ],
 }
 
