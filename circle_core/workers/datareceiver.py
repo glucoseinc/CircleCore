@@ -107,12 +107,10 @@ class DataReceiverWorker(CircleWorker):
         response = {'response': 'message_accepted', 'message': message}
 
         # pusblish
-        logger.debug('publish %r', request)
         self.core.hub.publish(
             make_message_topic(message_box.module.uuid, message_box.uuid),
             message
         )
-        logger.debug('published %r', request)
 
         return response
 

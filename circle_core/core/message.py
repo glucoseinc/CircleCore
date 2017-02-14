@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """デバイスからのメッセージ."""
+from collections import namedtuple
 import decimal
 import re
 import time
@@ -15,6 +16,33 @@ from ..exceptions import MessageBoxNotFoundError, SchemaNotFoundError, SchemaNot
 
 
 message_timestamp_context = decimal.Context(16, decimal.ROUND_DOWN)
+
+
+class ModuleMessagePrimaryKey(
+    namedtuple('ModuleMessagePrimaryKey', 'timestamp counter')
+):
+    def __new__(cls, t, c):
+        assert isinstance(t, decimal.Decimal)
+        assert isinstance(c, int)
+
+        return super(ModuleMessagePrimaryKey, cls).__new__(cls, t, c)
+
+    def to_json(self):
+        assert isinstance(self.timestamp, decimal.Decimal)
+
+        return [str(self.timestamp), self.counter]
+
+    @classmethod
+    def from_json(cls, jsonobj):
+        if jsonobj is None:
+            return None
+
+        assert isinstance(jsonobj, list)
+
+        return cls(
+            ModuleMessage.make_timestamp(jsonobj[0]),
+            jsonobj[1]
+        )
 
 
 class ModuleMessage(object):
@@ -77,6 +105,10 @@ class ModuleMessage(object):
             str(self.timestamp),
             self.counter,
         )
+
+    @property
+    def primary_key(self):
+        return ModuleMessagePrimaryKey(self.timestamp, self.counter)
 
     def to_json(self):
         """slaveのCircleCoreに送られる際に使われる.

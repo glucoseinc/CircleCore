@@ -23,7 +23,7 @@ import tornado.ioloop
 
 # project module
 from circle_core.exceptions import MigrationError
-from circle_core.core.message import ModuleMessage
+from circle_core.core.message import ModuleMessage, ModuleMessagePrimaryKey
 from .constants import CRDataType
 from .models.module import Module
 from .models.schema import Schema
@@ -232,10 +232,11 @@ class Database(object):
         rows = connection.execute(query).fetchall()
         if not rows:
             return None
-        return rows[0]
+        return ModuleMessagePrimaryKey(ModuleMessage.make_timestamp(rows[0][0]), rows[0][1])
 
     def enum_message_from(self, message_box, head=None, connection=None):
         assert connection, 'TODO: create new connection if not present it'
+        assert head is None or isinstance(head, ModuleMessagePrimaryKey)
 
         table = self.find_table_for_message_box(message_box, create_if_not_exsts=False)
         if table is None:
@@ -243,17 +244,16 @@ class Database(object):
 
         query = sql.select([table]).order_by(table.c._created_at.asc(), table.c._counter.asc())
         if head:
-            head_timestamp, head_counter = ModuleMessage.make_timestamp(head['timestamp']), head['counter']
-            query = query.where(table.c._created_at >= head_timestamp)
+            query = query.where(table.c._created_at >= head.timestamp)
 
         for row in connection.execute(query):
             row = dict(row)
             message = ModuleMessage(message_box.uuid, row.pop('_created_at'), row.pop('_counter'), row)
 
             if head:
-                if message.timestamp < head_timestamp or \
-                   (message.timestamp == head_timestamp and message.counter <= head_counter):
-                    logger.info('skip message %s', message)
+                if message.timestamp < head.timestamp or \
+                   (message.timestamp == head.timestamp and message.counter <= head.counter):
+                    # logger.info('skip message %s', message)
                     continue
 
             yield message

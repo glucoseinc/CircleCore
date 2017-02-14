@@ -116,11 +116,13 @@ class Replicator(object):
                 traceback.print_exc()
                 return
             finally:
-                logger.debug('finally')
                 self.clear()
 
             # wait...
             yield gen.sleep(5.)
+
+    def close(self):
+        self.clear()
 
     def clear(self):
         if self.ws:
@@ -131,7 +133,6 @@ class Replicator(object):
 
     @gen.coroutine
     def _run_one_loop(self):
-        logger.info('_run_one_loop')
         self.ws = yield websocket_connect(self.endpoint_url)
         self.state = ReplicationState.HANDSHAKING
 
@@ -175,14 +176,7 @@ class Replicator(object):
         heads = {}
         for box in self.target_boxes.values():
             pkey = database.get_latest_primary_key(box, connection=self.writer.connection)
-            if pkey:
-                pkey = dict(
-                    timestamp=str(pkey['_created_at']),
-                    counter=pkey['_counter'],
-                )
-            logger.info('Latest: %r > %r', box, pkey)
-
-            heads[str(box.uuid)] = pkey
+            heads[str(box.uuid)] = pkey.to_json()
 
         self._send_command(
             SlaveCommand.MIGRATED,
@@ -194,11 +188,8 @@ class Replicator(object):
         if not isinstance(commands, (list, tuple)):
             commands = (commands,)
 
-        logger.debug('self.ws.read_message: %r', commands)
         raw = yield self.ws.read_message()
-        logger.debug('> %r :%r', raw, commands)
         if raw is None:
-            logger.debug('raise: %r', commands)
             raise ConnectionClosed(self.ws.close_code, self.ws.close_reason)
 
         message = json.loads(raw)
@@ -211,7 +202,6 @@ class Replicator(object):
 
     def on_master_migrate(self, message):
         assert self.state == ReplicationState.MIGRATING
-        logger.info('on_master_migrate: %r', message)
 
         with MetaDataSession.begin():
             # save master info
@@ -267,14 +257,10 @@ class Replicator(object):
 
     def on_master_sync_message(self, message):
         assert self.state == ReplicationState.SYNCING
-        logger.info('on_master_sync_message: %r', message)
-
         self._store_message(message['message'])
 
     def on_master_new_message(self, message):
         assert self.state == ReplicationState.SYNCING
-        logger.info('on_master_new_message: %r', message)
-
         self._store_message(message['message'])
 
     def _store_message(self, data):
@@ -282,7 +268,5 @@ class Replicator(object):
         if message.box_id not in self.target_boxes:
             raise DataConfilictedError('invalid box id')
 
-        # self.writer.store(
-        #     self.target_boxes[message.box_id],
-        #     message
-        # )
+        message_box = MessageBox.query.filter_by(uuid=message.box_id).one()
+        self.writer.store(message_box, message)

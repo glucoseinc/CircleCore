@@ -16,7 +16,7 @@ import sqlalchemy.exc
 
 from circle_core.exceptions import ConfigError
 from circle_core.models import CcInfo, generate_uuid, MetaDataBase, MetaDataSession, NoResultFound
-from circle_core.helpers.nanomsg import Receiver
+from circle_core.helpers import Receiver
 from circle_core.workers import make_worker, WORKER_DATARECEIVER, WORKER_SLAVE_DRIVER
 from .base import logger
 from .hub import CoreHub
@@ -140,13 +140,6 @@ class CircleCore(object):
             return worker
 
     def run(self):
-
-        test = self.make_hub_receiver('message:')
-        test.set_timeout(1000)
-        def callback(*args):
-            logger.debug('test callback %r', args)
-        test.register_ioloop(callback)
-
         for worker in self.workers:
             worker.initialize()
 

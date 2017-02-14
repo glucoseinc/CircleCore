@@ -33,8 +33,10 @@ from tornado import gen
 from tornado.ioloop import IOLoop
 from tornado.web import HTTPError
 from tornado.websocket import WebSocketHandler
+from werkzeug import ImmutableDict
 
 from circle_core.constants import ReplicationState, SlaveCommand, MasterCommand, WebsocketStatusCode
+from circle_core.core.message import ModuleMessage, ModuleMessagePrimaryKey
 from circle_core.exceptions import ReplicationError
 from circle_core.models import CcInfo, MetaDataSession, NoResultFound, ReplicationLink
 from ...exceptions import ModuleNotFoundError
@@ -45,6 +47,17 @@ from ...models.message_box import MessageBox
 
 
 logger = logging.getLogger(__name__)
+
+
+class SyncState(object):
+    def __init__(self, box):
+        self.box = box
+        self.slave_head = None
+        self.master_head = None
+
+    def is_synced(self):
+        logger.info('check is synced %r %r == %r', self.box.uuid, self.slave_head, self.master_head)
+        return self.slave_head == self.master_head
 
 
 class ReplicationMaster(WebSocketHandler):
@@ -63,17 +76,25 @@ class ReplicationMaster(WebSocketHandler):
             raise HTTPError(404)
 
         self.state = ReplicationState.HANDSHAKING
-        self.is_box_synced = {}
+        self.sync_states = ImmutableDict(
+            (box.uuid, SyncState(box)) for box in self.replication_link.message_boxes
+        )
+
+        # get master heads
+        database = self.get_core().get_database()
+        conn = database.connect()
+        for box_uuid, sync_state in self.sync_states.items():
+            head = database.get_latest_primary_key(sync_state.box, connection=conn)
+            sync_state.master_head = head
 
         # messageに関するイベントを監視する
-        logger.debug('open @ thread %r', threading.get_ident())
         self.receiver = self.get_core().make_hub_receiver(make_message_topic())
-        self.receiver.set_timeout(10000)
         self.receiver.register_ioloop(self.on_new_message)
 
     def get_core(self):
         return self.application.settings['_core']
 
+    @gen.coroutine
     def on_message(self, plain_msg):
         """センサーからメッセージが送られてきた際に呼ばれる.
 
@@ -94,26 +115,10 @@ class ReplicationMaster(WebSocketHandler):
 
         handler = getattr(self, 'on_slave_' + command.value)
 
-        future = handler(json_msg)
-        logger.debug('future %r', future)
-
-        def _done_callback(future):
-            logger.debug(
-                'on_slave_%s done : %r %r %r', command.value, future.done(), future.result(), future.exception())
-
-        # future.add_done_callback(_done_callback)
-        IOLoop.current().add_future(future, _done_callback)
-
-        # logger.debug('on_slave_%s done', command.value)
-        # if json_msg['command'] == 'MIGRATE':
-        #     self.send_modules(json_msg['module_uuids'])
-        # elif json_msg['command'] == 'RECEIVE':
-        #     self.pass_messages()
-
-        #     for box_uuid, value in json_msg['payload'].items():
-        #         box = metadata().find_message_box(box_uuid)
-        #         if box is not None:
-        #             self.seed_messages(box, value['timestamp'], value['count'])
+        try:
+            yield handler(json_msg)
+        except ReplicationError as exc:
+            self.close(code=WebsocketStatusCode.VIOLATE_POLICY.value, reason=str(exc))
 
     def on_close(self):
         """センサーとの接続が切れた際に呼ばれる."""
@@ -183,70 +188,45 @@ class ReplicationMaster(WebSocketHandler):
         database = self.get_core().get_database()
         conn = database.connect()
 
-        heads = json_msg.get('heads', {})
-        for box in self.replication_link.message_boxes:
-            head = heads.get(str(box.uuid))
-            # self.sync_message_box(box, head)
+        try:
+            heads = json_msg.get('heads', {})
+            for box in self.replication_link.message_boxes:
+                head = ModuleMessagePrimaryKey.from_json(heads.get(str(box.uuid)))
+                logger.info('box: %r, head: %r', box, head)
+                self.sync_states[box.uuid].slave_head = head
 
-            # logger.info('box: %r, head: %r', box, head)
-
-            # for message in database.enum_message_from(box, head=head, connection=conn):
-            #     logger.info('sync message %s', message)
-            #     self._send_command(
-            #         MasterCommand.SYNC_MESSAGE,
-            #         message=message.to_json()
-            #     )
+                for message in database.enum_message_from(box, head=head, connection=conn):
+                    logger.info('sync message %s', message)
+                    self._send_command(
+                        MasterCommand.SYNC_MESSAGE,
+                        message=message.to_json()
+                    )
+                    self.sync_states[box.uuid].slave_head = message.primary_key
+                logger.info('box: %r synced', box)
+        except:
+            import traceback
+            traceback.print_exc()
+            raise
+        finally:
+            conn.close()
 
     # Hub
-    def on_new_message(self, topic, message):
+    def on_new_message(self, topic, jsonobj):
         """新しいメッセージを受けとった"""
+        message = ModuleMessage.from_json(jsonobj)
         logger.debug('!? on_new_message %r %r', topic, message)
-        return
-# raw =
-#
-        box_id = request['box_id']
-        payload = request['payload']
 
-        from circle_core.models.replication_link import replcation_boxes_table
-
-        try:
-            message_box = MessageBox.query.filter(
-                MessageBox.uuid == replcation_boxes_table.c.box_uuid,
-                replcation_boxes_table.c.link_uuid == self.link_uuid,
-            ).one()
-        except NoResultFound:
+        if message.box_id not in self.sync_states:
             # not interested
             return
 
-        self._send_command(
-            MasterCommand.SYNC_MESSAGE,
-            message=message.to_json()
-        )
-
-        return response
-
-    # def seed_messages(self, box, since_timestamp, since_count):
-    #     """蓄えたデータを共有.
-
-    #     :param MessageBox box:
-    #     :param int since_timestamp:
-    #     :param int since_count:
-    #     """
-    #     for msg in box.messages_since(since_timestamp, since_count):
-    #         logger.debug('Seeding already stored messages: %s', msg.encode())
-    #         self.write_message(msg.encode())
-
-    # def pass_messages(self):
-    #     """自分がこれから受け取るメッセージを相手にも知らせるように."""
-    #     def pass_message(msg):
-    #         """自分がCircleModuleから受け取ったデータをslaveに垂れ流す.
-
-    #         :param ModuleMessage msg:
-    #         """
-    #         if any(module.uuid == msg.module_uuid for module in self.subscribing_modules):
-    #             logger.debug('Received from nanomsg: %s', msg.encode())
-    #             self.write_message(msg.encode())
-
-    #     logger.debug('Replication Master %s', ModuleMessageTopic().topic)
-    #     self.receiver = Receiver(ModuleMessageTopic())
-    #     self.receiver.register_ioloop(pass_message)
+        sync_state = self.sync_states[message.box_id]
+        if sync_state.is_synced():
+            # pass to slave
+            logger.info('new message %s', message)
+            self._send_command(
+                MasterCommand.NEW_MESSAGE,
+                message=message.to_json()
+            )
+            sync_state.slave_head = message.primary_key
+        sync_state.master_head = message.primary_key

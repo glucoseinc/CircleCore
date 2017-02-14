@@ -37,11 +37,10 @@ class Receiver(object):
 
         :param BaseTopic topic:
         """
-        logger.debug('subscirbe %r', socket_url)
         self._socket = nnpy.Socket(nnpy.AF_SP, nnpy.SUB)
         self._socket.connect(socket_url)
         if topic:
-            self._socket.setsockopt(nnpy.SUB, nnpy.SUB_SUBSCRIBE, topic)
+            self._socket.setsockopt(nnpy.SUB, nnpy.SUB_SUBSCRIBE, topic.rstrip())
         self.topic = topic
 
     def __del__(self):
@@ -89,26 +88,8 @@ class Receiver(object):
 
         :param FunctionType callback:
         """
-        import threading
-        # pollset = nnpy.PollSet((self._socket, nnpy.POLLIN))
-
         def call_callback(*args):
-            # TODO: __iter__と同じような処理が多い。共通化する
-            logger.debug('callback @ thread %r w/ socket %r', threading.get_ident(), self._socket)
-            # loop = 0
-            # while True:
-            #     logger.debug('poll %d:%r', loop, pollset.poll(timeout=2))
-            #     try:
-            #         raw = self._socket.recv(flags=nnpy.DONTWAIT)
-            #         break
-            #     except nnpy.NNError as exc:
-            #         print('nnpy %r %d', exc, exc.error_no)
-            #         if exc.error_no != nnpy.EAGAIN:
-            #             raise
-
-            #     # wait a moment
-            #     loop += 1
-
+            # TODO: topicを設定している場合、違うTopicのパケットがきてもpollが反応するのでdontwaitにしてチェックしないといけないかも
             try:
                 raw = self._socket.recv()
                 plain_msg = raw.decode('utf-8')
