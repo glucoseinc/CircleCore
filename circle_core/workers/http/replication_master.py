@@ -35,9 +35,9 @@ from tornado.web import HTTPError
 from tornado.websocket import WebSocketHandler
 from werkzeug import ImmutableDict
 
-from circle_core.constants import ReplicationState, SlaveCommand, MasterCommand, WebsocketStatusCode
-from circle_core.core.message import ModuleMessage, ModuleMessagePrimaryKey
+from circle_core.constants import MasterCommand, ReplicationState, SlaveCommand, WebsocketStatusCode
 from circle_core.exceptions import ReplicationError
+from circle_core.message import ModuleMessage, ModuleMessagePrimaryKey
 from circle_core.models import CcInfo, MetaDataSession, NoResultFound, ReplicationLink
 from ...exceptions import ModuleNotFoundError
 # from ...helpers.metadata import metadata
@@ -221,7 +221,6 @@ class ReplicationMaster(WebSocketHandler):
         sync_state = self.sync_states[message.box_id]
         if sync_state.is_synced():
             # pass to slave
-            logger.info('new message %s', message)
             self._send_command(
                 MasterCommand.NEW_MESSAGE,
                 message=message.to_json()

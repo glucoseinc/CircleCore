@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
-"""デバイスからのメッセージ."""
+"""デバイスからのメッセージ.
+
+このModelだけMetadata関連ではないので、ディレクトリが適切ではない...
+"""
 from collections import namedtuple
 import decimal
+import logging
 import re
 import time
 import uuid
@@ -9,13 +13,13 @@ import uuid
 from base58 import b58decode
 from click import get_current_context
 
-from circle_core.models import Module, Schema
-from circle_core.utils import prepare_uuid
-from .base import logger
-from ..exceptions import MessageBoxNotFoundError, SchemaNotFoundError, SchemaNotMatchError
+from .exceptions import MessageBoxNotFoundError, SchemaNotFoundError, SchemaNotMatchError
+from .models import Module, Schema
+from .utils import prepare_uuid
 
 
 message_timestamp_context = decimal.Context(16, decimal.ROUND_DOWN)
+logger = logging.getLogger(__name__)
 
 
 class ModuleMessagePrimaryKey(

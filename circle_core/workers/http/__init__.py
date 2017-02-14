@@ -11,8 +11,8 @@ from tornado.wsgi import WSGIContainer
 from circle_core.constants import RequestType
 from circle_core.exceptions import ConfigError
 from circle_core.server.wui import create_app
-from ..base import CircleWorker, register_worker_factory
 from .replication_master import ReplicationMaster
+from ..base import CircleWorker, register_worker_factory
 
 logger = logging.getLogger(__name__)
 WORKER_HTTP = 'http'

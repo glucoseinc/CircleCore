@@ -4,8 +4,8 @@
 
 from __future__ import absolute_import
 
-import logging
 import datetime
+import logging
 import math
 import threading
 import time
@@ -24,10 +24,9 @@ import tornado.ioloop
 
 # project module
 from circle_core.exceptions import MigrationError
-from circle_core.core.message import ModuleMessage, ModuleMessagePrimaryKey
 from .constants import CRDataType
-from .models.module import Module
-from .models.schema import Schema
+from .message import ModuleMessage, ModuleMessagePrimaryKey
+from .models import Module, Schema
 from .timed_db import TimedDBBundle
 
 if PY3:

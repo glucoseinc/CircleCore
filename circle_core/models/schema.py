@@ -12,7 +12,7 @@ from sqlalchemy import orm
 from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
-from .base import GUID, UUIDMetaDataBase, generate_uuid
+from .base import generate_uuid, GUID, UUIDMetaDataBase
 
 
 class SchemaProperty(collections.namedtuple('SchemaProperty', ['name', 'type'])):

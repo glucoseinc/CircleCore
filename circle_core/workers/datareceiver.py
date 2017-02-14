@@ -13,8 +13,8 @@ from six import PY3
 
 # project module
 from circle_core.constants import RequestType
+from circle_core.message import ModuleMessage
 from .base import CircleWorker, register_worker_factory
-from ..core.message import ModuleMessage
 from ..core.metadata_event_listener import MetaDataEventListener
 from ..database import Database
 from ..exceptions import MessageBoxNotFoundError, ModuleNotFoundError, SchemaNotFoundError

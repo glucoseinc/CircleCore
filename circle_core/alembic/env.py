@@ -24,6 +24,8 @@ config = context.config
 def _get_metadata():
     from circle_core.models import MetaDataBase
     return MetaDataBase.metadata
+
+
 target_metadata = _get_metadata()
 
 # other values from the config, defined by the needs of env.py,

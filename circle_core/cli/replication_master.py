@@ -13,7 +13,7 @@ from six import PY3
 # project module
 from .context import CLIContextObject
 from .utils import output_listing_columns, output_properties
-from ..models import generate_uuid, MetaDataSession, ReplicationMaster, NoResultFound
+from ..models import generate_uuid, MetaDataSession, NoResultFound, ReplicationMaster
 
 if PY3:
     from typing import List, Optional, Tuple
