@@ -1,11 +1,8 @@
 import React, {Component, PropTypes} from 'react'
 
-import {Card, CardMedia, CardTitle} from 'material-ui/Card'
+import Paper from 'material-ui/Paper'
 
-import {colorUUID} from 'src/colors'
-import {urls} from 'src/routes'
-
-import CCLink from 'src/components/commons/CCLink'
+import IdLabel from 'src/components/commons/IdLabel'
 
 import ModuleGraph from 'src/components/commons/ModuleGraph'
 
@@ -18,6 +15,8 @@ class ModuleCard extends Component {
     module: PropTypes.object.isRequired,
     autoUpdate: PropTypes.bool.isRequired,
     graphRange: PropTypes.string.isRequired,
+    onDisplayNameTouchTap: PropTypes.func,
+    onIdCopyButtonTouchTap: PropTypes.func,
   }
 
   /**
@@ -28,37 +27,48 @@ class ModuleCard extends Component {
       module,
       autoUpdate,
       graphRange,
+      onDisplayNameTouchTap,
+      onIdCopyButtonTouchTap,
     } = this.props
 
+    const style = {
+      root: {
+        display: 'flex',
+        flexFlow: 'column nowrap',
+      },
+
+      infomations: {
+        padding: '16px 24px',
+        display: 'flex',
+        flexFlow: 'column nowrap',
+      },
+      displayName: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        cursor: 'pointer',
+      },
+      id: {
+        paddingTop: 8,
+      },
+    }
+
     return (
-      <Card
-        key={module.uuid}
-        className="moduleCard"
-      >
-        <CardMedia>
+      <Paper>
+        <div style={style.root}>
           <ModuleGraph module={module} range={graphRange} autoUpdate={autoUpdate ? 60 : 0} />
-        </CardMedia>
-        <CardTitle
-          title={
-            <CCLink url={urls.module} params={{moduleId: module.uuid}} style={{color: '#212121'}}>
+          <div style={style.infomations}>
+            <div style={style.displayName} onTouchTap={() => onDisplayNameTouchTap(module)}>
               {module.displayName}
-            </CCLink>}
-          titleStyle={{
-            fontSize: '14px',
-            fotnWeight: 'bold',
-            lineHeight: '1.4',
-          }}
-          titleColor="#2121121"
-          subtitle={module.uuid}
-          subtitleColor={colorUUID}
-          subtitleStyle={{
-            fontSize: '10px',
-          }}
-          style={{
-            padding: '8px 12px 0',
-          }}
-          />
-      </Card>
+            </div>
+            <div style={style.id}>
+              <IdLabel
+                obj={module}
+                onCopyButtonTouchTap={onIdCopyButtonTouchTap}
+              />
+            </div>
+          </div>
+        </div>
+      </Paper>
     )
   }
 }

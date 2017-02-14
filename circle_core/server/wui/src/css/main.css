@@ -39,56 +39,6 @@ table.props th {
   margin: 32px;
 }
 
-/* module系 */
-$moduleCardsMargin: 16px;
-
-.moduleCardsTab {
-  .moduleCardsTab-timeRanges {
-    background: $colorGray200;
-    padding-left: 20px;
-
-    .moduleCardsTab-timeRange {
-      border-bottom: 2px solid transparent;
-      display: inline-block;
-
-      &.is-active {
-        border-bottom-color: $colorRedA200;
-      }
-    }
-  }
-}
-
-.moduleCards {
-  @mixin clearfix;
-  margin: 16px 0 0 0;
-
-  .moduleCards-toggle {
-    text-align: right;
-    margin: 0 0 8px 0;
-  }
-
-  .moduleCard {
-    margin-bottom: $moduleCardsMargin;
-    padding: 12px 0 0 0;
-
-    .graph {
-      margin-right: 16px;
-    }
-  }
-
-  &.moduleCards-col2 {
-    .moduleCard {
-      float: left;
-      width: calc(50% - $moduleCardsMargin / 2);
-      margin-right: $moduleCardsMargin;
-    }
-    .moduleCard:nth-child(even) {
-      margin-right: 0;
-    }
-  }
-}
-
-
 /* moduelのgraph */
 $graphWidth: 200px;
 $graphHeight: 200px;

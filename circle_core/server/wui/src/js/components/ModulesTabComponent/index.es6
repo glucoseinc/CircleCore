@@ -102,6 +102,8 @@ class ModulesTabComponent extends Component {
             <ModuleCards
               modules={filteredModules}
               cols={width == SMALL ? 1 : 2}
+              onDisplayNameTouchTap={(module) => onModuleInfoPaperTouchTap(module.uuid)}
+              onIdCopyButtonTouchTap={onIdCopyButtonTouchTap}
             />
           </div>
         </Tab>
