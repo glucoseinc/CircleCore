@@ -16,7 +16,6 @@ import ReplicationSlavesListComponent from './ReplicationSlavesListComponent'
 class ReplocationLinkDetail extends Component {
   static propTypes = {
     replicationLink: PropTypes.object.isRequired,
-    messageBoxes: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
     onUrlCopyButtonTouchTap: PropTypes.func,
@@ -30,7 +29,6 @@ class ReplocationLinkDetail extends Component {
   render() {
     const {
       replicationLink,
-      messageBoxes,
       modules,
       ccInfos,
       onUrlCopyButtonTouchTap,
@@ -80,7 +78,7 @@ class ReplocationLinkDetail extends Component {
         <div style={style.targetsArea}>
           <ComponentWithTitle title="共有項目">
             <ReplicationTargetsTableComponent
-              messageBoxes={messageBoxes}
+              messageBoxes={replicationLink.messageBoxes}
               modules={modules}
             />
           </ComponentWithTitle>

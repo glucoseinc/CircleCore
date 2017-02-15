@@ -34,7 +34,7 @@ function* locationChangetoModules(action) {
 function* locationChangetoReplicas(action) {
   yield put(routerActions.push(pathnames.replicas))
 
-  if (action.type === actionTypes.replicationLinks.deleteSucceeded) {
+  if (action.type === actionTypes.replicationLink.deleteSucceeded) {
     yield put(actions.page.showSnackbar('共有リンクを削除しました'))
   }
 }

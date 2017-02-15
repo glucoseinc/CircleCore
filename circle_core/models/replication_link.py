@@ -32,7 +32,9 @@ class ReplicationSlave(MetaDataBase):
     slave_uuid = sa.Column(GUID, nullable=False)
     last_access_at = sa.Column(sa.DateTime)
 
-    link = orm.relationship('ReplicationLink', backref='slaves')
+    link = orm.relationship(
+        'ReplicationLink',
+        backref=orm.backref('slaves', cascade='all, delete-orphan'))
     info = orm.relationship(
         'CcInfo', foreign_keys=[slave_uuid], primaryjoin='CcInfo.uuid == ReplicationSlave.slave_uuid', uselist=False)
 

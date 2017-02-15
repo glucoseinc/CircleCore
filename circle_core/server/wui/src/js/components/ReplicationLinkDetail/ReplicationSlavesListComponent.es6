@@ -49,7 +49,7 @@ class ReplicationSlavesListItem extends Component {
           {ccInfo.displayName}
         </div>
         <div style={style.lastAccessTime}>
-          最終アクセス {ccInfo.lastAccessTime}
+          最終アクセス {ccInfo.lastAccessedAt ? ccInfo.lastAccessedAt.format('LLL') : '未接続'}
         </div>
         <IdLabel
           obj={ccInfo}
@@ -59,6 +59,7 @@ class ReplicationSlavesListItem extends Component {
     )
   }
 }
+
 
 /**
 * 接続先リストコンポーネント
