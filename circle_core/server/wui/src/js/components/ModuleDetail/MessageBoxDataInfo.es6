@@ -1,62 +1,17 @@
 import React, {Component, PropTypes} from 'react'
+import moment from 'moment'
 
-import {grey300, grey400} from 'material-ui/styles/colors'
+import CCAPI from 'src/api'
+import {SchemaPropertyLabel} from 'src/components/commons/SchemaPropertiesLabel'
 
-
-// TODO: Dataの取得
-const mockHeader = [
-  '日付',
-  '項目名01',
-  '項目名02項目名02',
-  '項目名03項目名03項目名03',
-  '項目名04項目名04項目名04項目名04項目名04項目名04項目名04項目名04項目名04項目名04項目名04項目名04項目名04項目名04項目名04項目名04',
-]
-const mockData = [
-  [
-    '2017/01/01 12:34',
-    '12.345',
-    '12.345',
-    '12.345',
-    '12.345',
-  ],
-  [
-    '2017/01/01 12:34',
-    '12.345',
-    '12.345',
-    '12.345',
-    '12.345',
-  ],
-  [
-    '2017/01/01 12:34',
-    '12.345',
-    '12.345',
-    '12.345',
-    '12.345',
-  ],
-  [
-    '2017/01/01 12:34',
-    '12.345',
-    '12.345',
-    '12.345',
-    '12.345',
-  ],
-  [
-    '2017/01/01 12:34',
-    '12.345',
-    '12.345',
-    '12.345',
-    '12.345',
-  ],
-]
 
 /**
-* MessageBox更新情報
-*/
-class MessageBoxDataInfo extends Component {
+ * MessageBoxDataInfoのメッセージ1行分
+ */
+class MessageRow extends Component {
   static propTypes = {
-    header: PropTypes.array,
-    data: PropTypes.array,
-    width: PropTypes.number,
+    message: PropTypes.object.isRequired,
+    schemaProperties: PropTypes.array.isRequired,
   }
 
   /**
@@ -64,68 +19,126 @@ class MessageBoxDataInfo extends Component {
    */
   render() {
     const {
-      header = mockHeader,
-      data = mockData,
-      width = 0,
+      message,
+      schemaProperties,
     } = this.props
 
-    const style = {
-      root: {
-        width,
-        overflowX: 'scroll',
-      },
-      table: {
-        borderCollapse: 'collapse',
-      },
-      headerRow: {
-        borderTopStyle: 'solid',
-        borderTopWidth: 1,
-        borderTopColor: grey300,
-        borderBottomStyle: 'solid',
-        borderBottomWidth: 1,
-        borderBottomColor: grey300,
-      },
-      headerCell: {
-        padding: 8,
-        fontSize: 12,
-        fontWeight: 'normal',
-        color: grey400,
-        whiteSpace: 'nowrap',
-      },
-      dataRowOdd: {
-        backgroundColor: grey300,
-      },
-      dataRowEven: {
-      },
-      dataCell: {
-        padding: 8,
-        fontSize: 14,
-        whiteSpace: 'nowrap',
-      },
-    }
+    const date = moment.unix(message.timestamp)
 
     return (
-      <div style={style.root}>
-        <table style={style.table}>
+      <tr>
+        <td className="messageBox-latestMessages-date">{date.toISOString()}</td>
+        <td className="messageBox-latestMessages-timestamp">{message.timestamp}</td>
+        <td className="messageBox-latestMessages-counter">{message.counter}</td>
+        {schemaProperties.map(({name, type}) => (
+          <td
+            key={`${name}-${type}`}
+            className={`messageBox-latestMessages-value is-${type}`}>
+            {valueToString(message.payload[name], type)}
+          </td>
+        ))}
+      </tr>
+    )
+  }
+}
+
+/**
+ * データを表示も列に変更
+ * @param {object} val
+ * @param {string} type
+ * @return {string}
+ */
+function valueToString(val, type) {
+  return '' + val
+}
+
+/**
+* MessageBox更新情報
+*/
+class MessageBoxDataInfo extends Component {
+  static propTypes = {
+    messageBox: PropTypes.object.isRequired,
+    module: PropTypes.object.isRequired,
+  }
+
+  state = {
+    loading: true,
+    messages: null,
+  }
+
+  /**
+   * @override
+   */
+  componentDidMount() {
+    this.fetchLatestData()
+  }
+
+  /**
+   * @override
+   */
+  render() {
+    if(this.state.loading) {
+      return <div>loading...</div>
+    }
+
+    const {
+      messages,
+      schemaProperties,
+    } = this.state
+
+    return (
+      <div className="messageBox-latestMessages">
+        <table>
           <thead>
-            <tr style={style.headerRow}>
-              {header.map((h, index) =>
-                <th key={index} style={style.headerCell}>{h}</th>
+            <tr>
+              <th className="messageBox-latestMessages-date">
+                日付
+              </th>
+              <th className="messageBox-latestMessages-timestamp">
+                timestamp
+              </th>
+              <th className="messageBox-latestMessages-counter">
+                counter
+              </th>
+              {schemaProperties.map(({name, type}, index) =>
+                <th key={index} className="messageBox-latestMessages-value">
+                  <SchemaPropertyLabel name={name} type={type} style={{fontSize: 'inherit'}}/>
+                </th>
               )}
             </tr>
           </thead>
           <tbody>
-            {data.map((row, index) =>
-              <tr key={index} style={index % 2 ? style.dataRowOdd : style.dataRowEven}>
-                {row.map((cell, i) =>
-                  <td key={i} style={style.dataCell}>{cell}</td>
-                )}
-              </tr>
-            )}
+            {messages.length
+              ? messages.map((message, index) =>
+                  <MessageRow
+                    key={index} message={message} schemaProperties={schemaProperties} />
+                )
+              : (
+                <tr>
+                  <td className="messageBox-latestMessages-nodata" colSpan={3 + schemaProperties.length}>NO DATA</td>
+                </tr>
+              )
+            }
           </tbody>
         </table>
       </div>
     )
+  }
+
+  /**
+   * サーバから最新メッセージをとってくる
+   */
+  async fetchLatestData() {
+    let {messages, schema: {properties}} = await CCAPI.fetchLatestMessageBox(
+      this.props.module.uuid,
+      this.props.messageBox.uuid
+    )
+
+    this.setState({
+      loading: false,
+      messages: messages,
+      schemaProperties: properties,
+    })
   }
 }
 

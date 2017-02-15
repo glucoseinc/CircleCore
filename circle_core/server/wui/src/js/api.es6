@@ -415,6 +415,16 @@ class CCAPI extends APICaller {
     return res.body
   }
 
+  /**
+   * MessageBoxの最新データを得る
+   * @param {string} moduleId
+   * @param {string} messageBoxId
+   * @return {object} Result
+   */
+  async fetchLatestMessageBox(moduleId, messageBoxId) {
+    const res = await this._get(`/modules/${moduleId}/${messageBoxId}/data?format=json&limit=5`)
+    return res.body
+  }
 
   // CcInfo
   /**

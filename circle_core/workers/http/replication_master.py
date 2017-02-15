@@ -195,7 +195,7 @@ class ReplicationMaster(WebSocketHandler):
                 logger.info('box: %r, head: %r', box, head)
                 self.sync_states[box.uuid].slave_head = head
 
-                for message in database.enum_message_from(box, head=head, connection=conn):
+                for message in database.enum_messages(box, head=head, connection=conn):
                     logger.debug('sync message %s', message)
                     self._send_command(
                         MasterCommand.SYNC_MESSAGE,

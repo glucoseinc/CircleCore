@@ -15,11 +15,10 @@ from base58 import b58encode
 from click import get_current_context
 from six import PY3
 import sqlalchemy as sa
-from sqlalchemy import sql
-from sqlalchemy.dialects import mysql
+# from sqlalchemy.dialects import mysql
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.schema import CreateColumn, SchemaVisitor
-import sqlalchemy.sql.ddl
+# from sqlalchemy.schema import CreateColumn, SchemaVisitor
+# import sqlalchemy.sql.ddl
 import tornado.ioloop
 
 # project module
@@ -227,7 +226,7 @@ class Database(object):
 
         table = self.find_table_for_message_box(message_box)
         query = (
-            sql.select([table.c._created_at, table.c._counter])
+            sa.sql.select([table.c._created_at, table.c._counter])
             .order_by(table.c._created_at.desc(), table.c._counter.desc())
             .limit(1)
         )
@@ -236,17 +235,35 @@ class Database(object):
             return None
         return ModuleMessagePrimaryKey(ModuleMessage.make_timestamp(rows[0][0]), rows[0][1])
 
-    def enum_message_from(self, message_box, head=None, connection=None):
-        assert connection, 'TODO: create new connection if not present it'
+    def count_messages(self, message_box, head=None, limit=None, connection=None):
+        """message_box内のメッセージ数を返す
+        """
+        if not connection:
+            connection = self._engine.connect()
+
+        table = self.find_table_for_message_box(message_box, create_if_not_exsts=False)
+        if table is None:
+            return 0
+
+        return connection.scalar(sa.sql.select([sa.func.count()]).select_from(table))
+
+    def enum_messages(self, message_box, head=None, limit=None, connection=None):
+        """head以降のメッセージを返す
+        """
+        if not connection:
+            connection = self._engine.connect()
+
         assert head is None or isinstance(head, ModuleMessagePrimaryKey)
 
         table = self.find_table_for_message_box(message_box, create_if_not_exsts=False)
         if table is None:
             return
 
-        query = sql.select([table]).order_by(table.c._created_at.asc(), table.c._counter.asc())
+        query = sa.sql.select([table]).order_by(table.c._created_at.asc(), table.c._counter.asc())
         if head:
             query = query.where(table.c._created_at >= head.timestamp)
+        if limit:
+            query = query.limit(limit)
 
         for row in connection.execute(query):
             row = dict(row)
@@ -259,6 +276,7 @@ class Database(object):
                     continue
 
             yield message
+
 
 # class DiffResult(object):
 #     """

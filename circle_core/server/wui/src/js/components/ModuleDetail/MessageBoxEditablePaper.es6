@@ -1,5 +1,4 @@
 import React, {Component, PropTypes} from 'react'
-import Measure from 'react-measure'
 
 import {grey100} from 'material-ui/styles/colors'
 import DatePicker from 'material-ui/DatePicker'
@@ -15,7 +14,6 @@ import IdLabel from 'src/components/commons/IdLabel'
 import SchemaPropertiesLabel from 'src/components/commons/SchemaPropertiesLabel'
 import MemoComponent from 'src/components/commons/MemoComponent'
 import ModuleGraph, {RANGES} from 'src/components/commons/ModuleGraph'
-
 import MessageBoxDataInfo from './MessageBoxDataInfo'
 
 
@@ -180,18 +178,12 @@ class MessageBoxEditablePaper extends Component {
           <MemoComponent obj={messageBox}/>
         </div>
 
-        <div style={style.dataInfoSection}>
-          <ComponentWithSubTitle subTitle="更新情報">
-            <Measure onMeasure={({width}) => this.setState({
-              messageBoxDataInfoWidth: width,
-            })}>
-              {({width}) => <div></div>}
-            </Measure>
-            <MessageBoxDataInfo
-              width={this.state.messageBoxDataInfoWidth}
-            />
-          </ComponentWithSubTitle>
-        </div>
+        <ComponentWithSubTitle subTitle="更新情報" style={style.dataInfoSection}>
+          <MessageBoxDataInfo
+            module={module}
+            messageBox={messageBox}
+          />
+        </ComponentWithSubTitle>
 
         <div style={style.downloadSection}>
           <div style={style.dateRange}>

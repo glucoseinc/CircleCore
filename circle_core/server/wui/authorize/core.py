@@ -96,8 +96,10 @@ def load_token(access_token=None, refresh_token=None):
     query = OAuthToken.query
     if access_token:
         query = query.filter_by(access_token=access_token)
-    if refresh_token:
+    elif refresh_token:
         query = query.filter_by(refresh_token=refresh_token)
+    else:
+        return None
 
     try:
         token = query.one()

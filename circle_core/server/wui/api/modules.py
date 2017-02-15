@@ -198,3 +198,34 @@ def _respond_rickshaw_graph_data(boxes, graph_range):
     graph_data.sort(key=lambda x: x['messageBox']['uuid'])
 
     return respond_success(graphData=graph_data)
+
+
+@api.route('/modules/<uuid:module_uuid>/<uuid:messagebox_uuid>/data')
+def api_message_box_data(module_uuid, messagebox_uuid):
+    """respond data for specified module."""
+    try:
+        box = MessageBox.query.filter_by(uuid=messagebox_uuid, module_uuid=module_uuid).one()
+    except NoResultFound:
+        raise abort(404)
+
+    output_format = request.args.get('format', 'json')
+    if output_format not in ('json',):
+        raise abort(400)
+
+    query = {}
+    limit = request.args.get('limit', None)
+    if limit:
+        limit = int(limit, 10)
+        query['limit'] = limit
+
+    database = current_app.core.get_database()
+    messages = []
+    for m in database.enum_messages(box, limit=limit):
+        messages.append(m.to_json(with_boxid=False))
+
+    return respond_success(
+        messages=messages,
+        query=query,
+        schema=box.schema.to_json(),
+        total=database.count_messages(box),
+    )

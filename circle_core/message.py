@@ -114,14 +114,16 @@ class ModuleMessage(object):
     def primary_key(self):
         return ModuleMessagePrimaryKey(self.timestamp, self.counter)
 
-    def to_json(self):
+    def to_json(self, with_boxid=True):
         """slaveのCircleCoreに送られる際に使われる.
 
         :return str:
         """
-        return {
+        d = {
             'timestamp': str(self.timestamp),
             'counter': self.counter,
-            'boxId': self.box_id.hex,
             'payload': self.payload
         }
+        if with_boxid:
+            d['boxId'] = self.box_id.hex
+        return d
