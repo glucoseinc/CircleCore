@@ -88,7 +88,7 @@ class ReplicationLinkInfoPaper extends Component {
         </MoreIconMenu>
 
         <div style={style.leftArea}>
-          <div style={style.displayName} onTouchTap={() => onDisplayNameTouchTap(replicationLink)}>
+          <div style={style.displayName} onTouchTap={() => onDisplayNameTouchTap(replicationLink.uuid)}>
             {replicationLink.displayName || '(no name)'}
           </div>
         </div>

@@ -19,6 +19,7 @@ function* locationChangetoSchemas(action) {
   yield put(routerActions.push(pathnames.schemas))
 }
 
+
 /**
  * Module一覧へ遷移
  * @param {object} action
@@ -27,16 +28,13 @@ function* locationChangetoModules(action) {
   yield put(routerActions.push(pathnames.modules))
 }
 
+
 /**
  * ReplicationLink一覧へ遷移
  * @param {object} action
  */
 function* locationChangetoReplicas(action) {
   yield put(routerActions.push(pathnames.replicas))
-
-  if (action.type === actionTypes.replicationLink.deleteSucceeded) {
-    yield put(actions.page.showSnackbar('共有リンクを削除しました'))
-  }
 }
 
 
@@ -53,19 +51,6 @@ function* handleLocationChangetoSchemas() {
 
 
 /**
- * ReplicationLink一覧へ遷移
- * @param {object} action
- */
-function* locationChangetoReplicas(action) {
-  yield put(routerActions.push(pathnames.replicas))
-
-  if (action.type === actionTypes.replicationLinks.deleteSucceeded) {
-    yield put(actions.page.showSnackbar('共有リンクを削除しました'))
-  }
-}
-
-
-/**
  * Module一覧への遷移をハンドル
  */
 function* handleLocationChangetoModules() {
@@ -76,6 +61,7 @@ function* handleLocationChangetoModules() {
   ]
   yield takeEvery(triggerActionTypes, locationChangetoModules)
 }
+
 
 /**
  * ReplicationLink一覧への遷移をハンドル

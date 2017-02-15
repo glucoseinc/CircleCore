@@ -85,8 +85,8 @@ class Replicas extends Component {
               replicationLink={replicationLink}
               modules={modules}
               ccInfos={ccInfos}
-              onReplicationSlaveCopyButtonTouchTap={onReplicationSlaveCopyButtonTouchTap}
               onDeleteTouchTap={::this.onDeleteTouchTap}
+              onDisplayNameTouchTap={onDisplayNameTouchTap}
             />
           )}
         </div>

@@ -18,8 +18,6 @@ class ReplocationLinkDetail extends Component {
     replicationLink: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
-    onUrlCopyButtonTouchTap: PropTypes.func,
-    onReplicationSlaveCopyButtonTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
   }
 
@@ -31,8 +29,6 @@ class ReplocationLinkDetail extends Component {
       replicationLink,
       modules,
       ccInfos,
-      onUrlCopyButtonTouchTap,
-      onReplicationSlaveCopyButtonTouchTap,
       onDeleteTouchTap,
     } = this.props
 
@@ -71,7 +67,6 @@ class ReplocationLinkDetail extends Component {
           <DisplayNamePaper
             obj={replicationLink}
             secondayType="url"
-            onCopyButtonTouchTap={onUrlCopyButtonTouchTap}
           />
         </div>
 
@@ -89,7 +84,6 @@ class ReplocationLinkDetail extends Component {
             <ReplicationSlavesListComponent
               replicationLink={replicationLink}
               ccInfos={ccInfos}
-              onIdCopyButtonTouchTap={onReplicationSlaveCopyButtonTouchTap}
             />
           </ComponentWithTitle>
         </div>

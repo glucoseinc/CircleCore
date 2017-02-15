@@ -34,7 +34,6 @@ class ReplicationSlavesLabel extends Component {
             rootStyle={{
               marginTop: index > 0 ? 8 : 0,
             }}
-            onCopyTouchTap={onCopyTouchTap}
           />
         )}
       </ComponentWithIcon>

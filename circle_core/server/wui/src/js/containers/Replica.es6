@@ -21,8 +21,6 @@ class Replica extends Component {
     ccInfos: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,
     setTitle: PropTypes.func,
-    onUrlCopyButtonTouchTap: PropTypes.func,
-    onReplicationSlaveCopyButtonTouchTap: PropTypes.func,
     onDeleteOkButtonTouchTap: PropTypes.func,
   }
 
@@ -75,8 +73,6 @@ class Replica extends Component {
       modules,
       ccInfos,
       params,
-      onUrlCopyButtonTouchTap,
-      onReplicationSlaveCopyButtonTouchTap,
     } = this.props
 
     if (isFetching) {
@@ -101,8 +97,6 @@ class Replica extends Component {
           replicationLink={replicationLink}
           modules={modules}
           ccInfos={ccInfos}
-          onUrlCopyButtonTouchTap={onUrlCopyButtonTouchTap}
-          onReplicationSlaveCopyButtonTouchTap={onReplicationSlaveCopyButtonTouchTap}
           onDeleteTouchTap={() => this.onDeleteTouchTap()}
         />
 
@@ -127,8 +121,6 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   setTitle: (title) => dispatch(actions.page.setTitle(title)),
-  onUrlCopyButtonTouchTap: (url) => dispatch(actions.page.showSnackbar('URLをコピーしました')),
-  onReplicationSlaveCopyButtonTouchTap: (uuid) => dispatch(actions.page.showSnackbar('IDをコピーしました')),
   onDeleteOkButtonTouchTap: (replicationLink) => dispatch(actions.replicationLink.deleteRequest(replicationLink.uuid)),
 })
 

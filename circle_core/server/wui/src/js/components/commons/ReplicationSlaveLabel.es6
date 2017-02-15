@@ -19,7 +19,6 @@ class ReplicationSlaveLabel extends Component {
   render() {
     const {
       ccInfo,
-      rootStyle = {},
     } = this.props
 
     const style = {
