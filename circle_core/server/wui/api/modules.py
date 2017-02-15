@@ -45,10 +45,9 @@ def _get_modules():
 
 @oauth_require_write_schema_scope
 def _post_modules():
-    response = {}  # TODO: response形式の統一
     try:
         with MetaDataSession.begin():
-            module = Module(uuid=generate_uuid(model=Module))
+            module = Module.create()
             module.update_from_json(request.json, with_boxes=True)
 
             MetaDataSession.add(module)
@@ -57,11 +56,7 @@ def _post_modules():
         raise
         return respond_failure('key error', _status=400)
 
-    response['result'] = 'success'
-    response['detail'] = {
-        'uuid': module.uuid
-    }
-    return respond_success(module={'uuid': module.uuid})
+    return respond_success(module=module.to_json())
 
 
 @api.route('/modules/<module_uuid>', methods=['GET', 'PUT', 'DELETE'])

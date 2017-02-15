@@ -39,6 +39,16 @@ class Module(UUIDMetaDataBase):
 
     message_boxes = orm.relationship('MessageBox', backref='module', cascade='all, delete-orphan')
 
+    @classmethod
+    def create(cls, **kwargs):
+        if 'uuid' not in kwargs:
+            kwargs['uuid'] = generate_uuid(model=cls)
+        if 'cc_uuid' not in kwargs:
+            from .cc_info import CcInfo
+            kwargs['cc_uuid'] = CcInfo.query.filter_by(myself=True).one().uuid
+
+        return cls(**kwargs)
+
     def __init__(self, **kwargs):
         """init.
         """
@@ -62,18 +72,6 @@ class Module(UUIDMetaDataBase):
                     self.display_name == other.display_name,
                     self.tags == other.tags,
                     self.memo == other.memo])
-
-    @classmethod
-    def create(cls, **kwargs):
-        if 'cc_uuid' not in kwargs:
-            from .cc_info import CcInfo
-            kwargs['cc_uuid'] = CcInfo.query.filter_by(myself=True).one().uuid
-
-        module = cls(
-            uuid=generate_uuid(model=cls),
-            **kwargs
-        )
-        return module
 
     @hybrid_property
     def tags(self):
