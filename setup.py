@@ -20,7 +20,7 @@ install_requires = [
     'sqlalchemy>=1.1.4',
     'tornado',
     'websocket-client',
-    'whisper>=0.10.0rc1',
+    'whisper',
 ]
 if PY2:
     install_requires.append('enum34')
