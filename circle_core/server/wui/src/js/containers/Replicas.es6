@@ -17,7 +17,6 @@ class Replicas extends Component {
   static propTypes = {
     isReplicationLinkFetching: PropTypes.bool.isRequired,
     replicationLinks: PropTypes.object.isRequired,
-    messageBoxes: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
     onDisplayNameTouchTap: PropTypes.func,
@@ -66,7 +65,6 @@ class Replicas extends Component {
     const {
       isReplicationLinkFetching,
       replicationLinks,
-      messageBoxes,
       modules,
       ccInfos,
       onDisplayNameTouchTap,
@@ -80,17 +78,18 @@ class Replicas extends Component {
 
     return (
       <div className="page">
-        {replicationLinks.valueSeq().map((replicationLink) =>
-          <ReplicationLinkInfoPaper
-            key={replicationLink.uuid}
-            replicationLink={replicationLink}
-            messageBoxes={messageBoxes}
-            modules={modules}
-            ccInfos={ccInfos}
-            onDisplayNameTouchTap={(replicationLink) => onDisplayNameTouchTap(replicationLink.uuid)}
-            onDeleteTouchTap={::this.onDeleteTouchTap}
-          />
-        )}
+        <div className="replicationLinks">
+          {replicationLinks.valueSeq().map((replicationLink) =>
+            <ReplicationLinkInfoPaper
+              key={replicationLink.uuid}
+              replicationLink={replicationLink}
+              modules={modules}
+              ccInfos={ccInfos}
+              onReplicationSlaveCopyButtonTouchTap={onReplicationSlaveCopyButtonTouchTap}
+              onDeleteTouchTap={::this.onDeleteTouchTap}
+            />
+          )}
+        </div>
 
         <ReplicationLinkDeleteDialog
           open={isReplicationLinkDeleteDialogOpen}
@@ -107,7 +106,6 @@ class Replicas extends Component {
 const mapStateToProps = (state) => ({
   isReplicationLinkFetching: state.asyncs.isReplicationLinkFetching,
   replicationLinks: state.entities.replicationLinks,
-  messageBoxes: state.entities.messageBoxes,
   modules: state.entities.modules,
   ccInfos: state.entities.ccInfos,
 })

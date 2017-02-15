@@ -24,15 +24,16 @@ class ReplicationSlaveLabel extends Component {
 
     const style = {
       root: {
-        display: 'flex',
-        flexFlow: 'column nowrap',
-        width: '100%',
-        padding: 8,
+        // display: 'flex',
+        // flexFlow: 'column nowrap',
+        // width: '100%',
+        // padding: 8,
+        ...(this.props.rootStyle || {}),
       },
       displayName: {
         fontSize: 14,
       },
-      lastAccessTime: {
+      lastAccessedAt: {
         fontSize: 12,
         color: grey500,
       },
@@ -42,19 +43,18 @@ class ReplicationSlaveLabel extends Component {
       },
     }
 
-    const mergedRootStyle = {
-      ...style.root,
-      ...rootStyle,
-    }
-
     return (
-      <div style={mergedRootStyle}>
+      <div style={style.root}>
         <div style={style.displayName}>
-          {ccInfo.displayName || '(no name)'}
+          {ccInfo.isSynced()
+            ? (ccInfo.displayName || '(no name)')
+            : <span className="not-synced">(未接続)</span>}
         </div>
-        <div style={style.lastAccessTime}>
-          {ccInfo.lastAccessTime}
-        </div>
+        {ccInfo.isSynced() &&
+          <div style={style.lastAccessedAt}>
+            {ccInfo.lastAccessedAt.format('LLL')}
+          </div>
+        }
         <LabelWithCopyButton
           label={ccInfo.uuid}
           labelStyle={style.id}

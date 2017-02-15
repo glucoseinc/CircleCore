@@ -59,6 +59,8 @@ class CcInfo(UUIDMetaDataBase):
             'displayName': self.display_name,
             'work': self.work,
             'myself': self.myself,
+            # TODO: 実装する
+            'lastAccessedAt': datetime.datetime.utcnow().isoformat('T') + 'Z',
         }
 
     def update_from_json(self, json_msg):

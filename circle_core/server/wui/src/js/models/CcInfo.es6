@@ -1,5 +1,6 @@
 /* eslint-disable new-cap */
 import {Record} from 'immutable'
+import moment from 'moment'
 
 
 const CcInfoRecord = Record({
@@ -7,7 +8,7 @@ const CcInfoRecord = Record({
   displayName: '',
   myself: false,
   work: '',
-  lastAccessTime: '',
+  lastAccessedAt: null,
 })
 
 /**
@@ -32,8 +33,16 @@ export default class CcInfo extends CcInfoRecord {
       displayName: rawCcInfo.displayName || '',
       myself: rawCcInfo.myself || false,
       work: rawCcInfo.work || '',
-      lastAccessTime: rawCcInfo.lastAccessTime || '',
+      lastAccessedAt: rawCcInfo.lastAccessedAt ? moment(rawCcInfo.lastAccessedAt) : null,
     })
+  }
+
+  /**
+   * CcInfoが接続済か示す
+   * @return {bool}
+   */
+  isSynced() {
+    return this.lastAccessedAt ? true : false
   }
 
   /**

@@ -25,15 +25,20 @@ export default class ReplicationLink extends ReplicationLinkRecord {
 
   /**
    * @param {object} rawReplicationLink
+   * @param {Map<UUID, MessageBox>} messageBoxes
    * @return {ReplicationLink}
    */
-  static fromObject(rawReplicationLink) {
+  static fromObject(rawReplicationLink, messageBoxes) {
+    let boxes = rawReplicationLink.messageBoxes || []
+    boxes.sort()
+    boxes = boxes.map((boxUuid) => messageBoxes.get(boxUuid))
+
     return new ReplicationLink({
       uuid: rawReplicationLink.uuid || '',
       displayName: rawReplicationLink.displayName || '',
       link: rawReplicationLink.link || '',
       slaves: List(rawReplicationLink.slaves || []),
-      messageBoxes: List(rawReplicationLink.messageBoxes || []),
+      messageBoxes: List(boxes),
       memo: rawReplicationLink.memo || '',
     })
   }
@@ -79,6 +84,14 @@ export default class ReplicationLink extends ReplicationLinkRecord {
    * @param {array} valueList
    * @return {ReplicationLink}
    */
+  updateSlaves(valueList) {
+    return this.set('slaves', new List(valueList))
+  }
+
+  /**
+   * @param {array} valueList
+   * @return {ReplicationLink}
+   */
   updateMessageBoxes(valueList) {
     return this.set('messageBoxes', new List(valueList))
   }
@@ -102,10 +115,13 @@ export default class ReplicationLink extends ReplicationLinkRecord {
    * @return {bool}
    */
   isReadyToCreate() {
-    if (this.messageBoxes.size === 0) {
+    if(this.slaves.size === 0) {
       return false
     }
-    if (this.displayName.length === 0) {
+    if(this.messageBoxes.size === 0) {
+      return false
+    }
+    if(this.displayName.length === 0) {
       return false
     }
     return true

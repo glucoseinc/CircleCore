@@ -85,6 +85,7 @@ class ReplicationLink(UUIDMetaDataBase):
         )
 
         for slave_uuid in slaves:
+            slave_uuid = prepare_uuid(slave_uuid)
             obj.slaves.append(ReplicationSlave(link_uuid=obj.uuid, slave_uuid=slave_uuid))
 
         if message_box_uuids is cls.ALL_MESSAGE_BOXES:

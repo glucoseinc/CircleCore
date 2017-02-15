@@ -1,10 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 
-import {grey300, white} from 'material-ui/styles/colors'
-
 import ComponentWithIcon from 'src/components/bases/ComponentWithIcon'
 import {ReplicationSlaveIcon} from 'src/components/bases/icons'
-
 import ReplicationSlaveLabel from 'src/components/commons/ReplicationSlaveLabel'
 
 
@@ -30,17 +27,15 @@ class ReplicationSlavesLabel extends Component {
 
     return (
       <ComponentWithIcon icon={ReplicationSlaveIcon}>
-        {targetSlaves.map((slaveOrUuid, index) =>
-          typeof slaveOrUuid === 'string'
-            ? <span style={{backgroundColor: index % 2 ? white : grey300}}>{slaveOrUuid}</span>
-            : <ReplicationSlaveLabel
-                key={slaveOrUuid.uuid}
-                ccInfo={slaveOrUuid}
-                rootStyle={{
-                  backgroundColor: index % 2 ? white : grey300,
-                }}
-                onCopyTouchTap={onCopyTouchTap}
-              />
+        {targetSlaves.map((slave, index) =>
+          <ReplicationSlaveLabel
+            key={slave.uuid}
+            ccInfo={slave}
+            rootStyle={{
+              marginTop: index > 0 ? 8 : 0,
+            }}
+            onCopyTouchTap={onCopyTouchTap}
+          />
         )}
       </ComponentWithIcon>
     )

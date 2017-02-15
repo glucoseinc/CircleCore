@@ -3,9 +3,8 @@ import React, {Component, PropTypes} from 'react'
 import MenuItem from 'material-ui/MenuItem'
 import Paper from 'material-ui/Paper'
 
-import ComponentWithMoreIconMenu from 'src/components/bases/ComponentWithMoreIconMenu'
+import MoreIconMenu from 'src/components/bases/MoreIconMenu'
 import {DeleteIcon} from 'src/components/bases/icons'
-
 import UrlLabel from 'src/components/commons/UrlLabel'
 import ReplicationSlavesLabel from 'src/components/commons/ReplicationSlavesLabel'
 import ReplicationTargetsLabel from 'src/components/commons/ReplicationTargetsLabel'
@@ -16,7 +15,6 @@ import ReplicationTargetsLabel from 'src/components/commons/ReplicationTargetsLa
 class ReplicationLinkInfoPaper extends Component {
   static propTypes = {
     replicationLink: PropTypes.object.isRequired,
-    messageBoxes: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
     onDisplayNameTouchTap: PropTypes.func,
@@ -29,8 +27,7 @@ class ReplicationLinkInfoPaper extends Component {
   render() {
     const {
       replicationLink,
-      messageBoxes,
-      // modules,
+      modules,
       ccInfos,
       onDisplayNameTouchTap,
       onDeleteTouchTap,
@@ -38,84 +35,85 @@ class ReplicationLinkInfoPaper extends Component {
 
     const style = {
       root: {
-        padding: 24,
+        position: 'relative',
+        padding: '24px 64px 24px 24px',
+        marginBottom: 32,
       },
-
+      moreIconMenu: {
+        position: 'absolute',
+        right: 8,
+        top: 16,
+      },
       contents: {
-        display: 'flex',
-        flexFlow: 'row nowrap',
+        // display: 'flex',
+        // flexFlow: 'row nowrap',
       },
 
       leftArea: {
-        display: 'flex',
-        flexFlow: 'column nowrap',
-        minWidth: 232,
-        maxWidth: 232,
+        float: 'left',
+        width: 232,
+        // flexFlow: 'column nowrap',
+        // minWidth: 232,
+        // maxWidth: 232,
       },
       displayName: {
         fontSize: 14,
         fontWeight: 'bold',
         cursor: 'pointer',
       },
-
       rightArea: {
-        display: 'flex',
-        flexFlow: 'column nowrap',
-        flexGrow: 1,
+        // display: 'flex',
+        // flexFlow: 'column nowrap',
+        // flexGrow: 1,
+        marginLeft: 240,
       },
       urlSection: {
       },
       targetsSection: {
-        paddingTop: 8,
+        marginTop: 8,
       },
       coresSection: {
-        paddingTop: 8,
+        marginTop: 8,
       },
     }
 
     return (
-      <Paper>
-        <div style={style.root}>
-          <ComponentWithMoreIconMenu
-            menuItems={[
-              <MenuItem
-                primaryText="この共有リンクを削除する"
-                leftIcon={<DeleteIcon />}
-                onTouchTap={() => onDeleteTouchTap(replicationLink)}
-              />,
-            ]}
-          >
-            <div style={style.contents}>
-              <div style={style.leftArea}>
-                <div style={style.displayName} onTouchTap={() => onDisplayNameTouchTap(replicationLink)}>
-                  {replicationLink.displayName || '(no name)'}
-                </div>
-              </div>
+      <Paper className="replicationLinks-row" style={style.root}>
+        <MoreIconMenu style={style.moreIconMenu}>
+          <MenuItem
+            primaryText="この共有リンクを削除する"
+            leftIcon={<DeleteIcon />}
+            onTouchTap={() => onDeleteTouchTap(replicationLink)}
+          />
+        </MoreIconMenu>
 
-              <div style={style.rightArea}>
-                <div style={style.urlSection}>
-                  <UrlLabel
-                    obj={replicationLink}
-                  />
-                </div>
+        <div style={style.leftArea}>
+          <div style={style.displayName} onTouchTap={() => onDisplayNameTouchTap(replicationLink)}>
+            {replicationLink.displayName || '(no name)'}
+          </div>
+        </div>
 
-                <div style={style.targetsSection}>
-                  <ReplicationTargetsLabel
-                    replicationLink={replicationLink}
-                    messageBoxes={messageBoxes}
-                  />
-                </div>
+        <div style={style.rightArea}>
+          <div style={style.urlSection}>
+            <UrlLabel
+              obj={replicationLink}
+            />
+          </div>
 
-                <div style={style.coresSection}>
-                  <ReplicationSlavesLabel
-                    replicationLink={replicationLink}
-                    ccInfos={ccInfos}
-                  />
-                </div>
+          <div style={style.targetsSection}>
+            <ReplicationTargetsLabel
+              replicationLink={replicationLink}
+              modules={modules}
+            />
+          </div>
 
-              </div>
-            </div>
-          </ComponentWithMoreIconMenu>
+          <div style={style.coresSection}>
+            <ReplicationSlavesLabel
+              replicationLink={replicationLink}
+              ccInfos={ccInfos}
+            />
+          </div>
+
         </div>
       </Paper>
     )

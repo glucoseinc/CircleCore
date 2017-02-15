@@ -3,7 +3,7 @@ import {normalize} from 'normalizr'
 
 import CcInfo from 'src/models/CcInfo'
 import Invitation from 'src/models/Invitation'
-import Module from 'src/models/Module'
+import Module, {MessageBox} from 'src/models/Module'
 import ReplicationLink from 'src/models/ReplicationLink'
 import Schema from 'src/models/Schema'
 import SchemaPropertyType from 'src/models/SchemaPropertyType'
@@ -30,8 +30,8 @@ export const getNewEntities = (response) => {
   return {
     ccInfos: new Map(convertValues(entities.ccInfos, CcInfo.fromObject)),
     invitations: new Map(convertValues(entities.invitations, Invitation.fromObject)),
-    modules: new Map(convertValues(entities.modules, Module.fromObject)),
-    replicationLinks: new Map(convertValues(entities.replicationLinks, ReplicationLink.fromObject)),
+    modules: new Map(convertValues(entities.modules, Module.fromObject, messageBoxes)),
+    replicationLinks: new Map(convertValues(entities.replicationLinks, ReplicationLink.fromObject, messageBoxes)),
     schemas: new Map(convertValues(entities.schemas, Schema.fromObject)),
     schemaPropertyTypes: new Map(convertValues(entities.schemaPropertyTypes, SchemaPropertyType.fromObject)),
     users: new Map(convertValues(entities.users, User.fromObject)),
