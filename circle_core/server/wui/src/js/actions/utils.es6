@@ -1,5 +1,6 @@
 import {createAction} from 'redux-actions'
 
+export const actionTypePrefix = '@@circleCore/'
 
 /**
  * NULLを返す Payload Creator
@@ -47,7 +48,7 @@ function toUpperSnakeCase(str) {
  * @return {string} action type string
  */
 function createActionType(prefix, type) {
-  return `@@circleCore/${toUpperSnakeCase(prefix)}_${toUpperSnakeCase(type)}`
+  return `${actionTypePrefix}${toUpperSnakeCase(prefix)}_${toUpperSnakeCase(type)}`
 }
 
 

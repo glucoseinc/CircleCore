@@ -3,13 +3,18 @@ import {handleActions} from 'redux-actions'
 import {actionTypes} from 'src/actions'
 
 const initialState = {
-  isSnackbarOpen: false,
   title: '',
+
+  isSnackbarOpen: false,
   snackbarMessage: '',
+
+  isErrorDialogOpen: false,
+  errorDialogMessages: {},
 }
 
 
 const page = handleActions({
+  // Title
   [actionTypes.page.setTitle]: (state, action) => {
     const title = action.payload
     return {
@@ -18,6 +23,7 @@ const page = handleActions({
     }
   },
 
+  // Snackbar
   [actionTypes.page.showSnackbar]: (state, action) => {
     const snackbarMessage= action.payload
     return {
@@ -32,6 +38,23 @@ const page = handleActions({
       ...state,
       isSnackbarOpen: false,
       snackbarMessage: '',
+    }
+  },
+
+  // ErrorDialog
+  [actionTypes.page.showErrorDialog]: (state, action) => {
+    return {
+      ...state,
+      isErrorDialogOpen: true,
+      errorDialogMessages: action.payload,
+    }
+  },
+
+  [actionTypes.page.hideErrorDialog]: (state, action) => {
+    return {
+      ...state,
+      isErrorDialogOpen: false,
+      errorDialogMessages: {},
     }
   },
 }, initialState)
