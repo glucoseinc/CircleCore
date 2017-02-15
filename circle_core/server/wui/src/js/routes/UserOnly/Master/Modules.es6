@@ -4,7 +4,7 @@ import Modules from 'src/containers/Modules'
 
 const modulesRoute = {
   key: 'modules',
-  path: 'modules/',
+  path: 'modules',
   label: 'モジュール一覧',
   icon: ModuleIcon,
   component: Modules,

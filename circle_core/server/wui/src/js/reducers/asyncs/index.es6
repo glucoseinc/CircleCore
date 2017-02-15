@@ -10,10 +10,20 @@ import userActionsHandler from './user'
 
 
 const initialState = {
+  isCcInfoFetching: false,
+  isCcInfoUpdating: false,
+
+  isInvitationCreating: false,
+  isInvitationFetching: false,
+  isInvitationDeleting: false,
+
   isModuleCreating: false,
   isModuleFetching: false,
   isModuleUpdating: false,
   isModuleDeleting: false,
+
+  isReplicationLinkCreating: false,
+  isReplicationLinkFetching: false,
 
   isSchemaCreating: false,
   isSchemaFetching: false,
@@ -25,14 +35,6 @@ const initialState = {
   isUserFetching: false,
   isUserUpdating: false,
   isUserDeleting: false,
-
-  isInvitationsFetching: false,
-
-  isCcInfoFetching: false,
-  isCcInfoUpdating: false,
-
-  isReplicationLinkCreating: false,
-  isReplicationLinkFetching: false,
 }
 
 

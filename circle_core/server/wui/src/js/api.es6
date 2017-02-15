@@ -202,33 +202,44 @@ class CCAPI extends APICaller {
     return res.body
   }
 
-  // invitation
+
+  // Invitation
+  /**
+   * Invitationを作成する
+   * @param {object} rawInvitation
+   * @return {object} Result
+   */
+  async createInvitation(rawInvitation) {
+    const res = await this._post('/invitations/', rawInvitation)
+    return res.body
+  }
+
+  /**
+   * Invitationの詳細を得る
+   * @param {string} invitationId
+   * @return {object} Result
+   */
+  async fetchInvitation(invitationId) {
+    const res = await this._get(`/invitations/${invitationId}`)
+    return res.body
+  }
+
   /**
    * Invitationのリストを得る
-   * @return {Object} Result
+   * @return {object} Result
    */
-  async listInvitations() {
+  async fetchAllInvitations() {
     const res = await this._get('/invitations/')
     return res.body
   }
 
   /**
-   * Invitationを作成する
-   * @param {Object} payload 新しく作りたいInvitationの値
-   * @return {Object} Result
-   */
-  async postInvitation(payload) {
-    const res = await this._post('/invitations/', payload)
-    return res.body
-  }
-
-  /**
    * Invitationを削除する
-   * @param {Invitation} invitation Invtation
-   * @return {Object} Result
+   * @param {string} invitationId
+   * @return {object} Result
    */
-  async deleteInvitation(invitation) {
-    const res = await this._delete(`/invitations/${invitation.uuid}`)
+  async deleteInvitation(invitationId) {
+    const res = await this._delete(`/invitations/${invitationId}`)
     return res.body
   }
 

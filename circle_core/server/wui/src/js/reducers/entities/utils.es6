@@ -2,6 +2,7 @@ import {Map} from 'immutable'
 import {normalize} from 'normalizr'
 
 import CcInfo from 'src/models/CcInfo'
+import Invitation from 'src/models/Invitation'
 import Module from 'src/models/Module'
 import ReplicationLink from 'src/models/ReplicationLink'
 import Schema from 'src/models/Schema'
@@ -25,6 +26,7 @@ export const getNewEntities = (response) => {
   const entities = normalized.entities
   return {
     ccInfos: new Map(convertValues(entities.ccInfos, CcInfo.fromObject)),
+    invitations: new Map(convertValues(entities.invitations, Invitation.fromObject)),
     modules: new Map(convertValues(entities.modules, Module.fromObject)),
     replicationLinks: new Map(convertValues(entities.replicationLinks, ReplicationLink.fromObject)),
     schemas: new Map(convertValues(entities.schemas, Schema.fromObject)),

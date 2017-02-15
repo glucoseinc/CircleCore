@@ -2,7 +2,7 @@ import {handleActions} from 'redux-actions'
 import {Map} from 'immutable'
 
 import ccInfoActionsHandler from './ccInfo'
-import invitationsActionsHandler from './invitations'
+import invitationActionsHandler from './invitation'
 import moduleActionsHandler from './module'
 import replicationLinkActionsHandler from './replicationLink'
 import schemaActionsHandler from './schema'
@@ -23,7 +23,7 @@ const initialState = {
 
 const entities = handleActions({
   ...ccInfoActionsHandler,
-  ...invitationsActionsHandler,
+  ...invitationActionsHandler,
   ...moduleActionsHandler,
   ...replicationLinkActionsHandler,
   ...schemaActionsHandler,
