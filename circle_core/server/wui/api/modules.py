@@ -87,11 +87,13 @@ def _get_module(module):
 @oauth_require_write_schema_scope
 def _put_module(module):
     try:
-        module.update_from_json(request.json, with_boxes=True)
+        with MetaDataSession.begin():
+            module.update_from_json(request.json, with_boxes=True)
+            MetaDataSession.add(module)
     except KeyError:
         return respond_failure('key error')
 
-    return respond_success(module={'uuid': module.uuid})
+    return respond_success(module=module.to_json(with_boxes=True, with_schema=True))
 
 
 @oauth_require_write_schema_scope

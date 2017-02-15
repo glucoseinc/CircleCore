@@ -185,8 +185,10 @@ class ModuleDetail extends Component {
       />
     )
 
+    const canDeleteMessageBox = module.messageBoxes.size <= 1
+
     return (
-      <div style={style.root}>
+      <div className="moduleDetail" style={style.root}>
         <div style={style.displayNameArea}>
           {displayNamePaper}
         </div>
@@ -199,7 +201,7 @@ class ModuleDetail extends Component {
 
         <div style={style.messageBoxesArea}>
           <ComponentWithTitle title="メッセージボックス">
-            {module.messageBoxes.valueSeq().map((messageBox, index) => {
+            {module.messageBoxes.map((messageBox, index) => {
               return editingArea === ModuleDetail.editingArea.messageBox && editingAreaIndex === index ? (
                 <MessageBoxEdittingPaper
                   key={messageBox.uuid}
@@ -209,17 +211,19 @@ class ModuleDetail extends Component {
                   onUpdate={(editingModule) => this.setState({editingModule})}
                   onOKButtonTouchTap={() => this.onUpdateTouchTap()}
                   onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
+                  style={{marginBottom: '32px'}}
                 />
               ) : (
                 <MessageBoxEditablePaper
                   key={messageBox.uuid}
                   module={module}
                   messageBoxIndex={index}
-                  schema={schemas.get(messageBox.schema)}
-                  deleteDispabled={module.messageBoxes.size <= 1}
+                  schemas={schemas}
+                  deleteDispabled={canDeleteMessageBox}
                   onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.messageBox, index)}
                   onDeleteTouchTap={() => onMessageBoxDeleteTouchTap(index)}
                   onDownloadTouchTap={onMessageBoxDownloadTouchTap}
+                  style={{marginBottom: '32px'}}
                 />
               )
             })}

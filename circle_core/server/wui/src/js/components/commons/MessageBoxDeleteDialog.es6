@@ -9,8 +9,8 @@ import DeleteDialog from 'src/components/commons/DeleteDialog'
 class MessageBoxDeleteDialog extends Component {
   static propTypes = {
     open: PropTypes.bool,
-    module: PropTypes.object,
-    messageBoxIndex: PropTypes.number,
+    module: PropTypes.object.isRequired,
+    messageBoxIndex: PropTypes.number.isRequired,
     onOkTouchTap: PropTypes.func.isRequired,
     onCancelTouchTap: PropTypes.func.isRequired,
   }
@@ -27,7 +27,7 @@ class MessageBoxDeleteDialog extends Component {
       onCancelTouchTap,
     } = this.props
 
-    const messageBox = module && messageBoxIndex && module.messageBoxes.get(messageBoxIndex)
+    const messageBox = module.messageBoxes.get(messageBoxIndex)
 
     return (
       <DeleteDialog

@@ -6,9 +6,7 @@ import actions from 'src/actions'
 import {urls, createPathName} from 'src/routes'
 
 import LoadingIndicator from 'src/components/bases/LoadingIndicator'
-
 import ReplicationLinkDeleteDialog from 'src/components/commons/ReplicationLinkDeleteDialog'
-
 import ReplicationLinkInfoPaper from 'src/components/ReplicationLinkInfoPaper'
 
 

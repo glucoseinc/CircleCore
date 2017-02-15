@@ -108,7 +108,7 @@ class DataReceiverWorker(CircleWorker):
         if what == 'after_delete':
             # message boxが削除されたので消す
             self.writer.commit()
-            self.db.drop_message_box(target, connection=self.conn)
+            self.db.drop_message_box(target)
 
     def find_message_box(self, box_id):
         # DBに直接触っちゃう

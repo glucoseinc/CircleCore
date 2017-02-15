@@ -11,19 +11,22 @@ import User from 'src/models/User'
 import normalizerSchema from 'src/models/normalizerSchema'
 
 
-export const convertValues = (obj, converter) => {
+export const convertValues = (obj, converter, ...args) => {
   if (typeof obj === 'undefined') {
     return {}
   }
   return Object.entries(obj).reduce((_obj, [key, value]) => ({
     ..._obj,
-    [key]: converter(value),
+    [key]: converter(value, ...args),
   }), {})
 }
 
 export const getNewEntities = (response) => {
   const normalized = normalize(response, normalizerSchema)
   const entities = normalized.entities
+
+  const messageBoxes = new Map(convertValues(entities.messageBoxes, MessageBox.fromObject))
+
   return {
     ccInfos: new Map(convertValues(entities.ccInfos, CcInfo.fromObject)),
     invitations: new Map(convertValues(entities.invitations, Invitation.fromObject)),

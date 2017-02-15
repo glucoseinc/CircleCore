@@ -55,7 +55,7 @@ export default class CcInfo extends CcInfoRecord {
   /**
    * @return {bool}
    */
-  isReadytoCreate() {
+  isReadyToCreate() {
     return true
   }
 }

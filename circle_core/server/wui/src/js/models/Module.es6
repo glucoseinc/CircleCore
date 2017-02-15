@@ -27,6 +27,7 @@ export class MessageBox extends MessageBoxRecord {
    * @return {MessageBox}
    */
   static fromObject(rawMessageBox) {
+    require('assert')(typeof rawMessageBox === 'object')
     return new MessageBox({
       uuid: rawMessageBox.uuid || '',
       schema: rawMessageBox.schema || '',
@@ -94,14 +95,18 @@ export default class Module extends ModuleRecord {
 
   /**
    * @param {object} rawModule
+   * @param {Map<UUID, MessageBox>} messageBoxes
    * @return {Module}
    */
-  static fromObject(rawModule) {
-    const messageBoxes = rawModule.messageBoxes ? rawModule.messageBoxes.map(MessageBox.fromObject) : []
+  static fromObject(rawModule, messageBoxes) {
+    let boxes = rawModule.messageBoxes || []
+    boxes.sort()
+    boxes = boxes.map((boxUuid) => messageBoxes.get(boxUuid))
+
     return new Module({
       uuid: rawModule.uuid || '',
       displayName: rawModule.displayName || '',
-      messageBoxes: List(messageBoxes),
+      messageBoxes: List(boxes),
       tags: List(rawModule.tags || []),
       memo: rawModule.memo || '',
     })
@@ -146,7 +151,6 @@ export default class Module extends ModuleRecord {
     const newMessageBoxes = this.messageBoxes.set(index, messageBox)
     return this.set('messageBoxes', newMessageBoxes)
   }
-
 
   /**
    * MessageBoxをまとめて更新
@@ -201,14 +205,14 @@ export default class Module extends ModuleRecord {
    * 作成可能か
    * @return {bool}
    */
-  isReadytoCreate() {
-    if (this.messageBoxes.filterNot((messageBox) => messageBox.isValid()).size !== 0) {
+  isReadyToCreate() {
+    if(this.messageBoxes.length == 0) {
       return false
     }
-    if (this.tags.filter((tag) => tag === '').size !== 0) {
+    if(this.tags.filter((tag) => tag === '').size !== 0) {
       return false
     }
-    if (this.displayName.length === 0) {
+    if(this.displayName.length === 0) {
       return false
     }
     return true

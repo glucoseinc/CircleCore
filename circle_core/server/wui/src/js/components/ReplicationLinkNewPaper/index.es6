@@ -103,7 +103,7 @@ class ReplicationLinkNewPaper extends Component {
 
           <div style={style.actionsArea}>
             <CreateButton
-              disabled={replicationLink.isReadytoCreate() ? false : true}
+              disabled={replicationLink.isReadyToCreate() ? false : true}
               onTouchTap={() => onCreateTouchTap(replicationLink)}
             />
           </div>

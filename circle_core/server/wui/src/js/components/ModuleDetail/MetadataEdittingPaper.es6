@@ -55,7 +55,7 @@ class MetadataEdittingPaper extends Component {
         <div style={style.root}>
           <ComponentWithOkCancelButton
             okButtonLabel="保存"
-            okButtonDisabled={module.isReadytoCreate() ? false : true}
+            okButtonDisabled={module.isReadyToCreate() ? false : true}
             onOKButtonTouchTap={onOKButtonTouchTap}
             onCancelButtonTouchTap={onCancelButtonTouchTap}
           >

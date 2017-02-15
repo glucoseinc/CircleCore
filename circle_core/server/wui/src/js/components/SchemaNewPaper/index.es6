@@ -100,7 +100,7 @@ class SchemaNewPaper extends Component {
 
           <div style={style.actionsArea}>
             <CreateButton
-              disabled={schema.isReadytoCreate() ? false : true}
+              disabled={schema.isReadyToCreate() ? false : true}
               onTouchTap={() => onCreateTouchTap(schema)}
             />
           </div>

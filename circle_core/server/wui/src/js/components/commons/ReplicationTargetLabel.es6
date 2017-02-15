@@ -48,15 +48,6 @@ class ReplicationTargetLabel extends Component {
         <div style={style.displayName}>
           {messageBox.displayName || '(no name)'}
         </div>
-{/*
-        <div style={style.messageBoxes}>
-          {module.messageBoxes.valueSeq().map((messageBox) =>
-            <div key={messageBox.uuid} style={style.messageBoxDisplayName}>
-              {messageBox.displayName || '(no name)'}
-            </div>
-          )}
-        </div>
-*/}
       </div>
     )
   }

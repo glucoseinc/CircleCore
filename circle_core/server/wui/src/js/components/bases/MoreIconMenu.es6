@@ -11,6 +11,7 @@ import {MoreIcon} from 'src/components/bases/icons'
 */
 class MoreIconMenu extends Component {
   static propTypes = {
+    style: PropTypes.object,
     children: PropTypes.node,
   }
 
@@ -26,18 +27,17 @@ class MoreIconMenu extends Component {
       icon: {
         width: 24,
         height: 24,
+        ...(this.props.style || {}),
       },
       button: {
         width: 24,
         height: 24,
         padding: 0,
       },
-
       list: {
         paddingTop: 0,
         paddingBottom: 0,
       },
-
       menuItemInnerDiv: {
         fontSize: 14,
         paddingLeft: 32,
@@ -51,7 +51,7 @@ class MoreIconMenu extends Component {
     }
 
     return (
-      <div style={style.icon}>
+      <div className="moreIconMenu" style={style.icon}>
         <IconMenu
           iconButtonElement={
             <IconButton

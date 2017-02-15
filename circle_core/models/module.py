@@ -141,7 +141,7 @@ class Module(UUIDMetaDataBase):
                         memo=box_data['memo'],
                     )
                 else:
-                    box = MessageBox.query.get(box_uuid, )
+                    box = MessageBox.query.get(box_uuid)
                     box.update_from_json(box_data)
 
                 boxes.append(box)

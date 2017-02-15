@@ -89,7 +89,7 @@ class Module extends Component {
       isMessageBoxDeleteDialogOpen: false,
       deleteMessageBoxIndex: null,
     })
-    if (execute && module) {
+    if(execute && module) {
       this.props.onUpdateTouchTap(module)
     }
   }
@@ -109,7 +109,6 @@ class Module extends Component {
       schemas,
       modules,
       params,
-      onUpdateTouchTap,
     } = this.props
 
     if (isModuleFetching || isModuleUpdating) {
@@ -139,7 +138,7 @@ class Module extends Component {
           module={module}
           schemas={schemas}
           tagSuggestions={tagSuggestions}
-          onUpdateTouchTap={onUpdateTouchTap}
+          onUpdateTouchTap={this.props.onUpdateTouchTap}
           onMessageBoxDeleteTouchTap={(messageBoxIndex) => this.onMessageBoxDeleteTouchTap(messageBoxIndex)}
           onMessageBoxDownloadTouchTap={(...args) => console.log('onMessageBoxDownloadTouchTap', ...args)}
           onDeleteTouchTap={::this.onDeleteTouchTap}
@@ -156,14 +155,16 @@ class Module extends Component {
           onCancelTouchTap={() => this.onDeleteDialogButtonTouchTap(false)}
         />
 
-        <MessageBoxDeleteDialog
-          open={isMessageBoxDeleteDialogOpen}
-          module={module}
-          messageBoxIndex={deleteMessageBoxIndex}
-          onOkTouchTap={(messageBoxIndex) =>
-            this.onMessageBoxDeleteDialogButtonTouchTap(true, module.removeMessageBox(messageBoxIndex))}
-          onCancelTouchTap={() => this.onMessageBoxDeleteDialogButtonTouchTap(false)}
-        />
+        {module && typeof deleteMessageBoxIndex === 'number' &&
+          <MessageBoxDeleteDialog
+            open={isMessageBoxDeleteDialogOpen}
+            module={module}
+            messageBoxIndex={deleteMessageBoxIndex}
+            onOkTouchTap={(messageBoxIndex) =>
+              this.onMessageBoxDeleteDialogButtonTouchTap(true, module.removeMessageBox(messageBoxIndex))}
+            onCancelTouchTap={() => this.onMessageBoxDeleteDialogButtonTouchTap(false)}
+          />
+        }
       </div>
     )
   }

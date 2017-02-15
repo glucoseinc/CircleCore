@@ -208,9 +208,8 @@ class Database(object):
         connection.execute(query)
 
     def drop_message_box(self, message_box, connection=None):
-        assert connection, 'TODO: create new connection if not present it'
-        assert self._thread_id == threading.get_ident()
-        self._check_thread()
+        if not connection:
+            connection = self._engine.connect()
 
         table = self.find_table_for_message_box(message_box, create_if_not_exsts=False)
         if table is not None:
