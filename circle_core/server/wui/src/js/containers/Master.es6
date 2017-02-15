@@ -3,8 +3,6 @@ import {connect} from 'react-redux'
 import {routerActions} from 'react-router-redux'
 
 import AppBar from 'material-ui/AppBar'
-import Dialog from 'material-ui/Dialog'
-import FlatButton from 'material-ui/FlatButton'
 import Snackbar from 'material-ui/Snackbar'
 import Title from 'react-title-component'
 import withWidth, {LARGE} from 'material-ui/utils/withWidth'
@@ -12,7 +10,9 @@ import withWidth, {LARGE} from 'material-ui/utils/withWidth'
 import actions from 'src/actions'
 import {OAUTH_AUTHORIZATION_URL} from 'src/Authorization'
 
+import ErrorDialog from 'src/components/ErrorDialog'
 import NavDrawer from 'src/components/NavDrawer'
+
 import DevTools from 'src/containers/DevTools'
 
 
@@ -21,16 +21,17 @@ import DevTools from 'src/containers/DevTools'
  */
 class Master extends Component {
   static propTypes = {
-    isSnackbarOpen: PropTypes.bool,
     title: PropTypes.string,
+    isSnackbarOpen: PropTypes.bool,
     snackbarMessage: PropTypes.string,
-    errorMessage: PropTypes.string,
+    isErrorDialogOpen: PropTypes.bool,
+    errorDialogMessages: PropTypes.object,
     location: PropTypes.object.isRequired,
     children: PropTypes.node.isRequired,
     width: PropTypes.number.isRequired,
     onLocationChange: PropTypes.func,
     onSnackBarCloseRequest: PropTypes.func,
-    onCloseErrorAlert: PropTypes.func,
+    onErrorDialogCloseRequest: PropTypes.func,
   }
 
   static contextTypes = {
@@ -64,13 +65,6 @@ class Master extends Component {
   }
 
   /**
-   * エラーAlertの閉じるボタンが押された時に呼ばれる
-   */
-  onCloseErrorAlert() {
-    this.props.onCloseErrorAlert()
-  }
-
-  /**
    *@override
    */
   render() {
@@ -81,10 +75,12 @@ class Master extends Component {
       title = '',
       isSnackbarOpen = false,
       snackbarMessage = '',
-      errorMessage,
+      onSnackBarCloseRequest,
+      isErrorDialogOpen = false,
+      onErrorDialogCloseRequest,
+      errorDialogMessages = {},
       children,
       width,
-      onSnackBarCloseRequest,
     } = this.props
     const {
       muiTheme,
@@ -130,17 +126,11 @@ class Master extends Component {
           onRequestClose={onSnackBarCloseRequest}
         />
 
-        {errorMessage != null &&
-          <Dialog
-            title="エラー"
-            actions={<FlatButton label="閉じる" primary={true} onTouchTap={::this.onCloseErrorAlert} />}
-            modal={true}
-            open={errorMessage ? true : false}
-            onRequestClose={::this.onCloseErrorAlert}
-          >
-            {errorMessage}
-          </Dialog>
-        }
+        <ErrorDialog
+          open={isErrorDialogOpen}
+          messages={errorDialogMessages}
+          onCloseRequest={onErrorDialogCloseRequest}
+        />
 
         {showDevTool && <DevTools />}
 
@@ -151,16 +141,17 @@ class Master extends Component {
 
 
 const mapStateToProps = (state) => ({
-  isSnackbarOpen: state.page.isSnackbarOpen,
   title: state.page.title,
+  isSnackbarOpen: state.page.isSnackbarOpen,
   snackbarMessage: state.page.snackbarMessage,
-  errorMessage: state.misc.errorMessage,
+  isErrorDialogOpen: state.page.isErrorDialogOpen,
+  errorDialogMessages: state.page.errorDialogMessages,
 })
 
 const mapDispatchToProps = (dispatch)=> ({
   onLocationChange: (pathname) => dispatch(routerActions.push(pathname)),
   onSnackBarCloseRequest: () => dispatch(actions.page.hideSnackbar()),
-  onCloseErrorAlert: () => dispatch(actions.misc.clearErrorMessage()),
+  onErrorDialogCloseRequest: () => dispatch(actions.page.hideErrorDialog()),
 })
 
 export default connect(

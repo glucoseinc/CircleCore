@@ -37,7 +37,11 @@ function* crudRequest(action) {
     const response = yield call(api, apiParam(action.payload))
     yield put(succeededAction(response))
   } catch (e) {
-    yield put(failedAction(e.message))
+    const payload = e.response !== undefined ? {
+      ...e.response.body,
+      status: e.response.status,
+    } : e.message
+    yield put(failedAction(payload))
   }
 }
 

@@ -1,3 +1,5 @@
+export {actionTypePrefix} from './utils'
+
 let actions = {}
 let actionTypes = {}
 
@@ -7,7 +9,6 @@ const groupNames = [
   'auth',
   'ccInfo',
   'invitation',
-  'misc',
   'module',
   'page',
   'replicationLink',

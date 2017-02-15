@@ -6,7 +6,6 @@ import {actionTypes} from 'src/actions'
 import Invitation from 'src/models/Invitation'
 
 const initialState = {
-  errorMessage: null,
   isInvitationCreatedDialogOpen: false,
   newInvitation: null,
 }
@@ -21,13 +20,7 @@ const misc = handleActions({
   // Location change
   [LOCATION_CHANGE]: initialize(),
 
-  [actionTypes.misc.clearErrorMessage]: (state, action) => {
-    return {
-      ...state,
-      errorMessage: action.payload,
-    }
-  },
-
+  // Invitation Created
   [actionTypes.invitation.createSucceeded]: (state, action) => {
     return {
       ...state,
