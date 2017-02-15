@@ -7,6 +7,7 @@ const MessageBoxRecord = Record({
   schema: '',
   displayName: '',
   memo: '',
+  module: '',
 })
 
 /**
@@ -30,6 +31,7 @@ export class MessageBox extends MessageBoxRecord {
       uuid: rawMessageBox.uuid || '',
       schema: rawMessageBox.schema || '',
       displayName: rawMessageBox.displayName || '',
+      module: rawMessageBox.module || null,
       memo: rawMessageBox.memo || '',
     })
   }

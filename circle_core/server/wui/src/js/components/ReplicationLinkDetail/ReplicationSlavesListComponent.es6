@@ -87,20 +87,20 @@ class ReplicationSlavesListComponent extends Component {
       },
     }
 
-    const slaveCcInfos = ccInfos.filter((ccInfo) =>
-      replicationLink.ccInfos.includes(ccInfo.uuid)
-    )
+    const targetSlaves = replicationLink.slaves.map((slaveUuid) => ccInfos.get(slaveUuid) || slaveUuid)
 
     return (
       <Paper>
         <div style={style.root}>
-          {slaveCcInfos.valueSeq().map((ccInfo, index) =>
-            <ReplicationSlavesListItem
-              key={ccInfo.uuid}
-              ccInfo={ccInfo}
-              backgroundColor={index % 2 ? white : grey300}
-              onIdCopyButtonTouchTap={onIdCopyButtonTouchTap}
-            />
+          {targetSlaves.map((slaveOrUuid, index) =>
+            typeof slaveOrUuid === 'string'
+              ? <span style={{backgroundColor: index % 2 ? white : grey300}}>{slaveOrUuid}</span>
+              : <ReplicationSlavesListItem
+                  key={slaveOrUuid.uuid}
+                  ccInfo={slaveOrUuid}
+                  backgroundColor={index % 2 ? white : grey300}
+                  onIdCopyButtonTouchTap={onIdCopyButtonTouchTap}
+                />
           )}
         </div>
       </Paper>

@@ -17,6 +17,7 @@ class Replica extends Component {
   static propTypes = {
     isFetching: PropTypes.bool.isRequired,
     replicationLinks: PropTypes.object.isRequired,
+    messageBoxes: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,
@@ -72,6 +73,7 @@ class Replica extends Component {
     const {
       isFetching,
       replicationLinks,
+      messageBoxes,
       modules,
       ccInfos,
       params,
@@ -99,6 +101,7 @@ class Replica extends Component {
       <div className="page">
         <ReplicationLinkDetail
           replicationLink={replicationLink}
+          messageBoxes={messageBoxes}
           modules={modules}
           ccInfos={ccInfos}
           onUrlCopyButtonTouchTap={onUrlCopyButtonTouchTap}
@@ -119,8 +122,9 @@ class Replica extends Component {
 
 
 const mapStateToProps = (state) => ({
-  isFetching: state.asyncs.isReplicationLinksFetching,
+  isFetching: state.asyncs.isReplicationLinkFetching,
   replicationLinks: state.entities.replicationLinks,
+  messageBoxes: state.entities.messageBoxes,
   modules: state.entities.modules,
   ccInfos: state.entities.ccInfos,
 })

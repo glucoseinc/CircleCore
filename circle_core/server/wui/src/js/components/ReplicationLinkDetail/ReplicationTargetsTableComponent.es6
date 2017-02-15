@@ -58,6 +58,7 @@ class ReplicationTargetsTableHeader extends Component {
 */
 class ReplicationTargetsTableRow extends Component {
   static propTypes = {
+    messageBoxes: PropTypes.array.isRequired,
     module: PropTypes.object.isRequired,
     backgroundColor: PropTypes.string,
   }
@@ -67,6 +68,7 @@ class ReplicationTargetsTableRow extends Component {
    */
   render() {
     const {
+      messageBoxes,
       module,
       backgroundColor,
     } = this.props
@@ -94,11 +96,12 @@ class ReplicationTargetsTableRow extends Component {
       },
     }
 
+
     return (
       <div style={style.root}>
         <div style={style.module}>{module.displayName}</div>
         <div style={style.messageBoxes}>
-          {module.messageBoxes.valueSeq().map((messageBox) =>
+          {messageBoxes.map((messageBox) =>
             <div key={messageBox.uuid} style={style.messageBox}>
               {messageBox.displayName}
             </div>
@@ -115,7 +118,7 @@ class ReplicationTargetsTableRow extends Component {
 */
 class ReplicationTargetsTableComponent extends Component {
   static propTypes = {
-    replicationLink: PropTypes.object.isRequired,
+    messageBoxes: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
   }
 
@@ -124,7 +127,7 @@ class ReplicationTargetsTableComponent extends Component {
    */
   render() {
     const {
-      replicationLink,
+      messageBoxes,
       modules,
     } = this.props
 
@@ -143,12 +146,16 @@ class ReplicationTargetsTableComponent extends Component {
       },
     }
 
-    const targetModules = modules.map((module) => {
-      const filteredMessageBoxes = module.messageBoxes.filter((messageBox) => {
-        return replicationLink.messageBoxes.includes(messageBox.uuid)
-      })
-      return module.updateMessageBoxes(filteredMessageBoxes)
-    }).filter((module) => module.messageBoxes.size > 0)
+    const targetModules = messageBoxes.reduce((m, messageBox) => {
+      if(!m.hasOwnProperty(messageBox.module)) {
+        m[messageBox.module] = {
+          module: modules.get(messageBox.module),
+          messageBoxes: [],
+        }
+      }
+      m[messageBox.module].messageBoxes.push(messageBox)
+      return m
+    }, {})
 
     return (
       <div style={style.root}>
@@ -156,14 +163,15 @@ class ReplicationTargetsTableComponent extends Component {
           <ReplicationTargetsTableHeader />
         </div>
         <Paper>
-          {targetModules.valueSeq().map((module, index) =>
-            <div key={module.uuid} style={style.row}>
+          {Object.values(targetModules).map(({module, messageBoxes}, index) => {
+            return <div key={module.uuid} style={style.row}>
               <ReplicationTargetsTableRow
                 module={module}
+                messageBoxes={messageBoxes}
                 backgroundColor={index % 2 ? white : grey300}
               />
             </div>
-          )}
+          })}
         </Paper>
       </div>
     )
