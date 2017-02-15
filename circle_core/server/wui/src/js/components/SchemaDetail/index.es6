@@ -16,7 +16,6 @@ import PropertiesTableComponent from './PropertiesTableComponent'
 class SchemaDetail extends Component {
   static propTypes = {
     schema: PropTypes.object.isRequired,
-    onIdCopyButtonTouchTap: PropTypes.func,
     onBackTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
   }
@@ -27,7 +26,6 @@ class SchemaDetail extends Component {
   render() {
     const {
       schema,
-      onIdCopyButtonTouchTap,
       onBackTouchTap,
       onDeleteTouchTap,
     } = this.props
@@ -70,8 +68,7 @@ class SchemaDetail extends Component {
         <div style={style.displayNamePaper}>
           <DisplayNamePaper
             obj={schema}
-            secondayType="id"
-            onCopyButtonTouchTap={onIdCopyButtonTouchTap}
+            secondaryType="id"
           />
         </div>
 

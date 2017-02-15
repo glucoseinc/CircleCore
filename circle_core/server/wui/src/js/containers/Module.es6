@@ -26,7 +26,6 @@ class Module extends Component {
     modules: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,
     setTitle: PropTypes.func,
-    onIdCopyButtonTouchTap: PropTypes.func,
     onUpdateTouchTap: PropTypes.func,
     onDeleteOkButtonTouchTap: PropTypes.func,
   }
@@ -110,7 +109,6 @@ class Module extends Component {
       schemas,
       modules,
       params,
-      onIdCopyButtonTouchTap,
       onUpdateTouchTap,
     } = this.props
 
@@ -141,7 +139,6 @@ class Module extends Component {
           module={module}
           schemas={schemas}
           tagSuggestions={tagSuggestions}
-          onIdCopyButtonTouchTap={onIdCopyButtonTouchTap}
           onUpdateTouchTap={onUpdateTouchTap}
           onMessageBoxDeleteTouchTap={(messageBoxIndex) => this.onMessageBoxDeleteTouchTap(messageBoxIndex)}
           onMessageBoxDownloadTouchTap={(...args) => console.log('onMessageBoxDownloadTouchTap', ...args)}
@@ -182,7 +179,6 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   setTitle: (title) => dispatch(actions.page.setTitle(title)),
-  onIdCopyButtonTouchTap: (uuid) => dispatch(actions.page.showSnackbar('IDをコピーしました')),
   onUpdateTouchTap: (module) => dispatch(actions.module.updateRequest(module.toJS())),
   onDeleteOkButtonTouchTap: (module) => dispatch(actions.module.deleteRequest(module.uuid)),
 })

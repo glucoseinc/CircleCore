@@ -1,6 +1,7 @@
 import {call, fork, put, takeEvery} from 'redux-saga/effects'
 
 import asyncCcInfoSagaParams from './ccInfo'
+import asyncInvitationSagaParams from './invitation'
 import asyncModuleSagaParams from './module'
 import asyncReplicationLinkSagaParams from './replicationLink'
 import asyncSchemaSagaParams from './schema'
@@ -10,6 +11,7 @@ import asyncUserSagaParams from './user'
 
 const asyncSagaParams = {
   ...asyncCcInfoSagaParams,
+  ...asyncInvitationSagaParams,
   ...asyncModuleSagaParams,
   ...asyncReplicationLinkSagaParams,
   ...asyncSchemaSagaParams,

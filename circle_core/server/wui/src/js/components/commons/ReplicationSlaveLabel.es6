@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import {grey500} from 'material-ui/styles/colors'
 
-import LabelWithCopyButton from 'src/components/bases/LabelWithCopyButton'
+import LabelWithCopyButton from 'src/containers/bases/LabelWithCopyButton'
 
 
 /**
@@ -11,7 +11,6 @@ class ReplicationSlaveLabel extends Component {
   static propTypes = {
     ccInfo: PropTypes.object.isRequired,
     rootStyle: PropTypes.object,
-    onCopyTouchTap: PropTypes.func,
   }
 
 
@@ -22,7 +21,6 @@ class ReplicationSlaveLabel extends Component {
     const {
       ccInfo,
       rootStyle = {},
-      onCopyTouchTap,
     } = this.props
 
     const style = {
@@ -61,7 +59,7 @@ class ReplicationSlaveLabel extends Component {
         <LabelWithCopyButton
           label={ccInfo.uuid}
           labelStyle={style.id}
-          onTouchTap={onCopyTouchTap}
+          messageWhenCopying="IDをコピーしました"
         />
       </div>
     )

@@ -42,7 +42,7 @@ class InvitationsTableRow extends Component {
     return (
       <TableRow>
         <TableRowColumn>
-          <a target="_blank" href={invitation.link}>{invitation.link}</a><br />
+          <a target="_blank" href={invitation.url}>{invitation.url}</a><br />
           <span style={styles.subtext}>{invitation.uuid}</span>
         </TableRowColumn>
         <TableRowColumn style={styles.columnInvites}>

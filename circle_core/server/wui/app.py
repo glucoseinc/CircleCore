@@ -59,6 +59,8 @@ class CCWebApp(Flask):
                 raise abort(404)
             return render_template('index.html')
 
+        self.add_url_rule('/invitation/<uuid:link_uuid>', endpoint='invitation_endpoint', build_only=True)
+
         @self.context_processor
         def global_variables():
             return dict(UPTIME=self.uptime)

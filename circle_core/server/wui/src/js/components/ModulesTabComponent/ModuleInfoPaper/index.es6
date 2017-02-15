@@ -19,7 +19,6 @@ class ModuleInfoPaper extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     onDisplayNameTouchTap: PropTypes.func,
-    onIdCopyButtonTouchTap: PropTypes.func,
     onTagButtonTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
   }
@@ -31,7 +30,6 @@ class ModuleInfoPaper extends Component {
     const {
       module,
       onDisplayNameTouchTap,
-      onIdCopyButtonTouchTap,
       onTagButtonTouchTap,
       onDeleteTouchTap,
     } = this.props
@@ -96,7 +94,6 @@ class ModuleInfoPaper extends Component {
                 <div style={style.idSection}>
                   <IdLabel
                     obj={module}
-                    onCopyButtonTouchTap={onIdCopyButtonTouchTap}
                   />
                 </div>
                 <div style={style.messageBoxesSection}>

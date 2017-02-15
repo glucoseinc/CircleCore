@@ -10,6 +10,7 @@ import UsersHeader from './UsersHeader'
 class UsersTableComponent extends Component {
   static propTypes = {
     users: PropTypes.object.isRequired,
+    myID: PropTypes.string,
     readOnly: PropTypes.bool,
     onDisplayNameTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
@@ -21,6 +22,7 @@ class UsersTableComponent extends Component {
   render() {
     const {
       users,
+      myID = null,
       readOnly = true,
       onDisplayNameTouchTap,
       onDeleteTouchTap,
@@ -44,6 +46,7 @@ class UsersTableComponent extends Component {
               <UserInfoPaper
                 key={user.uuid}
                 user={user}
+                deleteDisabled={myID === null || myID === user.uuid}
                 readOnly={readOnly}
                 onDisplayNameTouchTap={onDisplayNameTouchTap}
                 onDeleteTouchTap={onDeleteTouchTap}

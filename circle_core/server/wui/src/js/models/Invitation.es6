@@ -5,9 +5,10 @@ import moment from 'moment'
 
 const InvitationRecord = Record({
   uuid: '',
+  url: '',
   maxInvites: -1,
   currentInvites: -1,
-  dateCreated: null,
+  _createdAt: null,
 })
 
 /**
@@ -28,9 +29,10 @@ export default class Invitation extends InvitationRecord {
   static fromObject(rawInvitation) {
     return new Invitation({
       uuid: rawInvitation.uuid,
+      url: rawInvitation.url,
       maxInvites: rawInvitation.maxInvites,
       currentInvites: rawInvitation.currentInvites,
-      dateCreated: moment(rawInvitation.dateCreated),
+      _createdAt: moment.utc(rawInvitation.dateCreated),
     })
   }
 
@@ -43,9 +45,18 @@ export default class Invitation extends InvitationRecord {
   }
 
   /**
-   * ユーザー招待リンクのパス
+   * 残招待数を返す
+   * @return {string}
    */
-  get link() {
-    return `${location.origin}/invitation/${this.uuid}`
+  get remainingInvites() {
+    return this.maxInvites == 0 ? '∞' : this.maxInvites - this.currentInvites
+  }
+
+  /**
+   * 作成日時を返す
+   * @return {string}
+   */
+  get createdAt() {
+    return this._createdAt.isValid() ? this._createdAt.local().format('YY/MM/DD HH:mm') : ''
   }
 }

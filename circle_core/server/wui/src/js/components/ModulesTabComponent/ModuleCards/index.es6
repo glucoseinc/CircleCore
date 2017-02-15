@@ -1,7 +1,9 @@
 import React, {Component, PropTypes} from 'react'
 
 import FlatButton from 'material-ui/FlatButton'
+import {GridList, GridTile} from 'material-ui/GridList'
 import Toggle from 'material-ui/Toggle'
+import {grey200, redA200} from 'material-ui/styles/colors'
 
 import {RANGES, RANGE_LABELS} from 'src/components/commons/ModuleGraph'
 
@@ -16,6 +18,7 @@ class ModuleCards extends Component {
     cols: PropTypes.number,
     timeAxisUnit: PropTypes.number,
     modules: PropTypes.object.isRequired,
+    onDisplayNameTouchTap: PropTypes.func,
   }
 
   static defaultProps = {
@@ -41,47 +44,99 @@ class ModuleCards extends Component {
     const {
       cols,
       modules,
+      onDisplayNameTouchTap,
     } = this.props
     const {
       autoUpdate,
       graphRange,
     } = this.state
 
+    const style = {
+      root: {
+        display: 'flex',
+        flexFlow: 'column nowrap',
+      },
+
+      toggleSection: {
+        display: 'flex',
+        justifyContent: 'flex-end',
+      },
+      toggle: {
+        width: 'auto',
+      },
+
+      timeRangeSection: {
+        marginTop: 8,
+        display: 'flex',
+        flexFlow: 'row nowrap',
+        background: grey200,
+      },
+      timeRange: {
+        borderBottomStyle: 'none',
+      },
+      timeRangeLanel: {
+      },
+      activeTimeRange: {
+        borderBottomStyle: 'solid',
+        borderBottomWidth: 2,
+        borderBottomColor: redA200,
+      },
+      activeTimeRangeLabel: {
+        color: redA200,
+      },
+
+      moduleCardList: {
+        paddingTop: 12,
+      },
+      moduleCardTile: {
+        padding: 4,
+      },
+
+    }
+
     return (
-      <div className="moduleCardsTab">
-        <div className="moduleCardsTab-timeRanges">
-          {RANGES.map((r) => (
-            <div
-              key={r}
-              className={`moduleCardsTab-timeRange ${graphRange === r ? 'is-active' : ''}`}
-              >
-              <FlatButton
-                label={RANGE_LABELS[r]}
-                onTouchTap={() => this.setState({graphRange: r})}
-              />
-            </div>
-          ))}
+      <div style={style.root}>
+        <div style={style.toggleSection}>
+          <Toggle
+            style={style.toggle}
+            label="自動更新(1分)"
+            toggled={autoUpdate}
+            onToggle={() => this.setState({autoUpdate: !this.state.autoUpdate})}
+          />
         </div>
 
-        <div className={`moduleCards moduleCards-col${cols}`}>
-
-          <div className="moduleCards-toggle">
-            <Toggle
-              label="自動更新(1分)"
-              toggled={autoUpdate}
-              onToggle={() => this.setState({autoUpdate: !this.state.autoUpdate})}
+        <div style={style.timeRangeSection}>
+          {RANGES.map((range) =>
+            <FlatButton
+              key={range}
+              style={graphRange === range ? style.activeTimeRange : style.timeRange}
+              label={RANGE_LABELS[range]}
+              labelStyle={graphRange === range ? style.activeTimeRangeLabel : style.timeRangeLabel}
+              onTouchTap={() => this.setState({graphRange: range})}
             />
-          </div>
+          )}
+        </div>
 
+        <GridList
+          cols={cols}
+          cellHeight="auto"
+          padding={8}
+          style={style.moduleCardList}
+        >
           {modules.valueSeq().map((module) => (
-            <ModuleCard
+            <GridTile
               key={module.uuid}
-              module={module}
-              autoUpdate={autoUpdate}
-              graphRange={graphRange}
-            />
+              style={style.moduleCardTile}
+            >
+              <ModuleCard
+                module={module}
+                autoUpdate={autoUpdate}
+                graphRange={graphRange}
+                onDisplayNameTouchTap={onDisplayNameTouchTap}
+              />
+            </GridTile>
           ))}
-        </div>
+        </GridList>
       </div>
     )
   }

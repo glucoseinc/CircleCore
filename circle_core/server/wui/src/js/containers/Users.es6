@@ -19,6 +19,7 @@ class Users extends Component {
   static propTypes = {
     isFetching: PropTypes.bool.isRequired,
     users: PropTypes.object.isRequired,
+    myID: PropTypes.string,
     token: PropTypes.object.isRequired,
     onDisplayNameTouchTap: PropTypes.func,
     onDeleteOkButtonTouchTap: PropTypes.func,
@@ -67,6 +68,7 @@ class Users extends Component {
     const {
       isFetching,
       users,
+      myID,
       token,
       onDisplayNameTouchTap,
     } = this.props
@@ -84,6 +86,7 @@ class Users extends Component {
         <div className="page">
           <UsersTableComponent
             users={users}
+            myID={myID}
             readOnly={isReadOnly}
             onDisplayNameTouchTap={(user) => onDisplayNameTouchTap(user.uuid)}
             onDeleteTouchTap={(user) => this.onDeleteTouchTap(user)}
@@ -105,6 +108,7 @@ class Users extends Component {
 const mapStateToProps = (state) => ({
   isFetching: state.asyncs.isUserFetching,
   users: state.entities.users,
+  myID: state.entities.myID,
   token: state.auth.token,
 })
 

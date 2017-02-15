@@ -21,7 +21,6 @@ class ModuleDetail extends Component {
     module: PropTypes.object.isRequired,
     schemas: PropTypes.object.isRequired,
     tagSuggestions: PropTypes.array,
-    onIdCopyButtonTouchTap: PropTypes.func,
     onUpdateTouchTap: PropTypes.func,
     onMessageBoxDeleteTouchTap: PropTypes.func,
     onMessageBoxDownloadTouchTap: PropTypes.func,
@@ -105,7 +104,6 @@ class ModuleDetail extends Component {
       module,
       schemas,
       tagSuggestions = [],
-      onIdCopyButtonTouchTap,
       onMessageBoxDeleteTouchTap,
       onMessageBoxDownloadTouchTap,
       onDeleteTouchTap,
@@ -150,7 +148,6 @@ class ModuleDetail extends Component {
     ) : (
       <DisplayNameEditablePaper
         obj={module}
-        onCopyButtonTouchTap={onIdCopyButtonTouchTap}
         onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.displayName, null)}
       />
     )
@@ -220,7 +217,6 @@ class ModuleDetail extends Component {
                   messageBoxIndex={index}
                   schema={schemas.get(messageBox.schema)}
                   deleteDispabled={module.messageBoxes.size <= 1}
-                  onIdCopyButtonTouchTap={onIdCopyButtonTouchTap}
                   onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.messageBox, index)}
                   onDeleteTouchTap={() => onMessageBoxDeleteTouchTap(index)}
                   onDownloadTouchTap={onMessageBoxDownloadTouchTap}
