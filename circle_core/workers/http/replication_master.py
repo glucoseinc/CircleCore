@@ -156,8 +156,9 @@ class ReplicationMaster(WebSocketHandler):
 
         with MetaDataSession.begin():
             # store slave's information
-            cc_info = CcInfo(uuid=slave_uuid)
+            cc_info = CcInfo(uuid=slave_uuid, myself=False)
             cc_info.update_from_json(slave_info)
+            MetaDataSession.add(cc_info)
 
         yield self.send_migrate()
 
@@ -195,7 +196,7 @@ class ReplicationMaster(WebSocketHandler):
                 self.sync_states[box.uuid].slave_head = head
 
                 for message in database.enum_message_from(box, head=head, connection=conn):
-                    logger.info('sync message %s', message)
+                    logger.debug('sync message %s', message)
                     self._send_command(
                         MasterCommand.SYNC_MESSAGE,
                         message=message.to_json()
@@ -221,6 +222,7 @@ class ReplicationMaster(WebSocketHandler):
         sync_state = self.sync_states[message.box_id]
         if sync_state.is_synced():
             # pass to slave
+            logger.debug('pass message %s', message)
             self._send_command(
                 MasterCommand.NEW_MESSAGE,
                 message=message.to_json()

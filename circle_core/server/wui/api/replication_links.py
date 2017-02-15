@@ -25,15 +25,11 @@ def api_replicas():
 
 @oauth_require_read_schema_scope
 def _get_replicas():
-    replication_links = ReplicationLink.query.all()
-    modules = Module.query.all()
-    cc_infos = CcInfo.query.all()
+    # TODO: earger loading
+    replication_links = [
+        replication_link.to_json(with_slaves=True, with_boxes=True) for replication_link in ReplicationLink.query]
 
-    return respond_success(
-        ccInfos=[cc_info.to_json() for cc_info in cc_infos],
-        modules=[module.to_json() for module in modules],  # 必要な分だけに絞るべきか？
-        replicationLinks=[replication_link.to_json() for replication_link in replication_links]
-    )
+    return respond_success(replicationLinks=replication_links)
 
 
 @oauth_require_write_schema_scope

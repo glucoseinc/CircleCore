@@ -12,6 +12,7 @@ import userActionsHandler from './user'
 const initialState = {
   ccInfos: new Map(),
   invitations: new Map(),
+  messageBoxes: new Map(),
   modules: new Map(),
   myID: null,  // 自分のUserオブジェクトのuuid
   replicationLinks: new Map(),

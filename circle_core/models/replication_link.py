@@ -111,23 +111,6 @@ class ReplicationLink(UUIDMetaDataBase):
         """
         return all([self.uuid == other.uuid, self.display_name == other.display_name, self.memo == other.memo])
 
-    # @property
-    # def stringified_cc_info_uuids(self):
-    #     """CircleCoreInfoのUUIDリストを文字列化する.
-
-    #     :return: 文字列化CircleCoreInfo UUID
-    #     :rtype: str
-    #     """
-    #     return ','.join([str(uuid) for uuid in self.cc_info_uuids])
-
-    # @property
-    # def stringified_message_box_uuids(self):
-    #     """MessageBoxのUUIDリストを文字列化する.
-
-    #     :return: 文字列化MessageBox UUID
-    #     :rtype: str
-    #     """
-    #     return ','.join([str(uuid) for uuid in self.message_box_uuids])
     @property
     def link(self):
         """このCircleCoreでの共有リンクのEndpointのURLを返す"""
@@ -150,12 +133,27 @@ class ReplicationLink(UUIDMetaDataBase):
                     return url_for('replication_endpoint', link_uuid=self.uuid, _external=True, _scheme='ws')
         return None
 
-    def to_json(self):
+    def to_json(self, with_slaves=False, with_boxes=False, with_module=True, with_schema=True):
         """このモデルのJSON表現を返す.
 
         :return: json表現のdict
         :rtype: Dict
         """
+
+        slaves = []
+        for slave in self.slaves:
+            if with_slaves and slave.info:
+                slaves.append(slave.info.to_json())
+            else:
+                slaves.append(dict(uuid=slave.slave_uuid))
+
+        message_boxes = []
+        # modules = {}
+        for box in self.message_boxes:
+            if with_boxes:
+                message_boxes.append(box.to_json(with_module=with_module, with_schema=with_schema))
+            else:
+                message_boxes.append(dict(uuid=box.uuid))
 
         d = {
             'uuid': str(self.uuid),
@@ -164,6 +162,8 @@ class ReplicationLink(UUIDMetaDataBase):
             'displayName': self.display_name,
             'memo': self.memo,
             'link': self.link,
+            'slaves': slaves,
+            'messageBoxes': message_boxes,
         }
         if d['link'] is None:
             d.pop('link')

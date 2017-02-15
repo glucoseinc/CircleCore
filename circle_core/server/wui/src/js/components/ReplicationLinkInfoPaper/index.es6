@@ -16,6 +16,7 @@ import ReplicationTargetsLabel from 'src/components/commons/ReplicationTargetsLa
 class ReplicationLinkInfoPaper extends Component {
   static propTypes = {
     replicationLink: PropTypes.object.isRequired,
+    messageBoxes: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
     onDisplayNameTouchTap: PropTypes.func,
@@ -28,7 +29,8 @@ class ReplicationLinkInfoPaper extends Component {
   render() {
     const {
       replicationLink,
-      modules,
+      messageBoxes,
+      // modules,
       ccInfos,
       onDisplayNameTouchTap,
       onDeleteTouchTap,
@@ -100,7 +102,7 @@ class ReplicationLinkInfoPaper extends Component {
                 <div style={style.targetsSection}>
                   <ReplicationTargetsLabel
                     replicationLink={replicationLink}
-                    modules={modules}
+                    messageBoxes={messageBoxes}
                   />
                 </div>
 

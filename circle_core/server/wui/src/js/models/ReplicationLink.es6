@@ -6,7 +6,7 @@ const ReplicationLinkRecord = Record({
   uuid: '',
   displayName: '',
   link: '',
-  ccInfos: List(),
+  slaves: List(),
   messageBoxes: List(),
   memo: '',
 })
@@ -32,7 +32,7 @@ export default class ReplicationLink extends ReplicationLinkRecord {
       uuid: rawReplicationLink.uuid || '',
       displayName: rawReplicationLink.displayName || '',
       link: rawReplicationLink.link || '',
-      ccInfos: List(rawReplicationLink.ccInfos || []),
+      slaves: List(rawReplicationLink.slaves || []),
       messageBoxes: List(rawReplicationLink.messageBoxes || []),
       memo: rawReplicationLink.memo || '',
     })

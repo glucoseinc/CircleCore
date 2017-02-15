@@ -5,14 +5,13 @@ import LabelWithCopyButton from 'src/containers/bases/LabelWithCopyButton'
 
 
 /**
- * ReplicationLink接続先ラベル
+ * ReplicationLink接続先ラベル.
  */
 class ReplicationSlaveLabel extends Component {
   static propTypes = {
     ccInfo: PropTypes.object.isRequired,
     rootStyle: PropTypes.object,
   }
-
 
   /**
    * @override

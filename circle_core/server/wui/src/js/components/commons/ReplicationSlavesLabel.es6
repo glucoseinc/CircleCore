@@ -26,20 +26,21 @@ class ReplicationSlavesLabel extends Component {
       ccInfos,
     } = this.props
 
-    const slaveCcInfos = ccInfos.filter((ccInfo) =>
-      replicationLink.ccInfos.includes(ccInfo.uuid)
-    )
+    const targetSlaves = replicationLink.slaves.map((slaveUuid) => ccInfos.get(slaveUuid) || slaveUuid)
 
     return (
       <ComponentWithIcon icon={ReplicationSlaveIcon}>
-        {slaveCcInfos.valueSeq().map((ccInfo, index) =>
-          <ReplicationSlaveLabel
-            key={ccInfo.uuid}
-            ccInfo={ccInfo}
-            rootStyle={{
-              backgroundColor: index % 2 ? white :grey300,
-            }}
-          />
+        {targetSlaves.map((slaveOrUuid, index) =>
+          typeof slaveOrUuid === 'string'
+            ? <span style={{backgroundColor: index % 2 ? white : grey300}}>{slaveOrUuid}</span>
+            : <ReplicationSlaveLabel
+                key={slaveOrUuid.uuid}
+                ccInfo={slaveOrUuid}
+                rootStyle={{
+                  backgroundColor: index % 2 ? white : grey300,
+                }}
+                onCopyTouchTap={onCopyTouchTap}
+              />
         )}
       </ComponentWithIcon>
     )
@@ -47,3 +48,4 @@ class ReplicationSlavesLabel extends Component {
 }
 
 export default ReplicationSlavesLabel
+

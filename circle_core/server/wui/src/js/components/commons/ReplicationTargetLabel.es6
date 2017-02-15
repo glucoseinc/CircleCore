@@ -7,17 +7,16 @@ import {grey600} from 'material-ui/styles/colors'
  */
 class ReplicationTargetLabel extends Component {
   static propTypes = {
-    module: PropTypes.object.isRequired,
+    messageBox: PropTypes.object.isRequired,
     rootStyle: PropTypes.object,
   }
-
 
   /**
    * @override
    */
   render() {
     const {
-      module,
+      messageBox,
       rootStyle = {},
     } = this.props
 
@@ -47,8 +46,9 @@ class ReplicationTargetLabel extends Component {
     return (
       <div style={mergedRootStyle}>
         <div style={style.displayName}>
-          {module.displayName || '(no name)'}
+          {messageBox.displayName || '(no name)'}
         </div>
+{/*
         <div style={style.messageBoxes}>
           {module.messageBoxes.valueSeq().map((messageBox) =>
             <div key={messageBox.uuid} style={style.messageBoxDisplayName}>
@@ -56,6 +56,7 @@ class ReplicationTargetLabel extends Component {
             </div>
           )}
         </div>
+*/}
       </div>
     )
   }

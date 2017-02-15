@@ -8,7 +8,7 @@ const replicaRoute = {
   // icon: null,
   component: Replica,
   onEnterActions: [
-    actions.replicationLinks.fetchRequest,
+    actions.replicationLink.fetchAllRequest,
   ],
 }
 

@@ -82,7 +82,7 @@ function* handleLocationChangetoModules() {
  */
 function* handleLocationChangetoReplicas() {
   const triggerActionTypes = [
-    actionTypes.replicationLinks.deleteSucceeded,
+    actionTypes.replicationLink.deleteSucceeded,
   ]
   yield takeEvery(triggerActionTypes, locationChangetoReplicas)
 }

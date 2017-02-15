@@ -14,7 +14,7 @@ import ReplicationTargetLabel from 'src/components/commons/ReplicationTargetLabe
 class ReplicationTargetsLabel extends Component {
   static propTypes = {
     replicationLink: PropTypes.object.isRequired,
-    modules: PropTypes.object.isRequired,
+    messageBoxes: PropTypes.object.isRequired,
   }
 
   /**
@@ -23,22 +23,23 @@ class ReplicationTargetsLabel extends Component {
   render() {
     const {
       replicationLink,
-      modules,
+      messageBoxes,
     } = this.props
 
-    const targetModules = modules.map((module) => {
-      const filteredMessageBoxes = module.messageBoxes.filter((messageBox) => {
-        return replicationLink.messageBoxes.includes(messageBox.uuid)
-      })
-      return module.updateMessageBoxes(filteredMessageBoxes)
-    }).filter((module) => module.messageBoxes.size > 0)
+    const targetBoxes = replicationLink.messageBoxes.map((boxUuid) => messageBoxes.get(boxUuid))
+    // const targetModules = modules.map((module) => {
+    //   const filteredMessageBoxes = module.messageBoxes.filter((messageBox) => {
+    //     return replicationLink.messageBoxes.includes(messageBox.uuid)
+    //   })
+    //   return module.updateMessageBoxes(filteredMessageBoxes)
+    // }).filter((module) => module.messageBoxes.size > 0)
 
     return (
       <ComponentWithIcon icon={ReplicationTargetIcon}>
-        {targetModules.valueSeq().map((module, index) =>
+        {targetBoxes.map((messageBox, index) =>
           <ReplicationTargetLabel
-            key={module.uuid}
-            module={module}
+            key={messageBox.uuid}
+            messageBox={messageBox}
             rootStyle={{
               backgroundColor: index % 2 ? white :grey300,
             }}

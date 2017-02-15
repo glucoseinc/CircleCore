@@ -23,12 +23,15 @@ const refreshReplicationLinks = (state, action) => {
   const {
     replicationLinks,
     ccInfos,
+    messageBoxes,
     modules,
     schemas,
   } = getNewEntities(action.payload)
+
   return {
     ...state,
     replicationLinks,
+    messageBoxes,
     ccInfos,
     modules,
     schemas: state.schemas.merge(schemas),

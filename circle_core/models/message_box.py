@@ -59,7 +59,7 @@ class MessageBox(UUIDMetaDataBase):
         return all([self.uuid == other.uuid,
                     self.display_name == other.display_name, self.memo == other.memo])
 
-    def to_json(self, with_schema=False):
+    def to_json(self, with_schema=False, with_module=False):
         """このモデルのJSON表現を返す.
 
         :return: json表現のdict
@@ -76,6 +76,9 @@ class MessageBox(UUIDMetaDataBase):
 
         if with_schema:
             d['schema'] = self.schema.to_json()
+
+        if with_schema:
+            d['module'] = self.module.to_json()
 
         return d
 
