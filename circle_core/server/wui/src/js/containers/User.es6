@@ -5,6 +5,7 @@ import actions from 'src/actions'
 
 import LoadingIndicator from 'src/components/bases/LoadingIndicator'
 
+import UserDetail from 'src/components/UserDetail'
 import UserEditPaper from 'src/components/UserEditPaper'
 
 
@@ -16,6 +17,7 @@ class User extends Component {
     isUserFetching: PropTypes.bool.isRequired,
     isUserUpdating: PropTypes.bool.isRequired,
     users: PropTypes.object.isRequired,
+    token: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,
     onUpdateTouchTap: PropTypes.func,
   }
@@ -28,6 +30,7 @@ class User extends Component {
       isUserFetching,
       isUserUpdating,
       users,
+      token,
       params,
       onUpdateTouchTap,
     } = this.props
@@ -48,12 +51,20 @@ class User extends Component {
       )
     }
 
+    const userDetail = token.hasScope('user+rw') ? (
+      <UserEditPaper
+        user={user}
+        onSaveTouchTap={onUpdateTouchTap}
+      />
+    ) : (
+      <UserDetail
+        user={user}
+      />
+    )
+
     return (
       <div className="page">
-        <UserEditPaper
-          user={user}
-          onSaveTouchTap={onUpdateTouchTap}
-        />
+        {userDetail}
       </div>
     )
   }
@@ -64,6 +75,7 @@ const mapStateToProps = (state) => ({
   isUserFetching: state.asyncs.isUserFetching,
   isUserUpdating: state.asyncs.isUserUpdating,
   users: state.entities.users,
+  token: state.auth.token,
 })
 
 const mapDispatchToProps = (dispatch) => ({
