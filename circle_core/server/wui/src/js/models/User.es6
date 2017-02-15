@@ -49,7 +49,7 @@ export default class User extends UserRecord {
    * @return {string}
    */
   get displayName() {
-    return this.account || this.uuid
+    return this.account
   }
 
   /**
@@ -82,5 +82,56 @@ export default class User extends UserRecord {
    */
   get lastAccessAt() {
     return this._lastAccessAt.isValid() ? this._lastAccessAt.local().format('YY/MM/DD HH:mm') : ''
+  }
+
+
+  /**
+   * @param {string} value
+   * @return {User}
+   */
+  updateAccount(value) {
+    return this.set('account', value)
+  }
+
+  /**
+   * @param {string} value
+   * @return {User}
+   */
+  updateDisplayName(value) {
+    return this.updateAccount(value)
+  }
+
+  /**
+   * @param {string} value
+   * @return {User}
+   */
+  updateWork(value) {
+    return this.set('work', value)
+  }
+
+  /**
+   * @param {string} value
+   * @return {User}
+   */
+  updateTelephone(value) {
+    return this.set('telephone', value)
+  }
+
+  /**
+   * @param {string} value
+   * @return {User}
+   */
+  updateMailAddress(value) {
+    return this.set('mailAddress', value)
+  }
+
+  /**
+   * @return {bool}
+   */
+  isReadytoCreate() {
+    if (this.account.length === 0) {
+      return false
+    }
+    return true
   }
 }
