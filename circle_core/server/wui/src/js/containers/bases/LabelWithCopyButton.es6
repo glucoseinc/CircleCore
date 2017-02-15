@@ -43,6 +43,7 @@ class LabelWithCopyButton extends Component {
     label: PropTypes.string.isRequired,
     labelStyle: PropTypes.object,
     messageWhenCopying: PropTypes.string.isRequired,
+    copyButtonOnly: PropTypes.bool,
     onTouchTap: PropTypes.func,
   }
 
@@ -70,6 +71,7 @@ class LabelWithCopyButton extends Component {
     const {
       label,
       labelStyle = {},
+      copyButtonOnly = false,
     } = this.props
 
     const style = {
@@ -102,10 +104,16 @@ class LabelWithCopyButton extends Component {
       ...labelStyle,
     }
 
+    const labelArea = copyButtonOnly ? (
+      null
+    ) : (
+      <div style={mergedLabelStyle}>{label}</div>
+    )
+
     return (
       <div style={style.root}>
         <HiddenTextArea text={label} ref="hiddenTextArea"/>
-        <div style={mergedLabelStyle}>{label}</div>
+        {labelArea}
         <IconButton
           style={style.iconButton}
           iconStyle={style.icon}

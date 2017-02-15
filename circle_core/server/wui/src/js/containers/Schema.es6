@@ -17,7 +17,7 @@ import SchemaDetail from 'src/components/SchemaDetail'
  */
 class Schema extends Component {
   static propTypes = {
-    isFetching: PropTypes.bool.isRequired,
+    isSchemaFetching: PropTypes.bool.isRequired,
     schemas: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,
     setTitle: PropTypes.func,
@@ -69,13 +69,13 @@ class Schema extends Component {
       isSchemaDeleteDialogOpen,
     } = this.state
     const {
-      isFetching,
+      isSchemaFetching,
       schemas,
       params,
       onBackButtonTouchTap,
     } = this.props
 
-    if (isFetching) {
+    if (isSchemaFetching) {
       return (
         <LoadingIndicator />
       )
@@ -112,7 +112,7 @@ class Schema extends Component {
 
 
 const mapStateToProps = (state) => ({
-  isFetching: state.asyncs.isSchemaFetching,
+  isSchemaFetching: state.asyncs.isSchemaFetching,
   schemas: state.entities.schemas,
 })
 

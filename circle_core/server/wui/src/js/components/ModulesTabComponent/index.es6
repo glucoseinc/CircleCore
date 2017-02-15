@@ -18,7 +18,7 @@ class ModulesTabComponent extends Component {
   static propTypes = {
     modules: PropTypes.object.isRequired,
     width: PropTypes.number.isRequired,
-    onModuleInfoPaperTouchTap: PropTypes.func,
+    onDisplayNameTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
   }
 
@@ -46,7 +46,7 @@ class ModulesTabComponent extends Component {
     const {
       modules,
       width,
-      onModuleInfoPaperTouchTap,
+      onDisplayNameTouchTap,
       onDeleteTouchTap,
     } = this.props
 
@@ -100,7 +100,7 @@ class ModulesTabComponent extends Component {
             <ModuleCards
               modules={filteredModules}
               cols={width == SMALL ? 1 : 2}
-              onDisplayNameTouchTap={(module) => onModuleInfoPaperTouchTap(module.uuid)}
+              onDisplayNameTouchTap={onDisplayNameTouchTap}
             />
           </div>
         </Tab>
@@ -112,7 +112,7 @@ class ModulesTabComponent extends Component {
               <ModuleInfoPaper
                 key={module.uuid}
                 module={module}
-                onDisplayNameTouchTap={(module) => onModuleInfoPaperTouchTap(module.uuid)}
+                onDisplayNameTouchTap={onDisplayNameTouchTap}
                 onTagButtonTouchTap={::this.setSearchText}
                 onDeleteTouchTap={onDeleteTouchTap}
               />
