@@ -94,7 +94,7 @@ def _put_user(user):
 
     if not has_write:
         # Read権限のみでは、自分の情報しか変更できない、currentPasswordが必要、permissionの変更はできない
-        if str(user.uuid) != request.oauth.user:
+        if user.uuid != request.oauth.user.uuid:
             return respond_failure('no permission.', _status=400)
 
         if 'currentPassword' in request.json:
