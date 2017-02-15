@@ -10,6 +10,7 @@ import {MemoIcon} from 'src/components/bases/icons'
 class MemoComponent extends Component {
   static propTypes = {
     obj: PropTypes.object.isRequired,
+    style: PropTypes.object.isRequired,
   }
 
 
@@ -29,13 +30,13 @@ class MemoComponent extends Component {
     }
 
     return (
-    <ComponentWithSubTitle subTitle="メモ" icon={MemoIcon}>
-      <div style={style.memo}>
-        {obj.memo.split('\n').map((memo, index) =>
-          <span key={index}>{index !== 0 && <br />}{memo}</span>
-        )}
-      </div>
-    </ComponentWithSubTitle>
+      <ComponentWithSubTitle subTitle="メモ" icon={MemoIcon} style={this.props.style || {}}>
+        <div style={style.memo}>
+          {obj.memo.split('\n').map((memo, index) =>
+            <span key={index}>{index !== 0 && <br />}{memo}</span>
+          )}
+        </div>
+      </ComponentWithSubTitle>
     )
   }
 }

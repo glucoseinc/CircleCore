@@ -40,6 +40,34 @@ table.props th {
   margin: 32px;
 }
 
+.componentWithSubtitle {
+  .componentWithSubtitle-title {
+    @mixin clearfix;
+
+    .componentWithSubtitle-titleIcon {
+      float: left;
+      margin-left: 4px;
+      width: 16px;
+
+      > svg {
+        vertical-align: top;
+      }
+    }
+
+    h3 {
+      margin: 0 0 8px 24px;
+      font-size: 14px;
+      font-weight: normal;
+      line-height: 1;
+      color: $colorGrey600;
+    }
+  }
+
+  .componentWithSubtitle-content {
+    margin: 0 0 0 24px;
+  }
+}
+
 /* moduelのgraph */
 $graphWidth: 200px;
 $graphHeight: 200px;

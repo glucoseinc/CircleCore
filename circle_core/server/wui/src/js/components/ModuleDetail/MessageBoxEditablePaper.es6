@@ -100,9 +100,9 @@ class MessageBoxEditablePaper extends Component {
       },
 
       dataInfoSection: {
-        display: 'flex',
-        justifyContent: 'center',
-        paddingTop: 24,
+        // display: 'flex',
+        // justifyContent: 'center',
+        marginTop: 24,
       },
 
       downloadSection: {
@@ -167,16 +167,12 @@ class MessageBoxEditablePaper extends Component {
           </div>
         </div>
 
-        <div style={style.schemaSection}>
-          <ComponentWithSubTitle subTitle="メッセージスキーマ" icon={SchemaIcon}>
-            <div style={style.schemaPropertyDisplayName}>{schema.displayName}</div>
-            <SchemaPropertiesLabel schema={schema}/>
-          </ComponentWithSubTitle>
-        </div>
+        <ComponentWithSubTitle subTitle="メッセージスキーマ" icon={SchemaIcon} style={style.schemaSection}>
+          <div style={style.schemaPropertyDisplayName}>{schema.displayName}</div>
+          <SchemaPropertiesLabel schema={schema}/>
+        </ComponentWithSubTitle>
 
-        <div style={style.memoSection}>
-          <MemoComponent obj={messageBox}/>
-        </div>
+        <MemoComponent obj={messageBox} style={style.memoSection} />
 
         <ComponentWithSubTitle subTitle="更新情報" style={style.dataInfoSection}>
           <MessageBoxDataInfo
