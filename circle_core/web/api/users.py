@@ -104,6 +104,8 @@ def _put_user(user):
     if 'newPassword' in request.json:
         if not request.json['newPassword']:
             errors['newPassword'] = u'新しいパスワードが空欄です'
+        if len(request.json['newPassword']) < 6:
+            errors['newPassword'] = u'パスワードは6文字以上にしてください'
 
     if not request.json['account']:
         errors['account'] = u'アカウントは空には出来ません'
