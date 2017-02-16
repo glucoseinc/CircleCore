@@ -38,6 +38,10 @@ class Invitation(UUIDMetaDataBase):
                            default=datetime.datetime.utcnow,
                            onupdate=datetime.datetime.utcnow)
 
+    __mapper_args__ = {
+        'order_by': updated_at.desc(),
+    }
+
     def __init__(self, uuid, max_invites, current_invites=0, created_at=None):
         """init.
 
@@ -61,6 +65,10 @@ class Invitation(UUIDMetaDataBase):
         """この正体をつかって、さらにユーザを追加できるか?"""
         return self.current_invites < self.max_invites
 
+    def inc_invites(self):
+        """招待完了数を増加させる"""
+        self.current_invites += 1
+
     @property
     def url(self):
         """このCircleCoreでのInvitationのEndpointのURLを返す.
@@ -69,7 +77,7 @@ class Invitation(UUIDMetaDataBase):
         :rtype: str
         """
         def build_url():
-            return url_for('invitation_endpoint', link_uuid=self.uuid, _external=True)
+            return url_for('public.invitation_endpoint', link_uuid=self.uuid, _external=True)
 
         try:
             return build_url()

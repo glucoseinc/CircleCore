@@ -18,6 +18,12 @@ class UserEditPaper extends Component {
     needCurrentPassword: PropTypes.bool,
     onSaveTouchTap: PropTypes.func,
     saveButtonLabel: PropTypes.string,
+    // パスワードの入力が必須かどうか?
+    isPasswordRequired: PropTypes.bool,
+  }
+
+  static defaultProps = {
+    isPasswordRequired: false,
   }
 
   /**
@@ -36,7 +42,13 @@ class UserEditPaper extends Component {
    * @return {bool}
    */
   isReadyToSave() {
-    return this.state.editingUser.isReadytoCreate() && this.state.newPassword !== null
+    if(!(this.state.editingUser.isReadytoCreate() && this.state.newPassword !== null))
+      return false
+
+    if(this.props.isPasswordRequired && !this.state.newPassword)
+      return false
+
+    return true
   }
 
   /**

@@ -28,7 +28,10 @@ def get_current_user():
             return '{}@api'.format(request.oauth.user.uuid)
         else:
             valid, req = oauth.verify_request([])
-            return '{}@api'.format(req.user.uuid)
+            if req.user:
+                return '{}@api'.format(req.user.uuid)
+
+            return 'public@web'
 
     # cliかな?
     if click.get_current_context():

@@ -13,8 +13,8 @@ import sqlalchemy as sa
 from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
-from circle_core.utils import format_date, prepare_date
-from .base import GUID, UUIDMetaDataBase
+from circle_core.utils import format_date
+from .base import generate_uuid, GUID, UUIDMetaDataBase
 
 
 class User(UUIDMetaDataBase):
@@ -48,6 +48,13 @@ class User(UUIDMetaDataBase):
     last_access_at = sa.Column(
         sa.DateTime, nullable=True)
 
+    @classmethod
+    def create(cls, **kwargs):
+        return cls(
+            uuid=generate_uuid(model=cls),
+            **kwargs
+        )
+
     def __init__(self, **kwargs):
         """init.
 
@@ -64,7 +71,9 @@ class User(UUIDMetaDataBase):
         if 'password' in kwargs:
             if 'encrypted_password' in kwargs:
                 raise ValueError('password and encrypted_password cannot set both at same time.')
-            kwargs['encrypted_password'] = encrypt_password(kwargs.pop('password'))
+            password = kwargs.pop('password')
+            self.check_password(password)
+            kwargs['encrypted_password'] = encrypt_password(password)
 
         super(User, self).__init__(**kwargs)
 
@@ -77,7 +86,7 @@ class User(UUIDMetaDataBase):
 
     @hybrid_property
     def permissions(self):
-        return self._permissions.split(',')
+        return self._permissions.split(',') if self._permissions else []
 
     @permissions.setter
     def permissions(self, permissions):
@@ -99,8 +108,13 @@ class User(UUIDMetaDataBase):
         """
         return 'admin' in self.permissions
 
+    @classmethod
+    def check_password(cls, password):
+        if len(password) < 6:
+            raise ValueError('パスワードは6文字以上にしてください')
+
     def set_password(self, new_password):
-        assert self.uuid
+        self.check_password(new_password)
         self.encrypted_password = encrypt_password(new_password)
 
     def to_json(self, full=False):
