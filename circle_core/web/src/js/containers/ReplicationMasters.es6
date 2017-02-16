@@ -1,7 +1,10 @@
 import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 
+import {urls} from 'src/routes'
 import LoadingIndicator from 'src/components/bases/LoadingIndicator'
+import CCLink from 'src/components/commons/CCLink'
+import AddFloatingActionButton from 'src/components/commons/AddFloatingActionButton'
 import ReplicactionMasterPaper from 'src/components/ReplicactionMasterPaper'
 
 /**
@@ -42,6 +45,11 @@ class ReplicactionMasters extends Component {
               () => console.log('onDeleteTouchTap', arguments)}
           />
         )}
+
+        <CCLink url={urls.replicationMasterNew}>
+          <AddFloatingActionButton />
+        </CCLink>
+
       </div>
     )
   }

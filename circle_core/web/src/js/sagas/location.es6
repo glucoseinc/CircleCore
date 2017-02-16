@@ -37,7 +37,6 @@ function* locationChangetoReplicas(action) {
   yield put(routerActions.push(pathnames.replicas))
 }
 
-
 /**
  * Schema一覧への遷移をハンドル
  */
@@ -73,6 +72,22 @@ function* handleLocationChangetoReplicas() {
   yield takeEvery(triggerActionTypes, locationChangetoReplicas)
 }
 
+
+/**
+ * ReplicationMaster一覧への遷移をハンドル
+ */
+function* handleLocationChangeToReplicationMasters() {
+  const triggerActionTypes = [
+    actionTypes.replicationMaster.createSucceeded,
+    actionTypes.replicationMaster.deleteSucceeded,
+  ]
+  yield takeEvery(triggerActionTypes, function* (action) {
+    console.log('handleLocationChangeToReplicationMasters', action)
+    yield put(routerActions.push(pathnames.replicationMasters))
+  })
+}
+
+
 /**
  * Loaction Saga
  * @param {any} args
@@ -81,4 +96,5 @@ export default function* locationSaga(...args) {
   yield fork(handleLocationChangetoSchemas, ...args)
   yield fork(handleLocationChangetoModules, ...args)
   yield fork(handleLocationChangetoReplicas, ...args)
+  yield fork(handleLocationChangeToReplicationMasters, ...args)
 }

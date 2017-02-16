@@ -497,6 +497,16 @@ class CCAPI extends APICaller {
   }
 
   /**
+   * ReplicationMasterを作成する
+   * @param {object} rawReplcationMaster
+   * @return {object} Result
+   */
+  async createReplicationMaster(rawReplcationMaster) {
+    const res = await this._post('/replication_masters/', rawReplcationMaster)
+    return res.body
+  }
+
+  /**
    * ReplicationMasterのリストを得る
    * @return {object} Result
    */

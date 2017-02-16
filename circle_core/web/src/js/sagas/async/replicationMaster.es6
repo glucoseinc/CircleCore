@@ -5,6 +5,14 @@ import {createAsyncSagaParam} from './utils'
 
 
 const asyncSagaParams = {
+  // Create
+  [actionTypes.replicationMaster.createRequest]: createAsyncSagaParam(
+      ::CCAPI.createReplicationMaster,
+      (payload) => payload,
+      actions.replicationMaster.createSucceeded,
+      actions.replicationMaster.createFailed,
+  ),
+
   // Fetch all
   [actionTypes.replicationMaster.fetchAllRequest]: createAsyncSagaParam(
     ::CCAPI.fetchAllReplicationMasters,

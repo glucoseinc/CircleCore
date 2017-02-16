@@ -3,21 +3,15 @@ import {actionTypes} from 'src/actions'
 import {getNewEntities} from './utils'
 
 
-// const mergeReplicationLinks = (state, action) => {
-//   const {
-//     replicationLinks,
-//     ccInfos,
-//     modules,
-//     schemas,
-//   } = getNewEntities(action.payload)
-//   return {
-//     ...state,
-//     replicationLinks: state.replicationLinks.merge(replicationLinks),
-//     ccInfos: state.ccInfos.merge(ccInfos),
-//     modules: state.modules.merge(modules),
-//     schemas: state.schemas.merge(schemas),
-//   }
-// }
+const mergeReplicationMasters = (state, action) => {
+  const {
+    replicationMasters,
+  } = getNewEntities(action.payload)
+  return {
+    ...state,
+    replicationMasters: state.replicationMasters.merge(replicationMasters),
+  }
+}
 
 const refreshReplicationMasters = (state, action) => {
   const {
@@ -43,8 +37,8 @@ const deleteReplicationMasters = (state, action) => {
 
 
 const replicationLinksActionsHandler = {
-  // // Create
-  // [actionTypes.replicationLink.createSucceeded]: mergeReplicationLinks,
+  // Create
+  [actionTypes.replicationMaster.createSucceeded]: mergeReplicationMasters,
 
   // Fetch all
   [actionTypes.replicationMaster.fetchAllSucceeded]: refreshReplicationMasters,

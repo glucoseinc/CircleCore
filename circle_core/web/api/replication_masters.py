@@ -4,6 +4,7 @@
 
 # community module
 from flask import abort, request
+import sqlalchemy.exc
 
 # project module
 from circle_core.models import MetaDataSession, ReplicationMaster
@@ -35,16 +36,17 @@ def _get_replication_masters():
 @oauth_require_write_schema_scope
 def _post_replication_masters():
     data = request.json
-    with MetaDataSession.begin():
-        replication_link = ReplicationLink.create(
-            data['displayName'],
-            data['memo'],
-            data['slaves'],
-            data['messageBoxes'],
-        )
-        MetaDataSession.add(replication_link)
+    try:
+        with MetaDataSession.begin():
+            replication_master = ReplicationMaster(
+                endpoint_url=data['endpointUrl'],
+            )
 
-    return respond_success(replicationLink=replication_link.to_json())
+            MetaDataSession.add(replication_master)
+    except sqlalchemy.exc.IntegrityError:
+        return respond_failure('このURLは既に登録されています')
+
+    return respond_success(replicationMaster=replication_master.to_json())
 
 
 @api.route('/replication_masters/<int:replication_master_id>', methods=['GET', 'DELETE'])

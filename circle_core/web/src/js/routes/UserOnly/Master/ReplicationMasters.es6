@@ -1,16 +1,21 @@
 import actions from 'src/actions'
 import {CoreIcon} from 'src/components/bases/icons'
-import ReplicactionMasters from 'src/containers/ReplicationMasters'
+import ReplicationMasters from 'src/containers/ReplicationMasters'
+import ReplicationMasterNew from 'src/containers/ReplicationMasterNew'
 
-const coresRoute = {
+export default [{
   key: 'replicationMasters',
   path: 'replication_masters/',
   label: '共有マスター一覧',
   icon: CoreIcon,
-  component: ReplicactionMasters,
+  component: ReplicationMasters,
   onEnterActions: [
     actions.replicationMaster.fetchAllRequest,
   ],
-}
-
-export default coresRoute
+}, {
+  key: 'replicationMasterNew',
+  path: 'replication_masters/new',
+  label: '共有マスター追加',
+  icon: CoreIcon,
+  component: ReplicationMasterNew,
+}]

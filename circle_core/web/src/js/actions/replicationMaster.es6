@@ -2,6 +2,11 @@ import {createCcActions, nullPayloadCreator} from './utils'
 
 
 const payloadCreators = {
+  // Create
+  createRequest: (rawReplicationMaster) => rawReplicationMaster,
+  createSucceeded: (response) => response,
+  createFailed: (message) => message,
+
   // Fetch all
   fetchAllRequest: nullPayloadCreator,
   fetchAllSucceeded: (response) => response,
