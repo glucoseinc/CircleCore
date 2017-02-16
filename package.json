@@ -4,7 +4,7 @@
   "description": "CircleCore",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint --ext es6 circle_core/server/wui/src/js",
+    "lint": "eslint --ext es6 circle_core/web/src/js",
     "build": "gulp",
     "watch": "gulp watch",
     "build:debug": "NODE_ENV=development gulp",

@@ -10,7 +10,7 @@ Subpackages
     circle_core.core
     circle_core.helpers
     circle_core.models
-    circle_core.server
+    circle_core.web
     circle_core.workers
 
 Submodules
@@ -44,6 +44,14 @@ circle_core.logger module
 -------------------------
 
 .. automodule:: circle_core.logger
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+circle_core.message module
+--------------------------
+
+.. automodule:: circle_core.message
     :members:
     :undoc-members:
     :show-inheritance:

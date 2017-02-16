@@ -52,6 +52,22 @@ circle_core.cli.module module
     :undoc-members:
     :show-inheritance:
 
+circle_core.cli.replication_link module
+---------------------------------------
+
+.. automodule:: circle_core.cli.replication_link
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+circle_core.cli.replication_master module
+-----------------------------------------
+
+.. automodule:: circle_core.cli.replication_master
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 circle_core.cli.schema module
 -----------------------------
 

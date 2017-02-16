@@ -28,14 +28,6 @@ circle_core.core.hub module
     :undoc-members:
     :show-inheritance:
 
-circle_core.core.message module
--------------------------------
-
-.. automodule:: circle_core.core.message
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 circle_core.core.metadata_event_listener module
 -----------------------------------------------
 

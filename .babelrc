@@ -3,9 +3,9 @@
   "plugins": [
     "transform-function-bind",
     ["module-resolver", {
-      "root": ["./circle_core/server/wui/src"],
+      "root": ["./circle_core/web/src"],
       "alias": {
-        "src": "./circle_core/server/wui/src/js",
+        "src": "./circle_core/web/src/js",
       }
     }]
   ],

@@ -20,7 +20,7 @@ def get_current_user():
 
     if _request_ctx_stack.top:
         from flask import g, request
-        from circle_core.server.wui.authorize import oauth
+        from circle_core.web.authorize import oauth
 
         if hasattr(g, 'user'):
             return '{}@web'.format(g.user.uuid)
