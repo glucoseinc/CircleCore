@@ -59,6 +59,14 @@ circle_core.models.replication_link module
     :undoc-members:
     :show-inheritance:
 
+circle_core.models.replication_master module
+--------------------------------------------
+
+.. automodule:: circle_core.models.replication_master
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 circle_core.models.schema module
 --------------------------------
 

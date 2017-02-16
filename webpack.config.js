@@ -1,10 +1,12 @@
 import path from 'path'
 import DefinePlugin from 'webpack/lib/DefinePlugin'
 
+const SOURCE_DIR = './circle_core/web/src'
+
 module.exports = {
   entry: {
-    'main': ['babel-polyfill', './circle_core/server/wui/src/js/main.es6'],
-    'public': ['babel-polyfill', './circle_core/server/wui/src/js/public.es6'],
+    'main': ['babel-polyfill', `${SOURCE_DIR}/js/main.es6`],
+    'public': ['babel-polyfill', `${SOURCE_DIR}/js/public.es6`],
   },
   output: {
     publicPath: '/styles/',
@@ -25,7 +27,7 @@ module.exports = {
     ],
   },
   resolve: {
-    root: path.resolve('circle_core/server/wui/src/js'),
+    root: path.resolve(`${SOURCE_DIR}/js`),
     modulesDirectories: ['node_modules'],
     extensions: ['', '.es6', '.js'],
   },

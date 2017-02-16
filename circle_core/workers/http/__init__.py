@@ -10,7 +10,7 @@ from tornado.wsgi import WSGIContainer
 # project module
 from circle_core.constants import RequestType
 from circle_core.exceptions import ConfigError
-from circle_core.server.wui import create_app
+from circle_core.web import create_app
 from .replication_master import ReplicationMaster
 from ..base import CircleWorker, register_worker_factory
 

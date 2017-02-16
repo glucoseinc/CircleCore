@@ -1,6 +1,14 @@
 circle_core.workers package
 ===========================
 
+Subpackages
+-----------
+
+.. toctree::
+
+    circle_core.workers.http
+    circle_core.workers.slave_driver
+
 Submodules
 ----------
 
@@ -16,22 +24,6 @@ circle_core.workers.datareceiver module
 ---------------------------------------
 
 .. automodule:: circle_core.workers.datareceiver
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-circle_core.workers.http module
--------------------------------
-
-.. automodule:: circle_core.workers.http
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-circle_core.workers.replication_slave module
---------------------------------------------
-
-.. automodule:: circle_core.workers.replication_slave
     :members:
     :undoc-members:
     :show-inheritance:

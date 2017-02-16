@@ -11,7 +11,8 @@ import del from 'del'
 import plumber from 'gulp-plumber'
 
 
-const DESTINATION_DIR = './circle_core/server/wui/static'
+const DESTINATION_DIR = './circle_core/web/static'
+const SOURCE_DIR = './circle_core/web/src'
 const BROWSER_LIST = ['last 2 versions', 'iOS >= 8', 'Android >= 4.0']
 
 
@@ -28,7 +29,7 @@ gulp.task('build_script', (cb) => {
 gulp.task('clean_script', del.bind(null, [`${DESTINATION_DIR}/*.js`]))
 
 gulp.task('lint', () => {
-  return gulp.src(['circle_core/server/wui/src/js/**/*.es6']) // lint のチェック先を指定
+  return gulp.src([`${SOURCE_DIR}/js/**/*.es6`]) // lint のチェック先を指定
     .pipe(plumber({
       // エラーをハンドル
       errorHandler: function(error) {
@@ -52,7 +53,7 @@ gulp.task('lint', () => {
 })
 
 gulp.task('babel', () => {
-  return gulp.src(['circle_core/server/wui/src/js/main.es6', 'circle_core/server/wui/src/js/public.es6'])
+  return gulp.src([`${SOURCE_DIR}/js/main.es6`, `${SOURCE_DIR}/js/public.es6`])
     .pipe(named())
     .pipe(webpack(require('./webpack.config.js'), null, (err, stats) => {
       if(!err) {
@@ -73,7 +74,7 @@ gulp.task('babel', () => {
 
 
 gulp.task('style', () => {
-  return gulp.src(['circle_core/server/wui/src/css/main.css'])
+  return gulp.src([`${SOURCE_DIR}/css/main.css`])
     .pipe(postcss([
       require('postcss-import'),
       require('postcss-mixins'),
@@ -90,6 +91,6 @@ gulp.task('style', () => {
 
 
 gulp.task('watch', () => {
-  gulp.watch(['circle_core/server/wui/src/js/*.es6', 'circle_core/server/wui/src/js/**/*.es6'], ['script'])
-  gulp.watch(['circle_core/server/wui/src/css/**/*.css', 'circle_core/server/wui/assets/css/common.css'], ['style'])
+  gulp.watch([`${SOURCE_DIR}/js/*.es6`, `${SOURCE_DIR}/js/**/*.es6`], ['script'])
+  gulp.watch([`${SOURCE_DIR}/css/**/*.css`, 'circle_core/web/assets/css/common.css'], ['style'])
 })
