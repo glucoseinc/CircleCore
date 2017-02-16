@@ -57,6 +57,10 @@ class Invitation(UUIDMetaDataBase):
         super(Invitation, self).__init__(uuid=uuid, max_invites=max_invites,
                                          current_invites=current_invites, created_at=created_at)
 
+    def can_invite(self):
+        """この正体をつかって、さらにユーザを追加できるか?"""
+        return self.current_invites < self.max_invites
+
     @property
     def url(self):
         """このCircleCoreでのInvitationのEndpointのURLを返す.

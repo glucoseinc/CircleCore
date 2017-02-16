@@ -4,10 +4,8 @@ import Paper from 'material-ui/Paper'
 import TextField from 'material-ui/TextField'
 
 import ComponentWithHeader from 'src/components/bases/ComponentWithHeader'
-
 import PasswordChangeComponent from 'src/components/commons/PasswordChangeComponent'
 import SaveButton from 'src/components/commons/SaveButton'
-
 import UserInfoEditComponent from './UserInfoEditComponent'
 
 
@@ -19,6 +17,7 @@ class UserEditPaper extends Component {
     user: PropTypes.object.isRequired,
     needCurrentPassword: PropTypes.bool,
     onSaveTouchTap: PropTypes.func,
+    saveButtonLabel: PropTypes.string,
   }
 
   /**
@@ -36,7 +35,7 @@ class UserEditPaper extends Component {
   /**
    * @return {bool}
    */
-  isReadytoSave() {
+  isReadyToSave() {
     return this.state.editingUser.isReadytoCreate() && this.state.newPassword !== null
   }
 
@@ -100,7 +99,7 @@ class UserEditPaper extends Component {
           </div>
 
           <div style={style.changePasswordArea}>
-            <ComponentWithHeader headerLabel="パスワード変更">
+            <ComponentWithHeader headerLabel="パスワード">
               {currentPasswordTextField}
               <PasswordChangeComponent
                 onUpdate={(newPassword) => this.setState({newPassword})}
@@ -110,7 +109,8 @@ class UserEditPaper extends Component {
 
           <div style={style.actionsArea}>
             <SaveButton
-              disabled={this.isReadytoSave() ? false : true}
+              label={this.props.saveButtonLabel}
+              disabled={this.isReadyToSave() ? false : true}
               onTouchTap={() => onSaveTouchTap(editingUser, currentPassword, newPassword)}
             />
           </div>

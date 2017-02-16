@@ -4,65 +4,31 @@
  *
  * main.es6は冒頭で認証チェックをしているので...
  */
-import React, {Component, PropTypes} from 'react'
+import React from 'react'
 import {render} from 'react-dom'
+import {Provider} from 'react-redux'
 import {Router, Route, browserHistory} from 'react-router'
 import injectTapEventPlugin from 'react-tap-event-plugin'
 import Title from 'react-title-component'
+import {combineReducers, createStore, applyMiddleware} from 'redux'
+import createSagaMiddleware from 'redux-saga'
+import {fork} from 'redux-saga/effects'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
-import AppBar from 'material-ui/AppBar'
 import FlatButton from 'material-ui/FlatButton'
 import TextField from 'material-ui/TextField'
-import {colorError} from './colors'
-import muiTheme from './muiTheme'
+
+import {colorError} from 'src/colors'
+import muiTheme from 'src/muiTheme'
+import PublicFrame from 'src/public/frame'
 
 
 injectTapEventPlugin()
 
 
 /**
- * 公開画面用の枠。ロゴがでてるくぐらい
- */
-class PublicFrame extends Component {
-  static propTypes = {
-    children: PropTypes.node,
-  }
-
-  /**
-   * @override
-   */
-  render() {
-    const {
-      children,
-    //   width,
-    //   actions,
-    } = this.props
-    // const {
-    //   muiTheme,
-    // } = this.context
-
-    return (
-      <div className="container is-public">
-        <Title render="Login"/>
-        <div>
-          <AppBar
-            title="CircleCore"
-            showMenuIconButton={false}
-          />
-          <div style={{}}>
-            {children}
-          </div>
-        </div>
-      </div>
-    )
-  }
-}
-
-
-/**
  * ログイン画面
  */
-class OAuthLogin extends Component {
+class OAuthLogin extends React.Component {
   /**
    * @constructor
    */
@@ -84,6 +50,7 @@ class OAuthLogin extends Component {
 
     return (
       <div className="logoinForm" style={{margin: '0px auto', width: '320px'}}>
+        <Title render={(previousTitle) => `Login | ${previousTitle}`} />
 
         <form action="/oauth/login" method="POST" onSubmit={::this.onSubmit}>
           <input type="hidden" name="redirect" value={redirectTo} />
@@ -149,7 +116,7 @@ class OAuthLogin extends Component {
 /**
  * OAuth認証画面。 UIすっとばして強制的にPOSTしてしまう
  */
-class OAuthAuthorize extends Component {
+class OAuthAuthorize extends React.Component {
   /**
    * @override
    */
@@ -180,14 +147,56 @@ class OAuthAuthorize extends Component {
 }
 
 
+// init redux for public pages
+/**
+ * publicページ系のためのReducerを作る
+ * @return {func}
+ */
+function makeReducer() {
+  return combineReducers({
+    page: require('src/reducers/page').default,
+  })
+}
+
+/**
+ * [configureStore description]
+ * @param  {[type]} history      [description]
+ * @param  {[type]} initialState [description]
+ * @return {[type]}              [description]
+ */
+function configureStore(history, initialState) {
+  const sagaMiddleware = createSagaMiddleware()
+
+  const store = createStore(
+    makeReducer(),
+    initialState,
+    applyMiddleware(sagaMiddleware),
+  )
+  store.runSaga = sagaMiddleware.run
+
+  return store
+}
+
+const store = configureStore(browserHistory, {})
+store.runSaga(function* () {
+  yield fork(require('src/sagas/snackbar').default)
+})
+
+// start react
 render(
-  <MuiThemeProvider muiTheme={muiTheme}>
-    <Router history={browserHistory}>
-      <Route path="/oauth" component={PublicFrame}>
-        <Route path="login" component={OAuthLogin} />
-        <Route path="authorize" component={OAuthAuthorize} />
-      </Route>
-    </Router>
-  </MuiThemeProvider>,
+  <Provider store={store}>
+    <MuiThemeProvider muiTheme={muiTheme}>
+      <Router history={browserHistory}>
+        <Route path="/oauth" component={PublicFrame}>
+          <Route path="login" component={OAuthLogin} />
+          <Route path="authorize" component={OAuthAuthorize} />
+        </Route>
+        <Route path="/invitation/" component={PublicFrame}>
+          <Route path=":linkUuid" component={require('src/public/invitation').default} />
+        </Route>
+      </Router>
+    </MuiThemeProvider>
+  </Provider>,
+
   document.getElementById('app')
 )

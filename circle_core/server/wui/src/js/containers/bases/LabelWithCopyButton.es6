@@ -63,7 +63,6 @@ class LabelWithCopyButton extends Component {
     onTouchTap(messageWhenCopying)
   }
 
-
   /**
    * @override
    */
