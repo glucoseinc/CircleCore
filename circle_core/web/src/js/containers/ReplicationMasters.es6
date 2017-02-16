@@ -3,36 +3,76 @@ import {connect} from 'react-redux'
 
 import actions from 'src/actions'
 import {urls} from 'src/routes'
+
 import LoadingIndicator from 'src/components/bases/LoadingIndicator'
-import CCLink from 'src/components/commons/CCLink'
+
 import AddFloatingActionButton from 'src/components/commons/AddFloatingActionButton'
+import CCLink from 'src/components/commons/CCLink'
+import ReplicationMasterDeleteDialog from 'src/components/commons/ReplicationMasterDeleteDialog'
+
 import ReplicactionMasterPaper from 'src/components/ReplicactionMasterPaper'
 
+
 /**
- * 共有マスター
+ * 共有マスター一覧
  */
 class ReplicactionMasters extends Component {
   static propTypes = {
     isReplicationMasterFetching: PropTypes.bool.isRequired,
     replicationMasters: PropTypes.object.isRequired,
-    onDeleteReplicationMaster: PropTypes.func.isRequired,
+    onDeleteOkButtonTouchTap: PropTypes.func,
   }
+
+  state = {
+    deleteReplicationMaster: null,
+    isReplicationMasterDeleteDialogOpen: false,
+  }
+
+  /**
+   * 追加メニュー 削除の選択時の動作
+   * @param {object} replicationMaster
+   */
+  onDeleteTouchTap(replicationMaster) {
+    this.setState({
+      deleteReplicationMaster: replicationMaster,
+      isReplicationMasterDeleteDialogOpen: true,
+    })
+  }
+
+  /**
+   * 削除ダイアログのボタン押下時の動作
+   * @param {bool} execute
+   * @param {object} replicationMaster
+   */
+  onDeleteDialogButtonTouchTap(execute, replicationMaster) {
+    this.setState({
+      deleteReplicationMaster: null,
+      isReplicationMasterDeleteDialogOpen: false,
+    })
+    if (execute && replicationMaster) {
+      this.props.onDeleteOkButtonTouchTap(replicationMaster)
+    }
+  }
+
 
   /**
    * @override
    */
   render() {
-    if(this.props.isReplicationMasterFetching) {
+    const {
+      deleteReplicationMaster,
+      isReplicationMasterDeleteDialogOpen,
+    } = this.state
+    const {
+      isReplicationMasterFetching,
+      replicationMasters,
+    } = this.props
+
+    if (isReplicationMasterFetching) {
       return (
         <LoadingIndicator />
       )
     }
-
-    // const {
-    // } = this.state
-    const {
-      replicationMasters,
-    } = this.props
 
     return (
       <div className="page">
@@ -40,13 +80,20 @@ class ReplicactionMasters extends Component {
           <ReplicactionMasterPaper
             key={repMaster.id}
             replicationMaster={repMaster}
-            onDeleteTouchTap={this.props.onDeleteReplicationMaster}
+            onDeleteTouchTap={::this.onDeleteTouchTap}
           />
         )}
 
         <CCLink url={urls.replicationMasterNew}>
           <AddFloatingActionButton />
         </CCLink>
+
+        <ReplicationMasterDeleteDialog
+          open={isReplicationMasterDeleteDialogOpen}
+          replicationMaster={deleteReplicationMaster}
+          onOkTouchTap={(replicationMaster) => this.onDeleteDialogButtonTouchTap(true, replicationMaster)}
+          onCancelTouchTap={() => this.onDeleteDialogButtonTouchTap(false)}
+        />
 
       </div>
     )
@@ -60,7 +107,7 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  onDeleteReplicationMaster: (replicationMaster) => {
+  onDeleteOkButtonTouchTap: (replicationMaster) => {
     return dispatch(actions.replicationMaster.deleteRequest(replicationMaster.id))
   },
 })
