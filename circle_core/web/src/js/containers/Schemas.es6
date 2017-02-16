@@ -22,8 +22,10 @@ import SchemaInfoPaper from 'src/components/SchemaInfoPaper'
 class Schemas extends Component {
   static propTypes = {
     isSchemaFetching: PropTypes.bool.isRequired,
+    isCcInfoFetching: PropTypes.bool.isRequired,
     schemas: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
+    ccInfos: PropTypes.object.isRequired,
     onDisplayNameTouchTap: PropTypes.func,
     onModuleButtonTouchTap: PropTypes.func,
     onDeleteOkButtonTouchTap: PropTypes.func,
@@ -70,17 +72,21 @@ class Schemas extends Component {
     } = this.state
     const {
       isSchemaFetching,
+      isCcInfoFetching,
       schemas,
       modules,
+      ccInfos,
       onDisplayNameTouchTap,
       onModuleButtonTouchTap,
     } = this.props
 
-    if (isSchemaFetching) {
+    if (isSchemaFetching || isCcInfoFetching) {
       return (
         <LoadingIndicator />
       )
     }
+
+    const ownCcInfo = ccInfos.filter((ccInfo) => ccInfo.myself).first()
 
     return (
       <div>
@@ -96,6 +102,7 @@ class Schemas extends Component {
                 key={schema.uuid}
                 schema={schema}
                 modules={modules}
+                ownCcInfo={ownCcInfo}
                 onDisplayNameTouchTap={(schema) => onDisplayNameTouchTap(schema.uuid)}
                 onModuleButtonTouchTap={onModuleButtonTouchTap}
                 onDeleteTouchTap={::this.onDeleteTouchTap}
@@ -122,8 +129,10 @@ class Schemas extends Component {
 
 const mapStateToProps = (state) => ({
   isSchemaFetching: state.asyncs.isSchemaFetching,
+  isCcInfoFetching: state.asyncs.isCcInfoFetching,
   schemas: state.entities.schemas,
   modules: state.entities.modules,
+  ccInfos: state.entities.ccInfos,
 })
 
 const mapDispatchToProps = (dispatch) => ({

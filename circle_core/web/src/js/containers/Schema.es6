@@ -18,7 +18,9 @@ import SchemaDetail from 'src/components/SchemaDetail'
 class Schema extends Component {
   static propTypes = {
     isSchemaFetching: PropTypes.bool.isRequired,
+    isCcInfoFetching: PropTypes.bool.isRequired,
     schemas: PropTypes.object.isRequired,
+    ccInfos: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,
     setTitle: PropTypes.func,
     onBackButtonTouchTap: PropTypes.func,
@@ -70,12 +72,14 @@ class Schema extends Component {
     } = this.state
     const {
       isSchemaFetching,
+      isCcInfoFetching,
       schemas,
+      ccInfos,
       params,
       onBackButtonTouchTap,
     } = this.props
 
-    if (isSchemaFetching) {
+    if (isSchemaFetching || isCcInfoFetching) {
       return (
         <LoadingIndicator />
       )
@@ -91,10 +95,13 @@ class Schema extends Component {
       )
     }
 
+    const ownCcInfo = ccInfos.filter((ccInfo) => ccInfo.myself).first()
+
     return (
       <div className="page">
         <SchemaDetail
           schema={schema}
+          ownCcInfo={ownCcInfo}
           onBackTouchTap={onBackButtonTouchTap}
           onDeleteTouchTap={::this.onDeleteTouchTap}
         />
@@ -113,7 +120,9 @@ class Schema extends Component {
 
 const mapStateToProps = (state) => ({
   isSchemaFetching: state.asyncs.isSchemaFetching,
+  isCcInfoFetching: state.asyncs.isCcInfoFetching,
   schemas: state.entities.schemas,
+  ccInfos: state.entities.ccInfos,
 })
 
 const mapDispatchToProps = (dispatch) => ({

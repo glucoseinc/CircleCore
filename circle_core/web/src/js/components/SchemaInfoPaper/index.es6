@@ -19,6 +19,7 @@ class SchemaInfoPaper extends Component {
   static propTypes = {
     schema: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
+    ownCcInfo: PropTypes.object.isRequired,
     onDisplayNameTouchTap: PropTypes.func,
     onModuleButtonTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
@@ -31,6 +32,7 @@ class SchemaInfoPaper extends Component {
     const {
       schema,
       modules,
+      ownCcInfo,
       onDisplayNameTouchTap,
       onModuleButtonTouchTap,
       onDeleteTouchTap,
@@ -74,6 +76,7 @@ class SchemaInfoPaper extends Component {
     //   displayName: '九州大学xx研究部',
     // }
     const replicationMaster = null
+    const deleteDisabled = schema.modules.size !== 0 || schema.ccUuid !== ownCcInfo.uuid
 
     return (
       <Paper>
@@ -82,7 +85,7 @@ class SchemaInfoPaper extends Component {
             <MenuItem
               primaryText="このスキーマを削除する"
               leftIcon={<DeleteIcon />}
-              disabled={schema.modules.size === 0 ? false : true}
+              disabled={deleteDisabled}
               onTouchTap={() => onDeleteTouchTap(schema)}
             />
           </MoreIconMenu>
