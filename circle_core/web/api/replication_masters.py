@@ -63,17 +63,17 @@ def api_replication_master(replication_master_id):
 
 
 @oauth_require_read_schema_scope
-def _get_replication_master(replication_link):
+def _get_replication_master(replication_master):
     return respond_success(
-        replicationLink=replication_link.to_json()
+        replicationMaster=replication_master.to_json()
     )
 
 
 @oauth_require_write_schema_scope
-def _delete_replication_master(replication_link):
+def _delete_replication_master(replication_master):
     with MetaDataSession.begin():
-        MetaDataSession.delete(replication_link)
+        MetaDataSession.delete(replication_master)
 
     return respond_success(
-        replicationLink=replication_link.to_json()
+        replicationMaster=replication_master.to_json()
     )

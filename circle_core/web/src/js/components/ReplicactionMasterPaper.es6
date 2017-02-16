@@ -15,7 +15,7 @@ import MoreIconMenu from 'src/components/bases/MoreIconMenu'
 export default class ReplicactionMasterPaper extends React.Component {
   static propTypes = {
     replicationMaster: React.PropTypes.object.isRequired,
-    onDeleteTouchTap: React.PropTypes.func,
+    onDeleteTouchTap: React.PropTypes.func.isRequired,
   }
 
   /**

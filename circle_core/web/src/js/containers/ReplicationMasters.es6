@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 
+import actions from 'src/actions'
 import {urls} from 'src/routes'
 import LoadingIndicator from 'src/components/bases/LoadingIndicator'
 import CCLink from 'src/components/commons/CCLink'
@@ -14,9 +15,7 @@ class ReplicactionMasters extends Component {
   static propTypes = {
     isReplicationMasterFetching: PropTypes.bool.isRequired,
     replicationMasters: PropTypes.object.isRequired,
-  }
-
-  state = {
+    onDeleteReplicationMaster: PropTypes.func.isRequired,
   }
 
   /**
@@ -41,8 +40,7 @@ class ReplicactionMasters extends Component {
           <ReplicactionMasterPaper
             key={repMaster.id}
             replicationMaster={repMaster}
-            onDeleteTouchTap={
-              () => console.log('onDeleteTouchTap', arguments)}
+            onDeleteTouchTap={this.props.onDeleteReplicationMaster}
           />
         )}
 
@@ -62,6 +60,9 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
+  onDeleteReplicationMaster: (replicationMaster) => {
+    return dispatch(actions.replicationMaster.deleteRequest(replicationMaster.id))
+  },
 })
 
 export default connect(

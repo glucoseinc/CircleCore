@@ -82,7 +82,6 @@ function* handleLocationChangeToReplicationMasters() {
     actionTypes.replicationMaster.deleteSucceeded,
   ]
   yield takeEvery(triggerActionTypes, function* (action) {
-    console.log('handleLocationChangeToReplicationMasters', action)
     yield put(routerActions.push(pathnames.replicationMasters))
   })
 }
