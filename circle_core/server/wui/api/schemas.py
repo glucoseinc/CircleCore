@@ -36,7 +36,7 @@ def _get_schemas():
 @oauth_require_write_schema_scope
 def _post_schemas():
     with MetaDataSession.begin():
-        schema = Schema(uuid=generate_uuid(model=Schema))
+        schema = Schema.create()
         schema.update_from_json(request.json)
         MetaDataSession.add(schema)
 
