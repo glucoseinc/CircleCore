@@ -50,7 +50,7 @@ class NavDrawer extends Component {
         title: '同期',
         items: [
           mapURLToMenuItem(urls.replicas),
-          mapURLToMenuItem(urls.cores),
+          mapURLToMenuItem(urls.replicationMasters),
         ],
       },
       {

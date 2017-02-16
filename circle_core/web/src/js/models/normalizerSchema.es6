@@ -87,6 +87,14 @@ const replicationLink = new normalizerSchema.Entity(
   }
 )
 
+const replicationMaster = new normalizerSchema.Entity(
+  'replicationMasters',
+  {},
+  {
+    idAttribute: 'id',
+  }
+)
+
 const response = {
   ccInfo,
   ccInfos: [ccInfo],
@@ -101,6 +109,8 @@ const response = {
   modules: [module],
   user,
   users: [user],
+  replicationMaster,
+  replicationMasters: [replicationMaster],
 }
 
 export default response

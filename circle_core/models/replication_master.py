@@ -26,6 +26,13 @@ class ReplicationMaster(MetaDataBase):
     id = sa.Column('replication_master_id', sa.Integer, primary_key=True)
     endpoint_url = sa.Column(sa.String, unique=True, nullable=False)
     master_uuid = sa.Column(GUID)
+    # created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
 
     info = orm.relationship(
         'CcInfo', foreign_keys=[master_uuid], primaryjoin='CcInfo.uuid == ReplicationMaster.master_uuid', uselist=False)
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'endpointUrl': self.endpoint_url,
+        }

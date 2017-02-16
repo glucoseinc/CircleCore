@@ -496,6 +496,25 @@ class CCAPI extends APICaller {
     return res.body
   }
 
+  /**
+   * ReplicationMasterのリストを得る
+   * @return {object} Result
+   */
+  async fetchAllReplicationMasters() {
+    const res = await this._get('/replication_masters/')
+    return res.body
+  }
+
+  /**
+   * ReplicationMasterを削除する
+   * @param {string} replicationMasterId
+   * @return {object} Result
+   */
+  async deleteReplicationMaster(replicationMasterId) {
+    const res = await this._delete(`/replication_masters/${replicationMasterId}`)
+    return res.body
+  }
+
 
   // ModuleGraphData
   /**

@@ -3,7 +3,6 @@ import {store} from 'src/main'
 import Master from 'src/containers/Master'
 
 import ChangeProfile from './ChangeProfile'
-import Cores from './Cores'
 import Invitations from './Invitations'
 import Logout from './Logout'
 import Modules from './Modules'
@@ -12,6 +11,7 @@ import Module from './Module'
 import Replica from './Replica'
 import Replicas from './Replicas'
 import ReplicasNew from './ReplicasNew'
+import ReplicationMasters from './ReplicationMasters'
 import Schemas from './Schemas'
 import SchemasNew from './SchemasNew'
 import Schema from './Schema'
@@ -34,7 +34,6 @@ const masterRoute = {
   component: Master,
   childRoutes: [
     ChangeProfile,
-    Cores,
     Invitations,
     Logout,
     Modules,
@@ -49,7 +48,7 @@ const masterRoute = {
     Setting,
     Users,
     User,
-  ],
+  ].concat(ReplicationMasters),
   onEnter: handleLocationChange,
   onChange: (prevState, nextState) => handleLocationChange(nextState),
 }
