@@ -75,6 +75,7 @@ export class MessageBox extends MessageBoxRecord {
 
 const ModuleRecord = Record({
   uuid: '',
+  ccUuid: '',
   displayName: '',
   messageBoxes: List(),
   tags: List(),
@@ -105,6 +106,7 @@ export default class Module extends ModuleRecord {
 
     return new Module({
       uuid: rawModule.uuid || '',
+      ccUuid: rawModule.ccUuid || '',
       displayName: rawModule.displayName || '',
       messageBoxes: List(boxes),
       tags: List(rawModule.tags || []),
