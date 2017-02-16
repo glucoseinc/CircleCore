@@ -220,7 +220,7 @@ def api_message_box_data(module_uuid, messagebox_uuid):
 
     database = current_app.core.get_database()
     messages = []
-    for m in database.enum_messages(box, limit=limit):
+    for m in database.enum_messages(box, limit=limit, order='desc'):
         messages.append(m.to_json(with_boxid=False))
 
     return respond_success(
