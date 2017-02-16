@@ -49,18 +49,21 @@ class CCWebApp(Flask):
         from .authorize import authorize, oauth
         self.register_blueprint(authorize)
         oauth.init_app(self)
+        from .public import public
+        self.register_blueprint(public)
+
+        self.add_url_rule('/replication/<uuid:link_uuid>', endpoint='replication_endpoint', build_only=True)
 
         @self.route('/', defaults={'path': ''})
         @self.route('/<path:path>')
         def _index(path):
-            """WUI root."""
+            """WUI root.
+            必ず最後に追加すること
+            """
             # ここにAPIのリクエストが来たら、それはPathを間違えている
             if request.path.startswith('/api/'):
                 raise abort(404)
             return render_template('index.html')
-
-        self.add_url_rule('/invitation/<uuid:link_uuid>', endpoint='invitation_endpoint', build_only=True)
-        self.add_url_rule('/replication/<uuid:link_uuid>', endpoint='replication_endpoint', build_only=True)
 
         @self.context_processor
         def global_variables():
