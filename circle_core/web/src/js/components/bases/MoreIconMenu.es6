@@ -24,15 +24,28 @@ class MoreIconMenu extends Component {
     } = this.props
 
     const style = {
+      root: {
+        display: 'block',
+        position: 'absolute',
+        right: 16,
+        top: 16,
+        zIndex: 10,
+        ...(this.props.style || {}),
+      },
       icon: {
         width: 24,
         height: 24,
-        ...(this.props.style || {}),
       },
       button: {
-        width: 24,
-        height: 24,
+        width: '100%',
+        height: '100%',
         padding: 0,
+        display: 'block',
+      },
+      moreIcon: {
+        width: '100%',
+        height: '100%',
+        display: 'block',
       },
       list: {
         paddingTop: 0,
@@ -51,33 +64,36 @@ class MoreIconMenu extends Component {
     }
 
     return (
-      <div className="moreIconMenu" style={style.icon}>
-        <IconMenu
-          iconButtonElement={
-            <IconButton
-              style={style.button}
-              iconStyle={style.icon}
-            >
-              <MoreIcon />
-            </IconButton>
-          }
-          anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
-          targetOrigin={{vertical: 'top', horizontal: 'right'}}
-          listStyle={style.list}
-        >
-          {React.Children.map(children, (menuItem) => {
-            const innerDivStyle = style.menuItemInnerDiv
-            const leftIcon = React.cloneElement(
-              menuItem.props.leftIcon,
-              {style: style.menuItemIcon},
-            )
-            return React.cloneElement(
-              menuItem,
-              {innerDivStyle, leftIcon},
-            )
-          })}
-        </IconMenu>
-      </div>
+      <IconMenu
+        className="moreIconMenu"
+        style={style.root}
+        iconButtonElement={
+          <IconButton
+            className="test-IconButton"
+            style={style.button}
+            iconStyle={style.icon}
+          >
+            <MoreIcon
+              className="test-MoreIcon"
+              style={style.moreIcon} />
+          </IconButton>
+        }
+        anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+        targetOrigin={{vertical: 'top', horizontal: 'right'}}
+        listStyle={style.list}
+      >
+        {React.Children.map(children, (menuItem) => {
+          const innerDivStyle = style.menuItemInnerDiv
+          const leftIcon = React.cloneElement(
+            menuItem.props.leftIcon,
+            {style: style.menuItemIcon},
+          )
+          return React.cloneElement(
+            menuItem,
+            {innerDivStyle, leftIcon},
+          )
+        })}
+      </IconMenu>
     )
   }
 }
