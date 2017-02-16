@@ -8,7 +8,19 @@
     "build": "gulp",
     "watch": "gulp watch",
     "build:debug": "NODE_ENV=development gulp",
-    "watch:debug": "NODE_ENV=development gulp watch"
+    "watch:debug": "NODE_ENV=development gulp watch",
+
+    "clean_script": "rm -f ./circle_core/server/wui/static/*",
+    "style": "gulp style",
+    "webpack": "webpack --config webpack.nogulp.config.js",
+    "webpack:watch": "webpack --config webpack.nogulp.config.js --watch",
+    "webpack:debug": "NODE_ENV=development webpack --config webpack.nogulp.config.js",
+    "webpack:watch:debug": "NODE_ENV=development webpack --config webpack.nogulp.config.js --watch",
+
+    "build:nogulp": "npm run clean_script && npm run style && npm run webpack",
+    "watch:nogulp": "npm run clean_script && npm run style && npm run webpack:watch",
+    "build:nogulp:debug": "npm run clean_script && npm run style && npm run webpack:debug",
+    "watch:nogulp:debug": "npm run clean_script && npm run style && npm run webpack:watch:debug"
   },
   "repository": {
     "type": "git",
@@ -34,6 +46,7 @@
     "del": "^2.2.2",
     "eslint": "^3.12.2",
     "eslint-config-google": "^0.7.1",
+    "eslint-loader": "^1.6.1",
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-react": "^6.8.0",
     "gulp": "^3.9.1",
