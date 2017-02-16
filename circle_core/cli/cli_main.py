@@ -39,12 +39,9 @@ def cli_main(ctx, config_file_path, debug):
     _init_logging(debug)
 
     if config_file_path:
-        core = CircleCore.load_from_config_file(config_file_path)
+        core = CircleCore.load_from_config_file(config_file_path, debug)
     else:
-        core = CircleCore.load_from_default_config_file()
-
-    if debug:
-        core.set_debug(True)
+        core = CircleCore.load_from_default_config_file(debug)
 
     ctx.obj = CLIContextObject(core)
 

@@ -38,7 +38,7 @@ class CircleCore(object):
         return cls.load_from_config(config)
 
     @classmethod
-    def load_from_default_config_file(cls):
+    def load_from_default_config_file(cls, debug=False):
         config = cls._make_config_parser()
         okfiles = config.read([
             './{}'.format(DFEAULT_CONFIG_FILE_NAME),
@@ -48,7 +48,7 @@ class CircleCore(object):
         if not okfiles:
             raise ConfigError('no config file found')
 
-        return cls.load_from_config(config)
+        return cls.load_from_config(config, debug=debug)
 
     @classmethod
     def _make_config_parser(cls):
@@ -59,7 +59,7 @@ class CircleCore(object):
         )
 
     @classmethod
-    def load_from_config(cls, config):
+    def load_from_config(cls, config, debug=False):
         core_config = config['circle_core']
 
         core = cls(
@@ -69,6 +69,7 @@ class CircleCore(object):
             log_file_path=core_config['log_file_path'],
             hub_socket=core_config['hub_socket'],
             request_socket=core_config['request_socket'],
+            debug=debug,
         )
 
         # add default workers
@@ -93,14 +94,14 @@ class CircleCore(object):
 
         return core
 
-    def __init__(self, config_uuid, prefix, metadata_file_path, log_file_path, hub_socket, request_socket):
+    def __init__(self, config_uuid, prefix, metadata_file_path, log_file_path, hub_socket, request_socket, debug=False):
         if config_uuid != 'auto':
             try:
                 config_uuid = uuid.UUID(config_uuid)
             except ValueError:
                 raise ConfigError('invalid uuid `{}`'.fomart(config_uuid))
 
-        self.debug = False
+        self.debug = debug
         self.prefix = prefix
         self.metadata_file_path = metadata_file_path
         self.log_file_path = log_file_path
@@ -123,9 +124,6 @@ class CircleCore(object):
             self.my_cc_info.uuid, self.my_cc_info.display_name)
 
     # public
-    def set_debug(self, debug):
-        self.debug = debug
-
     def add_worker(self, worker_type, worker_key, worker_config):
         self.workers.append(make_worker(self, worker_type, worker_key, worker_config))
 
