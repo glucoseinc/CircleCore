@@ -30,12 +30,6 @@ def _get_users():
     return respond_success(users=[user.to_json() for user in User.query])
 
 
-# @oauth_require_write_users_scope
-# def _post_modules():
-#     # TODO: implement
-#     return respond_success()
-
-
 @api.route('/users/me', methods=['GET'])
 def api_user_me():
     if request.method == 'GET':

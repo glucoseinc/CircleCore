@@ -145,24 +145,3 @@ class Module(UUIDMetaDataBase):
                 boxes.append(box)
                 # self.message_boxes.append(box)
             self.message_boxes = boxes
-
-    # @classmethod
-    # def from_json(cls, json_msg, **kwargs):
-    #     """JSON表現からの復元.
-
-    #     :param dict json_msg:
-    #     :rtype: Module
-    #     """
-    #     return cls(**json_msg, **kwargs)
-
-    # @property
-    # def master_uuid(self):
-    #     """
-    #     :rtype Optional[UUID]:
-    #     """
-    #     for box_uuid in self.message_box_uuids:
-    #         master_uuid = metadata().find_message_box(box_uuid).master_uuid
-    #         if master_uuid:
-    #             return master_uuid
-
-    #     return None

@@ -100,8 +100,6 @@ class MessageBoxEditablePaper extends Component {
       },
 
       dataInfoSection: {
-        // display: 'flex',
-        // justifyContent: 'center',
         marginTop: 24,
       },
 
