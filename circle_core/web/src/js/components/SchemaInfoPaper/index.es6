@@ -3,13 +3,11 @@ import React, {Component, PropTypes} from 'react'
 import MenuItem from 'material-ui/MenuItem'
 import Paper from 'material-ui/Paper'
 
-import ComponentWithMoreIconMenu from 'src/components/bases/ComponentWithMoreIconMenu'
 import {DeleteIcon} from 'src/components/bases/icons'
-
+import MoreIconMenu from 'src/components/bases/MoreIconMenu'
 import IdLabel from 'src/components/commons/IdLabel'
 import MemoLabel from 'src/components/commons/MemoLabel'
 import SchemaPropertiesLabel from 'src/components/commons/SchemaPropertiesLabel'
-
 import ModuleButtons from './ModuleButtons'
 import ReplicationMasterInfoChip from './ReplicationMasterInfoChip'
 
@@ -41,18 +39,11 @@ class SchemaInfoPaper extends Component {
     const style = {
       root: {
         padding: 24,
+        position: 'relative',
       },
-
-      contents: {
-        display: 'flex',
-        flexFlow: 'row nowrap',
-      },
-
       leftArea: {
-        display: 'flex',
-        flexFlow: 'column nowrap',
-        minWidth: 232,
-        maxWidth: 232,
+        float: 'left',
+        width: 232,
       },
       displayName: {
         fontSize: 14,
@@ -62,11 +53,8 @@ class SchemaInfoPaper extends Component {
       replicationMasterInfo: {
         paddingTop: 8,
       },
-
       rightArea: {
-        display: 'flex',
-        flexFlow: 'column nowrap',
-        flexGrow: 1,
+        marginLeft: 240,
       },
       idSection: {
       },
@@ -90,52 +78,48 @@ class SchemaInfoPaper extends Component {
     return (
       <Paper>
         <div style={style.root}>
-          <ComponentWithMoreIconMenu
-            menuItems={[
-              <MenuItem
-                primaryText="このスキーマを削除する"
-                leftIcon={<DeleteIcon />}
-                disabled={schema.modules.size === 0 ? false : true}
-                onTouchTap={() => onDeleteTouchTap(schema)}
-              />,
-            ]}
-          >
-            <div style={style.contents}>
-              <div style={style.leftArea}>
-                <div style={style.displayName} onTouchTap={() => onDisplayNameTouchTap(schema)}>
-                  {schema.displayName || '(no name)'}
-                </div>
+          <MoreIconMenu>
+            <MenuItem
+              primaryText="このスキーマを削除する"
+              leftIcon={<DeleteIcon />}
+              disabled={schema.modules.size === 0 ? false : true}
+              onTouchTap={() => onDeleteTouchTap(schema)}
+            />
+          </MoreIconMenu>
 
-                <div style={style.replicationMasterInfo}>
-                  {replicationMaster ? <ReplicationMasterInfoChip replicationMaster={replicationMaster} /> : null}
-                </div>
-              </div>
-
-              <div style={style.rightArea}>
-                <div style={style.idSection}>
-                  <IdLabel
-                    obj={schema}
-                  />
-                </div>
-
-                <div style={style.propertiesSection}>
-                  <SchemaPropertiesLabel schema={schema}/>
-                </div>
-
-                <div style={style.memoSection}>
-                  <MemoLabel obj={schema}/>
-                </div>
-
-                <div style={style.moduleSection}>
-                  <ModuleButtons
-                    schema={schema}
-                    modules={modules}
-                    onTouchTap={onModuleButtonTouchTap}
-                  />
-                </div>
-              </div>
+          <div style={style.leftArea}>
+            <div style={style.displayName} onTouchTap={() => onDisplayNameTouchTap(schema)}>
+              {schema.displayName || '(no name)'}
             </div>
-          </ComponentWithMoreIconMenu>
+
+            <div style={style.replicationMasterInfo}>
+              {replicationMaster ? <ReplicationMasterInfoChip replicationMaster={replicationMaster} /> : null}
+            </div>
+          </div>
+
+          <div style={style.rightArea}>
+            <div style={style.idSection}>
+              <IdLabel
+                obj={schema}
+              />
+            </div>
+
+            <div style={style.propertiesSection}>
+              <SchemaPropertiesLabel schema={schema}/>
+            </div>
+
+            <div style={style.memoSection}>
+              <MemoLabel obj={schema}/>
+            </div>
+
+            <div style={style.moduleSection}>
+              <ModuleButtons
+                schema={schema}
+                modules={modules}
+                onTouchTap={onModuleButtonTouchTap}
+              />
+            </div>
+          </div>
         </div>
       </Paper>
     )

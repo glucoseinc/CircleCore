@@ -10,7 +10,7 @@ import {MemoIcon} from 'src/components/bases/icons'
 class MemoComponent extends Component {
   static propTypes = {
     obj: PropTypes.object.isRequired,
-    style: PropTypes.object.isRequired,
+    style: PropTypes.object,
   }
 
 

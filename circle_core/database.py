@@ -165,9 +165,11 @@ class Database(object):
 
         return connection.scalar(sa.sql.select([sa.func.count()]).select_from(table))
 
-    def enum_messages(self, message_box, head=None, limit=None, connection=None):
+    def enum_messages(self, message_box, head=None, limit=None, order='asc', connection=None):
         """head以降のメッセージを返す
+        旧 > 真の順
         """
+        assert order in ('desc', 'asc')
         if not connection:
             connection = self._engine.connect()
 
@@ -177,7 +179,13 @@ class Database(object):
         if table is None:
             return
 
-        query = sa.sql.select([table]).order_by(table.c._created_at.asc(), table.c._counter.asc())
+        query = sa.sql.select([table])
+
+        if order == 'asc':
+            query = query.order_by(table.c._created_at.asc(), table.c._counter.asc())
+        else:
+            query = query.order_by(table.c._created_at.desc(), table.c._counter.desc())
+
         if head:
             query = query.where(table.c._created_at >= head.timestamp)
         if limit:

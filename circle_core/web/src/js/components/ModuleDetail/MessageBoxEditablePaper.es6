@@ -64,12 +64,6 @@ class MessageBoxEditablePaper extends Component {
         ...this.props.style,
       },
 
-      moreIconMenu: {
-        position: 'absolute',
-        right: 16,
-        top: 16,
-      },
-
       graphSection: {
         marginLeft: 24,
         position: 'relative',
@@ -131,7 +125,7 @@ class MessageBoxEditablePaper extends Component {
 
     return (
       <Paper className="messageBoxDetail" style={style.root}>
-        <MoreIconMenu style={style.moreIconMenu}>
+        <MoreIconMenu>
           <MenuItem
             primaryText="このメッセージボックスを編集する"
             leftIcon={<EditIcon />}

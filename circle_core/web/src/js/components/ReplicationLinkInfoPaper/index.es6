@@ -39,22 +39,9 @@ class ReplicationLinkInfoPaper extends Component {
         padding: '24px 64px 24px 24px',
         marginBottom: 32,
       },
-      moreIconMenu: {
-        position: 'absolute',
-        right: 8,
-        top: 16,
-      },
-      contents: {
-        // display: 'flex',
-        // flexFlow: 'row nowrap',
-      },
-
       leftArea: {
         float: 'left',
         width: 232,
-        // flexFlow: 'column nowrap',
-        // minWidth: 232,
-        // maxWidth: 232,
       },
       displayName: {
         fontSize: 14,
@@ -62,9 +49,6 @@ class ReplicationLinkInfoPaper extends Component {
         cursor: 'pointer',
       },
       rightArea: {
-        // display: 'flex',
-        // flexFlow: 'column nowrap',
-        // flexGrow: 1,
         marginLeft: 240,
       },
       urlSection: {
@@ -79,7 +63,7 @@ class ReplicationLinkInfoPaper extends Component {
 
     return (
       <Paper className="replicationLinks-row" style={style.root}>
-        <MoreIconMenu style={style.moreIconMenu}>
+        <MoreIconMenu>
           <MenuItem
             primaryText="この共有リンクを削除する"
             leftIcon={<DeleteIcon />}

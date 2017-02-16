@@ -3,11 +3,9 @@ import React, {Component, PropTypes} from 'react'
 import MenuItem from 'material-ui/MenuItem'
 import Paper from 'material-ui/Paper'
 
-import ComponentWithMoreIconMenu from 'src/components/bases/ComponentWithMoreIconMenu'
 import {DeleteIcon} from 'src/components/bases/icons'
-
+import MoreIconMenu from 'src/components/bases/MoreIconMenu'
 import IdLabel from 'src/components/commons/IdLabel'
-
 import MessageBoxesLabel from './MessageBoxesLabel'
 import TagButtons from './TagButtons'
 
@@ -37,18 +35,11 @@ class ModuleInfoPaper extends Component {
     const style = {
       root: {
         padding: 24,
+        position: 'relative',
       },
-
-      contents: {
-        display: 'flex',
-        flexFlow: 'row nowrap',
-      },
-
       leftArea: {
-        display: 'flex',
-        flexFlow: 'column nowrap',
-        minWidth: 232,
-        maxWidth: 232,
+        float: 'left',
+        width: 232,
       },
       displayName: {
         fontSize: 14,
@@ -57,9 +48,7 @@ class ModuleInfoPaper extends Component {
       },
 
       rightArea: {
-        display: 'flex',
-        flexFlow: 'column nowrap',
-        flexGrow: 1,
+        marginLeft: 240,
       },
       idSection: {
       },
@@ -74,40 +63,36 @@ class ModuleInfoPaper extends Component {
     return (
       <Paper>
         <div style={style.root}>
-          <ComponentWithMoreIconMenu
-            menuItems={[
-              <MenuItem
-                primaryText="このモジュールを削除する"
-                leftIcon={<DeleteIcon />}
-                onTouchTap={() => onDeleteTouchTap(module)}
-              />,
-            ]}
-          >
-            <div style={style.contents}>
-              <div style={style.leftArea}>
-                <div style={style.displayName} onTouchTap={() => onDisplayNameTouchTap(module)}>
-                  {module.displayName || '(no name)'}
-                </div>
-              </div>
+          <MoreIconMenu>
+            <MenuItem
+              primaryText="このモジュールを削除する"
+              leftIcon={<DeleteIcon />}
+              onTouchTap={() => onDeleteTouchTap(module)}
+            />
+          </MoreIconMenu>
 
-              <div style={style.rightArea}>
-                <div style={style.idSection}>
-                  <IdLabel
-                    obj={module}
-                  />
-                </div>
-                <div style={style.messageBoxesSection}>
-                  <MessageBoxesLabel module={module}/>
-                </div>
-                <div style={style.tagsSection}>
-                  <TagButtons
-                    module={module}
-                    onTouchTap={onTagButtonTouchTap}
-                  />
-                </div>
-              </div>
+          <div style={style.leftArea}>
+            <div style={style.displayName} onTouchTap={() => onDisplayNameTouchTap(module)}>
+              {module.displayName || '(no name)'}
             </div>
-          </ComponentWithMoreIconMenu>
+          </div>
+
+          <div style={style.rightArea}>
+            <div style={style.idSection}>
+              <IdLabel
+                obj={module}
+              />
+            </div>
+            <div style={style.messageBoxesSection}>
+              <MessageBoxesLabel module={module}/>
+            </div>
+            <div style={style.tagsSection}>
+              <TagButtons
+                module={module}
+                onTouchTap={onTagButtonTouchTap}
+              />
+            </div>
+          </div>
         </div>
       </Paper>
     )
