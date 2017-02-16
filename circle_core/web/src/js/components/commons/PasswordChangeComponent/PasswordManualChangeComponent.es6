@@ -10,6 +10,7 @@ import CCFlatButton from 'src/components/bases/CCFlatButton'
 */
 class PasswordManualChangeComponent extends Component {
   static propTypes = {
+    errors: PropTypes.object,
     onUpdate: PropTypes.func,
     onToggleInputMethod: PropTypes.func,
   }
@@ -64,6 +65,7 @@ class PasswordManualChangeComponent extends Component {
       confirmationPassword,
     } = this.state
     const {
+      errors = {},
       onToggleInputMethod,
     } = this.props
 
@@ -84,6 +86,8 @@ class PasswordManualChangeComponent extends Component {
       },
     }
 
+    const newPasswordErrorText = errors.newPassword
+
     return (
       <div style={style.root}>
         <div style={style.inputArea}>
@@ -91,6 +95,7 @@ class PasswordManualChangeComponent extends Component {
             floatingLabelText="新しいパスワード"
             value={password}
             type="password"
+            errorText={newPasswordErrorText}
             onChange={(e) => this.onPasswordChange(e.target.value)}
           />
           <TextField

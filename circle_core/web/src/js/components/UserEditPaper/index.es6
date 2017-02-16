@@ -15,10 +15,10 @@ import UserInfoEditComponent from './UserInfoEditComponent'
 class UserEditPaper extends Component {
   static propTypes = {
     user: PropTypes.object.isRequired,
+    errors: PropTypes.object,
     needCurrentPassword: PropTypes.bool,
     onSaveTouchTap: PropTypes.func,
-    saveButtonLabel: PropTypes.string,
-    // パスワードの入力が必須かどうか?
+    saveButtonLabel: PropTypes.string,    // パスワードの入力が必須かどうか?
     isPasswordRequired: PropTypes.bool,
   }
 
@@ -62,6 +62,7 @@ class UserEditPaper extends Component {
     } = this.state
     const {
       needCurrentPassword = false,
+      errors = {},
       onSaveTouchTap,
     } = this.props
 
@@ -87,11 +88,13 @@ class UserEditPaper extends Component {
       },
     }
 
+    const currentPasswordErrorText = errors.currentPassword
     const currentPasswordTextField = needCurrentPassword ? (
       <TextField
         floatingLabelText="現在のパスワード"
         value={currentPassword}
         type="password"
+        errorText={currentPasswordErrorText}
         onChange={(e) => this.setState({currentPassword: e.target.value})}
       />
     ) : (
@@ -105,6 +108,7 @@ class UserEditPaper extends Component {
             <ComponentWithHeader headerLabel="ユーザー情報">
               <UserInfoEditComponent
                 user={editingUser}
+                errors={errors}
                 onUpdate={(user) => this.setState({editingUser: user})}
               />
             </ComponentWithHeader>
@@ -114,6 +118,7 @@ class UserEditPaper extends Component {
             <ComponentWithHeader headerLabel="パスワード">
               {currentPasswordTextField}
               <PasswordChangeComponent
+                errors={errors}
                 onUpdate={(newPassword) => this.setState({newPassword})}
               />
             </ComponentWithHeader>

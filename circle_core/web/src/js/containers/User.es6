@@ -17,6 +17,7 @@ class User extends Component {
     isUserFetching: PropTypes.bool.isRequired,
     isUserUpdating: PropTypes.bool.isRequired,
     users: PropTypes.object.isRequired,
+    errors: PropTypes.object,
     token: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,
     onUpdateTouchTap: PropTypes.func,
@@ -30,6 +31,7 @@ class User extends Component {
       isUserFetching,
       isUserUpdating,
       users,
+      errors = {},
       token,
       params,
       onUpdateTouchTap,
@@ -54,6 +56,7 @@ class User extends Component {
     const userDetail = token.hasScope('user+rw') ? (
       <UserEditPaper
         user={user}
+        errors={errors}
         onSaveTouchTap={onUpdateTouchTap}
       />
     ) : (
@@ -75,6 +78,7 @@ const mapStateToProps = (state) => ({
   isUserFetching: state.asyncs.isUserFetching,
   isUserUpdating: state.asyncs.isUserUpdating,
   users: state.entities.users,
+  errors: state.error.userEdit,
   token: state.auth.token,
 })
 
