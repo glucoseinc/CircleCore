@@ -38,6 +38,7 @@ class Replicator(object):
         self.ws = None
         self.target_boxes = None
         self.writer = None
+        self.closed = False
 
         # fix url
         endpoint_url = master.endpoint_url
@@ -49,7 +50,11 @@ class Replicator(object):
 
     @gen.coroutine
     def run(self):
-        while True:
+        if not (self.endpoint_url.startswith('ws://') or self.endpoint_url.startswith('wss://')):
+            logger.info('Invalid replication link: `%s`, replicator closed', self.endpoint_url)
+            return
+
+        while not self.closed:
             try:
                 yield self._run_one_loop()
             except ConnectionClosed as exc:
@@ -58,12 +63,16 @@ class Replicator(object):
                 if exc.code in (WebsocketStatusCode.CLOSE_NORMALY, WebsocketStatusCode.GOING_AWAY):
                     # 正常終了した場合はRetryする
                     logger.info('Replication connection was closed normarly. will retry after 5secs...')
-                else:
+                elif exc.code:
                     # エラーコードが通知されている場合は、エラーを記録して終了する。復活するには再起動させること
                     logger.error(
                         'Replication connection was closed by peer. code=%r, reason=%r',
                         exc.code, exc.reason)
                     return
+                elif not self.closed:
+                    # エラーコードなし。おそらくMasterが終了した
+                    logger.info('Replication connection was closed abnormaly by peer. will retry after 5secs...')
+
             except ConnectionRefusedError as exc:
                 # 恐らく接続に失敗している > まだ立ち上がってない、のでWaitしてRetry
                 logger.error(
@@ -82,9 +91,13 @@ class Replicator(object):
                 self.clear()
 
             # wait...
-            yield gen.sleep(5.)
+            if not self.closed:
+                yield gen.sleep(5.)
+
+        logger.info('Replicator closed (%s)', self.endpoint_url)
 
     def close(self):
+        self.closed = True
         self.clear()
 
     def clear(self):
@@ -93,7 +106,6 @@ class Replicator(object):
         if self.writer:
             self.writer.commit(flush_all=True)
 
-        self.ws = None
         self.target_boxes = None
         self.writer = None
 
@@ -115,7 +127,7 @@ class Replicator(object):
 
         logger.info('Replication connection to %s: migrated, start syncing', self.endpoint_url)
 
-        while True:
+        while not self.closed:
             yield self.wait_command([MasterCommand.SYNC_MESSAGE, MasterCommand.NEW_MESSAGE])
 
     def _send_command(self, command, **payload):

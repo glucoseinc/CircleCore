@@ -6,10 +6,10 @@ import functools
 
 from sqlalchemy import event
 
-from ..models import CcInfo, Invitation, MessageBox, Module, ReplicationLink, Schema, User
+from ..models import CcInfo, Invitation, MessageBox, Module, ReplicationLink, ReplicationMaster, Schema, User
 
 
-MODELS = (CcInfo, Invitation, MessageBox, Module, ReplicationLink, Schema, User)
+MODELS = (CcInfo, Invitation, MessageBox, Module, ReplicationLink, ReplicationMaster, Schema, User)
 
 
 class MetaDataEventListener(object):

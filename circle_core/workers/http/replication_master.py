@@ -156,7 +156,9 @@ class ReplicationMaster(WebSocketHandler):
 
         with MetaDataSession.begin():
             # store slave's information
-            cc_info = CcInfo(uuid=slave_uuid, myself=False)
+            cc_info = CcInfo.query.get(slave_uuid)
+            if not cc_info:
+                cc_info = CcInfo(uuid=slave_uuid, myself=False)
             cc_info.update_from_json(slave_info)
             MetaDataSession.add(cc_info)
 
