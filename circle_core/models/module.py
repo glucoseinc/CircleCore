@@ -27,6 +27,7 @@ class Module(UUIDMetaDataBase):
     __tablename__ = 'modules'
 
     uuid = sa.Column(GUID, primary_key=True)
+    cc_uuid = sa.Column(GUID, sa.ForeignKey('cc_informations.uuid', name='fk_modules_cc_uuid'), nullable=False)
     display_name = sa.Column(sa.String(255), nullable=False, default='')
     _tags = sa.Column('_tags', sa.Text, nullable=False, default='')
     memo = sa.Column(sa.Text, nullable=False, default='')
@@ -38,6 +39,16 @@ class Module(UUIDMetaDataBase):
 
     message_boxes = orm.relationship('MessageBox', backref='module', cascade='all, delete-orphan')
 
+    @classmethod
+    def create(cls, **kwargs):
+        if 'uuid' not in kwargs:
+            kwargs['uuid'] = generate_uuid(model=cls)
+        if 'cc_uuid' not in kwargs:
+            from .cc_info import CcInfo
+            kwargs['cc_uuid'] = CcInfo.query.filter_by(myself=True).one().uuid
+
+        return cls(**kwargs)
+
     def __init__(self, **kwargs):
         """init.
         """
@@ -47,6 +58,9 @@ class Module(UUIDMetaDataBase):
 
         super(Module, self).__init__(**kwargs)
 
+    def __hash__(self):
+        return hash('{}:{!r}'.format(self.__class__.__name__, hash(self.uuid)))
+
     def __eq__(self, other):
         """return equality.
 
@@ -55,7 +69,8 @@ class Module(UUIDMetaDataBase):
         :rtype: bool
         """
         return all([self.uuid == other.uuid,
-                    self.display_name == other.display_name, self.tags == other.tags,
+                    self.display_name == other.display_name,
+                    self.tags == other.tags,
                     self.memo == other.memo])
 
     @hybrid_property
@@ -124,30 +139,9 @@ class Module(UUIDMetaDataBase):
                         memo=box_data['memo'],
                     )
                 else:
-                    box = MessageBox.query.get(box_uuid, )
+                    box = MessageBox.query.get(box_uuid)
                     box.update_from_json(box_data)
 
                 boxes.append(box)
                 # self.message_boxes.append(box)
             self.message_boxes = boxes
-
-    # @classmethod
-    # def from_json(cls, json_msg, **kwargs):
-    #     """JSON表現からの復元.
-
-    #     :param dict json_msg:
-    #     :rtype: Module
-    #     """
-    #     return cls(**json_msg, **kwargs)
-
-    # @property
-    # def master_uuid(self):
-    #     """
-    #     :rtype Optional[UUID]:
-    #     """
-    #     for box_uuid in self.message_box_uuids:
-    #         master_uuid = metadata().find_message_box(box_uuid).master_uuid
-    #         if master_uuid:
-    #             return master_uuid
-
-    #     return None

@@ -12,23 +12,34 @@ const pathnames = Object.entries(urls).reduce((_pathnames, [key, url]) => ({
 
 
 /**
- * [locationChangetoSchemas description]
- * @param  {[type]}    action [description]
+ * Schema一覧へ遷移
+ * @param {object} action
  */
 function* locationChangetoSchemas(action) {
   yield put(routerActions.push(pathnames.schemas))
 }
 
+
 /**
- * [locationChangetoModules description]
- * @param  {[type]}    action [description]
+ * Module一覧へ遷移
+ * @param {object} action
  */
 function* locationChangetoModules(action) {
   yield put(routerActions.push(pathnames.modules))
 }
 
+
 /**
- * [handleLocationChangetoSchemas description]
+ * ReplicationLink一覧へ遷移
+ * @param {object} action
+ */
+function* locationChangetoReplicas(action) {
+  yield put(routerActions.push(pathnames.replicas))
+}
+
+
+/**
+ * Schema一覧への遷移をハンドル
  */
 function* handleLocationChangetoSchemas() {
   const triggerActionTypes = [
@@ -38,8 +49,9 @@ function* handleLocationChangetoSchemas() {
   yield takeEvery(triggerActionTypes, locationChangetoSchemas)
 }
 
+
 /**
- * [handleLocationChangetoModules description]
+ * Module一覧への遷移をハンドル
  */
 function* handleLocationChangetoModules() {
   const triggerActionTypes = [
@@ -50,11 +62,23 @@ function* handleLocationChangetoModules() {
   yield takeEvery(triggerActionTypes, locationChangetoModules)
 }
 
+
 /**
- * [locationSaga description]
- * @param  {[type]}    args [description]
+ * ReplicationLink一覧への遷移をハンドル
+ */
+function* handleLocationChangetoReplicas() {
+  const triggerActionTypes = [
+    actionTypes.replicationLink.deleteSucceeded,
+  ]
+  yield takeEvery(triggerActionTypes, locationChangetoReplicas)
+}
+
+/**
+ * Loaction Saga
+ * @param {any} args
  */
 export default function* locationSaga(...args) {
   yield fork(handleLocationChangetoSchemas, ...args)
   yield fork(handleLocationChangetoModules, ...args)
+  yield fork(handleLocationChangetoReplicas, ...args)
 }

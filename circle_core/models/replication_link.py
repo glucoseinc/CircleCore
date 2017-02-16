@@ -7,10 +7,11 @@ import datetime
 from uuid import UUID
 
 # community module
+from flask import url_for
 import sqlalchemy as sa
 from sqlalchemy import orm
 
-from circle_core.utils import format_date, prepare_date
+from circle_core.utils import format_date, prepare_date, prepare_uuid
 from .base import GUID, MetaDataBase, UUIDMetaDataBase
 
 
@@ -31,13 +32,16 @@ class ReplicationSlave(MetaDataBase):
     slave_uuid = sa.Column(GUID, nullable=False)
     last_access_at = sa.Column(sa.DateTime)
 
-    link = orm.relationship('ReplicationLink', backref='slaves')
+    link = orm.relationship(
+        'ReplicationLink',
+        backref=orm.backref('slaves', cascade='all, delete-orphan'))
     info = orm.relationship(
         'CcInfo', foreign_keys=[slave_uuid], primaryjoin='CcInfo.uuid == ReplicationSlave.slave_uuid', uselist=False)
 
 
 class ReplicationLink(UUIDMetaDataBase):
     """ReplicationLinkオブジェクト.
+    Slaveに公開するリンクを表現
 
     :param UUID uuid: ReplicationLink UUID
     :param str display_name: 表示名
@@ -48,6 +52,8 @@ class ReplicationLink(UUIDMetaDataBase):
     __tablename__ = 'replication_links'
 
     uuid = sa.Column(GUID, primary_key=True)
+    display_name = sa.Column(sa.String(255), nullable=False, default='')
+    memo = sa.Column(sa.Text, nullable=False, default='')
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
     updated_at = sa.Column(
         sa.DateTime, nullable=False,
@@ -59,26 +65,45 @@ class ReplicationLink(UUIDMetaDataBase):
         secondary=replcation_boxes_table,
         backref='links')
 
-    def __init__(self, uuid, cc_info_uuids, message_box_uuids, display_name, memo=None):
-        """init.
+    ALL_MESSAGE_BOXES = object()
+
+    @classmethod
+    def create(cls, display_name, memo, slaves, message_box_uuids):
+        """ReplicationLinkを作成する。
+        message boxの存在チェックとかを行う
 
         :param Union[str, UUID] uuid: Module UUID
-        :param List[Union[str, UUID]] cc_info_uuids: CircleCoreInfoのUUIDリスト
-        :param List[Union[str, UUID]] message_box_uuids: MessageBoxのUUIDリスト
         :param str display_name: 表示名
         :param Optional[str] memo: メモ
+        :param List[Union[str, UUID]] slaves: CircleCoreInfoのUUIDリスト
+        :param Union[ALL_MESSAGE_BOXES, List[Union[str, UUID]]] message_box_uuids: MessageBoxのUUIDリスト
         """
-        super(ReplicationLink, self).__init__(uuid, display_name, memo)
+        from . import generate_uuid, MessageBox
 
-        from .message_box import MessageBox
+        obj = ReplicationLink(
+            uuid=generate_uuid(model=cls),
+            display_name=display_name,
+            memo=memo,
+        )
 
-        for message_box_uuid in message_box_uuids:
-            if not isinstance(message_box_uuid, UUID):
-                try:
-                    message_box_uuid = UUID(message_box_uuid)
-                except ValueError:
-                    raise ValueError('Invalid message_box_uuid : {}'.format(message_box_uuids))
-            self.message_boxes.append(MessageBox.query.get(message_box_uuid))
+        for slave_uuid in slaves:
+            slave_uuid = prepare_uuid(slave_uuid)
+            obj.slaves.append(ReplicationSlave(link_uuid=obj.uuid, slave_uuid=slave_uuid))
+
+        if message_box_uuids is cls.ALL_MESSAGE_BOXES:
+            query = MessageBox.query
+        else:
+            if not message_box_uuids:
+                raise ValueError('no box specified')
+            query = MessageBox.query.filter(MessageBox.uuid.in_(message_box_uuids))
+        obj.message_boxes = query.all()
+
+        return obj
+
+    def __init__(self, **kwargs):
+        """init.
+        """
+        super(ReplicationLink, self).__init__(**kwargs)
 
     def __eq__(self, other):
         """return equality.
@@ -90,33 +115,60 @@ class ReplicationLink(UUIDMetaDataBase):
         return all([self.uuid == other.uuid, self.display_name == other.display_name, self.memo == other.memo])
 
     @property
-    def stringified_cc_info_uuids(self):
-        """CircleCoreInfoのUUIDリストを文字列化する.
+    def link(self):
+        """このCircleCoreでの共有リンクのEndpointのURLを返す"""
+        try:
+            return url_for(
+                'replication_endpoint',
+                link_uuid=self.uuid, _external=True, _scheme='ws')
+        except RuntimeError:
+            import click
 
-        :return: 文字列化CircleCoreInfo UUID
-        :rtype: str
-        """
-        return ','.join([str(uuid) for uuid in self.cc_info_uuids])
+            flask_app = None
+            ctx = click.get_current_context()
+            if ctx:
+                http_worker = ctx.obj.core.find_worker('http')
+                if http_worker:
+                    flask_app = http_worker.flask_app
 
-    @property
-    def stringified_message_box_uuids(self):
-        """MessageBoxのUUIDリストを文字列化する.
+            if flask_app:
+                with flask_app.test_request_context('/'):
+                    return url_for('replication_endpoint', link_uuid=self.uuid, _external=True, _scheme='ws')
+        return None
 
-        :return: 文字列化MessageBox UUID
-        :rtype: str
-        """
-        return ','.join([str(uuid) for uuid in self.message_box_uuids])
-
-    def to_json(self):
+    def to_json(self, with_slaves=False, with_boxes=False, with_module=True, with_schema=True):
         """このモデルのJSON表現を返す.
 
         :return: json表現のdict
         :rtype: Dict
         """
-        return {
+
+        slaves = []
+        for slave in self.slaves:
+            if with_slaves and slave.info:
+                slaves.append(slave.info.to_json())
+            else:
+                slaves.append(dict(uuid=slave.slave_uuid))
+
+        message_boxes = []
+        # modules = {}
+        for box in self.message_boxes:
+            if with_boxes:
+                message_boxes.append(box.to_json(with_module=with_module, with_schema=with_schema))
+            else:
+                message_boxes.append(dict(uuid=box.uuid))
+
+        d = {
             'uuid': str(self.uuid),
-            'ccInfoUuids': [str(_uuid) for _uuid in self.cc_info_uuids],
-            'messageBoxUuids': [str(_uuid) for _uuid in self.message_box_uuids],
+            # 'ccInfoUuids': [str(_uuid) for _uuid in self.cc_info_uuids],
+            # 'messageBoxUuids': [str(_uuid) for _uuid in self.message_box_uuids],
             'displayName': self.display_name,
             'memo': self.memo,
+            'link': self.link,
+            'slaves': slaves,
+            'messageBoxes': message_boxes,
         }
+        if d['link'] is None:
+            d.pop('link')
+
+        return d

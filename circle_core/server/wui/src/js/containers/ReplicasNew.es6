@@ -2,9 +2,7 @@ import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 
 import actions from 'src/actions'
-
 import LoadingIndicator from 'src/components/bases/LoadingIndicator'
-
 import ReplicationLinkNewPaper from 'src/components/ReplicationLinkNewPaper'
 
 

@@ -4,6 +4,7 @@
 $colorBlue500: #2196f3;
 $colorGray200: #eeeeee;
 $colorGray300: #e0e0e0;
+$colorGrey600: #757575;
 $colorRedA200: #ff5252;
 
 @define-mixin clearfix {
@@ -37,6 +38,34 @@ table.props th {
 /* 共通 */
 .page {
   margin: 32px;
+}
+
+.componentWithSubtitle {
+  .componentWithSubtitle-title {
+    @mixin clearfix;
+
+    .componentWithSubtitle-titleIcon {
+      float: left;
+      margin-left: 4px;
+      width: 16px;
+
+      > svg {
+        vertical-align: top;
+      }
+    }
+
+    h3 {
+      margin: 0 0 8px 24px;
+      font-size: 14px;
+      font-weight: normal;
+      line-height: 1;
+      color: $colorGrey600;
+    }
+  }
+
+  .componentWithSubtitle-content {
+    margin: 0 0 0 24px;
+  }
 }
 
 /* moduelのgraph */
@@ -92,6 +121,61 @@ $graphYAxisWidth: 40px;
   &.is-loading {
     .graph-yAxis, .graph-chart, .graph-preview, .graph-legend {
       display: none;
+    }
+  }
+}
+
+
+.messageBox-latestMessages {
+  overflow-x: scroll;
+
+  table {
+    min-width: 100%;
+    font-size: 10px;
+    white-space: nowrap;
+    border-collapse: collapse;
+    table-layout: fixed;
+
+    thead {
+      border-top: 1px solid #E0E0E0;
+      border-bottom: 1px solid #E0E0E0;
+    }
+    tbody {
+      tr:nth-child(even) {
+        background: #f8f8f8;
+      }
+    }
+
+    th, td {
+      padding: 4px 8px;
+    }
+    th {
+      text-align: center;
+    }
+    td {
+      text-align: right;
+    }
+
+    .messageBox-latestMessages-date {
+      width: 16em;
+    }
+    .messageBox-latestMessages-timestamp {
+      width: 13em;
+    }
+    .messageBox-latestMessages-counter {
+      width: 6em;
+    }
+    .messageBox-latestMessages-counter {
+      border-right: 3px double #aaa;
+    }
+    .messageBox-latestMessages-value {
+      border-right: 1px dotted #f0f0f0;
+    }
+
+    .messageBox-latestMessages-nodata {
+      color: $colorGrey600;
+      text-align: center;
+      font-weight: bold;
     }
   }
 }

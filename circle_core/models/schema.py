@@ -12,7 +12,7 @@ from sqlalchemy import orm
 from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
-from .base import GUID, UUIDMetaDataBase
+from .base import generate_uuid, GUID, UUIDMetaDataBase
 
 
 class SchemaProperty(collections.namedtuple('SchemaProperty', ['name', 'type'])):
@@ -69,6 +69,7 @@ class Schema(UUIDMetaDataBase):
     __tablename__ = 'schemas'
 
     uuid = sa.Column(GUID, primary_key=True)
+    cc_uuid = sa.Column(GUID, sa.ForeignKey('cc_informations.uuid', name='fk_schemas_cc_uuid'), nullable=False)
     display_name = sa.Column(sa.String(255), nullable=False, default='')
     _properties = sa.Column('properties', sa.Text, nullable=False, default='')
     memo = sa.Column(sa.Text, nullable=False, default='')
@@ -96,6 +97,9 @@ class Schema(UUIDMetaDataBase):
 
         super(Schema, self).__init__(**kwargs)
 
+    def __hash__(self):
+        return hash('{}:{!r}'.format(self.__class__.__name__, hash(self.uuid)))
+
     def __eq__(self, other):
         """return equality.
 
@@ -107,6 +111,18 @@ class Schema(UUIDMetaDataBase):
                     self.properties == other.properties,
                     self.memo == other.memo])
 
+    @classmethod
+    def create(cls, **kwargs):
+        if 'cc_uuid' not in kwargs:
+            from .cc_info import CcInfo
+            kwargs['cc_uuid'] = CcInfo.query.filter_by(myself=True).one().uuid
+
+        schema = cls(
+            uuid=generate_uuid(model=cls),
+            **kwargs
+        )
+        return schema
+
     @hybrid_property
     def properties(self):
         return SchemaProperties(self._properties)
@@ -116,45 +132,6 @@ class Schema(UUIDMetaDataBase):
         if not isinstance(properties, SchemaProperties):
             properties = SchemaProperties(properties)
         self._properties = str(properties)
-
-    # @property
-    # def stringified_properties(self):
-    #     """プロパティを文字列化する.
-
-    #     :return: 文字列化プロパティ
-    #     :rtype: str
-    #     """
-    #     strings = []
-    #     for prop in self.properties:
-    #         strings.append('{}:{}'.format(prop.name, prop.type))
-    #     return ','.join(strings)
-
-    # @property
-    # def dictified_properties(self):
-    #     """プロパティを辞書化する.
-
-    #     :return: 辞書化プロパティ
-    #     :rtype: List[Dict[str, str]]
-    #     """
-    #     return [prop.to_json() for prop in self.properties]
-
-    # @classmethod
-    # def dictify_properties(cls, stringified_properties):
-    #     """文字列化プロパティを辞書化する.
-
-    #     :param str stringified_properties: 文字列化プロパティ
-    #     :return: 辞書化プロパティ
-    #     :rtype: List[Dict[str, str]]
-    #     """
-    #     dictified_properties = []
-    #     property_strings = stringified_properties.split(',')
-    #     for property_string in property_strings:
-    #         _name, _type = property_string.split(':')
-    #         dictified_properties.append({
-    #             'name': _name,
-    #             'type': _type,
-    #         })
-    #     return dictified_properties
 
     def to_json(self, with_modules=False):
         """このモデルのJSON表現を返す.
@@ -187,17 +164,6 @@ class Schema(UUIDMetaDataBase):
         self.memo = json_msg.get('memo', self.memo)
         if 'properties' in json_msg:
             self.properties = SchemaProperties(json_msg['properties'])
-
-    # @property
-    # def master_uuid(self):
-    #     """
-    #     :rtype Optional[UUID]:
-    #     """
-    #     for box in metadata().message_boxes:
-    #         if box.schema_uuid == self.uuid and box.master_uuid:
-    #             return box.master_uuid
-
-    #     return None
 
     def check_match(self, data):  # TODO: Schema専用のJSONDecoderを作ってそこで例外を投げたほうがいいかなあ
         """nanomsg経由で受け取ったメッセージをデシリアライズしたものがこのSchemaに適合しているか.

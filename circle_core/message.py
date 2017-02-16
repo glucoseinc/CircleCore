@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
-"""デバイスからのメッセージ."""
+"""デバイスからのメッセージ.
+
+このModelだけMetadata関連ではないので、ディレクトリが適切ではない...
+"""
+from collections import namedtuple
 import decimal
-import json
+import logging
 import re
 import time
 import uuid
@@ -9,13 +13,40 @@ import uuid
 from base58 import b58decode
 from click import get_current_context
 
-from circle_core.models import Module, Schema
-from circle_core.utils import prepare_uuid
-from .base import logger
-from ..exceptions import MessageBoxNotFoundError, SchemaNotFoundError, SchemaNotMatchError
+from .exceptions import MessageBoxNotFoundError, SchemaNotFoundError, SchemaNotMatchError
+from .models import Module, Schema
+from .utils import prepare_uuid
 
 
 message_timestamp_context = decimal.Context(16, decimal.ROUND_DOWN)
+logger = logging.getLogger(__name__)
+
+
+class ModuleMessagePrimaryKey(
+    namedtuple('ModuleMessagePrimaryKey', 'timestamp counter')
+):
+    def __new__(cls, t, c):
+        assert isinstance(t, decimal.Decimal)
+        assert isinstance(c, int)
+
+        return super(ModuleMessagePrimaryKey, cls).__new__(cls, t, c)
+
+    def to_json(self):
+        assert isinstance(self.timestamp, decimal.Decimal)
+
+        return [str(self.timestamp), self.counter]
+
+    @classmethod
+    def from_json(cls, jsonobj):
+        if jsonobj is None:
+            return None
+
+        assert isinstance(jsonobj, list)
+
+        return cls(
+            ModuleMessage.make_timestamp(jsonobj[0]),
+            jsonobj[1]
+        )
 
 
 class ModuleMessage(object):
@@ -46,6 +77,15 @@ class ModuleMessage(object):
         self.payload = payload
 
     @classmethod
+    def from_json(cls, data):
+        return cls(
+            prepare_uuid(data['boxId']),
+            data['timestamp'],
+            data['counter'],
+            data['payload']
+        )
+
+    @classmethod
     def make_timestamp(cls, timestamp=None):
         if not timestamp:
             timestamp = time.time()
@@ -64,16 +104,26 @@ class ModuleMessage(object):
         ).is_zero()
 
     def __repr__(self):
-        return '<circle_core.models.message.ModuleMessage %s>' % self.encode()
+        return '<ModuleMessage box={} timestamp={} counter={}>'.format(
+            str(self.box_id),
+            str(self.timestamp),
+            self.counter,
+        )
 
-    def to_json(self):
+    @property
+    def primary_key(self):
+        return ModuleMessagePrimaryKey(self.timestamp, self.counter)
+
+    def to_json(self, with_boxid=True):
         """slaveのCircleCoreに送られる際に使われる.
 
         :return str:
         """
-        return json.dumps({
+        d = {
             'timestamp': str(self.timestamp),
             'counter': self.counter,
-            'box_id': self.box_id.hex,
             'payload': self.payload
-        })
+        }
+        if with_boxid:
+            d['boxId'] = self.box_id.hex
+        return d

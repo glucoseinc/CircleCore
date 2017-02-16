@@ -27,6 +27,7 @@ class UrlLabel extends Component {
       label: {
         fontWeight: 'bold',
         color: blue500,
+        lineHeight: 1.4,
       },
     }
     return (

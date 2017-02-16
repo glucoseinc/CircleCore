@@ -52,3 +52,8 @@ class AuthorizationError(CircleCoreException):
 
     エラー詳細はユーザには掲示しないこと"""
     pass
+
+
+class ReplicationError(CircleCoreException):
+    """同期失敗エラー"""
+    pass

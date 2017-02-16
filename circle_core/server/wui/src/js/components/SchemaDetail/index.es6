@@ -6,7 +6,6 @@ import BackButton from 'src/components/commons/BackButton'
 import DeleteButton from 'src/components/commons/DeleteButton'
 import DisplayNamePaper from 'src/components/commons/DisplayNamePaper'
 import MetadataPaper from 'src/components/commons/MetadataPaper'
-
 import PropertiesTableComponent from './PropertiesTableComponent'
 
 

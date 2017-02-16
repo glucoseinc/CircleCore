@@ -145,6 +145,15 @@ class APICaller {
           resolve()
         }, (err) => {
           // rejected
+          // 全体に向けてToken無効化Actionを発行する
+          const {actionTypes} = require('src/actions')
+          const {store} = require('src/main')
+
+          store.dispatch({
+            type: actionTypes.auth.tokenInvalidated,
+          })
+
+          // もとのAPI呼び出し元にもエラーを伝える
           reject(err)
         })
     })
@@ -406,6 +415,16 @@ class CCAPI extends APICaller {
     return res.body
   }
 
+  /**
+   * MessageBoxの最新データを得る
+   * @param {string} moduleId
+   * @param {string} messageBoxId
+   * @return {object} Result
+   */
+  async fetchLatestMessageBox(moduleId, messageBoxId) {
+    const res = await this._get(`/modules/${moduleId}/${messageBoxId}/data?format=json&limit=5`)
+    return res.body
+  }
 
   // CcInfo
   /**

@@ -59,7 +59,7 @@ class MessageBox(UUIDMetaDataBase):
         return all([self.uuid == other.uuid,
                     self.display_name == other.display_name, self.memo == other.memo])
 
-    def to_json(self, with_schema=False):
+    def to_json(self, with_schema=False, with_module=False):
         """このモデルのJSON表現を返す.
 
         :return: json表現のdict
@@ -68,64 +68,29 @@ class MessageBox(UUIDMetaDataBase):
 
         d = {
             'uuid': str(self.uuid),
-            'schemaUuid': str(self.schema_uuid),
             'displayName': self.display_name,
             'memo': self.memo,
+            'moduleUuid': str(self.module_uuid),
+            'schemaUuid': str(self.schema_uuid),
         }
 
         if with_schema:
             d['schema'] = self.schema.to_json()
+
+        if with_schema:
+            d['module'] = self.module.to_json()
 
         return d
 
     def update_from_json(self, jsonobj):
         self.display_name = jsonobj.get('displayName', self.display_name)
         self.memo = jsonobj.get('memo', self.memo)
-        assert 'schema' not in jsonobj
-        assert 'schemaUuid' not in jsonobj
+        # assert 'schema' not in jsonobj
+        # assert 'schemaUuid' not in jsonobj
         # do not change schema
-        # if 'schema' in jsonobj:
-        #     self.schema_uuid = prepare_uuid(jsonobj['schema'])
-        # elif 'schemaUuid' in jsonobj:
-        #     self.schema_uuid = prepare_uuid(jsonobj['schemaUuid'])
-
-    # @classmethod
-    # def from_json(cls, json_msg, **kwargs):
-    #     """JSON表現からの復元.
-
-    #     :param dict json_msg:
-    #     :rtype: MessageBox
-    #     """
-    #     return cls(**json_msg, **kwargs)
-
-    # def messages_since(self, timestamp, count):
-    #     """引数以降、このMessageBoxに蓄えられたModuleMessageを返す.
-
-    #     :param int timestamp:
-    #     :param int count:
-    #     """
-    #     from ..database import Database  # 循環importを防ぐ
-    #     db = Database(metadata().database_url)
-    #     table = db.find_table_for_message_box(self)
-    #     session = db._session()
-    #     with session.begin():
-    #         created_at = timestamp
-    #         query = session.query(table).filter(
-    #             (created_at < table.columns._created_at) |
-    #             ((table.columns._created_at == created_at) & (count < table.columns._counter))
-    #         )
-    #         logger.debug('Execute query %s', query)
-    #         rows = query.all()
-    #         logger.debug('Result: %r', rows)
-
-    #         for row in rows:
-    #             payload = {
-    #                 key: value
-    #                 for key, value in zip(row.keys(), row)
-    #                 if not key.startswith('_')
-    #             }
-    #             timestamp = row._created_at  # timetupleを使うとmicrosecondの情報が切り捨てられる...
-
-    #             yield ModuleMessage(
-    #                 self.module.uuid, self.uuid,
-    #                 timestamp=timestamp, count=row._counter, payload=payload)
+        if 'schema' in jsonobj:
+            # self.schema_uuid = prepare_uuid(jsonobj['schema'])
+            assert self.schema_uuid == prepare_uuid(jsonobj['schema'])
+        elif 'schemaUuid' in jsonobj:
+            # self.schema_uuid = prepare_uuid(jsonobj['schemaUuid'])
+            assert self.schema_uuid == prepare_uuid(jsonobj['schemaUuid'])

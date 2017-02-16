@@ -116,7 +116,7 @@ class ModuleNewPaper extends Component {
 
           <div style={style.actionsArea}>
             <CreateButton
-              disabled={module.isReadytoCreate() ? false : true}
+              disabled={module.isReadyToCreate() ? false : true}
               onTouchTap={() => onCreateTouchTap(module)}
             />
           </div>

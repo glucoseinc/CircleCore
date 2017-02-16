@@ -69,7 +69,6 @@ class TargetSelectComponent extends Component {
         onUpdate={onUpdate}
       />
     ) : (
-      // targetType === TargetSelectComponent.targetType.tag
       <TargetTagSelectComponent
         replicationLink={replicationLink}
         modules={modules}

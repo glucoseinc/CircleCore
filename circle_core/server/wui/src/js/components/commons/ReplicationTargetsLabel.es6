@@ -1,10 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 
-import {grey300, white} from 'material-ui/styles/colors'
-
 import ComponentWithIcon from 'src/components/bases/ComponentWithIcon'
 import {ReplicationTargetIcon} from 'src/components/bases/icons'
-
 import ReplicationTargetLabel from 'src/components/commons/ReplicationTargetLabel'
 
 
@@ -26,24 +23,30 @@ class ReplicationTargetsLabel extends Component {
       modules,
     } = this.props
 
-    const targetModules = modules.map((module) => {
-      const filteredMessageBoxes = module.messageBoxes.filter((messageBox) => {
-        return replicationLink.messageBoxes.includes(messageBox.uuid)
-      })
-      return module.updateMessageBoxes(filteredMessageBoxes)
-    }).filter((module) => module.messageBoxes.size > 0)
+    // sort boxes by module
+    const boxesByModules = replicationLink.messageBoxes.reduce((map, box) => {
+      if(!map.hasOwnProperty(box.module))
+        map[box.module] = []
+      map[box.module].push(box)
+      return map
+    }, {})
 
     return (
       <ComponentWithIcon icon={ReplicationTargetIcon}>
-        {targetModules.valueSeq().map((module, index) =>
-          <ReplicationTargetLabel
-            key={module.uuid}
-            module={module}
-            rootStyle={{
-              backgroundColor: index % 2 ? white :grey300,
-            }}
-          />
-        )}
+        {Object.keys(boxesByModules).map((moduleUuid, index) => {
+          const module = modules.get(moduleUuid)
+          const boxes = boxesByModules[moduleUuid]
+          return (
+            <ReplicationTargetLabel
+              key={module.uuid}
+              module={module}
+              messageBoxes={boxes}
+              rootStyle={{
+                marginTop: index > 0 ? 8 : 0,
+              }}
+            />
+          )
+        })}
       </ComponentWithIcon>
     )
   }

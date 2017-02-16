@@ -5,7 +5,7 @@ import LabelWithCopyButton from 'src/containers/bases/LabelWithCopyButton'
 
 
 /**
- * ReplicationLink接続先ラベル
+ * ReplicationLink接続先ラベル.
  */
 class ReplicationSlaveLabel extends Component {
   static propTypes = {
@@ -13,27 +13,26 @@ class ReplicationSlaveLabel extends Component {
     rootStyle: PropTypes.object,
   }
 
-
   /**
    * @override
    */
   render() {
     const {
       ccInfo,
-      rootStyle = {},
     } = this.props
 
     const style = {
       root: {
-        display: 'flex',
-        flexFlow: 'column nowrap',
-        width: '100%',
-        padding: 8,
+        // display: 'flex',
+        // flexFlow: 'column nowrap',
+        // width: '100%',
+        // padding: 8,
+        ...(this.props.rootStyle || {}),
       },
       displayName: {
         fontSize: 14,
       },
-      lastAccessTime: {
+      lastAccessedAt: {
         fontSize: 12,
         color: grey500,
       },
@@ -43,19 +42,18 @@ class ReplicationSlaveLabel extends Component {
       },
     }
 
-    const mergedRootStyle = {
-      ...style.root,
-      ...rootStyle,
-    }
-
     return (
-      <div style={mergedRootStyle}>
+      <div style={style.root}>
         <div style={style.displayName}>
-          {ccInfo.displayName || '(no name)'}
+          {ccInfo.isSynced()
+            ? (ccInfo.displayName || '(no name)')
+            : <span className="not-synced">(未接続)</span>}
         </div>
-        <div style={style.lastAccessTime}>
-          {ccInfo.lastAccessTime}
-        </div>
+        {ccInfo.isSynced() &&
+          <div style={style.lastAccessedAt}>
+            {ccInfo.lastAccessedAt.format('LLL')}
+          </div>
+        }
         <LabelWithCopyButton
           label={ccInfo.uuid}
           labelStyle={style.id}

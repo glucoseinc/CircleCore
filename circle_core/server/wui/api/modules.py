@@ -2,23 +2,17 @@
 
 """モジュール関連APIの実装."""
 
-import functools
-
 # community module
-from flask import abort, current_app, request
-from six import PY3
+from flask import abort, current_app, request, Response
 
 # project module
-# from circle_core.cli.utils import generate_uuid
 from circle_core.models import generate_uuid, MessageBox, MetaDataSession, Module, NoResultFound
-from .api import api, logger
+from .api import api
 from .utils import respond_failure, respond_success
 from ..utils import (
     oauth_require_read_schema_scope, oauth_require_write_schema_scope
 )
 
-if PY3:
-    from typing import Dict, List
 
 GRAPH_RANGE_TO_TIME_RANGE = {
     '30m': 60 * 30,
@@ -40,15 +34,24 @@ def api_modules():
 
 @oauth_require_read_schema_scope
 def _get_modules():
+    """全てのModuleの情報を取得する.
+
+    :return: 全てのModuleの情報
+    :rtype: Response
+    """
     return respond_success(modules=[module.to_json(with_boxes=True) for module in Module.query])
 
 
 @oauth_require_write_schema_scope
 def _post_modules():
-    response = {}  # TODO: response形式の統一
+    """Moduleを作成する.
+
+    :return: 作成したModuleの情報
+    :rtype: Response
+    """
     try:
         with MetaDataSession.begin():
-            module = Module(uuid=generate_uuid(model=Module))
+            module = Module.create()
             module.update_from_json(request.json, with_boxes=True)
 
             MetaDataSession.add(module)
@@ -57,11 +60,7 @@ def _post_modules():
         raise
         return respond_failure('key error', _status=400)
 
-    response['result'] = 'success'
-    response['detail'] = {
-        'uuid': module.uuid
-    }
-    return respond_success(module={'uuid': module.uuid})
+    return respond_success(module=module.to_json(with_boxes=True, with_schema=True))
 
 
 @api.route('/modules/<module_uuid>', methods=['GET', 'PUT', 'DELETE'])
@@ -81,21 +80,41 @@ def api_module(module_uuid):
 
 @oauth_require_read_schema_scope
 def _get_module(module):
+    """Moduleの情報を取得する.
+
+    :param Module module: 取得するModule
+    :return: Moduleの情報
+    :rtype: Response
+    """
     return respond_success(module=module.to_json(with_boxes=True, with_schema=True))
 
 
 @oauth_require_write_schema_scope
 def _put_module(module):
+    """Moduleを更新する.
+
+    :param Module module: 更新するModule
+    :return: Moduleの情報
+    :rtype: Response
+    """
     try:
-        module.update_from_json(request.json, with_boxes=True)
+        with MetaDataSession.begin():
+            module.update_from_json(request.json, with_boxes=True)
+            MetaDataSession.add(module)
     except KeyError:
         return respond_failure('key error')
 
-    return respond_success(module={'uuid': module.uuid})
+    return respond_success(module=module.to_json(with_boxes=True, with_schema=True))
 
 
 @oauth_require_write_schema_scope
 def _delete_module(module):
+    """Moduleを削除する.
+
+    :param Module module: 削除するModule
+    :return: Moduleの情報
+    :rtype: Response
+    """
     with MetaDataSession.begin():
         MetaDataSession.delete(module)
 
@@ -104,7 +123,7 @@ def _delete_module(module):
 
 @api.route('/modules/<uuid:module_uuid>/graph')
 def api_module_graph(module_uuid):
-    """respond graph data for specified module"""
+    """respond graph data for specified module."""
     module = Module.query.get(module_uuid)
     if not module:
         raise abort(404)
@@ -118,7 +137,7 @@ def api_module_graph(module_uuid):
 
 @api.route('/modules/<uuid:module_uuid>/<uuid:messagebox_uuid>/graph')
 def api_message_box_graph(module_uuid, messagebox_uuid):
-    """respond graph data for specified module"""
+    """respond graph data for specified module."""
     try:
         box = MessageBox.query.filter_by(uuid=messagebox_uuid, module_uuid=module_uuid).one()
     except NoResultFound:
@@ -179,3 +198,34 @@ def _respond_rickshaw_graph_data(boxes, graph_range):
     graph_data.sort(key=lambda x: x['messageBox']['uuid'])
 
     return respond_success(graphData=graph_data)
+
+
+@api.route('/modules/<uuid:module_uuid>/<uuid:messagebox_uuid>/data')
+def api_message_box_data(module_uuid, messagebox_uuid):
+    """respond data for specified module."""
+    try:
+        box = MessageBox.query.filter_by(uuid=messagebox_uuid, module_uuid=module_uuid).one()
+    except NoResultFound:
+        raise abort(404)
+
+    output_format = request.args.get('format', 'json')
+    if output_format not in ('json',):
+        raise abort(400)
+
+    query = {}
+    limit = request.args.get('limit', None)
+    if limit:
+        limit = int(limit, 10)
+        query['limit'] = limit
+
+    database = current_app.core.get_database()
+    messages = []
+    for m in database.enum_messages(box, limit=limit):
+        messages.append(m.to_json(with_boxid=False))
+
+    return respond_success(
+        messages=messages,
+        query=query,
+        schema=box.schema.to_json(),
+        total=database.count_messages(box),
+    )

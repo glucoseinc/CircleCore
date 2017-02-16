@@ -9,17 +9,28 @@ const schema = new normalizerSchema.Entity(
   }
 )
 
-const module = new normalizerSchema.Entity(
-  'modules',
+const messageBox = new normalizerSchema.Entity(
+  'messageBoxes',
   {
-    messageBoxes: [{
-      schema: schema,
-    }],
+    schema: schema,
   },
   {
     idAttribute: 'uuid',
   }
 )
+
+const module = new normalizerSchema.Entity(
+  'modules',
+  {
+    messageBoxes: [messageBox],
+  },
+  {
+    idAttribute: 'uuid',
+  }
+)
+
+// 循環参照yeah!
+messageBox.define({module: module})
 
 schema.define({
   modules: [module],
@@ -59,16 +70,20 @@ const ccInfo = new normalizerSchema.Entity(
 
 const replicationLink = new normalizerSchema.Entity(
   'replicationLinks',
-  {},
+  {
+    messageBoxes: [messageBox],
+    slaves: [ccInfo],
+  },
   {
     idAttribute: 'uuid',
-    processStrategy: (entity) => ({
-      uuid: entity.uuid,
-      displayName: entity.displayName,
-      ccInfos: entity.ccInfoUuids,
-      messageBoxes: entity.messageBoxUuids,
-      memo: entity.memo,
-    }),
+    // processStrategy: (entity) => ({
+    //   uuid: entity.uuid,
+    //   displayName: entity.displayName,
+    //   ccInfos: entity.ccInfoUuids,
+    //   messageBoxes: entity.messageBoxUuids,
+    //   memo: entity.memo,
+    //   link: entity.link,
+    // }),
   }
 )
 

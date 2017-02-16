@@ -14,6 +14,7 @@ from six import add_metaclass, PY3
 from tornado.ioloop import IOLoop
 
 # project module
+from .topics import TOPIC_LENGTH
 
 if PY3:
     from json.decoder import JSONDecodeError
@@ -39,32 +40,12 @@ class Receiver(object):
         self._socket = nnpy.Socket(nnpy.AF_SP, nnpy.SUB)
         self._socket.connect(socket_url)
         if topic:
-            self._socket.setsockopt(nnpy.SUB, nnpy.SUB_SUBSCRIBE, topic.topic)
+            self._socket.setsockopt(nnpy.SUB, nnpy.SUB_SUBSCRIBE, topic.rstrip())
         self.topic = topic
 
     def __del__(self):
         """接続を閉じる."""
         self._socket.close()
-
-    def __iter__(self):
-        """メッセージを受信次第それを返すジェネレータ.
-
-        :return ModuleMessage: 受信したメッセージ
-        """
-        while True:
-            # TODO: 接続切れたときにStopIterationしたいが自分でheartbeatを実装したりしないといけないのかな
-            try:
-                plain_msg = self._socket.recv().decode('utf-8')
-            except nnpy.NNError as error:
-                if error.error_no == nnpy.ETIMEDOUT:
-                    break
-                raise
-
-            try:
-                for msg in self.topic.decode(plain_msg):
-                    yield msg
-            except JSONDecodeError:
-                logger.warning('Received an non-JSON message. Ignore it.')
 
     def fileno(self):
         """Tornadoに叩かれる."""
@@ -72,6 +53,7 @@ class Receiver(object):
 
     def close(self):
         """Tornadoに叩かれる."""
+        logger.debug('close')
         self._socket.close()
 
     def set_timeout(self, timeout):
@@ -87,38 +69,20 @@ class Receiver(object):
         :param FunctionType callback:
         """
         def call_callback(*args):
-            # TODO: __iter__と同じような処理が多い。共通化する
-            plain_msg = self._socket.recv().decode('utf-8')
+            # TODO: topicを設定している場合、違うTopicのパケットがきてもpollが反応するのでdontwaitにしてチェックしないといけないかも
             try:
-                msgs = self.topic.decode(plain_msg)
-            except JSONDecodeError:
-                logger.warning('Received an non-JSON message, Ignore it.')
-            else:
-                for msg in msgs:
-                    callback(msg)
+                raw = self._socket.recv()
+                plain_msg = raw.decode('utf-8')
+                topic, message = plain_msg[:TOPIC_LENGTH], plain_msg[TOPIC_LENGTH:]
+                message = json.loads(message)
+                callback(topic, message)
+            except:
+                import traceback
+                traceback.print_exc()
 
         IOLoop.current().add_handler(self, call_callback, IOLoop.READ)
 
 
-# # http://stackoverflow.com/a/6798042
-# class Singleton(type):
-#     __instances = WeakValueDictionary()
-
-#     # インスタンスに()が付いたときに呼び出されるのが__call__
-#     # メタクラスのインスタンスはクラス
-#     # クラス名()で呼び出され、そのクラスのインスタンスを生成して返す
-#     def __call__(cls, *args, **kwargs):  # noqa
-#         if cls not in cls.__instances:
-#             logger.debug('Initialize new %s', cls.__name__)
-#             instance = super(Singleton, cls).__call__(*args, **kwargs)
-#             cls.__instances[cls] = instance
-#             return instance
-
-#         logger.debug('Reuse existing %s', cls.__name__)
-#         return cls.__instances[cls]
-
-
-# @add_metaclass(Singleton)
 class Sender(object):
     """送信. PubSubのPub.
 

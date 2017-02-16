@@ -17,10 +17,10 @@ class ComponentWithTitle extends Component {
    */
   render() {
     const {
-        title,
-        additional,
-        additionalStyle,
-        children,
+      title,
+      additional,
+      additionalStyle,
+      children,
     } = this.props
 
     const style = {

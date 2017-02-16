@@ -27,9 +27,6 @@ class MetaDataBase(declarative_base()):
 class UUIDMetaDataBase(MetaDataBase):
     __abstract__ = True
 
-    def __hash__(self):
-        return hash(self.uuid)
-
 
 def generate_uuid(model=None):
     """新しくUUIDを生成する
@@ -124,3 +121,34 @@ class StringList(StrListBase):
 class TextList(StrListBase):
     impl = Text
     default_delimiter = '\n'
+
+
+class UUIDList(TypeDecorator):
+    """UUIDList by Text"""
+    impl = Text
+    delimiter = ','
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return value
+        elif isinstance(value, string_types):
+            if self.delimiter in value:
+                raise ValueError('value includs delimiter {!r}'.format(self.delimiter))
+            return value
+        # elif isinstance(value, (tuple, list)):
+        elif hasattr(value, '__iter__'):
+            x = []
+            for v in value:
+                if isinstance(v, string_types):
+                    if self.delimiter in v:
+                        raise ValueError('value includs delimiter {!r}'.format(self.delimiter))
+                    v = uuid.UUID(v)
+                x.append(str(v))
+
+            return self.delimiter.join(x)
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return value
+        else:
+            return [uuid.UUID(x) for x in value.split(self.delimiter)]

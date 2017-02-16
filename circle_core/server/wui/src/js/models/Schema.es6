@@ -144,7 +144,7 @@ export default class Schema extends SchemaRecord {
   /**
    * @return {bool}
    */
-  isReadytoCreate() {
+  isReadyToCreate() {
     if (this.properties.filter((property) => property.isFill()).size === 0) {
       return false
     }

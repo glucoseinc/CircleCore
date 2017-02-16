@@ -6,9 +6,7 @@ import actions from 'src/actions'
 import {urls, createPathName} from 'src/routes'
 
 import LoadingIndicator from 'src/components/bases/LoadingIndicator'
-
 import ReplicationLinkDeleteDialog from 'src/components/commons/ReplicationLinkDeleteDialog'
-
 import ReplicationLinkInfoPaper from 'src/components/ReplicationLinkInfoPaper'
 
 
@@ -80,16 +78,18 @@ class Replicas extends Component {
 
     return (
       <div className="page">
-        {replicationLinks.valueSeq().map((replicationLink) =>
-          <ReplicationLinkInfoPaper
-            key={replicationLink.uuid}
-            replicationLink={replicationLink}
-            modules={modules}
-            ccInfos={ccInfos}
-            onDisplayNameTouchTap={(replicationLink) => onDisplayNameTouchTap(replicationLink.uuid)}
-            onDeleteTouchTap={::this.onDeleteTouchTap}
-          />
-        )}
+        <div className="replicationLinks">
+          {replicationLinks.valueSeq().map((replicationLink) =>
+            <ReplicationLinkInfoPaper
+              key={replicationLink.uuid}
+              replicationLink={replicationLink}
+              modules={modules}
+              ccInfos={ccInfos}
+              onDeleteTouchTap={::this.onDeleteTouchTap}
+              onDisplayNameTouchTap={onDisplayNameTouchTap}
+            />
+          )}
+        </div>
 
         <ReplicationLinkDeleteDialog
           open={isReplicationLinkDeleteDialogOpen}

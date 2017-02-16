@@ -7,13 +7,58 @@ import {SchemaPryoertyIcon} from 'src/components/bases/icons'
 
 
 /**
+ * スキーマの型1個分
+ */
+export class SchemaPropertyLabel extends Component {
+  static propTypes = {
+    name: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
+    style: PropTypes.object,
+    nameStyle: PropTypes.object,
+    typeStyle: PropTypes.object,
+  }
+
+  /**
+   * @override
+   */
+  render() {
+    const styles = {
+      style: {
+        fontSize: 14,
+        ...(this.props.style || {}),
+      },
+      name: {
+        letterSpacing: 0.7,
+        color: grey900,
+        ...(this.props.nameStyle || {}),
+      },
+      type: {
+        fontSize: '85%',
+        fontWeight: 'bold',
+        letterSpacing: 0.6,
+        fontFamily: 'Courier New, Courier',
+        color: orange700,
+        marginRight: 4,
+        ...(this.props.typeStyle || {}),
+      },
+    }
+    return (
+      <span style={styles.style}>
+        <span style={styles.type}>{this.props.type}</span>
+        <span style={styles.name}>{this.props.name}</span>
+      </span>
+    )
+  }
+}
+
+
+/**
  * SchemaPropertyリストラベル
  */
-class SchemaPropertiesLabel extends Component {
+export default class SchemaPropertiesLabel extends Component {
   static propTypes = {
     schema: PropTypes.object.isRequired,
   }
-
 
   /**
    * @override
@@ -33,33 +78,16 @@ class SchemaPropertiesLabel extends Component {
       property: {
         paddingLeft: 16,
       },
-      name: {
-        fontSize: 14,
-        letterSpacing: 0.7,
-        color: grey900,
-      },
-      type: {
-        fontSize: 12,
-        fontWeight: 'bold',
-        letterSpacing: 0.6,
-        fontFamily: 'Courier New, Courier',
-        color: orange700,
-      },
     }
 
     return (
       <ComponentWithIcon icon={SchemaPryoertyIcon}>
         <div style={style.properties}>
           {schema.properties.valueSeq().map((property, index) =>
-            <span key={index} style={style.property}>
-              <span style={style.name}>{property.name}</span>
-              <span style={style.type}>{property.type}</span>
-            </span>
+            <SchemaPropertyLabel key={index} style={style.property} name={property.name} type={property.type} />
           )}
         </div>
       </ComponentWithIcon>
     )
   }
 }
-
-export default SchemaPropertiesLabel

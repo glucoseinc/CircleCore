@@ -1,10 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 
-import {grey300, white} from 'material-ui/styles/colors'
-
 import ComponentWithIcon from 'src/components/bases/ComponentWithIcon'
 import {ReplicationSlaveIcon} from 'src/components/bases/icons'
-
 import ReplicationSlaveLabel from 'src/components/commons/ReplicationSlaveLabel'
 
 
@@ -26,18 +23,16 @@ class ReplicationSlavesLabel extends Component {
       ccInfos,
     } = this.props
 
-    const slaveCcInfos = ccInfos.filter((ccInfo) =>
-      replicationLink.ccInfos.includes(ccInfo.uuid)
-    )
+    const targetSlaves = replicationLink.slaves.map((slaveUuid) => ccInfos.get(slaveUuid) || slaveUuid)
 
     return (
       <ComponentWithIcon icon={ReplicationSlaveIcon}>
-        {slaveCcInfos.valueSeq().map((ccInfo, index) =>
+        {targetSlaves.map((slave, index) =>
           <ReplicationSlaveLabel
-            key={ccInfo.uuid}
-            ccInfo={ccInfo}
+            key={slave.uuid}
+            ccInfo={slave}
             rootStyle={{
-              backgroundColor: index % 2 ? white :grey300,
+              marginTop: index > 0 ? 8 : 0,
             }}
           />
         )}
@@ -47,3 +42,4 @@ class ReplicationSlavesLabel extends Component {
 }
 
 export default ReplicationSlavesLabel
+

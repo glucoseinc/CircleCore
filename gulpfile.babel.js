@@ -19,8 +19,10 @@ gulp.task('default', (cb) => {
   return runSequence(['script', 'style'], cb)
 })
 
-gulp.task('script', (cb) => {
-  return runSequence('lint', 'clean_script', 'babel', cb)
+gulp.task('script', ['lint', 'build_script'])
+
+gulp.task('build_script', (cb) => {
+  return runSequence('clean_script', 'babel', cb)
 })
 
 gulp.task('clean_script', del.bind(null, [`${DESTINATION_DIR}/*.js`]))

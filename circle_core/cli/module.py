@@ -13,7 +13,7 @@ from six import PY3
 # project module
 from .context import CLIContextObject
 from .utils import output_listing_columns, output_properties
-from ..models import generate_uuid, MetaDataSession, Module, NoResultFound
+from ..models import MetaDataSession, Module, NoResultFound
 
 if PY3:
     from typing import List, Optional, Tuple
@@ -120,8 +120,7 @@ def module_add(ctx, display_name, tags, memo):
     #     message_boxes.append(message_box)
 
     with MetaDataSession.begin():
-        module = Module(
-            uuid=generate_uuid(model=Module),
+        module = Module.create(
             display_name=display_name,
             memo=memo,
             tags=tags,
