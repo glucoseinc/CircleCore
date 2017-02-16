@@ -22,6 +22,7 @@ class ModuleDetail extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     schemas: PropTypes.object.isRequired,
+    ownCcInfo: PropTypes.object.isRequired,
     tagSuggestions: PropTypes.array,
     onUpdateTouchTap: PropTypes.func,
     onMessageBoxDeleteTouchTap: PropTypes.func,
@@ -132,6 +133,7 @@ class ModuleDetail extends Component {
     const {
       module,
       schemas,
+      ownCcInfo,
       tagSuggestions = [],
       onMessageBoxDeleteTouchTap,
       onMessageBoxDownloadTouchTap,
@@ -167,6 +169,8 @@ class ModuleDetail extends Component {
       },
     }
 
+    const editDisabled = module.ccUuid !== ownCcInfo.uuid
+
     const displayNamePaper = editingArea === ModuleDetail.editingArea.displayName ? (
       <DisplayNameEdittingPaper
         module={editingModule}
@@ -177,6 +181,7 @@ class ModuleDetail extends Component {
     ) : (
       <DisplayNameEditablePaper
         obj={module}
+        editDisabled={editDisabled}
         onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.displayName, null)}
       />
     )
@@ -192,6 +197,7 @@ class ModuleDetail extends Component {
     ) : (
       <MetadataEditablePaper
         module={module}
+        editDisabled={editDisabled}
         onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.metadata, null)}
       />
     )
@@ -208,6 +214,8 @@ class ModuleDetail extends Component {
           onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
         />
       </div>
+    ) : editDisabled ? (
+      null
     ) : (
       <MessageBoxAddActionPaper
         onTouchTap={() => this.onMessageBoxAddTouchTap()}
@@ -251,7 +259,8 @@ class ModuleDetail extends Component {
                   module={module}
                   messageBoxIndex={index}
                   schemas={schemas}
-                  deleteDispabled={canDeleteMessageBox}
+                  editDisabled={editDisabled}
+                  deleteDisabled={canDeleteMessageBox}
                   onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.messageBox, index)}
                   onDeleteTouchTap={() => onMessageBoxDeleteTouchTap(index)}
                   onDownloadTouchTap={onMessageBoxDownloadTouchTap}
@@ -267,6 +276,7 @@ class ModuleDetail extends Component {
         <div style={style.actionsArea}>
           <DeleteButton
             label="このモジュールを削除する"
+            disabled={editDisabled}
             onTouchTap={onDeleteTouchTap}
           />
         </div>

@@ -22,8 +22,10 @@ class Module extends Component {
   static propTypes = {
     isModuleFetching: PropTypes.bool.isRequired,
     isModuleUpdating: PropTypes.bool.isRequired,
+    isCcInfoFetching: PropTypes.bool.isRequired,
     schemas: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
+    ccInfos: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,
     setTitle: PropTypes.func,
     onUpdateTouchTap: PropTypes.func,
@@ -106,12 +108,14 @@ class Module extends Component {
     const {
       isModuleFetching,
       isModuleUpdating,
+      isCcInfoFetching,
       schemas,
       modules,
+      ccInfos,
       params,
     } = this.props
 
-    if (isModuleFetching || isModuleUpdating) {
+    if (isModuleFetching || isModuleUpdating || isCcInfoFetching) {
       return (
         <LoadingIndicator />
       )
@@ -132,11 +136,14 @@ class Module extends Component {
       , new Set()
     ).toArray().sort()
 
+    const ownCcInfo = ccInfos.filter((ccInfo) => ccInfo.myself).first()
+
     return (
       <div className="page">
         <ModuleDetail
           module={module}
           schemas={schemas}
+          ownCcInfo={ownCcInfo}
           tagSuggestions={tagSuggestions}
           onUpdateTouchTap={this.props.onUpdateTouchTap}
           onMessageBoxDeleteTouchTap={(messageBoxIndex) => this.onMessageBoxDeleteTouchTap(messageBoxIndex)}
@@ -174,8 +181,10 @@ class Module extends Component {
 const mapStateToProps = (state) => ({
   isModuleFetching: state.asyncs.isModuleFetching,
   isModuleUpdating: state.asyncs.isModuleUpdating,
+  isCcInfoFetching: state.asyncs.isCcInfoFetching,
   schemas: state.entities.schemas,
   modules: state.entities.modules,
+  ccInfos: state.entities.ccInfos,
 })
 
 const mapDispatchToProps = (dispatch) => ({
