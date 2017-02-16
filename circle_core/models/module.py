@@ -106,6 +106,7 @@ class Module(UUIDMetaDataBase):
 
         d = {
             'uuid': str(self.uuid),
+            'ccUuid': str(self.cc_uuid),
             'messageBoxUuids': [str(box.uuid) for box in self.message_boxes],
             'displayName': self.display_name,
             'tags': [tag for tag in self.tags],
