@@ -4,6 +4,22 @@ import actions, {actionTypes, actionTypePrefix} from 'src/actions'
 
 
 /**
+ * User Update失敗時の動作
+ * @param {object} action
+ */
+function* onUserUpdateFailed(action) {
+  yield put(actions.error.onUserUpdate(action.payload.errors))
+}
+
+/**
+ * User Update Failed
+ */
+function* handleUserUpdateFailed() {
+  yield takeEvery([actionTypes.user.updateFailed], onUserUpdateFailed)
+}
+
+
+/**
  * ErrorDialog を表示する
  * @param {object} action
  */
@@ -26,9 +42,12 @@ function* showErrorDialog(action) {
 }
 
 /**
- * CRUD失敗時
+ * その他のCRUD失敗時
  */
 function* handleCrudFailed() {
+  const ignoredActionTypes = [
+    actionTypes.user.updateFailed,
+  ]
   const arrayedActionTypes = Object.values(actionTypes).reduce(
     (arrayed, childActionTypes) => [
       ...arrayed,
@@ -36,14 +55,20 @@ function* handleCrudFailed() {
     ], []
   )
   const re = new RegExp(`${actionTypePrefix}.*(CREATE|FETCH|UPDATE|DELETE).*FAILED$`)
-  const triggerActionTypes = arrayedActionTypes.filter((actionType) => actionType.match(re))
+  const triggerActionTypes = arrayedActionTypes.filter(
+    (actionType) => actionType.match(re)
+  ).filter(
+    (actionType) => !ignoredActionTypes.includes(actionType)
+  )
   yield takeEvery(triggerActionTypes, showErrorDialog)
 }
 
+
 /**
- * ErrorDialog Saga
+ * Error Saga
  * @param {any} args
  */
-export default function* errorDialogSaga(...args) {
+export default function* errorSaga(...args) {
+  yield fork(handleUserUpdateFailed, ...args)
   yield fork(handleCrudFailed, ...args)
 }

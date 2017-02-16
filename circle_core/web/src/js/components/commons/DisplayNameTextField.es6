@@ -21,6 +21,7 @@ class DisplayNameTextField extends Component {
       obj,
       floatingLabelText = '表示名',
       onChange,
+      ...other
     } = this.props
 
     return (
@@ -29,6 +30,7 @@ class DisplayNameTextField extends Component {
         fullWidth={true}
         value={obj.displayName}
         onChange={onChange}
+        {...other}
       />
     )
   }

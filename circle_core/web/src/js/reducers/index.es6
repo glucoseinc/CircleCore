@@ -4,6 +4,7 @@ import {routerReducer as routing} from 'react-router-redux'
 import asyncs from './asyncs'
 import auth from './auth'
 import entities from './entities'
+import error from './error'
 import misc from './misc'
 import page from './page'
 
@@ -13,6 +14,7 @@ const rootReducer = combineReducers({
   asyncs,
   auth,
   entities,
+  error,
   misc,
   page,
 })

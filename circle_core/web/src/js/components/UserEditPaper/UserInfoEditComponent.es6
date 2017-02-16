@@ -12,6 +12,7 @@ import WorkTextField from 'src/components/commons/WorkTextField'
 class UserInfoEditComponent extends Component {
   static propTypes = {
     user: PropTypes.object.isRequired,
+    errors: PropTypes.object,
     onUpdate: PropTypes.func,
   }
 
@@ -21,6 +22,7 @@ class UserInfoEditComponent extends Component {
   render() {
     const {
       user,
+      errors = {},
       onUpdate,
     } = this.props
 
@@ -32,11 +34,14 @@ class UserInfoEditComponent extends Component {
       },
     }
 
+    const accountErrorText = errors.account
+
     return (
       <div style={style.root}>
         <DisplayNameTextField
           obj={user}
           floatingLabelText="アカウント"
+          errorText={accountErrorText}
           onChange={(e) => onUpdate(user.updateDisplayName(e.target.value))}
         />
         <WorkTextField

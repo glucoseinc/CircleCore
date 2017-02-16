@@ -9,6 +9,7 @@ import PasswordManualChangeComponent from './PasswordManualChangeComponent'
 */
 class PasswordChangeComponent extends Component {
   static propTypes = {
+    errors: PropTypes.object,
     onUpdate: PropTypes.func,
   }
 
@@ -24,6 +25,7 @@ class PasswordChangeComponent extends Component {
       autoGenerate,
     } = this.state
     const {
+      errors = {},
       onUpdate,
     } = this.props
 
@@ -31,6 +33,7 @@ class PasswordChangeComponent extends Component {
 
     return (
       <PasswordChangeComponent_
+        errors={errors}
         onUpdate={onUpdate}
         onToggleInputMethod={() => this.setState({autoGenerate: !autoGenerate})}
       />

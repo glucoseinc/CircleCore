@@ -76,7 +76,8 @@ $ npm run build
 ```
 
 ## 確認
-1. http://localhost:5000 にアクセス
+1. http://127.0.0.1:8080 にアクセス
+    - `circle_core.ini` の設定に従うため、変更している場合は適宜読み換える
 1. `admin` / `admin` でログイン
 
 ## Botによるデータの取得

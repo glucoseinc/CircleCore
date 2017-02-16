@@ -8,6 +8,7 @@ let actionTypes = {}
 const groupNames = [
   'auth',
   'ccInfo',
+  'error',
   'invitation',
   'module',
   'page',

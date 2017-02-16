@@ -16,6 +16,7 @@ class ChangeProfile extends Component {
     isUserFetching: PropTypes.bool.isRequired,
     isUserUpdating: PropTypes.bool.isRequired,
     users: PropTypes.object.isRequired,
+    errors: PropTypes.object,
     myID: PropTypes.string,
     onUpdateTouchTap: PropTypes.func,
   }
@@ -28,6 +29,7 @@ class ChangeProfile extends Component {
       isUserFetching,
       isUserUpdating,
       users,
+      errors = {},
       myID,
       onUpdateTouchTap,
     } = this.props
@@ -52,6 +54,7 @@ class ChangeProfile extends Component {
       <div className="page">
         <UserEditPaper
           user={user}
+          errors={errors}
           needCurrentPassword={true}
           onSaveTouchTap={onUpdateTouchTap}
         />
@@ -65,6 +68,7 @@ const mapStateToProps = (state) => ({
   isUserFetching: state.asyncs.isUserFetching,
   isUserUpdating: state.asyncs.isUserUpdating,
   users: state.entities.users,
+  errors: state.error.userEdit,
   myID: state.entities.myID,
 })
 
