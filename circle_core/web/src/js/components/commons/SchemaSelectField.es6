@@ -22,6 +22,7 @@ class SchemaSelectField extends Component {
       selectedSchemaId,
       schemas,
       onChange,
+      ...other
     } = this.props
 
     return (
@@ -30,6 +31,7 @@ class SchemaSelectField extends Component {
         fullWidth={true}
         value={selectedSchemaId}
         onChange={onChange}
+        {...other}
       >
         {schemas.valueSeq().map((_schema) =>
           <MenuItem

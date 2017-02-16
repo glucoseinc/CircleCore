@@ -27,6 +27,7 @@ class MessageBoxEditablePaper extends Component {
     schemas: PropTypes.object.isRequired,
     style: PropTypes.object,
     deleteDispabled: PropTypes.bool,
+    fetchingData: PropTypes.object.isRequired,
     onEditTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
     onDownloadTouchTap: PropTypes.func,
@@ -52,6 +53,7 @@ class MessageBoxEditablePaper extends Component {
       messageBoxIndex,
       schemas,
       deleteDispabled = false,
+      fetchingData,
       onEditTouchTap,
       onDeleteTouchTap,
       onDownloadTouchTap,
@@ -170,6 +172,7 @@ class MessageBoxEditablePaper extends Component {
           <MessageBoxDataInfo
             module={module}
             messageBox={messageBox}
+            fetchingData={fetchingData}
           />
         </ComponentWithSubTitle>
 

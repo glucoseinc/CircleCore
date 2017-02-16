@@ -1,7 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 import moment from 'moment'
 
-import CCAPI from 'src/api'
 import {SchemaPropertyLabel} from 'src/components/commons/SchemaPropertiesLabel'
 
 
@@ -59,32 +58,26 @@ class MessageBoxDataInfo extends Component {
   static propTypes = {
     messageBox: PropTypes.object.isRequired,
     module: PropTypes.object.isRequired,
-  }
-
-  state = {
-    loading: true,
-    messages: null,
-  }
-
-  /**
-   * @override
-   */
-  componentDidMount() {
-    this.fetchLatestData()
+    fetchingData: PropTypes.object.isRequired,
   }
 
   /**
    * @override
    */
   render() {
-    if(this.state.loading) {
-      return <div>loading...</div>
-    }
+    const {
+      fetchingData,
+    } = this.props
 
     const {
+      loading,
       messages,
       schemaProperties,
-    } = this.state
+    } = fetchingData
+
+    if(loading) {
+      return <div>loading...</div>
+    }
 
     return (
       <div className="messageBox-latestMessages">
@@ -123,22 +116,6 @@ class MessageBoxDataInfo extends Component {
         </table>
       </div>
     )
-  }
-
-  /**
-   * サーバから最新メッセージをとってくる
-   */
-  async fetchLatestData() {
-    let {messages, schema: {properties}} = await CCAPI.fetchLatestMessageBox(
-      this.props.module.uuid,
-      this.props.messageBox.uuid
-    )
-
-    this.setState({
-      loading: false,
-      messages: messages,
-      schemaProperties: properties,
-    })
   }
 }
 
