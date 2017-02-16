@@ -4,7 +4,7 @@ import Replicas from 'src/containers/Replicas'
 
 const replicasRoute = {
   key: 'replicas',
-  path: 'replicas',
+  path: 'replicas/',
   label: '共有リンク一覧',
   icon: ReplicationLinkIcon,
   component: Replicas,

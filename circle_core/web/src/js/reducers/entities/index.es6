@@ -5,6 +5,7 @@ import ccInfoActionsHandler from './ccInfo'
 import invitationActionsHandler from './invitation'
 import moduleActionsHandler from './module'
 import replicationLinkActionsHandler from './replicationLink'
+import replicationMasterActionsHandler from './replicationMaster'
 import schemaActionsHandler from './schema'
 import schemaPropertyTypeActionsHandler from './schemaPropertyType'
 import userActionsHandler from './user'
@@ -16,6 +17,7 @@ const initialState = {
   modules: new Map(),
   myID: null,  // 自分のUserオブジェクトのuuid
   replicationLinks: new Map(),
+  replicationMasters: new Map(),
   schemas: new Map(),
   schemaPropertyTypes: new Map(),
   users: new Map(),
@@ -27,6 +29,7 @@ const entities = handleActions({
   ...invitationActionsHandler,
   ...moduleActionsHandler,
   ...replicationLinkActionsHandler,
+  ...replicationMasterActionsHandler,
   ...schemaActionsHandler,
   ...schemaPropertyTypeActionsHandler,
   ...userActionsHandler,

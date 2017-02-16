@@ -4,7 +4,7 @@ import Schemas from 'src/containers/Schemas'
 
 const schemasRoute = {
   key: 'schemas',
-  path: 'schemas',
+  path: 'schemas/',
   label: 'メッセージスキーマ一覧',
   icon: SchemaIcon,
   component: Schemas,

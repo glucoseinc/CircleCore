@@ -24,6 +24,11 @@ const initialState = {
 
   isReplicationLinkCreating: false,
   isReplicationLinkFetching: false,
+  isReplicationLinkDeleting: false,
+
+  isReplicationMasterCreating: false,
+  isReplicationMasterFetching: false,
+  isReplicationMasterDeleting: false,
 
   isSchemaCreating: false,
   isSchemaFetching: false,

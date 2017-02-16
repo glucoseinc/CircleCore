@@ -4,7 +4,7 @@ import Invitations from 'src/containers/Invitations'
 
 const invitationsRoute = {
   key: 'invitations',
-  path: 'invitations',
+  path: 'invitations/',
   label: '招待リンク一覧',
   icon: InvitationIcon,
   component: Invitations,

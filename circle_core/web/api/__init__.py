@@ -1,7 +1,4 @@
-from . import cc_infos
-from . import invitations
-from . import modules
-from . import replication_links
-from . import schemas
-from . import users
+from . import (
+    cc_infos, invitations, modules, replication_links, replication_masters, schemas, users
+)
 from .api import api

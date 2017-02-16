@@ -13,6 +13,7 @@ const groupNames = [
   'module',
   'page',
   'replicationLink',
+  'replicationMaster',
   'schema',
   'schemaPropertyType',
   'user',

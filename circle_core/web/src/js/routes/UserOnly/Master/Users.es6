@@ -4,7 +4,7 @@ import Users from 'src/containers/Users'
 
 const usersRoute = {
   key: 'users',
-  path: 'users',
+  path: 'users/',
   label: 'ユーザー一覧',
   icon: UserIcon,
   component: Users,

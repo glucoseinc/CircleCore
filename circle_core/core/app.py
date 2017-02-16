@@ -35,7 +35,7 @@ class CircleCore(object):
         config = cls._make_config_parser()
         with open(config_filepath) as fp:
             config.read_file(fp)
-        return cls.load_from_config(config)
+        return cls.load_from_config(config, debug)
 
     @classmethod
     def load_from_default_config_file(cls, debug=False):
