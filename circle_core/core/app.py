@@ -28,7 +28,7 @@ DFEAULT_CONFIG_FILE_NAME = 'circle_core.ini'
 
 class CircleCore(object):
     @classmethod
-    def load_from_config_file(cls, config_filepath):
+    def load_from_config_file(cls, config_filepath, debug=False):
         """
         コンフィグファイルのパスを指定して読み込む
         """
