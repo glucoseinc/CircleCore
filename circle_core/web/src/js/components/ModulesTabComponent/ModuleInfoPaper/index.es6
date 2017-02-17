@@ -16,6 +16,7 @@ import TagButtons from './TagButtons'
 class ModuleInfoPaper extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
+    ownCcInfo: PropTypes.object.isRequired,
     onDisplayNameTouchTap: PropTypes.func,
     onTagButtonTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
@@ -27,6 +28,7 @@ class ModuleInfoPaper extends Component {
   render() {
     const {
       module,
+      ownCcInfo,
       onDisplayNameTouchTap,
       onTagButtonTouchTap,
       onDeleteTouchTap,
@@ -60,6 +62,8 @@ class ModuleInfoPaper extends Component {
       },
     }
 
+    const deleteDisabled = module.ccUuid !== ownCcInfo.uuid
+
     return (
       <Paper>
         <div style={style.root}>
@@ -67,6 +71,7 @@ class ModuleInfoPaper extends Component {
             <MenuItem
               primaryText="このモジュールを削除する"
               leftIcon={<DeleteIcon />}
+              disabled={deleteDisabled}
               onTouchTap={() => onDeleteTouchTap(module)}
             />
           </MoreIconMenu>

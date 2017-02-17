@@ -2,6 +2,8 @@ import React, {Component, PropTypes} from 'react'
 
 import ComponentWithTitle from 'src/components/bases/ComponentWithTitle'
 
+import CCAPI from 'src/api'
+
 import DeleteButton from 'src/components/commons/DeleteButton'
 
 import DisplayNameEditablePaper from './DisplayNameEditablePaper'
@@ -20,6 +22,7 @@ class ModuleDetail extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     schemas: PropTypes.object.isRequired,
+    ownCcInfo: PropTypes.object.isRequired,
     tagSuggestions: PropTypes.array,
     onUpdateTouchTap: PropTypes.func,
     onMessageBoxDeleteTouchTap: PropTypes.func,
@@ -33,10 +36,26 @@ class ModuleDetail extends Component {
     messageBox: 'MESSAGE_BOX',
   }
 
-  state = {
-    editingArea: null,
-    editingAreaIndex: null,
-    editingModule: null,
+  /**
+   * @constructor
+   */
+  constructor(...args) {
+    super(...args)
+
+    const messageBoxesFetchingData = this.props.module.messageBoxes.reduce((_data, messageBox) => ({
+      ..._data,
+      [messageBox.uuid]: {
+        loading: true,
+        messages: null,
+        schemaProperties: null,
+      },
+    }), {})
+    this.state = {
+      editingArea: null,
+      editingAreaIndex: null,
+      editingModule: null,
+      messageBoxesFetchingData,
+    }
   }
 
   /**
@@ -91,6 +110,16 @@ class ModuleDetail extends Component {
     })
   }
 
+
+  /**
+   * @override
+   */
+  componentDidMount() {
+    this.props.module.messageBoxes.map((messageBox, index) => {
+      this.fetchLatestData(messageBox)
+    })
+  }
+
   /**
    * @override
    */
@@ -99,10 +128,12 @@ class ModuleDetail extends Component {
       editingArea,
       editingAreaIndex,
       editingModule,
+      messageBoxesFetchingData,
     } = this.state
     const {
       module,
       schemas,
+      ownCcInfo,
       tagSuggestions = [],
       onMessageBoxDeleteTouchTap,
       onMessageBoxDownloadTouchTap,
@@ -138,6 +169,8 @@ class ModuleDetail extends Component {
       },
     }
 
+    const editDisabled = module.ccUuid !== ownCcInfo.uuid
+
     const displayNamePaper = editingArea === ModuleDetail.editingArea.displayName ? (
       <DisplayNameEdittingPaper
         module={editingModule}
@@ -148,6 +181,7 @@ class ModuleDetail extends Component {
     ) : (
       <DisplayNameEditablePaper
         obj={module}
+        editDisabled={editDisabled}
         onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.displayName, null)}
       />
     )
@@ -163,6 +197,7 @@ class ModuleDetail extends Component {
     ) : (
       <MetadataEditablePaper
         module={module}
+        editDisabled={editDisabled}
         onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.metadata, null)}
       />
     )
@@ -179,6 +214,8 @@ class ModuleDetail extends Component {
           onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
         />
       </div>
+    ) : editDisabled ? (
+      null
     ) : (
       <MessageBoxAddActionPaper
         onTouchTap={() => this.onMessageBoxAddTouchTap()}
@@ -202,12 +239,15 @@ class ModuleDetail extends Component {
         <div style={style.messageBoxesArea}>
           <ComponentWithTitle title="メッセージボックス">
             {module.messageBoxes.map((messageBox, index) => {
+              const fetchingData = messageBoxesFetchingData[messageBox.uuid]
+              const disabledChangeSchema = fetchingData.loading === true || fetchingData.messages.length !== 0
               return editingArea === ModuleDetail.editingArea.messageBox && editingAreaIndex === index ? (
                 <MessageBoxEdittingPaper
                   key={messageBox.uuid}
                   module={editingModule}
                   messageBoxIndex={index}
                   schemas={schemas}
+                  disabledChangeSchema={disabledChangeSchema}
                   onUpdate={(editingModule) => this.setState({editingModule})}
                   onOKButtonTouchTap={() => this.onUpdateTouchTap()}
                   onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
@@ -219,11 +259,13 @@ class ModuleDetail extends Component {
                   module={module}
                   messageBoxIndex={index}
                   schemas={schemas}
-                  deleteDispabled={canDeleteMessageBox}
+                  editDisabled={editDisabled}
+                  deleteDisabled={canDeleteMessageBox}
                   onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.messageBox, index)}
                   onDeleteTouchTap={() => onMessageBoxDeleteTouchTap(index)}
                   onDownloadTouchTap={onMessageBoxDownloadTouchTap}
                   style={{marginBottom: '32px'}}
+                  fetchingData={fetchingData}
                 />
               )
             })}
@@ -234,11 +276,34 @@ class ModuleDetail extends Component {
         <div style={style.actionsArea}>
           <DeleteButton
             label="このモジュールを削除する"
+            disabled={editDisabled}
             onTouchTap={onDeleteTouchTap}
           />
         </div>
       </div>
     )
+  }
+
+  /**
+   * サーバから最新メッセージをとってくる
+   * @param {object} messageBox
+   */
+  async fetchLatestData(messageBox) {
+    let {messages, schema: {properties}} = await CCAPI.fetchLatestMessageBox(
+      this.props.module.uuid,
+      messageBox.uuid
+    )
+
+    this.setState({
+      messageBoxesFetchingData: {
+        ...this.state.messageBoxesFetchingData,
+        [messageBox.uuid]: {
+          loading: false,
+          messages: messages,
+          schemaProperties: properties,
+        },
+      },
+    })
   }
 }
 

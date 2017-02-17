@@ -29,6 +29,12 @@ const handleLocationChange = (state) => {
   })
 }
 
+const handleEnter = (state) => {
+  store.dispatch(actions.ccInfo.fetchMyselfRequest())
+  store.dispatch(actions.user.fetchMyselfRequest())
+  handleLocationChange(state)
+}
+
 const masterRoute = {
   key: 'root',
   component: Master,
@@ -49,7 +55,7 @@ const masterRoute = {
     Users,
     User,
   ].concat(ReplicationMasters),
-  onEnter: handleLocationChange,
+  onEnter: handleEnter,
   onChange: (prevState, nextState) => handleLocationChange(nextState),
 }
 

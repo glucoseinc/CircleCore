@@ -141,6 +141,7 @@ class Schema(UUIDMetaDataBase):
         """
         d = {
             'uuid': str(self.uuid),
+            'ccUuid': str(self.cc_uuid),
             'displayName': self.display_name,
             'properties': [prop.to_json() for prop in self.properties],
             'memo': self.memo,

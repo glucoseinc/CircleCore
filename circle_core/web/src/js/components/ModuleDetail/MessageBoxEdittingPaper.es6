@@ -14,6 +14,7 @@ class MessageBoxEdittingPaper extends Component {
     module: PropTypes.object.isRequired,
     messageBoxIndex: PropTypes.number.isRequired,
     schemas: PropTypes.object.isRequired,
+    disabledChangeSchema: PropTypes.bool,
     style: PropTypes.object,
     onUpdate: PropTypes.func,
     onOKButtonTouchTap: PropTypes.func,
@@ -28,6 +29,7 @@ class MessageBoxEdittingPaper extends Component {
       module,
       messageBoxIndex,
       schemas,
+      disabledChangeSchema = false,
       onUpdate,
       onOKButtonTouchTap,
       onCancelButtonTouchTap,
@@ -62,6 +64,7 @@ class MessageBoxEdittingPaper extends Component {
             <MessageBoxEditComponent
               messageBox={messageBox}
               schemas={schemas}
+              disabledChangeSchema={disabledChangeSchema}
               onUpdate={(newMessageBox) => onUpdate(module.updateMessageBox(messageBoxIndex, newMessageBox))}
             />
           </div>

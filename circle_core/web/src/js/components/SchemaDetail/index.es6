@@ -15,6 +15,7 @@ import PropertiesTableComponent from './PropertiesTableComponent'
 class SchemaDetail extends Component {
   static propTypes = {
     schema: PropTypes.object.isRequired,
+    ownCcInfo: PropTypes.object.isRequired,
     onBackTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
   }
@@ -25,6 +26,7 @@ class SchemaDetail extends Component {
   render() {
     const {
       schema,
+      ownCcInfo,
       onBackTouchTap,
       onDeleteTouchTap,
     } = this.props
@@ -60,7 +62,7 @@ class SchemaDetail extends Component {
       },
     }
 
-    const deleteButtonDisabled = schema.modules.size !== 0 ? true : false
+    const deleteButtonDisabled = schema.modules.size !== 0 ? true : false || schema.ccUuid !== ownCcInfo.uuid
 
     return (
       <div style={style.root}>

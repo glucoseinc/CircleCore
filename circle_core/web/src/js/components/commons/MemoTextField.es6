@@ -20,7 +20,7 @@ class MemoTextField extends Component {
       onChange,
     } = this.props
 
-    const verticalShift = -24
+    const verticalShift = -8
 
     const style = {
       root: {

@@ -12,6 +12,7 @@ class MessageBoxEditComponent extends Component {
   static propTypes = {
     messageBox: PropTypes.object.isRequired,
     schemas: PropTypes.object.isRequired,
+    disabledChangeSchema: PropTypes.bool,
     onUpdate: PropTypes.func,
   }
 
@@ -22,6 +23,7 @@ class MessageBoxEditComponent extends Component {
     const {
       messageBox,
       schemas,
+      disabledChangeSchema = false,
       onUpdate,
     } = this.props
 
@@ -35,6 +37,7 @@ class MessageBoxEditComponent extends Component {
         <SchemaSelectField
           selectedSchemaId={messageBox.schema}
           schemas={schemas}
+          disabled={disabledChangeSchema}
           onChange={(e, i, v) => onUpdate(messageBox.updateSchema(v))}
         />
         <MemoTextField

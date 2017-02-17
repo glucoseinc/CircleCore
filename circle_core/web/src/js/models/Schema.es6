@@ -56,6 +56,7 @@ export class SchemaProperty extends SchemaPropertyRecord {
 
 const SchemaRecord = Record({
   uuid: '',
+  ccUuid: '',
   displayName: '',
   properties: List(),
   modules: List(),
@@ -82,6 +83,7 @@ export default class Schema extends SchemaRecord {
     const properties = rawSchema.properties ? rawSchema.properties.map(SchemaProperty.fromObject) : []
     return new Schema({
       uuid: rawSchema.uuid || '',
+      ccUuid: rawSchema.ccUuid || '',
       displayName: rawSchema.displayName || '',
       properties: List(properties),
       modules: List(rawSchema.modules || []),

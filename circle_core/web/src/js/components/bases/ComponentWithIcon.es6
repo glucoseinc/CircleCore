@@ -23,18 +23,19 @@ class ComponentWithIcon extends Component {
 
     const style = {
       root: {
-        position: 'relative',
+        display: 'flex',
+        flexFlow: 'row nowrap',
+        width: '100%',
       },
 
       icon: {
-        display: 'block',
-        float: 'left',
         width: 16,
         height: 16,
       },
 
       children: {
-        marginLeft: 24,
+        paddingLeft: 8,
+        flexGrow: 1,
       },
     }
 

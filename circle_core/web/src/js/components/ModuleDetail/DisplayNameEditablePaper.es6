@@ -16,6 +16,7 @@ import UrlLabel from 'src/components/commons/UrlLabel'
 class DisplayNameEditablePaper extends Component {
   static propTypes = {
     obj: PropTypes.object.isRequired,
+    editDisabled: PropTypes.bool,
     secondaryType: PropTypes.string,
     onEditTouchTap: PropTypes.func,
   }
@@ -26,6 +27,7 @@ class DisplayNameEditablePaper extends Component {
   render() {
     const {
       obj,
+      editDisabled = false,
       secondaryType = 'id',
       onEditTouchTap,
     } = this.props
@@ -55,6 +57,7 @@ class DisplayNameEditablePaper extends Component {
         <div style={style.root}>
           <ComponentWithIconButton
             icon={EditIcon}
+            iconButtonDisabled={editDisabled}
             onIconButtonTouchTap={onEditTouchTap}
           >
             <div style={style.contents}>
