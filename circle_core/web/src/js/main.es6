@@ -12,6 +12,8 @@ import rootSaga from './sagas'
 import rootRoute from './routes'
 import muiTheme from './muiTheme'
 
+require('../css/main.css')
+
 injectTapEventPlugin()
 
 const initialState = {}
