@@ -154,7 +154,7 @@ class CircleCore(object):
     def get_database(self):
         """Messageを保存している方のデータベース.
 
-        今のとこおｒDatareceiverが握っているのでそれを返す
+        今のところDatareceiverが握っているのでそれを返す
         CircleCoreが持っているべき???"""
         return self.find_worker(WORKER_DATARECEIVER).db
 
