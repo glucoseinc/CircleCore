@@ -191,5 +191,6 @@ jspm_packages
 
 # User definition
 tmp
-circle_core/web/static/
+circle_core/web/static/*.js
+circle_core/web/static/*.css
 circle_core.ini

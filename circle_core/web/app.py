@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-
-from datetime import datetime, timedelta
 import os
 import time
 import urllib.parse
 import uuid
 
-from flask import abort, Flask, render_template, request
+from flask import abort, Flask, redirect, render_template, request, url_for
 from six import PY3
 from werkzeug.routing import BaseConverter
 
@@ -53,6 +51,11 @@ class CCWebApp(Flask):
         self.register_blueprint(public)
 
         self.add_url_rule('/replication/<uuid:link_uuid>', endpoint='replication_endpoint', build_only=True)
+
+        # favicon
+        @self.route('/favicon.ico')
+        def favicon_ico():
+            return redirect(url_for('static', filename='favicon.ico'))
 
         @self.route('/', defaults={'path': ''})
         @self.route('/<path:path>')
