@@ -32,7 +32,7 @@ const refreshReplicationLinks = (state, action) => {
     ...state,
     replicationLinks,
     messageBoxes,
-    ccInfos,
+    ccInfos: state.ccInfos.merge(ccInfos),
     modules,
     schemas: state.schemas.merge(schemas),
   }
