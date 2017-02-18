@@ -21,21 +21,56 @@ rules:
   indent:
     - error
     - 2
-  linebreak-style:
-    - off
-  max-len: [2, {code: 120, tabWidth: 2, ignoreUrls: true}]
+  linebreak-style: off
+  max-len:
+    - error
+    - code: 120
+      tabWidth: 2
+      ignoreUrls: true
   quotes:
     - error
     - single
   semi:
     - error
     - never
-
-  no-console: 0
+  no-console: off
   no-unused-vars:
-    - 2
-    - args: 'none'
-      varsIgnorePattern: "_|React"
+    - error
+    - args: none
 
-  import/order: 2
-  react/jsx-uses-vars: 1
+  react/sort-comp: warn
+  # react/sort-prop-types: warn
+  react/jsx-closing-bracket-location: warn
+  react/jsx-curly-spacing: warn
+  react/jsx-equals-spacing: warn
+  react/jsx-handler-names: warn
+  react/jsx-indent:
+    - warn
+    - 2
+  react/jsx-indent-props:
+    - warn
+    - 2
+  react/jsx-key: warn
+  # react/jsx-max-props-per-line:
+  #   - warn
+  #   - maximum: 3
+  # react/jsx-sort-props: warn
+  react/jsx-tag-spacing: warn
+  react/jsx-wrap-multilines: warn
+
+  import/no-unresolved: error
+  import/order:
+    - warn
+    - groups:
+      - builtin
+      - external
+      - internal
+      - parent
+      - sibling
+      - index
+  import/first: warn
+  import/no-duplicates: warn
+
+settings:
+  import/resolver:
+    babel-module: {}
