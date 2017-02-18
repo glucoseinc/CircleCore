@@ -21,6 +21,13 @@ class PasswordManualChangeComponent extends Component {
   }
 
   /**
+   * @override
+   */
+  componentDidMount() {
+    this.onUpdate('', '')
+  }
+
+  /**
    * 入力時の動作
    * @param {string} password
    * @param {string} confirmationPassword
@@ -29,13 +36,6 @@ class PasswordManualChangeComponent extends Component {
     const newPassword = (password === '' && confirmationPassword === '') ? undefined :
       password === confirmationPassword ? password : null
     this.props.onUpdate(newPassword)
-  }
-
-  /**
-   * @override
-   */
-  componentDidMount() {
-    this.onUpdate('', '')
   }
 
   /**

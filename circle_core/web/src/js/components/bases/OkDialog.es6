@@ -41,7 +41,9 @@ class OkDialog extends Component {
       <Dialog
         title={title}
         actions={[
-          <FlatButton label={label} primary={true} disabled={disabled} onTouchTap={onTouchTap}/>,
+          <FlatButton
+            key="ok" label={label} primary={true} disabled={disabled} onTouchTap={onTouchTap}
+          />,
         ]}
         actionsContainerStyle={style.actions}
         modal={true}

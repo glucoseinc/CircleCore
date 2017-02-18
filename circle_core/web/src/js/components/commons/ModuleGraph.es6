@@ -137,18 +137,6 @@ class ModuleGraph extends Component {
   /**
    * @override
    */
-  componentWillUnmount() {
-    this.clearUpdateTimer()
-
-    if(this.resizeHandler) {
-      window.removeEventListener('resize', this.resizeHandler)
-      delete this.resizeHandler
-    }
-  }
-
-  /**
-   * @override
-   */
   componentWillReceiveProps(nextProps) {
     if(this.props.range != nextProps.range) {
       // rangeが変わったのでグラフデータ再取得
@@ -170,26 +158,18 @@ class ModuleGraph extends Component {
     }
   }
 
-
   /**
    * @override
    */
-  render() {
-    const {
-      graphData,
-    } = this.state
+  componentWillUnmount() {
+    this.clearUpdateTimer()
 
-    return (
-      <div
-        ref="graphContainer" className={`graph graph-module ${graphData ? '' : 'is-loading'}`}>
-        {!graphData && <LoadingIndicator className="graph-loadingIndicator" />}
-        <div ref="yAxis" className="graph-yAxis" />
-        <div ref="chart" className="graph-chart" />
-        <div ref="preview" className="graph-preview" />
-        {this.isShowLegend && <div ref="legend" className="graph-legend" />}
-      </div>
-    )
+    if(this.resizeHandler) {
+      window.removeEventListener('resize', this.resizeHandler)
+      delete this.resizeHandler
+    }
   }
+
 
   /**
    * Legendを描画するか？
@@ -333,6 +313,28 @@ class ModuleGraph extends Component {
       this.updateTimer = null
       this.fetchGraphData()
     }, delay * 1000)
+  }
+
+  /**
+   * @override
+   */
+  render() {
+    const {
+      graphData,
+    } = this.state
+
+    return (
+      <div
+        ref="graphContainer"
+        className={`graph graph-module ${graphData ? '' : 'is-loading'}`}
+      >
+        {!graphData && <LoadingIndicator className="graph-loadingIndicator" />}
+        <div ref="yAxis" className="graph-yAxis" />
+        <div ref="chart" className="graph-chart" />
+        <div ref="preview" className="graph-preview" />
+        {this.isShowLegend && <div ref="legend" className="graph-legend" />}
+      </div>
+    )
   }
 }
 

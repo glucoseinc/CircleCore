@@ -51,7 +51,7 @@ class NotFound extends Component {
 
     return (
       <div>
-        <Title render="CircleCore"/>
+        <Title render="CircleCore" />
         <AppBar
           title="CircleCore"
           showMenuIconButton={false}

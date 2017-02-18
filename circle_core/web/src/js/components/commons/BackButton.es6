@@ -31,7 +31,7 @@ class BackButton extends Component {
         label="一覧へ戻る"
         primary={true}
         onTouchTap={onTouchTap}
-       />
+      />
     )
   }
 }

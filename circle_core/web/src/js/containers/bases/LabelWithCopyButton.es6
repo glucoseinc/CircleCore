@@ -2,10 +2,10 @@ import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 import {findDOMNode} from 'react-dom'
 
-import actions from 'src/actions'
-
 import IconButton from 'material-ui/IconButton'
 import {grey500} from 'material-ui/styles/colors'
+
+import actions from 'src/actions'
 
 import {CopyIcon} from 'src/components/bases/icons'
 
@@ -111,14 +111,14 @@ class LabelWithCopyButton extends Component {
 
     return (
       <div style={style.root}>
-        <HiddenTextArea text={label} ref="hiddenTextArea"/>
+        <HiddenTextArea text={label} ref="hiddenTextArea" />
         {labelArea}
         <IconButton
           style={style.iconButton}
           iconStyle={style.icon}
           onTouchTap={() => this.onTouchTap()}
         >
-          <CopyIcon color={grey500}/>
+          <CopyIcon color={grey500} />
         </IconButton>
       </div>
     )

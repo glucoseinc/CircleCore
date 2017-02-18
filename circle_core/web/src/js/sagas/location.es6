@@ -1,5 +1,5 @@
 import {fork, put, takeEvery} from 'redux-saga/effects'
-import {routerActions, LOCATION_CHANGE} from 'react-router-redux'
+import {routerActions} from 'react-router-redux'
 
 import {actionTypes} from 'src/actions'
 import {urls} from 'src/routes'

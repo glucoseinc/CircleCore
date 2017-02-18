@@ -164,13 +164,15 @@ class ReplicationTargetsTableComponent extends Component {
         </div>
         <Paper>
           {Object.values(targetModules).map(({module, messageBoxes}, index) => {
-            return <div key={module.uuid} style={style.row}>
-              <ReplicationTargetsTableRow
-                module={module}
-                messageBoxes={messageBoxes}
-                backgroundColor={index % 2 ? white : grey300}
-              />
-            </div>
+            return (
+              <div key={module.uuid} style={style.row}>
+                <ReplicationTargetsTableRow
+                  module={module}
+                  messageBoxes={messageBoxes}
+                  backgroundColor={index % 2 ? white : grey300}
+                />
+              </div>
+            )
           })}
         </Paper>
       </div>

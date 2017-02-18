@@ -89,7 +89,7 @@ class ModuleInfoPaper extends Component {
               />
             </div>
             <div style={style.messageBoxesSection}>
-              <MessageBoxesLabel module={module}/>
+              <MessageBoxesLabel module={module} />
             </div>
             <div style={style.tagsSection}>
               <TagButtons

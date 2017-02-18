@@ -83,7 +83,7 @@ class MetadataEditablePaper extends Component {
               </div>
 
               <div style={style.memoSection}>
-                <MemoComponent obj={module}/>
+                <MemoComponent obj={module} />
               </div>
             </div>
           </ComponentWithIconButton>

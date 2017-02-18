@@ -44,7 +44,7 @@ class CCFlatButton extends Component {
       <FlatButton
         style={mergedStyle}
         labelStyle={mergedLabelStyle}
-        icon={icon ? <Icon style={iconStyle}/> : null}
+        icon={icon ? <Icon style={iconStyle} /> : null}
         {...other}
       />
     )

@@ -136,7 +136,7 @@ class PropertiesTableComponent extends Component {
                 </div>
               )
             })}
-            </Paper>
+          </Paper>
         </div>
       </div>
     )

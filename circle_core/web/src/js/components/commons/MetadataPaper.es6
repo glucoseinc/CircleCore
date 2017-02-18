@@ -32,7 +32,7 @@ class MetadataPaper extends Component {
     return (
       <Paper>
         <div style={style.root}>
-          <MemoComponent obj={obj}/>
+          <MemoComponent obj={obj} />
         </div>
       </Paper>
     )

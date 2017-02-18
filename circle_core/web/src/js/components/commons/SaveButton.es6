@@ -4,9 +4,9 @@ import CCRaisedButton from 'src/components/bases/CCRaisedButton'
 
 
 /**
- * 作成ボタン
+ * 保存ボタン
  */
-class CreateButton extends Component {
+class SaveButton extends Component {
   static propTypes = {
     label: PropTypes.string,
     disabled: PropTypes.bool,
@@ -36,9 +36,9 @@ class CreateButton extends Component {
         primary={true}
         disabled={disabled}
         onTouchTap={onTouchTap}
-       />
+      />
     )
   }
 }
 
-export default CreateButton
+export default SaveButton

@@ -108,7 +108,9 @@ export default class InvitationsTable extends Component {
             <InvitationsTableRow
               key={invitation.uuid}
               invitation={invitation}
-              onDeleteInvitation={onDeleteInvitation} />)}
+              onDeleteInvitation={onDeleteInvitation}
+            />
+          )}
         </TableBody>
       </Table>
     )

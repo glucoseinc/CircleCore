@@ -94,14 +94,16 @@ class ReplicationSlavesListComponent extends Component {
       <Paper>
         <div style={style.root}>
           {targetSlaves.map((slaveOrUuid, index) =>
-            typeof slaveOrUuid === 'string'
-              ? <span style={{backgroundColor: index % 2 ? white : grey300}}>{slaveOrUuid}</span>
-              : <ReplicationSlavesListItem
-                  key={slaveOrUuid.uuid}
-                  ccInfo={slaveOrUuid}
-                  backgroundColor={index % 2 ? white : grey300}
-                  onIdCopyButtonTouchTap={onIdCopyButtonTouchTap}
-                />
+            typeof slaveOrUuid === 'string' ? (
+              <span style={{backgroundColor: index % 2 ? white : grey300}}>{slaveOrUuid}</span>
+            ) : (
+              <ReplicationSlavesListItem
+                key={slaveOrUuid.uuid}
+                ccInfo={slaveOrUuid}
+                backgroundColor={index % 2 ? white : grey300}
+                onIdCopyButtonTouchTap={onIdCopyButtonTouchTap}
+              />
+            )
           )}
         </div>
       </Paper>

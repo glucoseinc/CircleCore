@@ -37,7 +37,7 @@ class ComponentWithSubTitle extends Component {
       <div className="componentWithSubtitle" style={this.props.style || {}}>
         <div className="componentWithSubtitle-title">
           <div className="componentWithSubtitle-titleIcon">
-            {Icon ? <Icon style={style.icon} color={grey600}/> : null}
+            {Icon ? <Icon style={style.icon} color={grey600} /> : null}
           </div>
           <h3>
             {subTitle}

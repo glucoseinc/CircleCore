@@ -75,7 +75,8 @@ class MoreIconMenu extends Component {
           >
             <MoreIcon
               className="test-MoreIcon"
-              style={style.moreIcon} />
+              style={style.moreIcon}
+            />
           </IconButton>
         }
         anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}

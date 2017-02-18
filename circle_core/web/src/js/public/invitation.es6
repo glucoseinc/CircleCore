@@ -31,46 +31,6 @@ export default class UserInvitation extends React.Component {
   }
 
   /**
-   * @override
-   */
-  render() {
-    if(this.state.isCompleted) {
-      return this.renderCompleted()
-    }
-
-    const {
-      error,
-    } = this.state
-
-    return (
-      <div className="userInvitation" style={{width: 640, margin: '32px auto'}}>
-        <Title render={(previousTitle) => `Invitation | ${previousTitle}`} />
-
-        {error && <div style={{
-          color: colorError,
-          textAlign: 'center',
-          margin: '16px',
-          borderRadius: 4,
-          border: '1px solid ' + colorError,
-        }}>{error}</div>}
-
-        <UserEditPaper
-          isPasswordRequired={true}
-          user={this.state.user}
-          saveButtonLabel="登録する"
-          onSaveTouchTap={::this.onSaveTouchTap}
-        />
-
-        <form ref="form" method="POST">
-          {Object.keys(this.state.formValues).map((key) =>
-            <input type="hidden" name={key} value={this.state.formValues[key]} key={key} />
-          )}
-        </form>
-      </div>
-    )
-  }
-
-  /**
    * ユーザー作成完了画面を表示する
    * @return {React.Component}
    */
@@ -109,5 +69,49 @@ export default class UserInvitation extends React.Component {
     }, () => {
       this.refs.form.submit()
     })
+  }
+
+  /**
+   * @override
+   */
+  render() {
+    if(this.state.isCompleted) {
+      return this.renderCompleted()
+    }
+
+    const {
+      error,
+    } = this.state
+
+    return (
+      <div className="userInvitation" style={{width: 640, margin: '32px auto'}}>
+        <Title render={(previousTitle) => `Invitation | ${previousTitle}`} />
+
+        {error &&
+          <div
+            style={{
+              color: colorError,
+              textAlign: 'center',
+              margin: '16px',
+              borderRadius: 4,
+              border: '1px solid ' + colorError,
+            }}
+          >{error}</div>
+        }
+
+        <UserEditPaper
+          isPasswordRequired={true}
+          user={this.state.user}
+          saveButtonLabel="登録する"
+          onSaveTouchTap={::this.onSaveTouchTap}
+        />
+
+        <form ref="form" method="POST">
+          {Object.keys(this.state.formValues).map((key) =>
+            <input type="hidden" name={key} value={this.state.formValues[key]} key={key} />
+          )}
+        </form>
+      </div>
+    )
   }
 }

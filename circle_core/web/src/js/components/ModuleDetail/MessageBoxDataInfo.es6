@@ -32,7 +32,8 @@ class MessageRow extends Component {
         {schemaProperties.map(({name, type}) => (
           <td
             key={`${name}-${type}`}
-            className={`messageBox-latestMessages-value is-${type}`}>
+            className={`messageBox-latestMessages-value is-${type}`}
+          >
             {valueToString(message.payload[name], type)}
           </td>
         ))}
@@ -95,7 +96,7 @@ class MessageBoxDataInfo extends Component {
               </th>
               {schemaProperties.map(({name, type}, index) =>
                 <th key={index} className="messageBox-latestMessages-value">
-                  <SchemaPropertyLabel name={name} type={type} style={{fontSize: 'inherit'}}/>
+                  <SchemaPropertyLabel name={name} type={type} style={{fontSize: 'inherit'}} />
                 </th>
               )}
             </tr>
@@ -103,8 +104,11 @@ class MessageBoxDataInfo extends Component {
           <tbody>
             {messages.length
               ? messages.map((message, index) =>
-                  <MessageRow
-                    key={index} message={message} schemaProperties={schemaProperties} />
+                <MessageRow
+                  key={index}
+                  message={message}
+                  schemaProperties={schemaProperties}
+                />
                 )
               : (
                 <tr>

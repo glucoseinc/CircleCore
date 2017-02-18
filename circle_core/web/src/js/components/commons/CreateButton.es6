@@ -43,7 +43,7 @@ class CreateButton extends Component {
         primary={true}
         disabled={disabled}
         onTouchTap={onTouchTap}
-       />
+      />
     )
   }
 }

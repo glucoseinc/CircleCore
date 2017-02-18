@@ -75,7 +75,7 @@ class SchemaDetail extends Component {
 
         <div style={style.propertiesArea}>
           <ComponentWithTitle title="プロパティ">
-            <PropertiesTableComponent schema={schema}/>
+            <PropertiesTableComponent schema={schema} />
           </ComponentWithTitle>
         </div>
 
@@ -87,7 +87,7 @@ class SchemaDetail extends Component {
 
         <div style={style.actionsArea}>
           <div style={style.backButton}>
-            <BackButton onTouchTap={onBackTouchTap}/>
+            <BackButton onTouchTap={onBackTouchTap} />
           </div>
           <div style={style.deleteButton}>
             <DeleteButton

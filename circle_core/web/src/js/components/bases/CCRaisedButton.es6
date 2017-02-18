@@ -44,7 +44,7 @@ class CCRaisedButton extends Component {
       <RaisedButton
         style={mergedStyle}
         labelStyle={mergedLabelStyle}
-        icon={icon ? <Icon style={iconStyle}/> : null}
+        icon={icon ? <Icon style={iconStyle} /> : null}
         {...other}
       />
     )
