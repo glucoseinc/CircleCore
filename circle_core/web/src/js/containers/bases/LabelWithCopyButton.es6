@@ -87,7 +87,7 @@ class LabelWithCopyButton extends Component {
       },
 
       iconButton: {
-        width: 16,
+        width: 20,
         height: 16,
         padding: 0,
         paddingLeft: 4,
