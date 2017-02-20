@@ -7,8 +7,8 @@ from flask import abort, request
 from six import PY3
 
 # project module
-# from circle_core.cli.utils import generate_uuid
-from circle_core.models import generate_uuid, MetaDataSession, Schema
+from circle_core.constants import CRDataType
+from circle_core.models import MetaDataSession, Schema
 from .api import api
 from .utils import respond_failure, respond_success
 from ..utils import (
@@ -84,16 +84,5 @@ def _delete_schema(schema_uuid):
 @api.route('/schemas/propertytypes')
 @oauth_require_read_schema_scope
 def api_get_property_types():
-    # TODO: constants.pyから引っ張ってくる
-    property_types = [
-        {'name': 'int'},
-        {'name': 'float'},
-        {'name': 'bool'},
-        {'name': 'string'},
-        {'name': 'bytes'},
-        {'name': 'date'},
-        {'name': 'datetime'},
-        {'name': 'time'},
-        {'name': 'timestamp'},
-    ]
+    property_types = [{'name': data_type.value} for data_type in CRDataType]
     return respond_success(schemaPropertyTypes=property_types)

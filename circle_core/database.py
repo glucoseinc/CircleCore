@@ -220,16 +220,19 @@ def make_sqlcolumn_from_datatype(name, datatype):
     """
 
     assert not name.startswith('_')
-    datatype = CRDataType.from_text(datatype)
 
-    if datatype == CRDataType.INT:
-        coltype = sa.Integer()
-    elif datatype == CRDataType.FLOAT:
-        coltype = sa.Float()
-    elif datatype == CRDataType.TEXT:
-        coltype = sa.Text()
-    else:
-        assert 0, 'not implemented yet'
+    coltypes = {
+        CRDataType.INT: sa.INTEGER,
+        CRDataType.FLOAT: sa.FLOAT,
+        CRDataType.BOOL: sa.BOOLEAN,
+        CRDataType.STRING: sa.TEXT,
+        CRDataType.BYTES: sa.BLOB,
+        CRDataType.DATE: sa.DATE,
+        CRDataType.DATETIME: sa.DATETIME,
+        CRDataType.TIME: sa.TIME,
+        CRDataType.TIMESTAMP: sa.TIMESTAMP,
+    }
+    coltype = coltypes[CRDataType(datatype.upper())]()
 
     return sa.Column(name, coltype)
 
