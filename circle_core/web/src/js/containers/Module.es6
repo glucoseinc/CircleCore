@@ -26,7 +26,6 @@ class Module extends Component {
     schemas: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
-    token: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,
     setTitle: PropTypes.func,
     onUpdateTouchTap: PropTypes.func,
@@ -98,25 +97,6 @@ class Module extends Component {
   }
 
   /**
-   * MessageBoxダウンロードボタン押下時の動作
-   * @param {object} module
-   * @param {object} messageBox
-   * @param {object} startDate
-   * @param {object} endDate
-   */
-  async onMessageBoxDownloadTouchTap(module, messageBox, startDate, endDate) {
-    endDate.setDate(endDate.getDate() + 1)
-    const params = {
-      start: startDate.toJSON(),
-      end: endDate.toJSON(),
-      token: this.props.token.accessToken,
-    }
-    const query = Object.entries(params).map(([key, value]) => `${key}=${value}`).join('&')
-    const url = `/download/modules/${module.uuid}/${messageBox.uuid}/data?${query}`
-    window.open(url)
-  }
-
-  /**
    * @override
    */
   render() {
@@ -167,7 +147,7 @@ class Module extends Component {
           tagSuggestions={tagSuggestions}
           onUpdateTouchTap={this.props.onUpdateTouchTap}
           onMessageBoxDeleteTouchTap={(messageBoxIndex) => this.onMessageBoxDeleteTouchTap(messageBoxIndex)}
-          onMessageBoxDownloadTouchTap={(...args) => this.onMessageBoxDownloadTouchTap(...args)}
+          onMessageBoxDownloadTouchTap={(...args) => console.log('onMessageBoxDownloadTouchTap', ...args)}
           onDeleteTouchTap={::this.onDeleteTouchTap}
         />
 
@@ -205,7 +185,6 @@ const mapStateToProps = (state) => ({
   schemas: state.entities.schemas,
   modules: state.entities.modules,
   ccInfos: state.entities.ccInfos,
-  token: state.auth.token,
 })
 
 const mapDispatchToProps = (dispatch) => ({

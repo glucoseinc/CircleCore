@@ -1,23 +1,22 @@
 # -*- coding: utf-8 -*-
-
-# system module
-from datetime import datetime
 import os
 import time
 import urllib.parse
 import uuid
 
-# community module
 from flask import abort, Flask, redirect, render_template, request, url_for
+from six import PY3
 from werkzeug.routing import BaseConverter
 
 # project module
 from circle_core.utils import portable_popen
-from .authorize.core import oauth
+
+if PY3:
+    from typing import Optional, Union
 
 
 class CCWebApp(Flask):
-    """Web管理インタフェース用のFlask Application.
+    """Web管理インタフェース用のFlask Application
     """
     def __init__(self, core, base_url=None):
         super(CCWebApp, self).__init__(__name__)
@@ -45,8 +44,6 @@ class CCWebApp(Flask):
 
         from .api import api
         self.register_blueprint(api, url_prefix='/api')
-        from .download import download
-        self.register_blueprint(download, url_prefix='/download')
         from .authorize import authorize, oauth
         self.register_blueprint(authorize)
         oauth.init_app(self)
@@ -75,6 +72,7 @@ class CCWebApp(Flask):
         def global_variables():
             return dict(UPTIME=self.uptime)
 
+        #
         from .authorize.core import initialize_oauth
 
         with self.test_request_context('/'):
@@ -85,7 +83,7 @@ class CCWebApp(Flask):
         return self.config['CORE']
 
     def build_frontend(self):
-        """WebUI用のフロントエンドのjs, cssをビルドする."""
+        """WebUI用のフロントエンドのjs, cssをビルドする"""
         import circle_core
         basedir = os.path.abspath(
             os.path.join(
@@ -97,7 +95,7 @@ class CCWebApp(Flask):
 
 
 class UUIDConverter(BaseConverter):
-    """UUID値をURLに使うためのコンバーター.
+    """UUID値をURLに使うための今バター
 
     :class:`~bson.objectid.ObjectId` objects;
     :attr:`ObjectId`.
@@ -111,19 +109,3 @@ class UUIDConverter(BaseConverter):
 
     def to_url(self, value):
         return str(value)
-
-
-def check_login():
-    """ログイン確認."""
-    t, oauth_requets = oauth.verify_request([])
-    user = oauth_requets.user
-
-    if not user:
-        raise abort(403)
-
-    # update user's last access
-    from circle_core.models import MetaDataSession
-
-    with MetaDataSession.begin():
-        user.last_access_at = datetime.utcnow()
-        MetaDataSession.add(user)

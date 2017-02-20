@@ -203,26 +203,6 @@ class Database(object):
 
             yield message
 
-    def messages(self, message_box, start=None, end=None):
-        connection = self._engine.connect()
-
-        table = self.find_table_for_message_box(message_box, create_if_not_exsts=False)
-        if table is None:
-            return
-
-        query = sa.sql.select([table]).order_by(table.c._created_at.asc(), table.c._counter.asc())
-
-        for row in connection.execute(query):
-            row = dict(row)
-            message = ModuleMessage(message_box.uuid, row.pop('_created_at'), row.pop('_counter'), row)
-
-            if start and message.timestamp <= start:
-                continue
-            if end and end <= message.timestamp:
-                continue
-
-            yield message
-
     def make_writer(self, cycle_time=10.0, cycle_count=100):
         return QueuedWriter(self, self._time_db_dir, cycle_time, cycle_count)
 
