@@ -59,6 +59,15 @@ class ModuleDetail extends Component {
   }
 
   /**
+   * @override
+   */
+  componentDidMount() {
+    this.props.module.messageBoxes.map((messageBox, index) => {
+      this.fetchLatestData(messageBox)
+    })
+  }
+
+  /**
    * 編集ボタン押下時の動作
    * @param {string} editingArea
    * @param {number} editingAreaIndex
@@ -110,13 +119,25 @@ class ModuleDetail extends Component {
     })
   }
 
-
   /**
-   * @override
+   * サーバから最新メッセージをとってくる
+   * @param {object} messageBox
    */
-  componentDidMount() {
-    this.props.module.messageBoxes.map((messageBox, index) => {
-      this.fetchLatestData(messageBox)
+  async fetchLatestData(messageBox) {
+    let {messages, schema: {properties}} = await CCAPI.fetchLatestMessageBox(
+      this.props.module.uuid,
+      messageBox.uuid
+    )
+
+    this.setState({
+      messageBoxesFetchingData: {
+        ...this.state.messageBoxesFetchingData,
+        [messageBox.uuid]: {
+          loading: false,
+          messages: messages,
+          schemaProperties: properties,
+        },
+      },
     })
   }
 
@@ -282,28 +303,6 @@ class ModuleDetail extends Component {
         </div>
       </div>
     )
-  }
-
-  /**
-   * サーバから最新メッセージをとってくる
-   * @param {object} messageBox
-   */
-  async fetchLatestData(messageBox) {
-    let {messages, schema: {properties}} = await CCAPI.fetchLatestMessageBox(
-      this.props.module.uuid,
-      messageBox.uuid
-    )
-
-    this.setState({
-      messageBoxesFetchingData: {
-        ...this.state.messageBoxesFetchingData,
-        [messageBox.uuid]: {
-          loading: false,
-          messages: messages,
-          schemaProperties: properties,
-        },
-      },
-    })
   }
 }
 

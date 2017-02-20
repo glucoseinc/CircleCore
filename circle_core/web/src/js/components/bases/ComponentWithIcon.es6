@@ -43,7 +43,7 @@ class ComponentWithIcon extends Component {
 
     return (
       <div style={style.root}>
-        <Icon style={style.icon} color={grey400}/>
+        <Icon style={style.icon} color={grey400} />
         <div style={style.children}>
           {children}
         </div>

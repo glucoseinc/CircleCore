@@ -64,7 +64,7 @@ class SearchTextField extends Component {
 
     const hintNode = (
       <span>
-        <SearchIcon style={style.searchIcon}/>
+        <SearchIcon style={style.searchIcon} />
         {hintText}
       </span>
     )
@@ -86,7 +86,7 @@ class SearchTextField extends Component {
             style={style.clearIconButton}
             onTouchTap={() => onChange('')}
           >
-            <ClearIcon color={muiTheme.textField.hintColor}/>
+            <ClearIcon color={muiTheme.textField.hintColor} />
           </IconButton>
         </div>
       </Paper>

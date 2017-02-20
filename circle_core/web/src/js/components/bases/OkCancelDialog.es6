@@ -47,8 +47,12 @@ class OkCancelDialog extends Component {
       <Dialog
         title={title}
         actions={[
-          <FlatButton label={cancelLabel} secondary={true} disabled={cancelDisabled} onTouchTap={onCancelTouchTap} />,
-          <FlatButton label={okLabel} primary={true} disabled={okDisabled} onTouchTap={onOkTouchTap}/>,
+          <FlatButton
+            key="cancel" label={cancelLabel} secondary={true} disabled={cancelDisabled} onTouchTap={onCancelTouchTap}
+          />,
+          <FlatButton
+            key="ok" label={okLabel} primary={true} disabled={okDisabled} onTouchTap={onOkTouchTap}
+          />,
         ]}
         actionsContainerStyle={style.actions}
         modal={true}

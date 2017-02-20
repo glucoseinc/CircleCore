@@ -63,7 +63,8 @@ class ReplicationTargetLabel extends Component {
           {messageBoxes.map((box) => (
             <span
               key={box.uuid}
-              style={style.messageBoxDisplayName}>
+              style={style.messageBoxDisplayName}
+            >
               {box.displayName || '(no name)'}
             </span>
           ))}

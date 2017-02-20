@@ -87,7 +87,7 @@ class NavDrawer extends Component {
       >
         <CCLink url={urls.root}>
           <AppBar
-            iconElementLeft={<div/>}
+            iconElementLeft={<div />}
             title="CircleCore"
           />
         </CCLink>

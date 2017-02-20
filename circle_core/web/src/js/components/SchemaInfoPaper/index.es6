@@ -108,11 +108,11 @@ class SchemaInfoPaper extends Component {
             </div>
 
             <div style={style.propertiesSection}>
-              <SchemaPropertiesLabel schema={schema}/>
+              <SchemaPropertiesLabel schema={schema} />
             </div>
 
             <div style={style.memoSection}>
-              <MemoLabel obj={schema}/>
+              <MemoLabel obj={schema} />
             </div>
 
             <div style={style.moduleSection}>

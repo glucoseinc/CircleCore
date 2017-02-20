@@ -35,7 +35,7 @@ class DeleteButton extends Component {
         label={label}
         disabled={disabled}
         onTouchTap={onTouchTap}
-       />
+      />
     )
   }
 }

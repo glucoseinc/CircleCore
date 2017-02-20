@@ -57,20 +57,20 @@ class UserInfoPaper extends Component {
           </div>
 
           <div style={style.mailAdressArea}>
-          <ComponentWithSubTitle subTitle="メールアドレス" icon={EmailIcon}>
-            <div style={style.label}>
-              {user.mailAddress || '(未入力)'}
-            </div>
-          </ComponentWithSubTitle>
+            <ComponentWithSubTitle subTitle="メールアドレス" icon={EmailIcon}>
+              <div style={style.label}>
+                {user.mailAddress || '(未入力)'}
+              </div>
+            </ComponentWithSubTitle>
           </div>
 
           <div style={style.telephoneArea}>
-          <ComponentWithSubTitle subTitle="電話番号" icon={PhoneIcon}>
-            <div style={style.label}>
-              {user.telephone || '(未入力)'}
-            </div>
-          </ComponentWithSubTitle>
-        </div>
+            <ComponentWithSubTitle subTitle="電話番号" icon={PhoneIcon}>
+              <div style={style.label}>
+                {user.telephone || '(未入力)'}
+              </div>
+            </ComponentWithSubTitle>
+          </div>
         </div>
       </Paper>
     )

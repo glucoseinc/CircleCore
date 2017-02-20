@@ -41,6 +41,28 @@ class OAuthLogin extends React.Component {
   }
 
   /**
+   * Form送信前のエラーチェック
+   * @param {Event} e イベントオブジェクト
+   */
+  onSubmit(e) {
+    let errors = {}
+
+    if(!this.refs.account.getValue()) {
+      errors['account'] = 'アカウント名は必須です'
+    }
+    if(!this.refs.password.getValue()) {
+      errors['password'] = 'パスワードは必須です'
+    }
+
+    if(Object.keys(errors).length) {
+      // has error
+      e.preventDefault()
+    }
+
+    this.setState({errors})
+  }
+
+  /**
    * @override
    */
   render() {
@@ -79,7 +101,7 @@ class OAuthLogin extends React.Component {
             type="password"
             errorText={errors.password}
             style={{width: '100%'}}
-            /><br />
+          /><br />
 
           <div className="loginForm-actions" style={{textAlign: 'center'}}>
             <FlatButton label="ログイン" primary={true} type="submit" />
@@ -87,28 +109,6 @@ class OAuthLogin extends React.Component {
         </form>
       </div>
     )
-  }
-
-  /**
-   * Form送信前のエラーチェック
-   * @param {Event} e イベントオブジェクト
-   */
-  onSubmit(e) {
-    let errors = {}
-
-    if(!this.refs.account.getValue()) {
-      errors['account'] = 'アカウント名は必須です'
-    }
-    if(!this.refs.password.getValue()) {
-      errors['password'] = 'パスワードは必須です'
-    }
-
-    if(Object.keys(errors).length) {
-      // has error
-      e.preventDefault()
-    }
-
-    this.setState({errors})
   }
 }
 

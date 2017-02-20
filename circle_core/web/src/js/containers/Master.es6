@@ -8,7 +8,6 @@ import Title from 'react-title-component'
 import withWidth, {LARGE} from 'material-ui/utils/withWidth'
 
 import actions from 'src/actions'
-import {OAUTH_AUTHORIZATION_URL} from 'src/Authorization'
 
 import ErrorDialog from 'src/components/ErrorDialog'
 import NavDrawer from 'src/components/NavDrawer'
@@ -100,7 +99,7 @@ class Master extends Component {
 
     return (
       <div>
-        <Title render="CircleCore"/>
+        <Title render="CircleCore" />
         <div style={style.content}>
           <AppBar
             title={title}

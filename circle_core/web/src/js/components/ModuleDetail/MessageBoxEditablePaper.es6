@@ -166,7 +166,7 @@ class MessageBoxEditablePaper extends Component {
 
         <ComponentWithSubTitle subTitle="メッセージスキーマ" icon={SchemaIcon} style={style.schemaSection}>
           <div style={style.schemaPropertyDisplayName}>{schema.displayName}</div>
-          <SchemaPropertiesLabel schema={schema}/>
+          <SchemaPropertiesLabel schema={schema} />
         </ComponentWithSubTitle>
 
         <MemoComponent obj={messageBox} style={style.memoSection} />

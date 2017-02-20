@@ -75,7 +75,7 @@ class Empty extends Component {
       <div style={style.root}>
         <div style={style.iconArea}>
           <Paper style={style.paper} circle={true}>
-            <Icon style={style.icon} color={grey400}/>
+            <Icon style={style.icon} color={grey400} />
           </Paper>
         </div>
         <div style={style.primaryLabel}>{generatedPrimaryLabel}</div>

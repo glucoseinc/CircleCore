@@ -78,7 +78,7 @@ class CcInfoPaper extends Component {
               />
             </div>
             <div style={style.workSection}>
-              <WorkLabel obj={ccInfo}/>
+              <WorkLabel obj={ccInfo} />
             </div>
           </div>
         </div>

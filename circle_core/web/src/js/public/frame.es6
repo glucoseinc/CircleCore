@@ -52,7 +52,7 @@ class PublicFrame extends Component {
 
     return (
       <div>
-        <Title render="CircleCore"/>
+        <Title render="CircleCore" />
         <div style={style.content}>
           <AppBar
             title={title}
