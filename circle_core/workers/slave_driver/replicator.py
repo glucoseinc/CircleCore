@@ -60,7 +60,7 @@ class Replicator(object):
             except ConnectionClosed as exc:
                 logger.info('Replication connection was closed. code=%r, reason=%r', exc.code, exc.reason)
 
-                if exc.code in (WebsocketStatusCode.CLOSE_NORMALY, WebsocketStatusCode.GOING_AWAY):
+                if exc.code in (WebsocketStatusCode.CLOSE_NORMALLY, WebsocketStatusCode.GOING_AWAY):
                     # 正常終了した場合はRetryする
                     logger.info('Replication connection was closed normarly. will retry after 5secs...')
                 elif exc.code:

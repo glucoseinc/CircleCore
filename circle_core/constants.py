@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
 
+"""Constants."""
+
+# system module
 import enum
 
 
@@ -21,9 +23,8 @@ class CRDataType(enum.Enum):
 
 @enum.unique
 class CRScope(enum.Enum):
-    """
-    circle_core APIのscopeを定義する
-    """
+    """APIのScope."""
+
     # ユーザ情報の読み込み
     USER_R = 'user+r'
     # ユーザ情報の管理
@@ -36,15 +37,15 @@ class CRScope(enum.Enum):
 
 @enum.unique
 class RequestType(enum.Enum):
+    """RequestType."""
+
     # 新しいメッセージを登録したい
     NEW_MESSAGE = 'new_message'
 
 
 @enum.unique
 class ReplicationState(enum.Enum):
-    """
-    ReplicationのStateを表す
-    """
+    """ReplicationのState."""
 
     # 初期状態
     HANDSHAKING = 'handshaking'
@@ -54,9 +55,7 @@ class ReplicationState(enum.Enum):
 
 @enum.unique
 class SlaveCommand(enum.Enum):
-    """
-    Slaveから送られてくるコマンド
-    """
+    """Slaveから送られてくるコマンド."""
 
     HELLO = 'hello'
     MIGRATED = 'migrated'
@@ -66,9 +65,7 @@ class SlaveCommand(enum.Enum):
 
 @enum.unique
 class MasterCommand(enum.Enum):
-    """
-    Masterから送るコマンド
-    """
+    """Masterから送るコマンド."""
 
     MIGRATE = 'migrate'
     SYNC_MESSAGE = 'sync_message'
@@ -77,7 +74,9 @@ class MasterCommand(enum.Enum):
 
 @enum.unique
 class WebsocketStatusCode(enum.Enum):
-    CLOSE_NORMALY = 1000
+    """WebsocketStatusCode."""
+
+    CLOSE_NORMALLY = 1000
     GOING_AWAY = 1001
     PROTOCOL_ERROR = 1002
     DATA_CANNOT_ACCEPT = 1003
