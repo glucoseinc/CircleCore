@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 import {Set} from 'immutable'
+import moment from 'moment'
 
 import actions from 'src/actions'
 import {urls} from 'src/routes'
@@ -105,10 +106,9 @@ class Module extends Component {
    * @param {object} endDate
    */
   async onMessageBoxDownloadTouchTap(module, messageBox, startDate, endDate) {
-    endDate.setDate(endDate.getDate() + 1)
     const params = {
-      start: startDate.toJSON(),
-      end: endDate.toJSON(),
+      start: moment(startDate).format('YYYYMMDD'),
+      end: moment(endDate).format('YYYYMMDD'),
       access_token: this.props.token.accessToken,
     }
     const query = Object.entries(params).map(([key, value]) => `${key}=${value}`).join('&')

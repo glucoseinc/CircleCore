@@ -2,6 +2,7 @@
 """ダウンロード."""
 
 # system module
+from datetime import timedelta
 import time
 
 # community module
@@ -26,7 +27,7 @@ def download_message_box_data(module_uuid, message_box_uuid):
 
     end = request.args.get('end', None)
     if end:
-        end = time.mktime(parser.parse(end).timetuple())
+        end = time.mktime((parser.parse(end) + timedelta(days=1)).timetuple())
 
     database = current_app.core.get_database()
 
