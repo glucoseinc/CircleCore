@@ -6,6 +6,7 @@ import {blue500} from 'material-ui/styles/colors'
 
 import MoreIconMenu from 'src/components/bases/MoreIconMenu'
 import {CheckIcon, DeleteIcon} from 'src/components/bases/icons'
+import LabelWithCopyButton from 'src/containers/bases/LabelWithCopyButton'
 
 import tableStyle from './tableStyle'
 
@@ -44,6 +45,15 @@ class UserInfoPaper extends Component {
         fontWeight: 'bold',
         cursor: 'pointer',
       },
+      id: {
+        ...tableStyle.id,
+      },
+      idLabel: {
+        fontSize: 10,
+        overflow: 'hidden',
+        whiteSpace: 'nowrap',
+        textOverflow: 'ellipsis',
+      },
       mailAddress: {
         ...tableStyle.mailAddress,
       },
@@ -75,6 +85,13 @@ class UserInfoPaper extends Component {
       <Paper>
         <div style={style.root}>
           <div style={style.displayName} onTouchTap={() => onDisplayNameTouchTap(user)}>{user.displayName}</div>
+          <div style={style.id}>
+            <LabelWithCopyButton
+              label={user.uuid}
+              labelStyle={style.idLabel}
+              messageWhenCopying="IDをコピーしました"
+            />
+          </div>
           <div style={style.mailAddress}>{user.mailAddress}</div>
           <div style={style.lastAccessAt}>{user.lastAccessAt}</div>
           <div style={style.isAdmin}>{user.isAdmin ? <CheckIcon color={blue500} /> : null}</div>

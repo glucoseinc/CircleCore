@@ -8,17 +8,20 @@ const tableStyle = {
     lineHeight: 1,
   },
   displayName: {
-    width: '25%',
+    width: '20%',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   },
+  id: {
+    width: '20%',
+  },
   mailAddress: {
-    width: '25%',
+    width: '20%',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   },
   lastAccessAt: {
-    width: '25%',
+    width: '20%',
   },
   isAdmin: {
     flexGrow: 1,

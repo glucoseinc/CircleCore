@@ -25,6 +25,9 @@ class UsersHeader extends Component {
       displayName: {
         ...tableStyle.displayName,
       },
+      id: {
+        ...tableStyle.id,
+      },
       mailAddress: {
         ...tableStyle.mailAddress,
       },
@@ -39,6 +42,7 @@ class UsersHeader extends Component {
     return (
       <div style={style.root}>
         <div style={style.displayName}>アカウント</div>
+        <div style={style.id}>UUID</div>
         <div style={style.mailAddress}>メールアドレス</div>
         <div style={style.lastAccessAt}>最終ログイン日時</div>
         <div style={style.isAdmin}>管理権限</div>
