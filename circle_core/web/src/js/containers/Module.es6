@@ -112,7 +112,7 @@ class Module extends Component {
       access_token: this.props.token.accessToken,
     }
     const query = Object.entries(params).map(([key, value]) => `${key}=${value}`).join('&')
-    const url = `/download/modules/${module.uuid}/${messageBox.uuid}/data?${query}`
+    const url = `/download/${module.uuid}/${messageBox.uuid}/?${query}`
     window.open(url)
   }
 

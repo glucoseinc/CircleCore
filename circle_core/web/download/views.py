@@ -13,7 +13,7 @@ from circle_core.models import MessageBox, NoResultFound
 from .download import download
 
 
-@download.route('/modules/<uuid:module_uuid>/<uuid:message_box_uuid>/data')
+@download.route('/<uuid:module_uuid>/<uuid:message_box_uuid>/')
 def download_message_box_data(module_uuid, message_box_uuid):
     try:
         box = MessageBox.query.filter_by(uuid=message_box_uuid, module_uuid=module_uuid).one()
