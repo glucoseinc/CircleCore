@@ -24,4 +24,4 @@ port = 8080
 websocket = on
 admin = on
 admin_base_url = http://${listen}:${port}
-skip_build = on
+skip_build = off
