@@ -30,7 +30,7 @@ def download_message_box_data(module_uuid, message_box_uuid):
 
     database = current_app.core.get_database()
 
-    message_generator = database.messages(box, start=start, end=end)
+    message_generator = database.enum_messages(box, start=start, end=end)
 
     def generate():
         def to_line(row):

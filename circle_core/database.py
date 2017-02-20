@@ -165,7 +165,7 @@ class Database(object):
 
         return connection.scalar(sa.sql.select([sa.func.count()]).select_from(table))
 
-    def enum_messages(self, message_box, head=None, limit=None, order='asc', connection=None):
+    def enum_messages(self, message_box, start=None, end=None, head=None, limit=None, order='asc', connection=None):
         """head以降のメッセージを返す
         旧 > 真の順
         """
@@ -186,6 +186,10 @@ class Database(object):
         else:
             query = query.order_by(table.c._created_at.desc(), table.c._counter.desc())
 
+        if start:
+            query = query.where(table.c._created_at >= start)
+        if end:
+            query = query.where(table.c._created_at <= end)
         if head:
             query = query.where(table.c._created_at >= head.timestamp)
         if limit:
@@ -200,26 +204,6 @@ class Database(object):
                    (message.timestamp == head.timestamp and message.counter <= head.counter):
                     # logger.info('skip message %s', message)
                     continue
-
-            yield message
-
-    def messages(self, message_box, start=None, end=None):
-        connection = self._engine.connect()
-
-        table = self.find_table_for_message_box(message_box, create_if_not_exsts=False)
-        if table is None:
-            return
-
-        query = sa.sql.select([table]).order_by(table.c._created_at.asc(), table.c._counter.asc())
-
-        for row in connection.execute(query):
-            row = dict(row)
-            message = ModuleMessage(message_box.uuid, row.pop('_created_at'), row.pop('_counter'), row)
-
-            if start and message.timestamp <= start:
-                continue
-            if end and end <= message.timestamp:
-                continue
 
             yield message
 
