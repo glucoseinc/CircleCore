@@ -143,10 +143,15 @@ class Module(UUIDMetaDataBase):
         super(Module, self).__init__(**kwargs)
 
     def __hash__(self):
+        """hash.
+
+        :return: ハッシュ値
+        :rtype: int
+        """
         return hash('{}:{!r}'.format(self.__class__.__name__, hash(self.uuid)))
 
     def __eq__(self, other):
-        """return equality.
+        """eq.
 
         :param Module other: other Module
         :return: equality
