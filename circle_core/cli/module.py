@@ -47,7 +47,7 @@ def _format_for_columns(modules):
     :return: data: 加工後のモジュールリスト, header: 見出し
     :rtype: Tuple[List[List[str]], List[str]]
     """
-    header = ['UUID', 'DISPLAY_NAME', 'TAGS']
+    header = ['UUID', 'DISPLAY_NAME', 'TAGS', 'PROPERTIES']
     data = []  # type: List[List[str]]
     for module in modules:
         display_name = module.display_name
@@ -55,6 +55,7 @@ def _format_for_columns(modules):
             str(module.uuid),
             display_name,
             ','.join(module.tags),
+            module.properties,
         ])
     return data, header
 
@@ -69,7 +70,7 @@ def module_detail(ctx, module_uuid):
     :param UUID module_uuid: モジュールUUID
     """
     try:
-        module = Module.query.filter_by(uuid=module_uuid).one()
+        module = Module.query.filter_by(uuid=module_uuid).one()  # type: Module
     except NoResultFound:
         click.echo('Module "{}" is not registered.'.format(module_uuid))
         ctx.exit(code=-1)
@@ -81,6 +82,9 @@ def module_detail(ctx, module_uuid):
 
     for i, tag in enumerate(module.tags):
         data.append(('TAG' if i == 0 else '', tag))
+
+    for i, prop in enumerate(module.properties):
+        data.append(('PROPERTY' if i == 0 else '', prop))
 
     data.append(('MEMO', module.memo or ''))
 
@@ -98,32 +102,26 @@ def module_detail(ctx, module_uuid):
 
 @cli_module.command('add')
 @click.option('display_name', '--name', required=True)
-# @click.option('stringified_message_box_uuids', '--box', required=True)
+@click.option('properties', '--property')
 @click.option('tags', '--tag')
 @click.option('--memo')
 @click.pass_context
-def module_add(ctx, display_name, tags, memo):
+def module_add(ctx, display_name, properties, tags, memo):
     """モジュールを登録する.
 
     :param Context ctx: Context
     :param str display_name: モジュール表示名
+    :param Optional[str] properties: プロパティ
     :param Optional[str] tags: タグ
     :param Optional[str] memo: メモ
     """
-    # message_boxes = []
-    # message_box_uuids = stringified_message_box_uuids.split(',')
-    # for message_box_uuid in message_box_uuids:
-    #     message_box = metadata.find_message_box(message_box_uuid)
-    #     if message_box is None:
-    #         click.echo('MessageBox "{}" is not exist. Do nothing.'.format(message_box_uuid))
-    #         ctx.exit(code=-1)
-    #     message_boxes.append(message_box)
 
     with MetaDataSession.begin():
         module = Module.create(
             display_name=display_name,
-            memo=memo,
+            properties=properties,
             tags=tags,
+            memo=memo,
         )
         MetaDataSession.add(module)
 
