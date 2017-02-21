@@ -6,9 +6,11 @@ import actions from 'src/actions'
 import {urls, createPathName} from 'src/routes'
 
 import LoadingIndicator from 'src/components/bases/LoadingIndicator'
+import {UserIcon} from 'src/components/bases/icons'
 
 import UserDeleteDialog from 'src/components/commons/UserDeleteDialog'
 
+import Empty from 'src/components/Empty'
 import UsersTableComponent from 'src/components/UsersTableComponent'
 
 
@@ -83,15 +85,22 @@ class Users extends Component {
 
     return (
       <div>
-        <div className="page">
-          <UsersTableComponent
-            users={users}
-            myID={myID}
-            readOnly={isReadOnly}
-            onDisplayNameTouchTap={(user) => onDisplayNameTouchTap(user.uuid)}
-            onDeleteTouchTap={(user) => this.onDeleteTouchTap(user)}
+        {users.size === 0 ? (
+          <Empty
+            icon={UserIcon}
+            itemName="ユーザー"
           />
-        </div>
+        ) : (
+          <div className="page">
+            <UsersTableComponent
+              users={users}
+              myID={myID}
+              readOnly={isReadOnly}
+              onDisplayNameTouchTap={(user) => onDisplayNameTouchTap(user.uuid)}
+              onDeleteTouchTap={(user) => this.onDeleteTouchTap(user)}
+            />
+          </div>
+        )}
 
         <UserDeleteDialog
           open={isUserDeleteDialogOpen}
