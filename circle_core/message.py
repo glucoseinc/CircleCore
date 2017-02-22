@@ -126,7 +126,7 @@ class ModuleMessage(object):
         d = {
             'timestamp': str(self.timestamp),
             'counter': self.counter,
-            'payload': self.payload
+            'payload': {key: str(value) for key, value in self.payload.items()}
         }
         if with_boxid:
             d['boxId'] = self.box_id.hex
