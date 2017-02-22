@@ -1,11 +1,15 @@
 import React, {Component, PropTypes} from 'react'
+
 import Paper from 'material-ui/Paper'
 
 import ReplicationLink from 'src/models/ReplicationLink'
+
 import ComponentWithHeader from 'src/components/bases/ComponentWithHeader'
+
 import CreateButton from 'src/components/commons/CreateButton'
 import DisplayNameTextField from 'src/components/commons/DisplayNameTextField'
 import MemoTextField from 'src/components/commons/MemoTextField'
+
 import TargetSelectComponent from './TargetSelectComponent'
 
 
