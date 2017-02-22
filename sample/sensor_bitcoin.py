@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 def bitcoin_bot(send_to, box_id):
     """Bitcoinの取引をCircleCoreに送信.
 
-    スキーマ登録: crcr schema add --name bitcoinbot address:text btc:float
+    スキーマ登録: crcr schema add --name bitcoinbot address:string btc:float
 
     :param str send_to:
     """

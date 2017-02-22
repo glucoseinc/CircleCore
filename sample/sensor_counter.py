@@ -14,7 +14,7 @@ import nnpy
 def counter_bot(send_to, box_id):
     """一秒ごとに適当なメッセージを投げる.
 
-    スキーマ登録: crcr schema add --name counterbot count:int body:text
+    スキーマ登録: crcr schema add --name counterbot count:int body:string
 
     :param str send_to:
     :param UUID box_id:
