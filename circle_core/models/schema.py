@@ -176,8 +176,9 @@ class Schema(UUIDMetaDataBase):
         schema_type_map = {
             'float': float,
             'int': int,
-            'text': str
+            'string': str,
         }
+        # TODO: 他の型も受け取れるように
 
         for msg_key, msg_value in data.items():
             for property in self.properties:
