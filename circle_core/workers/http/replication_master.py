@@ -38,7 +38,7 @@ from werkzeug import ImmutableDict
 from circle_core.constants import MasterCommand, ReplicationState, SlaveCommand, WebsocketStatusCode
 from circle_core.exceptions import ReplicationError
 from circle_core.message import ModuleMessage, ModuleMessagePrimaryKey
-from circle_core.models import CcInfo, MetaDataSession, NoResultFound, ReplicationLink
+from circle_core.models import CcInfo, MetaDataSession, NoResultFound, ReplicationLink, ReplicationSlave
 from ...exceptions import ModuleNotFoundError
 # from ...helpers.metadata import metadata
 from ...helpers import make_message_topic
@@ -150,12 +150,13 @@ class ReplicationMaster(WebSocketHandler):
         slave_info = json_msg['ccInfo']
         slave_uuid = uuid.UUID(slave_info['uuid'])
 
-        if slave_uuid not in [s.slave_uuid for s in self.replication_link.slaves]:
-            logger.error('core %r not allowed', slave_uuid)
-            raise ReplicationError('core {} not allowed'.format(slave_uuid))
-
         with MetaDataSession.begin():
             # store slave's information
+            self.replication_link.slaves.append(ReplicationSlave(
+                link_uuid=self.replication_link.uuid,
+                slave_uuid=slave_uuid)
+            )
+
             cc_info = CcInfo.query.get(slave_uuid)
             if not cc_info:
                 cc_info = CcInfo(uuid=slave_uuid, myself=False)

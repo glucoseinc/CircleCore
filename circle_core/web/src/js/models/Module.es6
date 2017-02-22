@@ -280,7 +280,7 @@ export default class Module extends ModuleRecord {
    * @return {bool}
    */
   isReadyToCreate() {
-    if(this.messageBoxes.length == 0) {
+    if(this.messageBoxes.filterNot((messageBox) => messageBox.isValid()).size !== 0) {
       return false
     }
     if(this.tags.filter((tag) => tag === '').size !== 0) {

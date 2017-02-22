@@ -9,7 +9,7 @@ from .invitation import Invitation
 from .message_box import MessageBox
 from .module import Module
 from .oauth import OAuthClient, OAuthGrant, OAuthToken
-from .replication_link import ReplicationLink
+from .replication_link import ReplicationLink, ReplicationSlave
 from .replication_master import ReplicationMaster
 from .schema import Schema, SchemaProperties
 from .user import User

@@ -68,14 +68,12 @@ class ReplicationLink(UUIDMetaDataBase):
     ALL_MESSAGE_BOXES = object()
 
     @classmethod
-    def create(cls, display_name, memo, slaves, message_box_uuids):
+    def create(cls, display_name, memo, message_box_uuids):
         """ReplicationLinkを作成する。
         message boxの存在チェックとかを行う
 
-        :param Union[str, UUID] uuid: Module UUID
         :param str display_name: 表示名
         :param Optional[str] memo: メモ
-        :param List[Union[str, UUID]] slaves: CircleCoreInfoのUUIDリスト
         :param Union[ALL_MESSAGE_BOXES, List[Union[str, UUID]]] message_box_uuids: MessageBoxのUUIDリスト
         """
         from . import generate_uuid, MessageBox
@@ -85,10 +83,6 @@ class ReplicationLink(UUIDMetaDataBase):
             display_name=display_name,
             memo=memo,
         )
-
-        for slave_uuid in slaves:
-            slave_uuid = prepare_uuid(slave_uuid)
-            obj.slaves.append(ReplicationSlave(link_uuid=obj.uuid, slave_uuid=slave_uuid))
 
         if message_box_uuids is cls.ALL_MESSAGE_BOXES:
             query = MessageBox.query
