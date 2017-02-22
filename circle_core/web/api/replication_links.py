@@ -39,7 +39,6 @@ def _post_replicas():
         replication_link = ReplicationLink.create(
             data['displayName'],
             data['memo'],
-            data['slaves'],
             data['messageBoxes'],
         )
         MetaDataSession.add(replication_link)
