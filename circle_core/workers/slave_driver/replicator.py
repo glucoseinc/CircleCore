@@ -10,7 +10,7 @@ from tornado.websocket import websocket_connect
 # project module
 from circle_core.constants import MasterCommand, ReplicationState, SlaveCommand, WebsocketStatusCode
 from circle_core.exceptions import ReplicationError
-from circle_core.message import ModuleMessage
+from circle_core.message import ModuleMessage, ModuleMessagePrimaryKey
 from circle_core.models import CcInfo, MessageBox, MetaDataSession, Module, NoResultFound, ReplicationMaster, Schema
 
 logger = logging.getLogger(__name__)
@@ -159,7 +159,10 @@ class Replicator(object):
         heads = {}
         for box in self.target_boxes.values():
             pkey = database.get_latest_primary_key(box, connection=self.writer.connection)
-            heads[str(box.uuid)] = pkey.to_json()
+            if pkey is None:  # メッセージボックスが空だったら
+                heads[str(box.uuid)] = ModuleMessagePrimaryKey.origin().to_json()
+            else:
+                heads[str(box.uuid)] = pkey.to_json()
 
         self._send_command(
             SlaveCommand.MIGRATED,

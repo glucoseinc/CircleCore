@@ -48,6 +48,10 @@ class ModuleMessagePrimaryKey(
             jsonobj[1]
         )
 
+    @classmethod
+    def origin(cls):
+        return cls(ModuleMessage.make_timestamp('0'), 0)
+
 
 class ModuleMessage(object):
     """CircleModuleからのメッセージ.
