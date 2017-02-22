@@ -73,12 +73,51 @@ export class MessageBox extends MessageBoxRecord {
 }
 
 
+const ModulePropertyRecord = Record({
+  name: '',
+  value: '',
+})
+
+/**
+ * ModulePropertyモデル
+ */
+export class ModuleProperty extends ModulePropertyRecord {
+  /**
+   * @param {object} rawModuleProperty
+   * @return {ModuleProperty}
+   */
+  static fromObject(rawModuleProperty) {
+    return new ModuleProperty({
+      name: rawModuleProperty.name || '',
+      value: rawModuleProperty.value || '',
+    })
+  }
+
+  /**
+   * @param {string} value
+   * @return {ModuleProperty}
+   */
+  updateName(value) {
+    return this.set('name', value)
+  }
+
+  /**
+   * @param {string} value
+   * @return {ModuleProperty}
+   */
+  updateValue(value) {
+    return this.set('value', value)
+  }
+}
+
+
 const ModuleRecord = Record({
   uuid: '',
   ccUuid: '',
   displayName: '',
   messageBoxes: List(),
   tags: List(),
+  properties: List(),
   memo: '',
 })
 
@@ -103,6 +142,7 @@ export default class Module extends ModuleRecord {
     let boxes = rawModule.messageBoxes || []
     boxes.sort()
     boxes = boxes.map((boxUuid) => messageBoxes.get(boxUuid))
+    const properties = rawModule.properties ? rawModule.properties.map(ModuleProperty.fromObject) : []
 
     return new Module({
       uuid: rawModule.uuid || '',
@@ -110,6 +150,7 @@ export default class Module extends ModuleRecord {
       displayName: rawModule.displayName || '',
       messageBoxes: List(boxes),
       tags: List(rawModule.tags || []),
+      properties: List(properties),
       memo: rawModule.memo || '',
     })
   }
@@ -192,6 +233,37 @@ export default class Module extends ModuleRecord {
   updateTag(index, tag) {
     const newTags = this.tags.set(index, tag)
     return this.set('tags', newTags)
+  }
+
+  /**
+   * ModuleProperty追加
+   * @param {ModuleProperty} property
+   * @return {Module}
+   */
+  pushModuleProperty(property = new ModuleProperty()) {
+    const newProperties = this.properties.push(property)
+    return this.set('properties', newProperties)
+  }
+
+  /**
+   * ModuleProperty削除
+   * @param {number} index
+   * @return {Module}
+   */
+  removeModuleProperty(index) {
+    const newProperties = this.properties.delete(index)
+    return this.set('properties', newProperties)
+  }
+
+  /**
+   * ModuleProperty更新
+   * @param {number} index
+   * @param {ModuleProperty} property
+   * @return {Schema}
+   */
+  updateModuleProperty(index, property) {
+    const newProperties = this.properties.set(index, property)
+    return this.set('properties', newProperties)
   }
 
   /**

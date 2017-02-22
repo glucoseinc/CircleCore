@@ -10,6 +10,7 @@ import CreateButton from 'src/components/commons/CreateButton'
 import DisplayNameTextField from 'src/components/commons/DisplayNameTextField'
 import MemoTextField from 'src/components/commons/MemoTextField'
 import MessageBoxesEditComponent from 'src/components/commons/MessageBoxesEditComponent'
+import ModulePropertieEditComponent from 'src/components/commons/ModulePropertieEditComponent'
 import TagsEditComponent from 'src/components/commons/TagsEditComponent'
 
 
@@ -55,6 +56,9 @@ class ModuleNewPaper extends Component {
       },
       tagsSection: {
       },
+      propertiesSection: {
+        paddingTop: 16,
+      },
       memoSection: {
         paddingTop: 16,
       },
@@ -91,6 +95,14 @@ class ModuleNewPaper extends Component {
                   onUpdate={(index, tag) => this.setState({module: module.updateTag(index, tag)})}
                   onDeleteTouchTap={(index) => this.setState({module: module.removeTag(index)})}
                   onAddTouchTap={() => this.setState({module: module.pushTag()})}
+                />
+              </div>
+              <div style={style.propertiesSection}>
+                <ModulePropertieEditComponent
+                  module={module}
+                  onUpdate={(index, property) => this.setState({module: module.updateModuleProperty(index, property)})}
+                  onDeleteTouchTap={(index) => this.setState({module: module.removeModuleProperty(index)})}
+                  onAddTouchTap={() => this.setState({module: module.pushModuleProperty()})}
                 />
               </div>
               <div style={style.memoSection}>
