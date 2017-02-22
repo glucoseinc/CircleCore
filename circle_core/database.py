@@ -165,7 +165,7 @@ class Database(object):
 
         return connection.scalar(sa.sql.select([sa.func.count()]).select_from(table))
 
-    def enum_messages(self, message_box, head=None, limit=None, order='asc', connection=None):
+    def enum_messages(self, message_box, start=None, end=None, head=None, limit=None, order='asc', connection=None):
         """head以降のメッセージを返す
         旧 > 真の順
         """
@@ -186,6 +186,10 @@ class Database(object):
         else:
             query = query.order_by(table.c._created_at.desc(), table.c._counter.desc())
 
+        if start:
+            query = query.where(table.c._created_at >= start)
+        if end:
+            query = query.where(table.c._created_at <= end)
         if head:
             query = query.where(table.c._created_at >= head.timestamp)
         if limit:

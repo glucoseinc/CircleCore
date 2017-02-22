@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 import {Set} from 'immutable'
+import moment from 'moment'
 
 import actions from 'src/actions'
 import {urls} from 'src/routes'
@@ -26,6 +27,7 @@ class Module extends Component {
     schemas: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
+    token: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,
     setTitle: PropTypes.func,
     onUpdateTouchTap: PropTypes.func,
@@ -97,6 +99,24 @@ class Module extends Component {
   }
 
   /**
+   * MessageBoxダウンロードボタン押下時の動作
+   * @param {object} module
+   * @param {object} messageBox
+   * @param {object} startDate
+   * @param {object} endDate
+   */
+  async onMessageBoxDownloadTouchTap(module, messageBox, startDate, endDate) {
+    const params = {
+      start: moment(startDate).format('YYYYMMDD'),
+      end: moment(endDate).format('YYYYMMDD'),
+      access_token: this.props.token.accessToken,
+    }
+    const query = Object.entries(params).map(([key, value]) => `${key}=${value}`).join('&')
+    const url = `/download/${module.uuid}/${messageBox.uuid}/?${query}`
+    window.open(url)
+  }
+
+  /**
    * @override
    */
   render() {
@@ -147,7 +167,7 @@ class Module extends Component {
           tagSuggestions={tagSuggestions}
           onUpdateTouchTap={this.props.onUpdateTouchTap}
           onMessageBoxDeleteTouchTap={(messageBoxIndex) => this.onMessageBoxDeleteTouchTap(messageBoxIndex)}
-          onMessageBoxDownloadTouchTap={(...args) => console.log('onMessageBoxDownloadTouchTap', ...args)}
+          onMessageBoxDownloadTouchTap={(...args) => this.onMessageBoxDownloadTouchTap(...args)}
           onDeleteTouchTap={::this.onDeleteTouchTap}
         />
 
@@ -185,6 +205,7 @@ const mapStateToProps = (state) => ({
   schemas: state.entities.schemas,
   modules: state.entities.modules,
   ccInfos: state.entities.ccInfos,
+  token: state.auth.token,
 })
 
 const mapDispatchToProps = (dispatch) => ({
