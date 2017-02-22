@@ -1,6 +1,5 @@
 import React, {Component, PropTypes} from 'react'
 import Paper from 'material-ui/Paper'
-import TextField from 'material-ui/TextField'
 
 import ReplicationLink from 'src/models/ReplicationLink'
 import ComponentWithHeader from 'src/components/bases/ComponentWithHeader'
@@ -22,7 +21,6 @@ class ReplicationLinkNewPaper extends Component {
 
   state = {
     replicationLink: new ReplicationLink(),
-    slaveUuids: '',
   }
 
   /**
@@ -31,7 +29,6 @@ class ReplicationLinkNewPaper extends Component {
   render() {
     const {
       replicationLink,
-      slaveUuids,
     } = this.state
     const {
       modules,
@@ -47,9 +44,6 @@ class ReplicationLinkNewPaper extends Component {
       },
 
       displayNameArea: {
-      },
-
-      slavesArea: {
       },
 
       selectArea: {
@@ -80,28 +74,6 @@ class ReplicationLinkNewPaper extends Component {
               floatingLabelText="共有リンク名"
               onChange={(e) => this.setState({replicationLink: replicationLink.updateDisplayName(e.target.value)})}
             />
-          </div>
-
-          <div style={style.slavesArea}>
-            <ComponentWithHeader headerLabel="共有先CircleCore">
-              <TextField
-                floatingLabelText="共有先CircleCore UUID"
-                fullWidth={true}
-                multiLine={true}
-                rows={4}
-                rowsMax={4}
-                value={slaveUuids}
-                onChange={(event, newValue) => this.setState({
-                  slaveUuids: newValue,
-                  replicationLink: replicationLink.updateSlaves(
-                    newValue.split('\n').map((uuid) => uuid.trim())
-                  ),
-                })}
-                style={{}}
-                floatingLabelStyle={{}}
-                textareaStyle={{}}
-              />
-            </ComponentWithHeader>
           </div>
 
           <div style={style.selectArea}>
