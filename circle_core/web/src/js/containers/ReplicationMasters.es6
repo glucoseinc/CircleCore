@@ -5,11 +5,13 @@ import actions from 'src/actions'
 import {urls} from 'src/routes'
 
 import LoadingIndicator from 'src/components/bases/LoadingIndicator'
+import {CoreIcon} from 'src/components/bases/icons'
 
 import AddFloatingActionButton from 'src/components/commons/AddFloatingActionButton'
 import CCLink from 'src/components/commons/CCLink'
 import ReplicationMasterDeleteDialog from 'src/components/commons/ReplicationMasterDeleteDialog'
 
+import Empty from 'src/components/Empty'
 import ReplicactionMasterPaper from 'src/components/ReplicactionMasterPaper'
 
 
@@ -75,13 +77,22 @@ class ReplicactionMasters extends Component {
     }
 
     return (
-      <div className="page">
-        {replicationMasters.valueSeq().map((repMaster) =>
-          <ReplicactionMasterPaper
-            key={repMaster.id}
-            replicationMaster={repMaster}
-            onDeleteTouchTap={::this.onDeleteTouchTap}
+      <div>
+        {replicationMasters.size === 0 ? (
+          <Empty
+            icon={CoreIcon}
+            itemName="共有マスター"
           />
+        ) : (
+          <div className="page">
+            {replicationMasters.valueSeq().map((repMaster) =>
+              <ReplicactionMasterPaper
+                key={repMaster.id}
+                replicationMaster={repMaster}
+                onDeleteTouchTap={::this.onDeleteTouchTap}
+              />
+            )}
+          </div>
         )}
 
         <CCLink url={urls.replicationMasterNew}>

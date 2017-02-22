@@ -6,7 +6,11 @@ import actions from 'src/actions'
 import {urls, createPathName} from 'src/routes'
 
 import LoadingIndicator from 'src/components/bases/LoadingIndicator'
+import {ReplicationLinkIcon} from 'src/components/bases/icons'
+
 import ReplicationLinkDeleteDialog from 'src/components/commons/ReplicationLinkDeleteDialog'
+
+import Empty from 'src/components/Empty'
 import ReplicationLinkInfoPaper from 'src/components/ReplicationLinkInfoPaper'
 
 
@@ -77,19 +81,28 @@ class Replicas extends Component {
     }
 
     return (
-      <div className="page">
-        <div className="replicationLinks">
-          {replicationLinks.valueSeq().map((replicationLink) =>
-            <ReplicationLinkInfoPaper
-              key={replicationLink.uuid}
-              replicationLink={replicationLink}
-              modules={modules}
-              ccInfos={ccInfos}
-              onDeleteTouchTap={::this.onDeleteTouchTap}
-              onDisplayNameTouchTap={onDisplayNameTouchTap}
-            />
-          )}
-        </div>
+      <div>
+        {replicationLinks.size === 0 ? (
+          <Empty
+            icon={ReplicationLinkIcon}
+            itemName="共有リンク"
+          />
+        ) : (
+          <div className="page">
+            <div className="replicationLinks">
+              {replicationLinks.valueSeq().map((replicationLink) =>
+                <ReplicationLinkInfoPaper
+                  key={replicationLink.uuid}
+                  replicationLink={replicationLink}
+                  modules={modules}
+                  ccInfos={ccInfos}
+                  onDeleteTouchTap={::this.onDeleteTouchTap}
+                  onDisplayNameTouchTap={onDisplayNameTouchTap}
+                />
+              )}
+            </div>
+          </div>
+        )}
 
         <ReplicationLinkDeleteDialog
           open={isReplicationLinkDeleteDialogOpen}
