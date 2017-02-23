@@ -170,7 +170,7 @@ class Module(UUIDMetaDataBase):
 
     @tags.setter
     def tags(self, tags):
-        self._tags = ','.join(self.to_tags_list(tags))
+        self._tags = ','.join(sorted(set(self.to_tags_list(tags))))
 
     @classmethod
     def to_tags_list(cls, tags):

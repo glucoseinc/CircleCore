@@ -281,12 +281,21 @@ export default class Module extends ModuleRecord {
    */
   isReadyToCreate() {
     if(this.messageBoxes.filterNot((messageBox) => messageBox.isValid()).size !== 0) {
+      // 入力が不完全なMessageBoxがある
       return false
     }
-    if(this.tags.filter((tag) => tag === '').size !== 0) {
+    if(this.tags.filter((tag) => tag.length === 0).size !== 0) {
+      // 空欄のタグがある
+      return false
+    }
+    if (this.tags.filter((tag) =>
+      this.tags.filter((_tag) => _tag === tag).size > 1
+    ).size !== 0) {
+      // タグの重複がある
       return false
     }
     if(this.displayName.length === 0) {
+      // 表示名が空欄
       return false
     }
     return true
