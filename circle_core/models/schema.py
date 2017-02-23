@@ -13,6 +13,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
 from .base import generate_uuid, GUID, UUIDMetaDataBase
+from ..constants import CRDataType
 
 
 class SchemaProperty(collections.namedtuple('SchemaProperty', ['name', 'type'])):
@@ -173,20 +174,50 @@ class Schema(UUIDMetaDataBase):
         if not len(data) == len(self.properties):
             return False
 
-        schema_type_map = {
-            'float': float,
-            'int': int,
-            'string': str,
+        # TODO: 各Typeをクラス化する
+        # TODO: もう少し厳密にvalidate
+        def validate_int(value):
+            return isinstance(value, int)
+
+        def validate_float(value):
+            return isinstance(value, (int, float))
+
+        def validate_bool(value):
+            return isinstance(value, bool)
+
+        def validate_string(value):
+            return isinstance(value, str)
+
+        def validate_bytes(value):
+            return isinstance(value, str)
+
+        def validate_date(value):
+            return isinstance(value, str)
+
+        def validate_datetime(value):
+            return isinstance(value, str)
+
+        def validate_time(value):
+            return isinstance(value, str)
+
+        def validate_timestamp(value):
+            return isinstance(value, str)
+
+        validator = {
+            CRDataType.INT.value: validate_int,
+            CRDataType.FLOAT.value: validate_float,
+            CRDataType.BOOL.value: validate_bool,
+            CRDataType.STRING.value: validate_string,
+            CRDataType.BYTES.value: validate_bytes,
+            CRDataType.DATE.value: validate_date,
+            CRDataType.DATETIME.value: validate_datetime,
+            CRDataType.TIME.value: validate_time,
+            CRDataType.TIMESTAMP.value: validate_timestamp,
         }
-        # TODO: 他の型も受け取れるように
 
         for msg_key, msg_value in data.items():
-            for property in self.properties:
-                if msg_key == property.name and (
-                    (property.type == 'float' and isinstance(msg_value, int)) or
-                    # float型の値が0だった場合にintだと判定されてしまう
-                    isinstance(msg_value, schema_type_map[property.type])
-                ):
+            for prop in self.properties:
+                if msg_key == prop.name and validator[prop.type.upper()](msg_value):
                     break
             else:
                 return False

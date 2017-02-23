@@ -291,7 +291,7 @@ def make_sqlcolumn_from_datatype(name, datatype):
         CRDataType.FLOAT: sa.FLOAT,
         CRDataType.BOOL: sa.BOOLEAN,
         CRDataType.STRING: sa.TEXT,
-        CRDataType.BYTES: sa.BLOB,
+        CRDataType.BYTES: sa.TEXT,  # TODO: BLOBで保存するべきか？
         CRDataType.DATE: sa.DATE,
         CRDataType.DATETIME: sa.DATETIME,
         CRDataType.TIME: sa.TIME,
