@@ -9,6 +9,7 @@ class TagTextField extends Component {
   static propTypes = {
     tag: PropTypes.string.isRequired,
     suggestions: PropTypes.array,
+    error: PropTypes.bool,
     onChange: PropTypes.func,
   }
 
@@ -19,6 +20,7 @@ class TagTextField extends Component {
     const {
       tag,
       suggestions = [],
+      error = false,
       onChange,
     } = this.props
 
@@ -27,6 +29,7 @@ class TagTextField extends Component {
         floatingLabelText="タグ"
         dataSource={suggestions}
         searchText={tag}
+        errorText={error ? 'タグが重複しています' : null}
         onUpdateInput={onChange}
       />
     )

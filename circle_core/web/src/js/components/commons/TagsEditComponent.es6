@@ -50,16 +50,20 @@ class TagsEditComponent extends Component {
     return (
       <div style={style.root}>
         <div style={style.tags}>
-          {module.tags.valueSeq().map((tag, index) =>
-            <div key={index} style={style.tagBlock}>
-              <TagEditComponent
-                tag={tag}
-                suggestions={suggestions}
-                onUpdate={(newTag) => onUpdate(index, newTag)}
-                onDeleteTouchTap={() => onDeleteTouchTap(index)}
-              />
-            </div>
-          )}
+          {module.tags.valueSeq().map((tag, index) => {
+            const error = tag.length !== 0 && module.tags.filter((_tag) => _tag === tag).size > 1
+            return (
+              <div key={index} style={style.tagBlock}>
+                <TagEditComponent
+                  tag={tag}
+                  suggestions={suggestions}
+                  error={error}
+                  onUpdate={(newTag) => onUpdate(index, newTag)}
+                  onDeleteTouchTap={() => onDeleteTouchTap(index)}
+                />
+              </div>
+            )
+          })}
         </div>
         <div style={style.actionsBlock}>
           <AddFlatButton

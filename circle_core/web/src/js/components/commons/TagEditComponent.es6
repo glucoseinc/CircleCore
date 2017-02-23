@@ -13,6 +13,7 @@ class TagEditComponent extends Component {
   static propTypes = {
     tag: PropTypes.string.isRequired,
     suggestions: PropTypes.array,
+    error: PropTypes.bool,
     onUpdate: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
   }
@@ -24,6 +25,7 @@ class TagEditComponent extends Component {
     const {
       tag,
       suggestions = [],
+      error = false,
       onUpdate,
       onDeleteTouchTap,
     } = this.props
@@ -47,6 +49,7 @@ class TagEditComponent extends Component {
         <TagTextField
           tag={tag}
           suggestions={suggestions}
+          error={error}
           onChange={onUpdate}
         />
       </ComponentWithIconButton>
