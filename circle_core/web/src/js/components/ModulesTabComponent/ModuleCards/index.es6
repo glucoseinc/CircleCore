@@ -1,11 +1,10 @@
 import React, {Component, PropTypes} from 'react'
 
-import FlatButton from 'material-ui/FlatButton'
 import {GridList, GridTile} from 'material-ui/GridList'
 import Toggle from 'material-ui/Toggle'
-import {grey200, redA200} from 'material-ui/styles/colors'
 
-import {RANGES, RANGE_LABELS} from 'src/components/commons/ModuleGraph'
+import {RANGES} from 'src/components/commons/ModuleGraph'
+import ModuleGraphTimeRange from 'src/components/commons/ModuleGraphTimeRange'
 
 import ModuleCard from './ModuleCard'
 
@@ -67,22 +66,6 @@ class ModuleCards extends Component {
 
       timeRangeSection: {
         marginTop: 8,
-        display: 'flex',
-        flexFlow: 'row nowrap',
-        background: grey200,
-      },
-      timeRange: {
-        borderBottomStyle: 'none',
-      },
-      timeRangeLanel: {
-      },
-      activeTimeRange: {
-        borderBottomStyle: 'solid',
-        borderBottomWidth: 2,
-        borderBottomColor: redA200,
-      },
-      activeTimeRangeLabel: {
-        color: redA200,
       },
 
       moduleCardList: {
@@ -105,17 +88,11 @@ class ModuleCards extends Component {
           />
         </div>
 
-        <div style={style.timeRangeSection}>
-          {RANGES.map((range) =>
-            <FlatButton
-              key={range}
-              style={graphRange === range ? style.activeTimeRange : style.timeRange}
-              label={RANGE_LABELS[range]}
-              labelStyle={graphRange === range ? style.activeTimeRangeLabel : style.timeRangeLabel}
-              onTouchTap={() => this.setState({graphRange: range})}
-            />
-          )}
-        </div>
+        <ModuleGraphTimeRange
+          activeTimeRange={graphRange}
+          style={style.timeRangeSection}
+          onTouchTap={(range) => this.setState({graphRange: range})}
+        />
 
         <GridList
           cols={cols}
