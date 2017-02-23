@@ -47,6 +47,8 @@ class TagsEditComponent extends Component {
       },
     }
 
+    const optimizedSuggestions = suggestions.filter((suggestion) => !module.tags.includes(suggestion))
+
     return (
       <div style={style.root}>
         <div style={style.tags}>
@@ -56,7 +58,7 @@ class TagsEditComponent extends Component {
               <div key={index} style={style.tagBlock}>
                 <TagEditComponent
                   tag={tag}
-                  suggestions={suggestions}
+                  suggestions={optimizedSuggestions}
                   error={error}
                   onUpdate={(newTag) => onUpdate(index, newTag)}
                   onDeleteTouchTap={() => onDeleteTouchTap(index)}
