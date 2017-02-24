@@ -66,12 +66,17 @@ class UserInfoPaper extends Component {
       moreIconMenu: {
         ...tableStyle.moreIconMenu,
       },
+      moreIconMenuRoot: {
+        position: null,
+        top: null,
+        right: null,
+      },
     }
 
     const moreIconMenu = readOnly ? (
       null
     ) : (
-      <MoreIconMenu>
+      <MoreIconMenu style={style.moreIconMenuRoot}>
         <MenuItem
           primaryText="このユーザーを削除する"
           leftIcon={<DeleteIcon />}
