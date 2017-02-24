@@ -5,8 +5,6 @@ import Paper from 'material-ui/Paper'
 
 import {DeleteIcon} from 'src/components/bases/icons'
 import MoreIconMenu from 'src/components/bases/MoreIconMenu'
-// import IdLabel from 'src/components/commons/IdLabel'
-// import WorkLabel from 'src/components/commons/WorkLabel'
 
 
 /**
