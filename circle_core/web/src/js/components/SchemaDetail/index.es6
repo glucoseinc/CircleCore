@@ -69,7 +69,7 @@ class SchemaDetail extends Component {
         <div style={style.displayNamePaper}>
           <DisplayNamePaper
             obj={schema}
-            secondaryType="id"
+            secondaryType={null}
           />
         </div>
 
