@@ -221,6 +221,8 @@ class Replicator(object):
 
             master_info = obj
 
+            self.master.master_uuid = master_info.uuid
+
             # migrate schemas
             for schema_uuid, data in message['schemas'].items():
                 try:
