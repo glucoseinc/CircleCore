@@ -14,6 +14,8 @@ import IdLabel from 'src/components/commons/IdLabel'
 import SchemaPropertiesLabel from 'src/components/commons/SchemaPropertiesLabel'
 import MemoComponent from 'src/components/commons/MemoComponent'
 import ModuleGraph, {RANGES} from 'src/components/commons/ModuleGraph'
+import ModuleGraphTimeRange from 'src/components/commons/ModuleGraphTimeRange'
+
 import MessageBoxDataInfo from './MessageBoxDataInfo'
 
 
@@ -35,10 +37,9 @@ class MessageBoxEditablePaper extends Component {
   }
 
   state = {
+    graphRange: RANGES[0],
     downloadStartDate: null,
     downloadEndDate: null,
-    messageBoxDataInfoWidth: 0,
-    style: {},
   }
 
   /**
@@ -46,6 +47,7 @@ class MessageBoxEditablePaper extends Component {
    */
   render() {
     const {
+      graphRange,
       downloadStartDate,
       downloadEndDate,
     } = this.state
@@ -73,7 +75,10 @@ class MessageBoxEditablePaper extends Component {
         position: 'relative',
         background: grey100,
       },
+      timeRange: {
+      },
       graph: {
+        paddingTop: 8,
         width: '100%',
       },
 
@@ -154,11 +159,16 @@ class MessageBoxEditablePaper extends Component {
         </div>
 
         <div style={style.graphSection}>
+          <ModuleGraphTimeRange
+            activeTimeRange={graphRange}
+            style={style.timeRange}
+            onTouchTap={(range) => this.setState({graphRange: range})}
+          />
           <div style={style.graph}>
             <ModuleGraph
               module={module}
               messageBox={messageBox}
-              range={RANGES[0]}
+              range={graphRange}
               autoUpdate={0}
             />
           </div>
