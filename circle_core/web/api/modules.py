@@ -116,7 +116,10 @@ def _delete_module(module):
     :rtype: Response
     """
     with MetaDataSession.begin():
-        MetaDataSession.delete(module)
+        if module.replication_master is not None:
+            MetaDataSession.delete(module.replication_master)
+        else:
+            MetaDataSession.delete(module)
 
     return respond_success(module={'uuid': module.uuid})
 

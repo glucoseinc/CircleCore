@@ -106,9 +106,7 @@ class DataReceiverWorker(CircleWorker):
     def on_change_messagebox(self, what, target):
         """metadataのmessageboxが更新されたら呼ばれる"""
         if what == 'after_delete':
-            # message boxが削除されたので消す
             self.writer.commit()
-            self.db.drop_message_box(target)
 
     def find_message_box(self, box_id):
         # DBに直接触っちゃう
