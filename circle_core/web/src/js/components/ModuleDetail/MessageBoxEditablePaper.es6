@@ -28,8 +28,7 @@ class MessageBoxEditablePaper extends Component {
     messageBoxIndex: PropTypes.number.isRequired,
     schemas: PropTypes.object.isRequired,
     style: PropTypes.object,
-    editDisabled: PropTypes.bool,
-    deleteDisabled: PropTypes.bool,
+    deleteDispabled: PropTypes.bool,
     fetchingData: PropTypes.object.isRequired,
     onEditTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
@@ -55,8 +54,7 @@ class MessageBoxEditablePaper extends Component {
       module,
       messageBoxIndex,
       schemas,
-      editDisabled = false,
-      deleteDisabled = false,
+      deleteDispabled = false,
       fetchingData,
       onEditTouchTap,
       onDeleteTouchTap,
@@ -137,13 +135,12 @@ class MessageBoxEditablePaper extends Component {
         <MoreIconMenu>
           <MenuItem
             primaryText="このメッセージボックスを編集する"
-            disabled={editDisabled}
             leftIcon={<EditIcon />}
             onTouchTap={onEditTouchTap}
           />
           <MenuItem
             primaryText="このメッセージボックスを削除する"
-            disabled={editDisabled || deleteDisabled}
+            disabled={deleteDispabled}
             leftIcon={<DeleteIcon />}
             onTouchTap={onDeleteTouchTap}
           />
