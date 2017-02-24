@@ -7,11 +7,11 @@ import datetime
 
 # community module
 import sqlalchemy as sa
-from sqlalchemy import orm
 from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
 from .base import GUID, UUIDMetaDataBase
+from .replication_link import ReplicationLink
 from ..utils import prepare_uuid
 
 
@@ -58,6 +58,19 @@ class MessageBox(UUIDMetaDataBase):
         """
         return all([self.uuid == other.uuid,
                     self.display_name == other.display_name, self.memo == other.memo])
+
+    @hybrid_property
+    def cc_uuid(self):
+        return self.module.uuid
+
+    @hybrid_property
+    def slave_uuids(self):
+        replication_links = [replication_link for replication_link in ReplicationLink.query.all()
+                             if self.uuid in [box.uuid for box in replication_link.message_boxes]]
+        slave_uuids = set()
+        for replication_link in replication_links:
+            slave_uuids = slave_uuids.union([slave.slave_uuid for slave in replication_link.slaves])
+        return sorted(slave_uuids)
 
     def to_json(self, with_schema=False, with_module=False):
         """このモデルのJSON表現を返す.
