@@ -152,10 +152,10 @@ class ReplicationMaster(WebSocketHandler):
 
         with MetaDataSession.begin():
             # store slave's information
-            self.replication_link.slaves.append(ReplicationSlave(
-                link_uuid=self.replication_link.uuid,
-                slave_uuid=slave_uuid)
-            )
+            if slave_uuid not in [slave.slave_uuid for slave in self.replication_link.slaves]:
+                self.replication_link.slaves.append(ReplicationSlave(
+                    link_uuid=self.replication_link.uuid,
+                    slave_uuid=slave_uuid))
 
             cc_info = CcInfo.query.get(slave_uuid)
             if not cc_info:
