@@ -77,7 +77,7 @@ class MessageBox(UUIDMetaDataBase):
         if with_schema:
             d['schema'] = self.schema.to_json()
 
-        if with_schema:
+        if with_module:
             d['module'] = self.module.to_json()
 
         return d
