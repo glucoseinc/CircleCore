@@ -2,8 +2,6 @@ import React, {Component, PropTypes} from 'react'
 
 import Paper from 'material-ui/Paper'
 
-import IdLabel from 'src/components/commons/IdLabel'
-
 import ModuleGraph from 'src/components/commons/ModuleGraph'
 
 
@@ -45,9 +43,6 @@ class ModuleCard extends Component {
         fontWeight: 'bold',
         cursor: 'pointer',
       },
-      id: {
-        paddingTop: 8,
-      },
     }
 
     return (
@@ -57,11 +52,6 @@ class ModuleCard extends Component {
           <div style={style.infomations}>
             <div style={style.displayName} onTouchTap={() => onDisplayNameTouchTap(module)}>
               {module.displayName}
-            </div>
-            <div style={style.id}>
-              <IdLabel
-                obj={module}
-              />
             </div>
           </div>
         </div>

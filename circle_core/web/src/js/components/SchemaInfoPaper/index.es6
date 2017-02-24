@@ -5,7 +5,6 @@ import Paper from 'material-ui/Paper'
 
 import {DeleteIcon} from 'src/components/bases/icons'
 import MoreIconMenu from 'src/components/bases/MoreIconMenu'
-import IdLabel from 'src/components/commons/IdLabel'
 import MemoLabel from 'src/components/commons/MemoLabel'
 import SchemaPropertiesLabel from 'src/components/commons/SchemaPropertiesLabel'
 import ModuleButtons from './ModuleButtons'
@@ -58,10 +57,7 @@ class SchemaInfoPaper extends Component {
       rightArea: {
         marginLeft: 240,
       },
-      idSection: {
-      },
       propertiesSection: {
-        paddingTop: 8,
       },
       memoSection: {
         paddingTop: 8,
@@ -101,12 +97,6 @@ class SchemaInfoPaper extends Component {
           </div>
 
           <div style={style.rightArea}>
-            <div style={style.idSection}>
-              <IdLabel
-                obj={schema}
-              />
-            </div>
-
             <div style={style.propertiesSection}>
               <SchemaPropertiesLabel schema={schema} />
             </div>

@@ -202,6 +202,7 @@ class ModuleDetail extends Component {
     ) : (
       <DisplayNameEditablePaper
         obj={module}
+        secondaryType={null}
         editDisabled={editDisabled}
         onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.displayName, null)}
       />

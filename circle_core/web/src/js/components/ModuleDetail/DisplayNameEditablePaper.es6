@@ -50,7 +50,10 @@ class DisplayNameEditablePaper extends Component {
       },
     }
 
-    const SecondaryLabel = secondaryType === 'id' ? IdLabel : UrlLabel
+    const SecondaryLabel =
+      secondaryType === 'id' ? IdLabel :
+      secondaryType === 'url' ? UrlLabel :
+      () => null
 
     return (
       <Paper>

@@ -5,7 +5,6 @@ import Paper from 'material-ui/Paper'
 
 import {DeleteIcon} from 'src/components/bases/icons'
 import MoreIconMenu from 'src/components/bases/MoreIconMenu'
-import IdLabel from 'src/components/commons/IdLabel'
 import MessageBoxesLabel from './MessageBoxesLabel'
 import TagButtons from './TagButtons'
 
@@ -52,10 +51,7 @@ class ModuleInfoPaper extends Component {
       rightArea: {
         marginLeft: 240,
       },
-      idSection: {
-      },
       messageBoxesSection: {
-        paddingTop: 8,
       },
       tagsSection: {
         paddingTop: 8,
@@ -83,11 +79,6 @@ class ModuleInfoPaper extends Component {
           </div>
 
           <div style={style.rightArea}>
-            <div style={style.idSection}>
-              <IdLabel
-                obj={module}
-              />
-            </div>
             <div style={style.messageBoxesSection}>
               <MessageBoxesLabel module={module} />
             </div>

@@ -3,7 +3,7 @@ import React, {Component, PropTypes} from 'react'
 import Paper from 'material-ui/Paper'
 import {grey300, grey600, white} from 'material-ui/styles/colors'
 
-import IdLabel from '../../../js/components/commons/IdLabel'
+import IdLabel from 'src/components/commons/IdLabel'
 
 
 /**
