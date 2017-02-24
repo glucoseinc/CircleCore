@@ -241,6 +241,7 @@ class Replicator(object):
                     obj = Module(uuid=data['uuid'])
                 obj.update_from_json(data)
                 obj.cc_uuid = master_info.uuid
+                obj.replication_master_id = self.master.id
                 MetaDataSession.add(obj)
 
             # migrate boxes

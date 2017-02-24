@@ -17,7 +17,7 @@ from .base import generate_uuid, GUID, UUIDMetaDataBase
 from .message_box import MessageBox
 
 if PY3:
-    from typing import Dict, Iterator, List, Tuple, Union
+    from typing import Dict, Iterator, List, Optional, Tuple, Union
 
 
 class ModuleProperty(object):
@@ -99,6 +99,7 @@ class Module(UUIDMetaDataBase):
 
     :param UUID uuid: Module UUID
     :param UUID cc_uuid: owner CircleCore UUID
+    :param Optional[int] replication_master_id: ReplicationMaster ID
     :param List[MessageBox] message_boxes: MessageBox
     :param str display_name: 表示名
     :param str _properties: 属性
@@ -113,6 +114,8 @@ class Module(UUIDMetaDataBase):
 
     uuid = sa.Column(GUID, primary_key=True)
     cc_uuid = sa.Column(GUID, sa.ForeignKey('cc_informations.uuid', name='fk_modules_cc_uuid'), nullable=False)
+    replication_master_id = sa.Column(
+        sa.Integer, sa.ForeignKey('replication_masters.replication_master_id', name='fk_replication_master_id'))
     display_name = sa.Column(sa.String(255), nullable=False, default='')
     _properties = sa.Column('properties', sa.Text, nullable=False, default='')
     _tags = sa.Column('_tags', sa.Text, nullable=False, default='')
