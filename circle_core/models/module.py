@@ -4,6 +4,7 @@
 
 # system module
 import datetime
+from uuid import UUID
 
 # community module
 from six import PY3
@@ -13,6 +14,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
 from .base import generate_uuid, GUID, UUIDMetaDataBase
+from .message_box import MessageBox
 
 if PY3:
     from typing import Dict, Iterator, List, Tuple, Union
@@ -95,12 +97,17 @@ class ModuleProperties(object):
 class Module(UUIDMetaDataBase):
     """Moduleオブジェクト.
 
-    :param str key_prefix: ストレージキーのプレフィックス
     :param UUID uuid: Module UUID
+    :param UUID cc_uuid: owner CircleCore UUID
     :param List[MessageBox] message_boxes: MessageBox
     :param str display_name: 表示名
+    :param str _properties: 属性
+    :param List[ModuleProperties] properties: 属性
+    :param str _tags: タグ
     :param List[str] tags: タグ
-    :param Optional[str] memo: メモ
+    :param str memo: メモ
+    :param datetime.datetime created_at: 作成日時
+    :param datetime.datetime updated_at: 更新日時
     """
     __tablename__ = 'modules'
 
@@ -226,8 +233,6 @@ class Module(UUIDMetaDataBase):
         self.memo = jsonobj.get('memo', self.memo)
 
         if with_boxes and 'messageBoxes' in jsonobj:
-            from . import MessageBox
-
             boxes = []
             # TODO: in queryとか使う
             for box_data in jsonobj['messageBoxes']:

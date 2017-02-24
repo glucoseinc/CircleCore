@@ -1,17 +1,25 @@
 # -*- coding: utf-8 -*-
+
+# system module
 import json
 import logging
 import uuid
 
-# from websocket import create_connection, WebSocketConnectionClosedException
+# community module
+from six import PY3
 from tornado import gen
-from tornado.websocket import websocket_connect
+from tornado.websocket import websocket_connect, WebSocketClientConnection
 
 # project module
 from circle_core.constants import MasterCommand, ReplicationState, SlaveCommand, WebsocketStatusCode
+from circle_core.database import QueuedWriter
 from circle_core.exceptions import ReplicationError
 from circle_core.message import ModuleMessage, ModuleMessagePrimaryKey
 from circle_core.models import CcInfo, MessageBox, MetaDataSession, Module, NoResultFound, ReplicationMaster, Schema
+
+if PY3:
+    from typing import Dict, Optional
+
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +40,17 @@ class DataConfilictedError(Exception):
 
 # Replicator
 class Replicator(object):
+    """Replicator.
+
+    :param SlaveDriverWorker driver:
+    :param ReplicationMaster master:
+    :param Optional[WebSocketClientConnection] ws:
+    :param Optional[Dict[uuid.UUID, MessageBox]] target_boxes:
+    :param Optional[QueuedWriter] writer:
+    :param bool closed:
+    :param str endpoint_url:
+    """
+
     def __init__(self, driver, master):
         self.driver = driver
         self.master = master
