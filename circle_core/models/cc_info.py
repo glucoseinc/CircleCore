@@ -11,12 +11,11 @@ from six import PY3
 import sqlalchemy as sa
 
 # project module
-from circle_core.utils import format_date, prepare_date
 from .base import GUID, UUIDMetaDataBase
 
 
 if PY3:
-    from typing import Dict, Optional, Union
+    from typing import Dict, Optional
 
 
 class CcInfo(UUIDMetaDataBase):
@@ -67,7 +66,6 @@ class CcInfo(UUIDMetaDataBase):
         """JSON表現から更新.
 
         :param Dict json_msg:
-        :param Dict kwargs:
         :rtype: CcInfo
         """
         self.display_name = json_msg.get('displayName', self.display_name)
