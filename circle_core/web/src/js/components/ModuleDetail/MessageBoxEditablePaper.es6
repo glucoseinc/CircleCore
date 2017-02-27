@@ -15,6 +15,8 @@ import SchemaPropertiesLabel from 'src/components/commons/SchemaPropertiesLabel'
 import MemoComponent from 'src/components/commons/MemoComponent'
 import ModuleGraph, {RANGES} from 'src/components/commons/ModuleGraph'
 import ModuleGraphTimeRange from 'src/components/commons/ModuleGraphTimeRange'
+import ReplicationMasterComponent from 'src/components/commons/ReplicationMasterComponent'
+import ReplicationSlavesComponent from 'src/components/commons/ReplicationSlavesComponent'
 
 import MessageBoxDataInfo from './MessageBoxDataInfo'
 
@@ -27,6 +29,7 @@ class MessageBoxEditablePaper extends Component {
     module: PropTypes.object.isRequired,
     messageBoxIndex: PropTypes.number.isRequired,
     schemas: PropTypes.object.isRequired,
+    ccInfos: PropTypes.object.isRequired,
     style: PropTypes.object,
     deleteDispabled: PropTypes.bool,
     fetchingData: PropTypes.object.isRequired,
@@ -54,6 +57,7 @@ class MessageBoxEditablePaper extends Component {
       module,
       messageBoxIndex,
       schemas,
+      ccInfos,
       deleteDispabled = false,
       fetchingData,
       onEditTouchTap,
@@ -96,6 +100,14 @@ class MessageBoxEditablePaper extends Component {
         fontSize: 14,
       },
 
+      masterCcInfoSection: {
+        paddingTop: 16,
+      },
+
+      slaveCcInfosSection: {
+        paddingTop: 16,
+      },
+
       memoSection: {
         paddingTop: 16,
       },
@@ -129,6 +141,9 @@ class MessageBoxEditablePaper extends Component {
     require('assert')(messageBox !== undefined)
     const schema = schemas.get(messageBox.schema)
     require('assert')(schema !== undefined)
+
+    const masterCcInfo = ccInfos.get(module.ccUuid)
+    const slaveCcInfos = messageBox.slaveCcInfos.map((slaveCcInfoId) => ccInfos.get(slaveCcInfoId))
 
     return (
       <Paper className="messageBoxDetail" style={style.root}>
@@ -175,6 +190,16 @@ class MessageBoxEditablePaper extends Component {
           <div style={style.schemaPropertyDisplayName}>{schema.displayName}</div>
           <SchemaPropertiesLabel schema={schema} />
         </ComponentWithSubTitle>
+
+        <ReplicationMasterComponent
+          masterCcInfo={masterCcInfo}
+          style={style.masterCcInfoSection}
+        />
+
+        <ReplicationSlavesComponent
+          slaveCcInfos={slaveCcInfos}
+          style={style.slaveCcInfosSection}
+        />
 
         <MemoComponent obj={messageBox} style={style.memoSection} />
 

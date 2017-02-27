@@ -25,6 +25,7 @@ class Module extends Component {
     isModuleUpdating: PropTypes.bool.isRequired,
     schemas: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
+    ccInfos: PropTypes.object.isRequired,
     token: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,
     setTitle: PropTypes.func,
@@ -128,6 +129,7 @@ class Module extends Component {
       isModuleUpdating,
       schemas,
       modules,
+      ccInfos,
       params,
     } = this.props
 
@@ -157,6 +159,7 @@ class Module extends Component {
         <ModuleDetail
           module={module}
           schemas={schemas}
+          ccInfos={ccInfos}
           tagSuggestions={tagSuggestions}
           onUpdateTouchTap={this.props.onUpdateTouchTap}
           onMessageBoxDeleteTouchTap={(messageBoxIndex) => this.onMessageBoxDeleteTouchTap(messageBoxIndex)}
@@ -196,6 +199,7 @@ const mapStateToProps = (state) => ({
   isModuleUpdating: state.asyncs.isModuleUpdating,
   schemas: state.entities.schemas,
   modules: state.entities.modules,
+  ccInfos: state.entities.ccInfos,
   token: state.auth.token,
 })
 

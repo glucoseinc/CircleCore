@@ -17,6 +17,7 @@ import ModuleInfoPaper from './ModuleInfoPaper'
 class ModulesTabComponent extends Component {
   static propTypes = {
     modules: PropTypes.object.isRequired,
+    ccInfos: PropTypes.object.isRequired,
     width: PropTypes.number.isRequired,
     onDisplayNameTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
@@ -45,6 +46,7 @@ class ModulesTabComponent extends Component {
     } = this.state
     const {
       modules,
+      ccInfos,
       width,
       onDisplayNameTouchTap,
       onDeleteTouchTap,
@@ -112,6 +114,7 @@ class ModulesTabComponent extends Component {
               <ModuleInfoPaper
                 key={module.uuid}
                 module={module}
+                ccInfos={ccInfos}
                 onDisplayNameTouchTap={onDisplayNameTouchTap}
                 onTagButtonTouchTap={::this.setSearchText}
                 onDeleteTouchTap={onDeleteTouchTap}
