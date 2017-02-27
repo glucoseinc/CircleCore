@@ -11,9 +11,7 @@ const schema = new normalizerSchema.Entity(
 
 const messageBox = new normalizerSchema.Entity(
   'messageBoxes',
-  {
-    schema: schema,
-  },
+  {},
   {
     idAttribute: 'uuid',
   }
@@ -21,20 +19,11 @@ const messageBox = new normalizerSchema.Entity(
 
 const module = new normalizerSchema.Entity(
   'modules',
-  {
-    messageBoxes: [messageBox],
-  },
+  {},
   {
     idAttribute: 'uuid',
   }
 )
-
-// 循環参照yeah!
-messageBox.define({module: module})
-
-schema.define({
-  modules: [module],
-})
 
 const schemaPropertyType = new normalizerSchema.Entity(
   'schemaPropertyTypes',
@@ -76,14 +65,6 @@ const replicationLink = new normalizerSchema.Entity(
   },
   {
     idAttribute: 'uuid',
-    // processStrategy: (entity) => ({
-    //   uuid: entity.uuid,
-    //   displayName: entity.displayName,
-    //   ccInfos: entity.ccInfoUuids,
-    //   messageBoxes: entity.messageBoxUuids,
-    //   memo: entity.memo,
-    //   link: entity.link,
-    // }),
   }
 )
 
@@ -94,6 +75,21 @@ const replicationMaster = new normalizerSchema.Entity(
     idAttribute: 'id',
   }
 )
+
+schema.define({
+  modules: [module],
+})
+
+messageBox.define({
+  schema: schema,
+  module: module,
+  slaveCcInfos: [ccInfo],
+})
+
+module.define({
+  messageBoxes: [messageBox],
+  ccInfo: ccInfo,
+})
 
 const response = {
   ccInfo,
