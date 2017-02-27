@@ -330,7 +330,7 @@ class CCAPI extends APICaller {
    * Userのリストを得る
    * @return {object} Result
    */
-  async fetchAllUsersNew() {
+  async fetchAllUsers() {
     const res = await this._get('/users/')
     return res.body
   }
