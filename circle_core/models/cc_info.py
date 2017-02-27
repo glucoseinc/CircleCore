@@ -9,6 +9,7 @@ from uuid import UUID
 # community module
 from six import PY3
 import sqlalchemy as sa
+from sqlalchemy import orm
 
 # project module
 from .base import GUID, UUIDMetaDataBase
@@ -46,6 +47,8 @@ class CcInfo(UUIDMetaDataBase):
         sa.DateTime, nullable=False,
         default=datetime.datetime.utcnow,
         onupdate=datetime.datetime.utcnow)
+
+    modules = orm.relationship('Module', backref='cc_info')
 
     def to_json(self):
         """このモデルのJSON表現を返す.

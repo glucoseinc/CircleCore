@@ -39,7 +39,7 @@ def _get_modules():
     :return: 全てのModuleの情報
     :rtype: Response
     """
-    return respond_success(modules=[module.to_json(with_boxes=True) for module in Module.query])
+    return respond_success(modules=[module.to_json(with_boxes=True, with_cc_info=True) for module in Module.query])
 
 
 @oauth_require_write_schema_scope
@@ -86,7 +86,7 @@ def _get_module(module):
     :return: Moduleの情報
     :rtype: Response
     """
-    return respond_success(module=module.to_json(with_boxes=True, with_schema=True))
+    return respond_success(module=module.to_json(with_boxes=True, with_schema=True, with_cc_info=True))
 
 
 @oauth_require_write_schema_scope

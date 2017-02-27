@@ -206,7 +206,7 @@ class Module(UUIDMetaDataBase):
             properties = ModuleProperties(properties)
         self._properties = str(properties)
 
-    def to_json(self, with_boxes=False, with_schema=False):
+    def to_json(self, with_boxes=False, with_schema=False, with_cc_info=False):
         """このモデルのJSON表現を返す.
 
         :return: json表現のdict
@@ -224,7 +224,11 @@ class Module(UUIDMetaDataBase):
         }
 
         if with_boxes:
-            d['messageBoxes'] = [box.to_json(with_schema=with_schema) for box in self.message_boxes]
+            d['messageBoxes'] = [box.to_json(with_schema=with_schema, with_slave_cc_infos=with_cc_info)
+                                 for box in self.message_boxes]
+
+        if with_cc_info:
+            d['ccInfo'] = self.cc_info.to_json()
 
         return d
 

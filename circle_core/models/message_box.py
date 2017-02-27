@@ -11,6 +11,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
 from .base import GUID, UUIDMetaDataBase
+from .cc_info import CcInfo
 from .replication_link import ReplicationLink
 from ..utils import prepare_uuid
 
@@ -61,7 +62,7 @@ class MessageBox(UUIDMetaDataBase):
 
     @hybrid_property
     def cc_uuid(self):
-        return self.module.uuid
+        return self.module.cc_uuid
 
     @hybrid_property
     def slave_uuids(self):
@@ -72,7 +73,7 @@ class MessageBox(UUIDMetaDataBase):
             slave_uuids = slave_uuids.union([slave.slave_uuid for slave in replication_link.slaves])
         return sorted(slave_uuids)
 
-    def to_json(self, with_schema=False, with_module=False):
+    def to_json(self, with_schema=False, with_module=False, with_slave_cc_infos=False):
         """このモデルのJSON表現を返す.
 
         :return: json表現のdict
@@ -92,6 +93,10 @@ class MessageBox(UUIDMetaDataBase):
 
         if with_module:
             d['module'] = self.module.to_json()
+
+        if with_slave_cc_infos:
+            d['slaveCcInfos'] = [cc_info.to_json() for cc_info in
+                                 CcInfo.query.filter(CcInfo.uuid.in_(self.slave_uuids)).all()]
 
         return d
 
