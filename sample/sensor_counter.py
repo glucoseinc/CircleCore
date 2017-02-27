@@ -31,7 +31,7 @@ def counter_bot(send_to, box_id):
             'box_id': str(box_id),
             'payload': {
                 'count': i,
-                'body': "Greetings from a bot",
+                'body': "a" * 512,
             }
         }, indent=2, ensure_ascii=False)
         socket.send(msg)
