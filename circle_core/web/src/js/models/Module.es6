@@ -4,6 +4,7 @@ import {Record, List} from 'immutable'
 
 const MessageBoxRecord = Record({
   uuid: '',
+  slaveCcInfos: List(),
   schema: '',
   displayName: '',
   memo: '',
@@ -31,6 +32,7 @@ export class MessageBox extends MessageBoxRecord {
     return new MessageBox({
       uuid: rawMessageBox.uuid || '',
       schema: rawMessageBox.schema || '',
+      slaveCcInfos: List(rawMessageBox.slaveCcInfos || []),
       displayName: rawMessageBox.displayName || '',
       module: rawMessageBox.module || null,
       memo: rawMessageBox.memo || '',

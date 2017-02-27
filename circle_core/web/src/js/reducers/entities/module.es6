@@ -7,11 +7,13 @@ const mergeModules = (state, action) => {
   const {
     modules,
     schemas,
+    ccInfos,
   } = getNewEntities(action.payload)
   return {
     ...state,
     modules: state.modules.merge(modules),
     schemas: state.schemas.merge(schemas),
+    ccInfos: state.ccInfos.merge(ccInfos),
   }
 }
 
@@ -19,11 +21,13 @@ const refreshModules = (state, action) => {
   const {
     modules,
     schemas,
+    ccInfos,
   } = getNewEntities(action.payload)
   return {
     ...state,
     modules,
     schemas: state.schemas.merge(schemas),
+    ccInfos: state.ccInfos.merge(ccInfos),
   }
 }
 
