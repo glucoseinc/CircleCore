@@ -37,7 +37,7 @@ def list_replication_link(ctx):
         data, header = _format_for_columns(replication_links)
         output_listing_columns(data, header)
     else:
-        click.echo('No reolication links are registered.')
+        click.echo('No replication links are registered.')
 
 
 def _format_for_columns(replication_links):
