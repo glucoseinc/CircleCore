@@ -1,0 +1,11 @@
+[all:vars]
+ansible_ssh_user = ec2-user
+ansible_ssh_private_key_file = ~/.ssh/kyudai-benchmark.pem
+
+[master]
+54.250.253.94
+
+[slaves]
+54.199.175.27
+54.199.151.42
+54.250.164.158

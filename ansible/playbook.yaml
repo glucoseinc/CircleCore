@@ -1,0 +1,103 @@
+- hosts: all
+  become: yes
+  become_user: root
+  environment:
+    LD_LIBRARY_PATH: /usr/local/lib64
+  tasks:
+    - yum:
+        name: '*'
+        state: latest
+    - shell: curl -sL https://rpm.nodesource.com/setup_6.x | bash -
+    - yum:
+        name: '{{ item }}'
+      with_items:
+        - '@Development Tools'
+        - mysql
+        - mysql-server
+        - mysql-devel  # Ansible needs this
+        - python35
+        - python35-pip
+        - python35-devel
+        - libffi
+        - libffi-devel
+        - cmake
+        - nodejs
+        - gcc-c++
+        - make
+    - git:  # You should inject those by --extra-vars
+        repo: https://{{ github_user }}:{{ github_pass }}@github.com/glucoseinc/CircleCore
+        dest: /home/ec2-user/CircleCore
+        version: bench
+        recursive: yes
+    - git:
+        repo: https://github.com/nanomsg/nanomsg
+        dest: /home/ec2-user/nanomsg
+    - file:
+        path: '{{ item }}'
+        state: directory
+        owner: ec2-user
+        recurse: yes
+      with_items:
+        - /home/ec2-user/nanomsg
+        - /home/ec2-user/CircleCore
+    - file:
+        path: '{{ item }}'
+        state: directory
+      with_items:
+          - /usr/local/include/nanomsg
+          - /home/ec2-user/nanomsg/build
+    - shell: |
+        cmake -DCMAKE_INSTALL_PREFIX=/usr/local ..
+        cmake --build .
+        cmake --build . --target install
+        ldconfig
+      args:
+        chdir: /home/ec2-user/nanomsg/build
+    - stat:
+        path: /usr/local/bin/pip
+      register: pip
+    - pip:
+        name: pip
+        state: latest
+        executable: pip-3.5
+      when: not pip.stat.exists
+    - pip:
+        name: http://cdn.mysql.com//Downloads/Connector-Python/mysql-connector-python-2.2.1.tar.gz
+        extra_args: --egg
+        executable: /usr/local/bin/pip
+    - pip:
+        name: '{{ item }}'
+        chdir: /home/ec2-user/CircleCore
+        executable: /usr/local/bin/pip
+        editable: yes
+      with_items:
+        - git+https://github.com/nanomsg/nnpy.git#egg=nnpy
+        - .
+        - .[test]
+        - .[mysql]
+    - pip:
+        name: MySQL-python  # Ansible needs this
+        executable: pip-2.7
+    - shell: python3 setup.py install
+      args:
+        chdir: /home/ec2-user/CircleCore/whisper
+    - copy:
+        src: /home/ec2-user/CircleCore/circle_core.ini.sample
+        remote_src: yes
+        dest: /home/ec2-user/CircleCore/circle_core.ini
+    - shell: |
+        sed -i s/127\.0\.0\.1/0\.0\.0\.0/ /home/ec2-user/CircleCore/circle_core.ini
+        sed -i 's/skip_build = true/skip_build = false/' /home/ec2-user/CircleCore/circle_core.ini
+    - service:
+        name: mysqld
+        state: started
+        enabled: yes
+    - mysql_db:
+        name: crcr_dev
+    - mysql_user:
+        name: crcr_dev
+        password: crcr
+        priv: 'crcr_dev.*:ALL'
+    - lineinfile:
+        dest: /home/ec2-user/.bashrc
+        line: export LD_LIBRARY_PATH=/usr/local/lib64
