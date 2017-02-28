@@ -60,7 +60,7 @@ class ModuleAttributesEditComponent extends Component {
         </div>
         <div style={style.actionsBlock}>
           <AddFlatButton
-            label="プロパティを追加する"
+            label="属性を追加する"
             onTouchTap={onAddTouchTap}
           />
         </div>

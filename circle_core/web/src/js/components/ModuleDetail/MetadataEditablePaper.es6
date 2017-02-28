@@ -4,9 +4,11 @@ import Paper from 'material-ui/Paper'
 
 import ComponentWithIconButton from 'src/components/bases/ComponentWithIconButton'
 import ComponentWithSubTitle from 'src/components/bases/ComponentWithSubTitle'
-import {EditIcon, TagIcon} from 'src/components/bases/icons'
+import {AttributeIcon, EditIcon, TagIcon} from 'src/components/bases/icons'
 
 import MemoComponent from 'src/components/commons/MemoComponent'
+
+import ModuleAttributesTable from './ModuleAttributesTable'
 
 
 /**
@@ -52,6 +54,10 @@ class MetadataEditablePaper extends Component {
         paddingLeft: 8,
       },
 
+      attributesSection: {
+        paddingTop: 16,
+      },
+
       memoSection: {
         paddingTop: 16,
       },
@@ -76,6 +82,12 @@ class MetadataEditablePaper extends Component {
                       <span key={index} style={style.tag}>{tag}</span>
                     )}
                   </div>
+                </ComponentWithSubTitle>
+              </div>
+
+              <div style={style.attributesSection}>
+                <ComponentWithSubTitle subTitle="属性" icon={AttributeIcon}>
+                  <ModuleAttributesTable module={module} />
                 </ComponentWithSubTitle>
               </div>
 

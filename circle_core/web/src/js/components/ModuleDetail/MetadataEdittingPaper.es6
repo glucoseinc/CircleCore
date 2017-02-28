@@ -5,6 +5,7 @@ import Paper from 'material-ui/Paper'
 import ComponentWithOkCancelButton from 'src/components/bases/ComponentWithOkCancelButton'
 
 import MemoTextField from 'src/components/commons/MemoTextField'
+import ModuleAttributesEditComponent from 'src/components/commons/ModuleAttributesEditComponent'
 import TagsEditComponent from 'src/components/commons/TagsEditComponent'
 
 
@@ -45,6 +46,9 @@ class MetadataEdittingPaper extends Component {
       },
       tagsSection: {
       },
+      attributesSection: {
+        paddingTop: 16,
+      },
       memoSection: {
         paddingTop: 16,
       },
@@ -67,6 +71,14 @@ class MetadataEdittingPaper extends Component {
                   onUpdate={(index, tag) => onUpdate(module.updateTag(index, tag))}
                   onDeleteTouchTap={(index) => onUpdate(module.removeTag(index))}
                   onAddTouchTap={() => onUpdate(module.pushTag())}
+                />
+              </div>
+              <div style={style.attributesSection}>
+                <ModuleAttributesEditComponent
+                  module={module}
+                  onUpdate={(index, attribute) => onUpdate(module.updateModuleAttribute(index, attribute))}
+                  onDeleteTouchTap={(index) => onUpdate(module.removeModuleAttribute(index))}
+                  onAddTouchTap={() => onUpdate(module.pushModuleAttribute())}
                 />
               </div>
               <div style={style.memoSection}>

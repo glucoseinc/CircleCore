@@ -35,6 +35,11 @@ class ModuleAttributeEditComponent extends Component {
       children: {
         flexGrow: 0,
       },
+      attributeName: {
+      },
+      attributeType: {
+        paddingLeft: 16,
+      },
     }
     return (
       <ComponentWithIconButton
@@ -46,11 +51,13 @@ class ModuleAttributeEditComponent extends Component {
         <TextField
           floatingLabelText="属性名"
           value={attribute.name}
+          style={style.attributeName}
           onChange={(e, newValue) => onUpdate(attribute.updateName(newValue))}
         />
         <TextField
           floatingLabelText="属性値"
           value={attribute.value}
+          style={style.attributeType}
           onChange={(e, newValue) => onUpdate(attribute.updateValue(newValue))}
         />
       </ComponentWithIconButton>
