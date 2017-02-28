@@ -15,7 +15,6 @@ import MemoComponent from 'src/components/commons/MemoComponent'
 class MetadataEditablePaper extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
-    editDisabled: PropTypes.bool,
     onEditTouchTap: PropTypes.func,
   }
 
@@ -25,7 +24,6 @@ class MetadataEditablePaper extends Component {
   render() {
     const {
       module,
-      editDisabled = false,
       onEditTouchTap,
     } = this.props
 
@@ -68,7 +66,6 @@ class MetadataEditablePaper extends Component {
         <div style={style.root}>
           <ComponentWithIconButton
             icon={EditIcon}
-            iconButtonDisabled={editDisabled}
             onIconButtonTouchTap={onEditTouchTap}
           >
             <div style={style.contents}>

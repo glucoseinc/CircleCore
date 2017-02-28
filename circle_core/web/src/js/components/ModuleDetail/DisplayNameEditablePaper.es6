@@ -27,7 +27,6 @@ class DisplayNameEditablePaper extends Component {
   render() {
     const {
       obj,
-      editDisabled = false,
       secondaryType = 'id',
       onEditTouchTap,
     } = this.props
@@ -60,7 +59,6 @@ class DisplayNameEditablePaper extends Component {
         <div style={style.root}>
           <ComponentWithIconButton
             icon={EditIcon}
-            iconButtonDisabled={editDisabled}
             onIconButtonTouchTap={onEditTouchTap}
           >
             <div style={style.contents}>

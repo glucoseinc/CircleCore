@@ -4,6 +4,7 @@
 
 # system module
 import datetime
+from uuid import UUID
 
 # community module
 from six import PY3
@@ -13,9 +14,10 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
 from .base import generate_uuid, GUID, UUIDMetaDataBase
+from .message_box import MessageBox
 
 if PY3:
-    from typing import Dict, Iterator, List, Tuple, Union
+    from typing import Dict, Iterator, List, Optional, Tuple, Union
 
 
 class ModuleProperty(object):
@@ -95,17 +97,25 @@ class ModuleProperties(object):
 class Module(UUIDMetaDataBase):
     """Moduleオブジェクト.
 
-    :param str key_prefix: ストレージキーのプレフィックス
     :param UUID uuid: Module UUID
+    :param UUID cc_uuid: owner CircleCore UUID
+    :param Optional[int] replication_master_id: ReplicationMaster ID
     :param List[MessageBox] message_boxes: MessageBox
     :param str display_name: 表示名
+    :param str _properties: 属性
+    :param List[ModuleProperties] properties: 属性
+    :param str _tags: タグ
     :param List[str] tags: タグ
-    :param Optional[str] memo: メモ
+    :param str memo: メモ
+    :param datetime.datetime created_at: 作成日時
+    :param datetime.datetime updated_at: 更新日時
     """
     __tablename__ = 'modules'
 
     uuid = sa.Column(GUID, primary_key=True)
     cc_uuid = sa.Column(GUID, sa.ForeignKey('cc_informations.uuid', name='fk_modules_cc_uuid'), nullable=False)
+    replication_master_id = sa.Column(
+        sa.Integer, sa.ForeignKey('replication_masters.replication_master_id', name='fk_replication_master_id'))
     display_name = sa.Column(sa.String(255), nullable=False, default='')
     _properties = sa.Column('properties', sa.Text, nullable=False, default='')
     _tags = sa.Column('_tags', sa.Text, nullable=False, default='')
@@ -226,8 +236,6 @@ class Module(UUIDMetaDataBase):
         self.memo = jsonobj.get('memo', self.memo)
 
         if with_boxes and 'messageBoxes' in jsonobj:
-            from . import MessageBox
-
             boxes = []
             # TODO: in queryとか使う
             for box_data in jsonobj['messageBoxes']:

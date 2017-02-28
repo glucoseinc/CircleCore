@@ -31,6 +31,8 @@ class ReplicationMaster(MetaDataBase):
     info = orm.relationship(
         'CcInfo', foreign_keys=[master_uuid], primaryjoin='CcInfo.uuid == ReplicationMaster.master_uuid', uselist=False)
 
+    modules = orm.relationship('Module', backref='replication_master', cascade='all, delete-orphan')
+
     def to_json(self):
         return {
             'id': self.id,

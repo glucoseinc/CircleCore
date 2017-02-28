@@ -24,9 +24,7 @@ import ModulesTabComponent from 'src/components/ModulesTabComponent'
 class Modules extends Component {
   static propTypes = {
     isModuleFetching: PropTypes.bool.isRequired,
-    isCcInfoFetching: PropTypes.bool.isRequired,
     modules: PropTypes.object.isRequired,
-    ccInfos: PropTypes.object.isRequired,
     onDisplayNameTouchTap: PropTypes.func,
     onDeleteOkButtonTouchTap: PropTypes.func,
     width: PropTypes.number.isRequired,
@@ -73,20 +71,16 @@ class Modules extends Component {
     } = this.state
     const {
       isModuleFetching,
-      isCcInfoFetching,
       modules,
-      ccInfos,
       onDisplayNameTouchTap,
       width,
     } = this.props
 
-    if (isModuleFetching || isCcInfoFetching) {
+    if (isModuleFetching) {
       return (
         <LoadingIndicator />
       )
     }
-
-    const ownCcInfo = ccInfos.filter((ccInfo) => ccInfo.myself).first()
 
     return (
       <div>
@@ -98,7 +92,6 @@ class Modules extends Component {
         ) : (
           <ModulesTabComponent
             modules={modules}
-            ownCcInfo={ownCcInfo}
             width={width}
             onDisplayNameTouchTap={(module) => onDisplayNameTouchTap(module.uuid)}
             onDeleteTouchTap={::this.onDeleteTouchTap}
@@ -123,9 +116,7 @@ class Modules extends Component {
 
 const mapStateToProps = (state) => ({
   isModuleFetching: state.asyncs.isModuleFetching,
-  isCcInfoFetching: state.asyncs.isCcInfoFetching,
   modules: state.entities.modules,
-  ccInfos: state.entities.ccInfos,
 })
 
 const mapDispatchToProps = (dispatch) => ({
