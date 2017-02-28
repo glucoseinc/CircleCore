@@ -1,13 +1,13 @@
 import React, {Component, PropTypes} from 'react'
 
 import AddFlatButton from 'src/components/commons/AddFlatButton'
-import ModulePropertyEditComponent from 'src/components/commons/ModulePropertyEditComponent'
+import ModuleAttributeEditComponent from 'src/components/commons/ModuleAttributeEditComponent'
 
 
 /**
-* ModuleProperty編集コンポーネント
+* ModuleAttribute編集コンポーネント
 */
-class ModulePropertieEditComponent extends Component {
+class ModuleAttributesEditComponent extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     onUpdate: PropTypes.func,
@@ -33,10 +33,10 @@ class ModulePropertieEditComponent extends Component {
         width: '100%',
       },
 
-      properties: {
+      attributes: {
         marginTop: -8,
       },
-      propertyBlock: {
+      attributeBlock: {
         paddingTop: 8,
       },
 
@@ -47,12 +47,12 @@ class ModulePropertieEditComponent extends Component {
 
     return (
       <div style={style.root}>
-        <div style={style.properties}>
-          {module.properties.valueSeq().map((property, index) =>
-            <div key={index} style={style.propertyBlock}>
-              <ModulePropertyEditComponent
-                property={property}
-                onUpdate={(newProperty) => onUpdate(index, newProperty)}
+        <div style={style.attributes}>
+          {module.attributes.valueSeq().map((attribute, index) =>
+            <div key={index} style={style.attributeBlock}>
+              <ModuleAttributeEditComponent
+                attribute={attribute}
+                onUpdate={(newAttribute) => onUpdate(index, newAttribute)}
                 onDeleteTouchTap={() => onDeleteTouchTap(index)}
               />
             </div>
@@ -70,4 +70,4 @@ class ModulePropertieEditComponent extends Component {
 }
 
 
-export default ModulePropertieEditComponent
+export default ModuleAttributesEditComponent

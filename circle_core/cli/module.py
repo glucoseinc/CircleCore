@@ -47,7 +47,7 @@ def _format_for_columns(modules):
     :return: data: 加工後のモジュールリスト, header: 見出し
     :rtype: Tuple[List[List[str]], List[str]]
     """
-    header = ['UUID', 'DISPLAY_NAME', 'TAGS', 'PROPERTIES']
+    header = ['UUID', 'DISPLAY_NAME', 'TAGS', 'ATTRIBUTES']
     data = []  # type: List[List[str]]
     for module in modules:
         display_name = module.display_name
@@ -55,7 +55,7 @@ def _format_for_columns(modules):
             str(module.uuid),
             display_name,
             ','.join(module.tags),
-            module.properties,
+            module.attributes,
         ])
     return data, header
 
@@ -83,8 +83,8 @@ def module_detail(ctx, module_uuid):
     for i, tag in enumerate(module.tags):
         data.append(('TAG' if i == 0 else '', tag))
 
-    for i, prop in enumerate(module.properties):
-        data.append(('PROPERTY' if i == 0 else '', prop))
+    for i, attribute in enumerate(module.attributes):
+        data.append(('ATTRIBUTE' if i == 0 else '', attribute))
 
     data.append(('MEMO', module.memo or ''))
 
@@ -102,16 +102,16 @@ def module_detail(ctx, module_uuid):
 
 @cli_module.command('add')
 @click.option('display_name', '--name', required=True)
-@click.option('properties', '--property')
+@click.option('attributes', '--attribute')
 @click.option('tags', '--tag')
 @click.option('--memo')
 @click.pass_context
-def module_add(ctx, display_name, properties, tags, memo):
+def module_add(ctx, display_name, attributes, tags, memo):
     """モジュールを登録する.
 
     :param Context ctx: Context
     :param str display_name: モジュール表示名
-    :param Optional[str] properties: プロパティ
+    :param Optional[str] attributes: 属性
     :param Optional[str] tags: タグ
     :param Optional[str] memo: メモ
     """
@@ -119,7 +119,7 @@ def module_add(ctx, display_name, properties, tags, memo):
     with MetaDataSession.begin():
         module = Module.create(
             display_name=display_name,
-            properties=properties,
+            attributes=attributes,
             tags=tags,
             memo=memo,
         )

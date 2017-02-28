@@ -7,11 +7,11 @@ import {DeleteIcon} from 'src/components/bases/icons'
 
 
 /**
-* ModuleProperty編集コンポーネント
+* ModuleAttribute編集コンポーネント
 */
-class ModulePropertyEditComponent extends Component {
+class ModuleAttributeEditComponent extends Component {
   static propTypes = {
-    property: PropTypes.object.isRequired,
+    attribute: PropTypes.object.isRequired,
     onUpdate: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
     onNameChange: PropTypes.func,
@@ -23,7 +23,7 @@ class ModulePropertyEditComponent extends Component {
    */
   render() {
     const {
-      property,
+      attribute,
       onUpdate,
       onDeleteTouchTap,
     } = this.props
@@ -45,13 +45,13 @@ class ModulePropertyEditComponent extends Component {
       >
         <TextField
           floatingLabelText="属性名"
-          value={property.name}
-          onChange={(e, newValue) => onUpdate(property.updateName(newValue))}
+          value={attribute.name}
+          onChange={(e, newValue) => onUpdate(attribute.updateName(newValue))}
         />
         <TextField
           floatingLabelText="属性値"
-          value={property.value}
-          onChange={(e, newValue) => onUpdate(property.updateValue(newValue))}
+          value={attribute.value}
+          onChange={(e, newValue) => onUpdate(attribute.updateValue(newValue))}
         />
       </ComponentWithIconButton>
     )
@@ -59,4 +59,4 @@ class ModulePropertyEditComponent extends Component {
 }
 
 
-export default ModulePropertyEditComponent
+export default ModuleAttributeEditComponent

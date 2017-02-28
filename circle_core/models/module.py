@@ -20,8 +20,8 @@ if PY3:
     from typing import Dict, Iterator, List, Optional, Tuple, Union
 
 
-class ModuleProperty(object):
-    """ModuleProperty.
+class ModuleAttribute(object):
+    """ModuleAttribute.
 
     :param str name: 属性名
     :param str value: 属性値
@@ -34,7 +34,7 @@ class ModuleProperty(object):
         """
         if isinstance(name_and_value, str):
             if ':' not in name_and_value:
-                raise ValueError('invalid property')
+                raise ValueError('invalid attribute')
             self.name, self.value = name_and_value.split(':', 1)
         elif isinstance(name_and_value, dict):
             self.name = name_and_value['name']
@@ -50,10 +50,10 @@ class ModuleProperty(object):
         }
 
 
-class ModuleProperties(object):
-    """ModuleProperties.
+class ModuleAttributes(object):
+    """ModuleAttributes.
 
-    :param List _properties: Properties
+    :param List _attributes: Attributes
     """
 
     def __init__(self, name_and_values):
@@ -62,12 +62,12 @@ class ModuleProperties(object):
         :param Union[str, Tuple, List] name_and_values:
         """
 
-        self._properties = []
+        self._attributes = []
         if isinstance(name_and_values, str):
             name_and_values = [name_and_value for name_and_value in name_and_values.split(',')
                                if len(name_and_value)]
         if isinstance(name_and_values, (tuple, list)):
-            self._properties = [ModuleProperty(name_and_value) for name_and_value in name_and_values]
+            self._attributes = [ModuleAttribute(name_and_value) for name_and_value in name_and_values]
 
     def __iter__(self):
         """iter.
@@ -75,7 +75,7 @@ class ModuleProperties(object):
         :return: イテレータ
         :rtype: Iterator
         """
-        return iter(self._properties)
+        return iter(self._attributes)
 
     def __len__(self):
         """len.
@@ -83,7 +83,7 @@ class ModuleProperties(object):
         :return: 長さ
         :rtype: int
         """
-        return len(self._properties)
+        return len(self._attributes)
 
     def __str__(self):
         """str.
@@ -91,7 +91,7 @@ class ModuleProperties(object):
         :return: 文字列表現
         :rtype: str
         """
-        return ','.join(str(prop) for prop in self._properties)
+        return ','.join(str(attribute) for attribute in self._attributes)
 
 
 class Module(UUIDMetaDataBase):
@@ -102,8 +102,8 @@ class Module(UUIDMetaDataBase):
     :param Optional[int] replication_master_id: ReplicationMaster ID
     :param List[MessageBox] message_boxes: MessageBox
     :param str display_name: 表示名
-    :param str _properties: 属性
-    :param List[ModuleProperties] properties: 属性
+    :param str _attributes: 属性
+    :param List[ModuleAttributes] attributes: 属性
     :param str _tags: タグ
     :param List[str] tags: タグ
     :param str memo: メモ
@@ -117,7 +117,7 @@ class Module(UUIDMetaDataBase):
     replication_master_id = sa.Column(
         sa.Integer, sa.ForeignKey('replication_masters.replication_master_id', name='fk_replication_master_id'))
     display_name = sa.Column(sa.String(255), nullable=False, default='')
-    _properties = sa.Column('properties', sa.Text, nullable=False, default='')
+    _attributes = sa.Column('attributes', sa.Text, nullable=False, default='')
     _tags = sa.Column('_tags', sa.Text, nullable=False, default='')
     memo = sa.Column(sa.Text, nullable=False, default='')
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
@@ -143,10 +143,10 @@ class Module(UUIDMetaDataBase):
 
         :param Dict kwargs: キーワード引数
         """
-        if 'properties' in kwargs:
-            properties = kwargs['properties']
-            if not isinstance(properties, ModuleProperties):
-                kwargs['properties'] = ModuleProperties(properties)
+        if 'attributes' in kwargs:
+            attributes = kwargs['attributes']
+            if not isinstance(attributes, ModuleAttributes):
+                kwargs['attributes'] = ModuleAttributes(attributes)
         if 'tags' in kwargs:
             kwargs['_tags'] = ','.join(self.to_tags_list(kwargs.pop('tags')))
 
@@ -197,14 +197,14 @@ class Module(UUIDMetaDataBase):
         return tags
 
     @hybrid_property
-    def properties(self):
-        return ModuleProperties(self._properties)
+    def attributes(self):
+        return ModuleAttributes(self._attributes)
 
-    @properties.setter
-    def properties(self, properties):
-        if not isinstance(properties, ModuleProperties):
-            properties = ModuleProperties(properties)
-        self._properties = str(properties)
+    @attributes.setter
+    def attributes(self, attributes):
+        if not isinstance(attributes, ModuleAttributes):
+            attributes = ModuleAttributes(attributes)
+        self._attributes = str(attributes)
 
     def to_json(self, with_boxes=False, with_schema=False, with_cc_info=False):
         """このモデルのJSON表現を返す.
@@ -219,7 +219,7 @@ class Module(UUIDMetaDataBase):
             'messageBoxUuids': [str(box.uuid) for box in self.message_boxes],
             'displayName': self.display_name,
             'tags': [tag for tag in self.tags],
-            'properties': [prop.to_json() for prop in self.properties],
+            'attributes': [prop.to_json() for prop in self.attributes],
             'memo': self.memo,
         }
 
@@ -235,8 +235,8 @@ class Module(UUIDMetaDataBase):
     def update_from_json(self, jsonobj, with_boxes=False):
         self.display_name = jsonobj.get('displayName', self.display_name)
         self.tags = jsonobj.get('tags', self.tags)
-        if 'properties' in jsonobj:
-            self.properties = ModuleProperties(jsonobj['properties'])
+        if 'attributes' in jsonobj:
+            self.attributes = ModuleAttributes(jsonobj['attributes'])
         self.memo = jsonobj.get('memo', self.memo)
 
         if with_boxes and 'messageBoxes' in jsonobj:
