@@ -15,6 +15,7 @@ import TagButtons from './TagButtons'
 class ModuleInfoPaper extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
+    ccInfos: PropTypes.object.isRequired,
     onDisplayNameTouchTap: PropTypes.func,
     onTagButtonTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
@@ -26,6 +27,7 @@ class ModuleInfoPaper extends Component {
   render() {
     const {
       module,
+      ccInfos,
       onDisplayNameTouchTap,
       onTagButtonTouchTap,
       onDeleteTouchTap,
@@ -50,6 +52,7 @@ class ModuleInfoPaper extends Component {
         marginLeft: 240,
       },
       messageBoxesSection: {
+        marginRight: 16,
       },
       tagsSection: {
         paddingTop: 8,
@@ -75,7 +78,10 @@ class ModuleInfoPaper extends Component {
 
           <div style={style.rightArea}>
             <div style={style.messageBoxesSection}>
-              <MessageBoxesLabel module={module} />
+              <MessageBoxesLabel
+                module={module}
+                ccInfos={ccInfos}
+              />
             </div>
             <div style={style.tagsSection}>
               <TagButtons

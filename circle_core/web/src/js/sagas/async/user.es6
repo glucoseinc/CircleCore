@@ -22,13 +22,13 @@ const userFetchParam = createAsyncSagaParam(
 
 // Fetch all
 const allUsersFetchParam = createAsyncSagaParam(
-  ::CCAPI.fetchAllUsersNew,
+  ::CCAPI.fetchAllUsers,
   () => null,
   actions.user.fetchAllSucceeded,
   actions.user.fetchAllFailed
 )
 
-// Fetch
+// Fetch myself
 const myselfUserFetchParam = createAsyncSagaParam(
   ::CCAPI.fetchMyselfUser,
   () => null,
