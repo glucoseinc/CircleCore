@@ -47,13 +47,13 @@ def _format_for_columns(replication_links):
     :return: data: 加工後のリスト, header: 見出し
     :rtype: Tuple[List[List[str]], List[str]]
     """
-    header = ['UUID', 'DISPLAY_NAME', 'TARGET_CORES']
+    header = ['UUID', 'DISPLAY_NAME', 'SLAVES']
     data = []  # type: List[List[str]]
     for replication_link in replication_links:
         data.append([
             str(replication_link.uuid),
             replication_link.display_name,
-            ','.join(str(x) for x in replication_link.target_cores),
+            ','.join(str(x) for x in replication_link.slaves),
         ])
     return data, header
 
