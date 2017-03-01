@@ -241,6 +241,9 @@ class Module(UUIDMetaDataBase):
         self.memo = jsonobj.get('memo', self.memo)
 
         if with_boxes and 'messageBoxes' in jsonobj:
+            if self.cc_info and self.cc_info.myself is False:
+                raise ValueError('cannot update box of replication module')
+
             boxes = []
             # TODO: in queryとか使う
             for box_data in jsonobj['messageBoxes']:

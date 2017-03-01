@@ -232,10 +232,12 @@ class ModuleDetail extends Component {
           onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
         />
       </div>
-    ) : (
+    ) : !module.isReplication ? (
       <MessageBoxAddActionPaper
         onTouchTap={() => this.onMessageBoxAddTouchTap()}
       />
+    ) : (
+      null
     )
 
     const canDeleteMessageBox = module.messageBoxes.size <= 1
