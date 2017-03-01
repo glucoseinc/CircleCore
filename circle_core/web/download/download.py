@@ -6,9 +6,10 @@
 import logging
 
 # community module
-from flask import abort, Blueprint, request
+from flask import Blueprint, request, Response
 
 # project module
+from circle_core.models import NoResultFound, User
 from ..app import check_login
 
 
@@ -19,8 +20,26 @@ logger = logging.getLogger(__name__)
 @download.before_request
 def before_request():
     token = request.args.get('access_token', None)
-    if not token:
-        raise abort(403)
+    if token:
+        request.headers.environ['HTTP_AUTHORIZATION'] = 'Baerer {}'.format(token)
+        check_login()
+        return
 
-    request.headers.environ['HTTP_AUTHORIZATION'] = 'Baerer {}'.format(token)
-    check_login()
+    auth = request.authorization
+    if not auth or not check_auth(auth.username, auth.password):
+        return authenticate()
+
+
+def check_auth(username, password):
+    try:
+        user = User.query.filter_by(account=username).one()
+    except NoResultFound:
+        return False
+
+    return user.is_password_matched(password)
+
+
+def authenticate():
+    return Response(response='Authorization Required',
+                    status=401,
+                    headers={'WWW-Authenticate': 'Basic realm="Authorization Required"'})
