@@ -229,6 +229,7 @@ class Module(UUIDMetaDataBase):
 
         if with_cc_info:
             d['ccInfo'] = self.cc_info.to_json()
+            d['isReplication'] = self.cc_info.myself is False
 
         return d
 
