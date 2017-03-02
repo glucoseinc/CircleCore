@@ -12,6 +12,7 @@ class DeleteDialog extends Component {
   static propTypes = {
     open: PropTypes.bool,
     obj: PropTypes.object,
+    primaryLabelName: PropTypes.string,
     title: PropTypes.string,
     onOkTouchTap: PropTypes.func.isRequired,
     onCancelTouchTap: PropTypes.func.isRequired,
@@ -31,6 +32,7 @@ class DeleteDialog extends Component {
     const {
       open = false,
       obj,
+      primaryLabelName = 'displayName',
       title = '削除しますか？',
       onOkTouchTap,
       onCancelTouchTap,
@@ -50,7 +52,7 @@ class DeleteDialog extends Component {
         onCancelTouchTap={onCancelTouchTap}
         open={open}
       >
-        <p>{obj.displayName || '(no name)'}</p>
+        <p>{obj[primaryLabelName] || '(no name)'}</p>
         <p>{obj.uuid}</p>
         <TextField
           hintText="UUIDを入力してください"

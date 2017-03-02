@@ -69,12 +69,17 @@ class InvitationInfoPaper extends Component {
       moreIconMenu: {
         paddingLeft: 24,
       },
+      moreIconMenuRoot: {
+        position: null,
+        top: null,
+        right: null,
+      },
     }
 
     const moreIconMenu = readOnly ? (
       null
     ) : (
-      <MoreIconMenu>
+      <MoreIconMenu style={style.moreIconMenuRoot}>
         <MenuItem
           primaryText="この招待リンクを削除する"
           leftIcon={<DeleteIcon />}

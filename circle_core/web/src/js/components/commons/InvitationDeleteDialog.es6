@@ -28,6 +28,7 @@ class InvitationDeleteDialog extends Component {
     return (
       <DeleteDialog
         obj={invitation}
+        primaryLabelName="url"
         title="この招待リンクを削除しますか？"
         onOkTouchTap={onOkTouchTap}
         onCancelTouchTap={onCancelTouchTap}
