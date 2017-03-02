@@ -75,29 +75,29 @@ export class MessageBox extends MessageBoxRecord {
 }
 
 
-const ModulePropertyRecord = Record({
+const ModuleAttributeRecord = Record({
   name: '',
   value: '',
 })
 
 /**
- * ModulePropertyモデル
+ * ModuleAttributeモデル
  */
-export class ModuleProperty extends ModulePropertyRecord {
+export class ModuleAttribute extends ModuleAttributeRecord {
   /**
-   * @param {object} rawModuleProperty
-   * @return {ModuleProperty}
+   * @param {object} rawModuleAttribute
+   * @return {ModuleAttribute}
    */
-  static fromObject(rawModuleProperty) {
-    return new ModuleProperty({
-      name: rawModuleProperty.name || '',
-      value: rawModuleProperty.value || '',
+  static fromObject(rawModuleAttribute) {
+    return new ModuleAttribute({
+      name: rawModuleAttribute.name || '',
+      value: rawModuleAttribute.value || '',
     })
   }
 
   /**
    * @param {string} value
-   * @return {ModuleProperty}
+   * @return {ModuleAttribute}
    */
   updateName(value) {
     return this.set('name', value)
@@ -105,7 +105,7 @@ export class ModuleProperty extends ModulePropertyRecord {
 
   /**
    * @param {string} value
-   * @return {ModuleProperty}
+   * @return {ModuleAttribute}
    */
   updateValue(value) {
     return this.set('value', value)
@@ -119,7 +119,7 @@ const ModuleRecord = Record({
   displayName: '',
   messageBoxes: List(),
   tags: List(),
-  properties: List(),
+  attributes: List(),
   memo: '',
 })
 
@@ -144,7 +144,7 @@ export default class Module extends ModuleRecord {
     let boxes = rawModule.messageBoxes || []
     boxes.sort()
     boxes = boxes.map((boxUuid) => messageBoxes.get(boxUuid))
-    const properties = rawModule.properties ? rawModule.properties.map(ModuleProperty.fromObject) : []
+    const attributes = rawModule.attributes ? rawModule.attributes.map(ModuleAttribute.fromObject) : []
 
     return new Module({
       uuid: rawModule.uuid || '',
@@ -152,7 +152,7 @@ export default class Module extends ModuleRecord {
       displayName: rawModule.displayName || '',
       messageBoxes: List(boxes),
       tags: List(rawModule.tags || []),
-      properties: List(properties),
+      attributes: List(attributes),
       memo: rawModule.memo || '',
     })
   }
@@ -238,34 +238,34 @@ export default class Module extends ModuleRecord {
   }
 
   /**
-   * ModuleProperty追加
-   * @param {ModuleProperty} property
+   * ModuleAttribute追加
+   * @param {ModuleAttribute} attribute
    * @return {Module}
    */
-  pushModuleProperty(property = new ModuleProperty()) {
-    const newProperties = this.properties.push(property)
-    return this.set('properties', newProperties)
+  pushModuleAttribute(attribute = new ModuleAttribute()) {
+    const newAttributes = this.attributes.push(attribute)
+    return this.set('attributes', newAttributes)
   }
 
   /**
-   * ModuleProperty削除
+   * ModuleAttribute削除
    * @param {number} index
    * @return {Module}
    */
-  removeModuleProperty(index) {
-    const newProperties = this.properties.delete(index)
-    return this.set('properties', newProperties)
+  removeModuleAttribute(index) {
+    const newAttributes = this.attributes.delete(index)
+    return this.set('attributes', newAttributes)
   }
 
   /**
-   * ModuleProperty更新
+   * ModuleAttribute更新
    * @param {number} index
-   * @param {ModuleProperty} property
+   * @param {ModuleAttribute} attribute
    * @return {Schema}
    */
-  updateModuleProperty(index, property) {
-    const newProperties = this.properties.set(index, property)
-    return this.set('properties', newProperties)
+  updateModuleAttribute(index, attribute) {
+    const newAttributes = this.attributes.set(index, attribute)
+    return this.set('attributes', newAttributes)
   }
 
   /**

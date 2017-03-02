@@ -5,6 +5,8 @@ import Paper from 'material-ui/Paper'
 
 import {DeleteIcon} from 'src/components/bases/icons'
 import MoreIconMenu from 'src/components/bases/MoreIconMenu'
+
+import ModuleAttributesLabel from './ModuleAttributesLabel'
 import MessageBoxesLabel from './MessageBoxesLabel'
 import TagButtons from './TagButtons'
 
@@ -57,6 +59,9 @@ class ModuleInfoPaper extends Component {
       tagsSection: {
         paddingTop: 8,
       },
+      attributesSection: {
+        paddingTop: 8,
+      },
     }
 
     return (
@@ -87,6 +92,11 @@ class ModuleInfoPaper extends Component {
               <TagButtons
                 module={module}
                 onTouchTap={onTagButtonTouchTap}
+              />
+            </div>
+            <div style={style.attributesSection}>
+              <ModuleAttributesLabel
+                module={module}
               />
             </div>
           </div>
