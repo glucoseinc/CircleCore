@@ -88,7 +88,10 @@ class DataReceiverWorker(CircleWorker):
             return {'response': 'failed', 'message': 'message box not found'}
 
         if not message_box.schema.check_match(payload):
-            # TODO: save error log
+            logger.warning('box {box_id} : message not matching schema was received. '
+                           'expected {expected}, received {received}'.format(box_id=box_id,
+                                                                             expected=message_box.schema.properties,
+                                                                             received=payload))
             return {'response': 'failed', 'message': 'schema not match'}
 
         msg = self.store_message(message_box, payload)
