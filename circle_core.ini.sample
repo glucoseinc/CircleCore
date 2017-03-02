@@ -17,11 +17,21 @@ db = mysql+mysqlconnector://crcr_dev:crcr@localhost/crcr_dev
 # グラフ用DBを保存するディレクトリ
 time_db_dir = ${prefix}
 
-# websocket, admin uiインタフェースのモジュール
+# websocket, admin uiのモジュール
 [circle_core:http]
+# アドレス
 listen = 127.0.0.1
+# 共用のポート websocket_port/admin_portが設定されている場合は無視される
 port = 8080
+# websocketを使用するか
 websocket = on
+# websocketのポート
+; websocket_port = 8080
+# admin uiを使用するか
 admin = on
+# admin uiのアドレス
+; admin_port = 8080
+# admin uiのURL
 admin_base_url = http://${listen}:${port}
+# 起動時にadmin uiのスクリプトファイルの自動ビルドをスキップするか
 skip_build = off

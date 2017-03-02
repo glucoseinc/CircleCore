@@ -19,7 +19,7 @@ from .authorize.core import oauth
 class CCWebApp(Flask):
     """Web管理インタフェース用のFlask Application.
     """
-    def __init__(self, core, base_url=None):
+    def __init__(self, core, base_url=None, ws_port=None):
         super(CCWebApp, self).__init__(__name__)
 
         self.uptime = time.time()
@@ -53,7 +53,7 @@ class CCWebApp(Flask):
         from .public import public
         self.register_blueprint(public)
 
-        self.add_url_rule('/replication/<uuid:link_uuid>', endpoint='replication_endpoint', build_only=True)
+        self.ws_port = ws_port
 
         # favicon
         @self.route('/favicon.ico')
