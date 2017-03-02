@@ -103,6 +103,8 @@ def _put_module(module):
             MetaDataSession.add(module)
     except KeyError:
         return respond_failure('key error')
+    except ValueError as e:
+        return respond_failure(str(e))
 
     return respond_success(module=module.to_json(with_boxes=True, with_schema=True))
 

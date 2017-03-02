@@ -12,7 +12,7 @@ from six import PY3
 
 # project module
 from .context import CLIContextObject
-from .utils import output_listing_columns, output_properties, validate_stringified_uuid_list
+from .utils import convert_stringified_uuid_list, output_listing_columns, output_properties
 from ..models import MetaDataSession, NoResultFound, ReplicationLink
 
 if PY3:
@@ -101,17 +101,15 @@ def show_replication_link_detail(ctx, link_uuid):
 @cli_replication_link.command('add')
 @click.option('display_name', '--name', required=True)
 @click.option('--memo')
-@click.option('cc_uuids', '--cc', required=True, callback=validate_stringified_uuid_list)
-@click.option('message_box_uuids', '--box', callback=validate_stringified_uuid_list)
+@click.option('message_box_uuids', '--box')
 @click.option('all_boxes', '--all-boxes', is_flag=True, default=False)
 @click.pass_context
-def add_replication_link(ctx, display_name, memo, cc_uuids, message_box_uuids, all_boxes):
+def add_replication_link(ctx, display_name, memo, message_box_uuids, all_boxes):
     """共有リンクを登録する.
 
     :param Context ctx: Context
     :param str display_name: モジュール表示名
     :param Optional[str] memo: メモ
-    :param list[uuid.UUID] cc_uuids: 共有対象のCircleCoreのUUID
     :param list[uuid.UUID] message_box_uuids: 共有対象のMessageBoxのID
     :param bool all_boxes: 全Boxを共有する場合はTrue
     """
@@ -122,13 +120,12 @@ def add_replication_link(ctx, display_name, memo, cc_uuids, message_box_uuids, a
     if all_boxes:
         message_box_uuids = ReplicationLink.ALL_MESSAGE_BOXES
     else:
-        message_box_uuids = validate_stringified_uuid_list(ctx, None, message_box_uuids)
+        message_box_uuids = convert_stringified_uuid_list(ctx, None, message_box_uuids)
 
     with MetaDataSession.begin():
         replication_link = ReplicationLink.create(
             display_name=display_name,
             memo=memo,
-            slaves=cc_uuids,
             message_box_uuids=message_box_uuids,
         )
         print('replication_link', replication_link)

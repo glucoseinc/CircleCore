@@ -145,21 +145,26 @@ class MessageBoxEditablePaper extends Component {
     const masterCcInfo = ccInfos.get(module.ccUuid)
     const slaveCcInfos = messageBox.slaveCcInfos.map((slaveCcInfoId) => ccInfos.get(slaveCcInfoId))
 
+    const moreIconMenu = !module.isReplication ? (
+      <MoreIconMenu>
+        <MenuItem
+          primaryText="このメッセージボックスを編集する"
+          leftIcon={<EditIcon />}
+          onTouchTap={onEditTouchTap}
+        />
+        <MenuItem
+          primaryText="このメッセージボックスを削除する"
+          disabled={deleteDispabled}
+          leftIcon={<DeleteIcon />}
+          onTouchTap={onDeleteTouchTap}
+        />
+      </MoreIconMenu>
+    ) : (
+      null
+    )
     return (
       <Paper className="messageBoxDetail" style={style.root}>
-        <MoreIconMenu>
-          <MenuItem
-            primaryText="このメッセージボックスを編集する"
-            leftIcon={<EditIcon />}
-            onTouchTap={onEditTouchTap}
-          />
-          <MenuItem
-            primaryText="このメッセージボックスを削除する"
-            disabled={deleteDispabled}
-            leftIcon={<DeleteIcon />}
-            onTouchTap={onDeleteTouchTap}
-          />
-        </MoreIconMenu>
+        {moreIconMenu}
 
         <div style={style.displayNameSection}>
           <div style={style.displayName}>

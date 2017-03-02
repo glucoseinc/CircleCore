@@ -116,6 +116,7 @@ export class ModuleAttribute extends ModuleAttributeRecord {
 const ModuleRecord = Record({
   uuid: '',
   ccUuid: '',
+  isReplication: undefined,
   displayName: '',
   messageBoxes: List(),
   tags: List(),
@@ -149,6 +150,7 @@ export default class Module extends ModuleRecord {
     return new Module({
       uuid: rawModule.uuid || '',
       ccUuid: rawModule.ccUuid || '',
+      isReplication: rawModule.isReplication || undefined,
       displayName: rawModule.displayName || '',
       messageBoxes: List(boxes),
       tags: List(rawModule.tags || []),
