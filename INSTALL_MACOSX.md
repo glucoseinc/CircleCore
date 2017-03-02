@@ -41,28 +41,36 @@ $ git clone git@github.com:glucoseinc/CircleCore.git  # SSH接続時
 $ cd CircleCore
 $ git checkout master
 $ git pull
-$ git submodule init
-$ git submodule update
 ```
 
 ### venv環境作成
 ```
 $ virtualenv -p ~/.pyenv/versions/3.5.2/bin/python .env/3.5.2
 $ . .env/3.5.2/bin/activate
+```
+
+### インストール
+```
+(3.5.2) $ sh ./setup.sh
+```
+
+#### 手動でインストールする場合
+```
 (3.5.2) $ pip install -e git://github.com/nanomsg/nnpy.git#egg=nnpy
+(3.5.2) $ pip install -e git://github.com/graphite-project/whisper.git@b783ab3f577f3f60db607adda241e29b7242bcf4#egg=whisper-0.10.0rc1
 (3.5.2) $ pip install http://cdn.mysql.com//Downloads/Connector-Python/mysql-connector-python-2.2.2.tar.gz
-(3.5.2) $ cd whisper && python setup.py install && cd ..
 (3.5.2) $ pip install -e '.[test,mysql]'
 ```
+
+### iniファイル設定
+- [circle_core.ini.sample](/circle_core.ini.sample)をコピー、`circle_core.ini`にリネームし、内容を適宜修正する
 
 ### JavaScriptビルド
 ```
 $ npm install
 $ npm run build
 ```
-
-### iniファイル設定
-- [circle_core.ini.sample](/circle_core.ini.sample)をコピー、`circle_core.ini`にリネームし、内容を適宜修正する
+- `circle_core.ini`の`[circle_core:http] skip_build`が`off`の場合、サーバ起動時に自動でビルドされる
 
 ## サーバ起動
 ```
@@ -88,37 +96,29 @@ $ npm run build
 Schema "04c9520a-f50a-4314-bb46-aa8a2f3fbed1" is added. # 次で使用する
 ```
 
-1. MessageBoxを作成
-```
-(3.5.2) $ crcr box add --schema 04c9520a-f50a-4314-bb46-aa8a2f3fbed1 --name 正常データ #UUIDは適宜変更
-MessageBox "f34973b1-b5be-46a3-a8a8-f2bf306c3e70" is added. # 次で使用する
-```
-
 1. Moduleを作成
 ```
-(3.5.2) $ crcr module add --name "リアルタイム人流センサ デバイス1" --box f34973b1-b5be-46a3-a8a8-f2bf306c3e70 #UUIDは適宜変更
+(3.5.2) $ crcr module add --name "リアルタイム人流センサ デバイス1"
 Module "1a15b84b-99b5-4cd3-a509-6b72b68a86da" is added. # 次で使用する
 ```
 
-### Databaseに反映
+1. MessageBoxを作成
 ```
-(3.5.2) $ crcr migrate
-```
-
-### サーバ起動
-```
-(3.5.2) $ crcr run --worker datareceiver
+(3.5.2) $ crcr box add --schema 04c9520a-f50a-4314-bb46-aa8a2f3fbed1 --module 1a15b84b-99b5-4cd3-a509-6b72b68a86da --name 正常データ #UUIDは適宜変更
+MessageBox "f34973b1-b5be-46a3-a8a8-f2bf306c3e70" is added. # 次で使用する
 ```
 
 ### BOT起動
 ```
-(3.5.2) $ crcr bot echo --to ws://localhost:5000/module/1a15b84b-99b5-4cd3-a509-6b72b68a86da --box-id f34973b1-b5be-46a3-a8a8-f2bf306c3e70 # UUIDはModule, MessageBoxのものを使用
+(3.5.2) $ python sample/sensor_echo.py --box-id f34973b1-b5be-46a3-a8a8-f2bf306c3e70 # UUIDはMessageBoxのものを使用
 ```
 
-## レプリケーション
-- `Botによるデータの取得` の手順で、Master環境でCircleCoreサーバを起動させておく
-    - ModuleUUIDとIPAddresを控える
+## Setup SSL certificate
+0. キーチェーンアクセス.appを起動
+0. メニューバーのファイル -> 読み込む...をクリック
+0. CircleCore/tests/tls.crtを選択
+0. 検索窓にglucoseと入力、名前がglucoseの証明書を見つけてダブルクリック
+0. ▶信頼を開いて常に信頼を選択
 
-```
-(3.5.2) $ crcr run --replicate 1a15b84b-99b5-4cd3-a509-6b72b68a86da@xxx.xxx.xxx.xxx:5000 # 控えたModuleUUID, MasterIPAddressを使用
-```
+Chrome等だと自己証明している証明書には安全でない旨警告が出るが、それを無視すれば問題ない。
+curlは問題なく通る。
