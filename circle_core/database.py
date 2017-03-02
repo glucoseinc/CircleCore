@@ -189,7 +189,8 @@ class Database(object):
             .order_by(table.c._created_at.desc(), table.c._counter.desc())
             .limit(1)
         )
-        rows = connection.execute(query).fetchall()
+        with connection.begin():
+            rows = connection.execute(query).fetchall()
         if not rows:
             return None
         return ModuleMessagePrimaryKey(ModuleMessage.make_timestamp(rows[0][0]), rows[0][1])
