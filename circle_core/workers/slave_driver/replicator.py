@@ -8,7 +8,7 @@ import uuid
 # community module
 from six import PY3
 from tornado import gen
-from tornado.websocket import websocket_connect, WebSocketClientConnection
+from tornado.websocket import websocket_connect, WebSocketClientConnection, WebSocketError
 
 # project module
 from circle_core.constants import MasterCommand, ReplicationState, SlaveCommand, WebsocketStatusCode
@@ -81,7 +81,7 @@ class Replicator(object):
 
                 if exc.code in (WebsocketStatusCode.CLOSE_NORMALLY, WebsocketStatusCode.GOING_AWAY):
                     # 正常終了した場合はRetryする
-                    logger.info('Replication connection was closed normarly. will retry after 5secs...')
+                    logger.info('Replication connection was closed normally. will retry after 5secs...')
                 elif exc.code:
                     # エラーコードが通知されている場合は、エラーを記録して終了する。復活するには再起動させること
                     logger.error(
@@ -90,7 +90,7 @@ class Replicator(object):
                     return
                 elif not self.closed:
                     # エラーコードなし。おそらくMasterが終了した
-                    logger.info('Replication connection was closed abnormaly by peer. will retry after 5secs...')
+                    logger.info('Replication connection was closed abnormally by peer. will retry after 5secs...')
 
             except ConnectionRefusedError as exc:
                 # 恐らく接続に失敗している > まだ立ち上がってない、のでWaitしてRetry
@@ -98,10 +98,17 @@ class Replicator(object):
                     'Replication connection was refused. %r',
                     exc)
 
-            except Exception as exc:
-                # エラーコードが通知されている場合は、エラーを記録して終了する。復活するには再起動させること
+            except WebSocketError as exc:
+                # WebSocket上のエラーの場合は、エラーを記録して終了する。復活するには再起動させること
                 logger.error(
-                    'Replication connection was closed abnormaly. %r',
+                    'Replication connection was closed abnormally. %r',
+                    exc)
+                return
+
+            except Exception as exc:
+                # その他のエラーは、エラーを記録、TraceBackを表示して終了する。復活するには再起動させること
+                logger.error(
+                    'Replication connection was closed abnormally. %r',
                     exc)
                 import traceback
                 traceback.print_exc()
