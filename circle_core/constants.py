@@ -82,3 +82,4 @@ class WebsocketStatusCode(enum.Enum):
     DATA_CANNOT_ACCEPT = 1003
     VIOLATE_POLICY = 1008
     MESSAGE_IS_TOO_BIG = 1009
+    NOT_FOUND = 4000

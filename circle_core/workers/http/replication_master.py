@@ -67,12 +67,15 @@ class ReplicationMaster(WebSocketHandler):
 
     def open(self, link_uuid):
         """他のCircleCoreから接続された際に呼ばれる."""
-        logger.debug('Connected to another CircleCore')
+        logger.debug('Connected from another CircleCore')
         self.link_uuid = link_uuid
         self.replication_link = ReplicationLink.query.get(link_uuid)
 
         if not self.replication_link:
-            raise HTTPError(404)
+            logger.warning('ReplicationLink {} was not found. Connection close.')
+            self.close(code=WebsocketStatusCode.NOT_FOUND.value,
+                       reason='ReplicationLink {} was not found.'.format(link_uuid))
+            return
 
         self.state = ReplicationState.HANDSHAKING
         self.sync_states = ImmutableDict(
