@@ -28,6 +28,7 @@ function mapURLToMenuItem(url) {
  */
 class NavDrawer extends Component {
   static propTypes = {
+    location: PropTypes.object,
     alwaysOpen: PropTypes.bool.isRequired,
     open: PropTypes.bool.isRequired,
     onRequestChange: PropTypes.func.isRequired,
@@ -71,6 +72,7 @@ class NavDrawer extends Component {
     ]
 
     const {
+      location,
       alwaysOpen,
       open,
       onRequestChange,
@@ -94,6 +96,7 @@ class NavDrawer extends Component {
 
         <MenuList
           sections={menuSections}
+          selectedValue={location.pathname}
           onItemTouchTap={onNavItemTouchTap}
         />
       </Drawer>

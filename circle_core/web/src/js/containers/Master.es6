@@ -72,6 +72,7 @@ class Master extends Component {
     } = this.state
     const {
       title = '',
+      location,
       isSnackbarOpen = false,
       snackbarMessage = '',
       onSnackBarCloseRequest,
@@ -114,6 +115,7 @@ class Master extends Component {
         <NavDrawer
           alwaysOpen={navDrawerAlwaysOpen}
           open={navDrawerOpen}
+          location={location}
           onRequestChange={::this.onNavDrawerButtonTouchTap}
           onNavItemTouchTap={::this.onNavDrawerMenuTouchTap}
         />
