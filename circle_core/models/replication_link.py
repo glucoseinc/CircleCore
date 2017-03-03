@@ -7,7 +7,7 @@ import datetime
 from uuid import UUID
 
 # community module
-from flask import url_for
+from flask import current_app, request
 import sqlalchemy as sa
 from sqlalchemy import orm
 
@@ -111,10 +111,15 @@ class ReplicationLink(UUIDMetaDataBase):
     @property
     def link(self):
         """このCircleCoreでの共有リンクのEndpointのURLを返す"""
+        def build_link():
+            return 'ws://{server_name}:{port}/replication/{_uuid}'.format(
+                server_name=request.environ['SERVER_NAME'],
+                port=current_app.ws_port or request.environ['SERVER_PORT'],
+                _uuid=self.uuid
+            )
+
         try:
-            return url_for(
-                'replication_endpoint',
-                link_uuid=self.uuid, _external=True, _scheme='ws')
+            return build_link()
         except RuntimeError:
             import click
 
@@ -127,7 +132,7 @@ class ReplicationLink(UUIDMetaDataBase):
 
             if flask_app:
                 with flask_app.test_request_context('/'):
-                    return url_for('replication_endpoint', link_uuid=self.uuid, _external=True, _scheme='ws')
+                    return build_link()
         return None
 
     def to_json(self, with_slaves=False, with_boxes=False, with_module=True, with_schema=True):

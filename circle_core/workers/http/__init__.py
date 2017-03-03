@@ -28,9 +28,10 @@ def create_http_worker(core, type, key, config):
     return HTTPWorker(
         core, key,
         listen=config.get('listen'),
-        port=config.getint('port'),
-        websocket_on=_config_get_bool('websocket'),
+        ws_on=_config_get_bool('websocket'),
+        ws_port=config.getint('websocket_port', fallback=config.getint('port')),
         admin_on=_config_get_bool('admin'),
+        admin_port=config.getint('admin_port', fallback=config.getint('port')),
         admin_base_url=config.get('admin_base_url', fallback='http://${listen}:${port}'),
         skip_build=_config_get_bool('skip_build'),
         tls_key_path=config.get('tls_key_path'),
@@ -43,59 +44,69 @@ class HTTPWorker(CircleWorker):
     """
     worker_type = WORKER_HTTP
 
-    def __init__(self, core, worker_key, listen, port, websocket_on, admin_on, admin_base_url, skip_build,
+    def __init__(self, core, worker_key, listen,
+                 ws_on, ws_port,
+                 admin_on, admin_port, admin_base_url, skip_build,
                  tls_key_path, tls_crt_path):
         super(HTTPWorker, self).__init__(core, worker_key)
 
-        self.port = port
         self.listen = listen
-        self.websocket_on = websocket_on
+
+        self.ws_on = ws_on
+        self.ws_port = ws_port
+
         self.admin_on = admin_on
-
-        if tls_key_path and tls_crt_path:
-            self.tls_key_path = tls_key_path
-            self.tls_crt_path = tls_crt_path
-        elif tls_key_path:
-            raise ConfigError('tls_crt_path is missing')
-        elif tls_crt_path:
-            raise ConfigError('tls_key_path is missing')
-        else:
-            self.tls_key_path = None
-            self.tls_crt_path = None
-
-        self.request_handlers = []
-
-        if self.websocket_on:
-            self.request_handlers.append(
-                (r'/replication/(?P<link_uuid>[0-9A-Fa-f-]+)', ReplicationMaster),
-            )
-
-        self.flask_app = None
-        if self.admin_on:
-            # must be last
-            self.flask_app = create_app(core, admin_base_url)
-            self.request_handlers.append(
-                (r'.*', FallbackHandler, {'fallback': WSGIContainer(self.flask_app)})
-            )
-
-        kwargs = {'_core': core}
-        self.application = Application(self.request_handlers, **kwargs)
+        self.admin_port = admin_port
+        self.admin_base_url = admin_base_url
         self.skip_build = skip_build
+        self.flask_app = None
+        if admin_on:
+            self.flask_app = create_app(self.core, self.admin_base_url, ws_port=self.ws_port)
+
+        if tls_key_path and not tls_crt_path:
+            raise ConfigError('tls_crt_path is missing')
+        elif not tls_key_path and tls_crt_path:
+            raise ConfigError('tls_key_path is missing')
+        self.tls_key_path = tls_key_path
+        self.tls_crt_path = tls_crt_path
 
     def initialize(self):
-        if self.flask_app and not self.skip_build:
-            self.flask_app.build_frontend()
+        if not (self.ws_on or self.admin_on):
+            return
 
-        if self.flask_app:
+        ws_handler = None
+        if self.ws_on:
+            ws_handler = (r'/replication/(?P<link_uuid>[0-9A-Fa-f-]+)', ReplicationMaster)
+
+        admin_handler = None
+        if self.admin_on:
+            if not self.skip_build:
+                self.flask_app.build_frontend()
+
             with self.flask_app.test_request_context('/'):
                 from flask import url_for
                 logger.info('Admin UI running on %s', url_for('_index', _external=True))
 
-        if self.request_handlers:
-            if self.tls_crt_path:
-                ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-                ssl_ctx.load_cert_chain(self.tls_crt_path, self.tls_key_path)
-                server = HTTPServer(self.application, ssl_options=ssl_ctx)
-                server.listen(self.port, self.listen)
-            else:
-                self.application.listen(self.port, self.listen)
+            admin_handler = (r'.*', FallbackHandler, {'fallback': WSGIContainer(self.flask_app)})
+
+        ssl_ctx = None
+        if self.tls_crt_path:
+            ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+            ssl_ctx.load_cert_chain(self.tls_crt_path, self.tls_key_path)
+
+        if self.ws_on and self.admin_on and (self.ws_port == self.admin_port):
+            application = Application([
+                ws_handler,
+                admin_handler,  # must be last
+            ], _core=self.core)
+            server = HTTPServer(application, ssl_options=ssl_ctx)
+            server.listen(self.ws_port, self.listen)
+        else:
+            if self.ws_on:
+                ws_application = Application([ws_handler], _core=self.core)
+                ws_server = HTTPServer(ws_application, ssl_options=ssl_ctx)
+                ws_server.listen(self.ws_port, self.listen)
+            if self.admin_on:
+                admin_application = Application([admin_handler])
+                admin_server = HTTPServer(admin_application, ssl_options=ssl_ctx)
+                admin_server.listen(self.admin_port, self.listen)
