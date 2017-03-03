@@ -15,7 +15,7 @@ export default class SchemaPropertyType extends SchemaPropertyTypeRecord {
    */
   static fromObject(rawSchemaPropertyType) {
     return new SchemaPropertyType({
-      name: rawSchemaPropertyType.name || '',
+      name: rawSchemaPropertyType.name ? rawSchemaPropertyType.name.toUpperCase() : '',
     })
   }
 }
