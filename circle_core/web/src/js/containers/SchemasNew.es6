@@ -13,8 +13,11 @@ import SchemaNewPaper from 'src/components/SchemaNewPaper'
  */
 class SchemasNew extends Component {
   static propTypes = {
+    isSchemaFetching: PropTypes.bool.isRequired,
     isSchemaPropertyTypeFetching: PropTypes.bool.isRequired,
     schemaPropertyTypes: PropTypes.object.isRequired,
+    schemas: PropTypes.object.isRequired,
+    location: PropTypes.object.isRequired,
     onCreateTouchTap: PropTypes.func,
   }
 
@@ -23,10 +26,24 @@ class SchemasNew extends Component {
    */
   render() {
     const {
+      isSchemaFetching,
       isSchemaPropertyTypeFetching,
+      schemas,
       schemaPropertyTypes,
+      location,
       onCreateTouchTap,
     } = this.props
+
+    const schemaId = location.query.schema_id
+    let schema
+    if (schemaId !== undefined) {
+      if (isSchemaFetching) {
+        return (
+          <LoadingIndicator />
+        )
+      }
+      schema = schemas.get(schemaId)
+    }
 
     if (isSchemaPropertyTypeFetching) {
       return (
@@ -37,6 +54,7 @@ class SchemasNew extends Component {
     return (
       <div className="page">
         <SchemaNewPaper
+          templateSchema={schema}
           propertyTypes={schemaPropertyTypes}
           onCreateTouchTap={onCreateTouchTap}
         />
@@ -47,7 +65,9 @@ class SchemasNew extends Component {
 
 
 const mapStateToProps = (state) => ({
+  isSchemaFetching: state.asyncs.isSchemaFetching,
   isSchemaPropertyTypeFetching: state.asyncs.isSchemaPropertyTypeFetching,
+  schemas: state.entities.schemas,
   schemaPropertyTypes: state.entities.schemaPropertyTypes,
 })
 
