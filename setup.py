@@ -12,15 +12,16 @@ install_requires = [
     'alembic',
     'base58',
     'click>=6',
-    'flask',
+    'Flask>=0.11',
     'Flask-OAuthlib',
+    'mysql-connector-python-rf',
     'nnpy',
     'python-dateutil',
     'six',
     'sqlalchemy>=1.1.4',
     'tornado',
     'websocket-client',
-    'whisper',
+    'whisper==0.10.0rc1',
 ]
 if PY2:
     install_requires.append('enum34')
@@ -33,9 +34,7 @@ setup(
     install_requires=install_requires,
     dependency_links=[
         'git+https://github.com/nanomsg/nnpy.git#egg=nnpy',
-        'git+https://github.com/graphite-project/whisper.git',
-        # 'git+https://github.com/mysql/mysql-connector-python.git@2.2.1-m2#egg=mysql-connector-python',
-        # 'http://cdn.mysql.com//Downloads/Connector-Python/mysql-connector-python-2.2.1.tar.gz'
+        'git+https://github.com/graphite-project/whisper.git@b783ab3f577f3f60db607adda241e29b7242bcf4#egg=whisper-0.10.0rc1',
     ],
     entry_points={
         'console_scripts': [
@@ -53,8 +52,5 @@ setup(
             'tcptest',
             'tox',
         ],
-        'mysql': [
-            'mysql-connector-python>=2.2.1',
-        ]
     }
 )

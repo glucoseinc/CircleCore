@@ -51,15 +51,14 @@ $ . .env/3.5.2/bin/activate
 
 ### インストール
 ```
-(3.5.2) $ sh ./setup.sh
+(3.5.2) $ python setup.py develop
 ```
 
 #### 手動でインストールする場合
 ```
 (3.5.2) $ pip install -e git://github.com/nanomsg/nnpy.git#egg=nnpy
 (3.5.2) $ pip install -e git://github.com/graphite-project/whisper.git@b783ab3f577f3f60db607adda241e29b7242bcf4#egg=whisper-0.10.0rc1
-(3.5.2) $ pip install http://cdn.mysql.com//Downloads/Connector-Python/mysql-connector-python-2.2.2.tar.gz
-(3.5.2) $ pip install -e '.[test,mysql]'
+(3.5.2) $ pip install -e '.[test]'
 ```
 
 ### iniファイル設定
