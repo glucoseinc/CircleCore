@@ -18,8 +18,6 @@ M->S: "new_message" cmds...
 Note right of S: when Slave's circle core info is updated
 S->M: "circle_core_updated" cmd
 ```
-
-
 """
 import enum
 import json
