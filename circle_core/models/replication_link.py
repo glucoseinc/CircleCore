@@ -4,18 +4,27 @@
 
 # system module
 import datetime
-from uuid import UUID
 
 # community module
 from flask import current_app, request
 import sqlalchemy as sa
 from sqlalchemy import orm
 
-from circle_core.utils import format_date, prepare_date, prepare_uuid
+# project module
 from .base import GUID, MetaDataBase, UUIDMetaDataBase
 
 
-replcation_boxes_table = sa.Table(
+# type annotation
+try:
+    from typing import Dict, List, Optional, Union, TYPE_CHECKING
+    if TYPE_CHECKING:
+        from uuid import UUID
+        from .cc_info import CcInfo
+except ImportError:
+    pass
+
+
+replication_boxes_table = sa.Table(
     'replication_boxes', MetaDataBase.metadata,
     sa.Column('link_uuid', GUID, sa.ForeignKey('replication_links.uuid')),
     sa.Column('box_uuid', GUID, sa.ForeignKey('message_boxes.uuid')),
@@ -23,6 +32,15 @@ replcation_boxes_table = sa.Table(
 
 
 class ReplicationSlave(MetaDataBase):
+    """ReplicationSlaveオブジェクト.
+
+    :param UUID link_uuid: ReplicationLink UUID
+    :param UUID slave_uuid: ReplicationSlave UUID
+    :param Optional[datetime.datetime] last_access_at: 最終アクセス日時
+    :param ReplicationLink link: ReplicationSlave UUID
+    :param CcInfo info: ReplicationSlave UUID
+    """
+
     __tablename__ = 'replication_slaves'
     __table_args__ = (
         sa.PrimaryKeyConstraint('link_uuid', 'slave_uuid', name='replication_slaves_pk'),
@@ -45,36 +63,37 @@ class ReplicationLink(UUIDMetaDataBase):
 
     :param UUID uuid: ReplicationLink UUID
     :param str display_name: 表示名
-    :param List[UUID] cc_info_uuids: CircleCoreInfo
-    :param List[UUID] message_box_uuids: MessageBox
-    :param Optional[str] memo: メモ
+    :param str memo: メモ
+    :param datetime.datetime created_at: 作成日時
+    :param datetime.datetime updated_at: 更新日時
+    :param List[MessageBox] message_boxes: MessageBoxリスト
     """
+
     __tablename__ = 'replication_links'
 
     uuid = sa.Column(GUID, primary_key=True)
     display_name = sa.Column(sa.String(255), nullable=False, default='')
     memo = sa.Column(sa.Text, nullable=False, default='')
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
-    updated_at = sa.Column(
-        sa.DateTime, nullable=False,
-        default=datetime.datetime.utcnow,
-        onupdate=datetime.datetime.utcnow)
+    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow,
+                           onupdate=datetime.datetime.utcnow)
 
     message_boxes = orm.relationship(
         'MessageBox',
-        secondary=replcation_boxes_table,
+        secondary=replication_boxes_table,
         backref='links')
 
     ALL_MESSAGE_BOXES = object()
 
     @classmethod
     def create(cls, display_name, memo, message_box_uuids):
-        """ReplicationLinkを作成する。
-        message boxの存在チェックとかを行う
+        """このモデルを作成する.
 
         :param str display_name: 表示名
         :param Optional[str] memo: メモ
         :param Union[ALL_MESSAGE_BOXES, List[Union[str, UUID]]] message_box_uuids: MessageBoxのUUIDリスト
+        :return: ReplicationLinkオブジェクト
+        :rtype: ReplicationLink
         """
         from . import generate_uuid, MessageBox
 
@@ -96,13 +115,15 @@ class ReplicationLink(UUIDMetaDataBase):
 
     def __init__(self, **kwargs):
         """init.
+
+        :param Dict kwargs: キーワード引数
         """
         super(ReplicationLink, self).__init__(**kwargs)
 
     def __eq__(self, other):
-        """return equality.
+        """eq.
 
-        :param Module other: other Module
+        :param ReplicationLink other: other ReplicationLink
         :return: equality
         :rtype: bool
         """
@@ -110,7 +131,11 @@ class ReplicationLink(UUIDMetaDataBase):
 
     @property
     def link(self):
-        """このCircleCoreでの共有リンクのEndpointのURLを返す"""
+        """このCircleCoreでの共有リンクのEndpointのURLを返す.
+
+        :return: 共有リンクのEndpointのURL
+        :rtype: Optional[str]
+        """
         def build_link():
             return 'ws://{server_name}:{port}/replication/{_uuid}'.format(
                 server_name=request.environ['SERVER_NAME'],
@@ -138,10 +163,13 @@ class ReplicationLink(UUIDMetaDataBase):
     def to_json(self, with_slaves=False, with_boxes=False, with_module=True, with_schema=True):
         """このモデルのJSON表現を返す.
 
-        :return: json表現のdict
+        :param bool with_slaves: 返り値にReplicationSlavesの情報を含めるか
+        :param bool with_boxes: 返り値にMessageBoxの情報を含めるか
+        :param bool with_module: 返り値にModuleの情報を含めるか
+        :param bool with_schema: 返り値にSchemaの情報を含めるか
+        :return: JSON表現のDict
         :rtype: Dict
         """
-
         slaves = []
         for slave in self.slaves:
             if with_slaves and slave.info:

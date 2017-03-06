@@ -3,16 +3,14 @@
 """Model Base."""
 
 # system module
-import re
 import uuid
 
 # community module
-from six import PY3, string_types
-from sqlalchemy import create_engine, String, Text
+from six import string_types
+from sqlalchemy import String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.types import CHAR, TypeDecorator
 
 
@@ -20,18 +18,22 @@ MetaDataSession = scoped_session(sessionmaker(autocommit=True, autoflush=False))
 
 
 class MetaDataBase(declarative_base()):
+    """MetaData Base Model."""
+
     __abstract__ = True
     query = MetaDataSession.query_property()
 
 
 class UUIDMetaDataBase(MetaDataBase):
+    """UUIDを主キーとしたMetaData Base Model."""
+
     __abstract__ = True
 
 
 def generate_uuid(model=None):
-    """新しくUUIDを生成する
+    """新しくUUIDを生成する.
 
-    :param class model: 渡されたら、このmodelの中で重複がないかチェックする
+    :param Any model: 渡されたら、このmodelの中で重複がないかチェックする
     """
     while True:
         new = uuid.uuid4()
@@ -69,7 +71,7 @@ class GUID(TypeDecorator):
             if not isinstance(value, uuid.UUID):
                 return "%.32x" % uuid.UUID(value).int
             else:
-                # hexstring
+                # hex string
                 return "%.32x" % value.int
 
     def process_result_value(self, value, dialect):
@@ -80,13 +82,7 @@ class GUID(TypeDecorator):
 
 
 class StrListBase(TypeDecorator):
-    """Platform-independent GUID type.
-
-    Uses PostgreSQL's UUID type, otherwise uses
-    CHAR(32), storing as stringified hex values.
-
-    """
-    # impl = CHAR
+    """Str List Base."""
     default_delimiter = ','
 
     def __init__(self, *arg, **kwargs):
@@ -115,16 +111,18 @@ class StrListBase(TypeDecorator):
 
 
 class StringList(StrListBase):
+    """String List."""
     impl = String
 
 
 class TextList(StrListBase):
+    """Text List."""
     impl = Text
     default_delimiter = '\n'
 
 
 class UUIDList(TypeDecorator):
-    """UUIDList by Text"""
+    """UUIDList by Text."""
     impl = Text
     delimiter = ','
 

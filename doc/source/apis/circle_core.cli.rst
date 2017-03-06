@@ -4,14 +4,6 @@ circle_core.cli package
 Submodules
 ----------
 
-circle_core.cli.bot module
---------------------------
-
-.. automodule:: circle_core.cli.bot
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 circle_core.cli.box module
 --------------------------
 
