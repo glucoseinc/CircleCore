@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from pprint import pprint
 import subprocess
+from time import sleep
 
 import boto3
 import click
@@ -68,15 +69,22 @@ class Benchmarker:
 
     def create_spot_instances(self):
         fleet_id = self.create_spot_fleet()
-        instances = self.client.describe_spot_fleet_instances(SpotFleetRequestId=fleet_id)['ActiveInstances']
-        instance_ids = [instance['InstanceId'] for instance in instances]
-        self.instances = self.client.describe_instances(InstanceIds=instance_ids)['Reservations'][0]['Instances']
+
+        while True:  # Wait until instances wake up
+            running_instances = \
+                self.client.describe_spot_fleet_instances(SpotFleetRequestId=fleet_id)['ActiveInstances']
+            if len(running_instances) == self.qty:
+                break
+            else:
+                sleep(10)
+
+        instance_ids = [instance['InstanceId'] for instance in running_instances]
+        instances = self.client.describe_instances(InstanceIds=instance_ids)['Reservations'][0]['Instances']
+        self.instance_ips = [instance['NetworkInterfaces'][0]['Association']['PublicIp'] for instance in instances]
 
     def provision(self):
-        instance_ips = [instance['NetworkInterfaces'][0]['Association']['PublicIp'] for instance in self.instances]
-
         with open('/tmp/hosts', 'w') as hosts:
-            hosts.write('\n'.join(instance_ips) + '''
+            hosts.write('\n'.join(self.instance_ips) + '''
 [all:vars]
 ansible_ssh_user = ec2-user
 ansible_ssh_private_key_file = ~/.ssh/kyudai-benchmark.pem
