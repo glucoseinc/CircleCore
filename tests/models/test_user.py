@@ -1,63 +1,82 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from circle_core.models import User
+from circle_core.models import MetaDataSession, User
+
+from .utils import setup_db
 
 
-TEST_UUID1 = '6f7d25f0-54df-421c-b8a6-a491e37ba96d'
-TEST_UUID2 = 'eb2ea238-a13f-4542-8de4-0f6b3a67fca6'
-
-
-@pytest.mark.skip(reason='rewriting...')
 class TestUser(object):
-    @pytest.mark.parametrize(
-        ('uuid', 'account', 'encrypted_password', 'permissions', 'work', 'mail_address', 'telephone', 'expected'),
-        [(
-            TEST_UUID1, 'test_manager',
-            '$6$6f7d25f054df421cb8a6a491e37ba96d$63471d3b07234b307d3c6c59f65ef3b1415efaab1509ef'
-            '1caa415e5ee80b8a13c4a488d117a30857cf34144ec504dd27c20c6fc641051a2707ea54aa0a302d99', 'admin',
-            'workManager', 'test_manager@test.test', 'telManager',
-            {
-                'uuid': TEST_UUID1,
-                'account': 'test_manager',
-                'mail_address': 'test_manager@test.test',
-                'password': 'manager',
-                'permissions': ['admin'],
-                'work': 'workManager',
-                'telephone': 'telManager',
-                'storage_key': 'user_{}'.format(TEST_UUID1),
-            }
-        ), (
-            TEST_UUID2, 'test_user',
-            '$6$eb2ea238a13f45428de40f6b3a67fca6$fa83cbcc141436fefcad61838817caee601435115bed2c'
-            'e1a4e313fa55a2d42241128533bf65563cade6fc43be2e0e3d44ef518d9cb39adde7a69e7001c9b53e', '',
-            'workUser', 'test_user@test.test', 'telUser',
-            {
-                'uuid': TEST_UUID2,
-                'account': 'test_user',
-                'mail_address': 'test_user@test.test',
-                'password': 'user',
-                'permissions': [],
-                'work': 'workUser',
-                'telephone': 'telUser',
-                'storage_key': 'user_{}'.format(TEST_UUID2),
-            }
-        ),
-        ])
-    def test_init(self, uuid, account, encrypted_password, permissions, work, mail_address, telephone, expected):
-        user = User(uuid, account, permissions, work, mail_address, telephone, encrypted_password=encrypted_password)
+    @classmethod
+    def setup_class(cls):
+        setup_db()
 
-        assert str(user.uuid) == expected['uuid']
+    @pytest.mark.parametrize(('_input', 'expected'), [
+        (dict(account='admin', password='password_admin', _permissions='admin', work='work_admin',
+              mail_address='admin@test.test', telephone='1234567890'),
+         dict(account='admin', password='password_admin', password_no_match='password_no_match',
+              permissions=['admin'], work='work_admin',
+              mail_address='admin@test.test', telephone='1234567890')),
+    ])
+    def test_user(self, _input, expected):
+        user = User.create(**_input)
+
+        with MetaDataSession.begin():
+            MetaDataSession.add(user)
+
+        user = User.query.get(user.uuid)
+        assert isinstance(user, User)
         assert user.account == expected['account']
-        assert user.mail_address == expected['mail_address']
-        assert user.is_password_matched(expected['password'])
-        assert sorted(user.permissions) == sorted(expected['permissions'])
+        assert user.is_password_matched(expected['password']) is True
+        assert user.is_password_matched(expected['password_no_match']) is False
+        assert len(user.permissions) == len(expected['permissions'])
+        for permission, exp_permission in zip(user.permissions, expected['permissions']):
+            assert isinstance(permission, str)
+            assert permission == exp_permission
         assert user.work == expected['work']
+        assert user.mail_address == expected['mail_address']
         assert user.telephone == expected['telephone']
-        assert user.storage_key == expected['storage_key']
 
-    def test_is_key_matched(self):
-        assert User.is_key_matched('user_{}'.format(TEST_UUID1)) is True
-        assert User.is_key_matched('schema_{}'.format(TEST_UUID1)) is False
-        assert User.is_key_matched('user') is False
-        assert User.is_key_matched('user_test_manager@test.test') is False
+        assert user.is_admin() == ('admin' in expected['permissions'])
+
+        jsonobj = user.to_json(full=True)
+        assert str(user.uuid) == jsonobj['uuid']
+        assert user.account == jsonobj['account']
+        assert user.work == jsonobj['work']
+        assert user.mail_address == jsonobj['mailAddress']
+        assert user.telephone == jsonobj['telephone']
+        assert len(user.permissions) == len(jsonobj['permissions'])
+        for permission, exp_permission in zip(user.permissions, jsonobj['permissions']):
+            assert permission == exp_permission
+        assert user.encrypted_password == jsonobj['encryptedPassword']
+
+    @pytest.mark.parametrize(('old', 'new', 'expected'), [
+        (dict(account='oldAccount', password='old_password', work='old_work',
+              mail_address='old@test.test', telephone='00000000000'),
+         dict(account='newAccount', newPassword='new_password', work='new_work',
+              mailAddress='new@test.test', telephone='99999999999'),
+         dict(account='newAccount', password='new_password', work='new_work',
+              mail_address='new@test.test', telephone='99999999999')),
+    ])
+    def test_update_from_json(self, old, new, expected):
+        user = User.create(**old)
+        with MetaDataSession.begin():
+            MetaDataSession.add(user)
+
+        user = User.query.get(user.uuid)
+        assert user.account != expected['account']
+        assert user.is_password_matched(expected['password']) is False
+        assert user.work != expected['work']
+        assert user.mail_address != expected['mail_address']
+        assert user.telephone != expected['telephone']
+
+        user.update_from_json(new)
+        with MetaDataSession.begin():
+            MetaDataSession.add(user)
+
+        user = User.query.get(user.uuid)
+        assert user.account == expected['account']
+        assert user.is_password_matched(expected['password']) is True
+        assert user.work == expected['work']
+        assert user.mail_address == expected['mail_address']
+        assert user.telephone == expected['telephone']
