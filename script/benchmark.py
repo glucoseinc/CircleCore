@@ -96,7 +96,7 @@ ansible_ssh_private_key_file = ~/.ssh/kyudai-benchmark.pem
             'github_user={} github_pass={}'.format(self.github_user, self.github_pass),
             '-i',
             '/tmp/hosts',
-            str(Path.cwd().parent.joinpath('ansible', 'playbook.yaml'))
+            str(Path(__file__).parent.parent.joinpath('ansible', 'playbook.yaml'))
         ]).check_returncode()
 
     def execute(self):
