@@ -69,7 +69,7 @@
         name: '{{ item }}'
         chdir: /home/ec2-user/CircleCore
         executable: /usr/local/bin/pip
-        editable: yes
+        extra_args: -e
       with_items:
         - git+https://github.com/nanomsg/nnpy.git#egg=nnpy
         - .
