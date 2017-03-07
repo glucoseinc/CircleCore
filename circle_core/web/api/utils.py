@@ -1,16 +1,20 @@
 # -*- coding: utf-8 -*-
 
-# community module
-from flask import Response
-from six import PY3
+"""WebUI API Utilities."""
 
 # project module
 from ..utils import (
     api_jsonify,
 )
 
-if PY3:
-    from typing import Dict
+
+# type annotation
+try:
+    from typing import Dict, TYPE_CHECKING
+    if TYPE_CHECKING:
+        from flask import Response
+except ImportError:
+    pass
 
 
 __all__ = (

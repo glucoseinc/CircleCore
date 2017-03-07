@@ -1,18 +1,21 @@
 # -*- coding:utf-8 -*-
 
-# system module
-import re
+"""WebUI Utilities."""
 
 # community module
 from flask import current_app, request
 from flask.json import _dump_arg_defaults, _json, JSONEncoder as BaseJSONEncoder, text_type
-from six import PY3
+
 
 # project module
 from circle_core.constants import CRScope
 
-if PY3:
-    from typing import Any, Dict, Union
+
+# type annotation
+try:
+    from typing import Callable
+except ImportError:
+    pass
 
 
 class JSONEncoder(BaseJSONEncoder):
@@ -30,7 +33,7 @@ def dumps(obj, **kwargs):
 
 
 def api_jsonify(*args, **kwargs):
-    """flask.json.jsonify"""
+    """flask.json.jsonify."""
     indent = None
     _status = kwargs.pop('_status', None)
     if current_app.config['JSONIFY_PRETTYPRINT_REGULAR'] \
@@ -43,24 +46,36 @@ def api_jsonify(*args, **kwargs):
 
 
 def oauth_require_read_users_scope(f):
-    """user情報の読み込みが行えるScope"""
+    """user情報の読み込みが行えるScopeデコレータ.
+
+    :param Callable f: Function
+    """
     from .authorize import oauth
     return oauth.require_oauth(CRScope.USER_R.value, CRScope.USER_RW.value)(f)
 
 
 def oauth_require_write_users_scope(f):
-    """user情報の変更が行えるScope"""
+    """user情報の変更が行えるScopeデコレータ.
+
+    :param Callable f: Function
+    """
     from .authorize import oauth
     return oauth.require_oauth(CRScope.USER_RW.value)(f)
 
 
 def oauth_require_read_schema_scope(f):
-    """(User以外の）メタデータを読むだけのScope"""
+    """(User以外の）メタデータを読むだけのScopeデコレータ.
+
+    :param Callable f: Function
+    """
     from .authorize import oauth
     return oauth.require_oauth(CRScope.SCHEMA_R.value, CRScope.SCHEMA_RW.value)(f)
 
 
 def oauth_require_write_schema_scope(f):
-    """(User以外の）メタデータを読み書きするためのScope"""
+    """(User以外の）メタデータを読み書きするためのScopeデコレータ.
+
+    :param Callable f: Function
+    """
     from .authorize import oauth
     return oauth.require_oauth(CRScope.SCHEMA_RW.value)(f)

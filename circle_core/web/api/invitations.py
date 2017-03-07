@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
 """招待関連APIの実装."""
+
+# system module
 import datetime
 
 # community module
 from flask import abort, request
-from six import PY3
 
 # project module
 from circle_core.models import generate_uuid, Invitation, MetaDataSession
@@ -15,12 +16,10 @@ from ..utils import (
     oauth_require_read_users_scope, oauth_require_write_users_scope
 )
 
-if PY3:
-    from typing import Any, Dict
-
 
 @api.route('/invitations/', methods=['GET', 'POST'])
 def api_invitations():
+    """全てのInvitationのCRUD."""
     if request.method == 'GET':
         return _get_invitations()
     if request.method == 'POST':
@@ -30,11 +29,21 @@ def api_invitations():
 
 @oauth_require_read_users_scope
 def _get_invitations():
+    """全てのInvitationの情報を取得する.
+
+    :return: 全てのInvitationの情報
+    :rtype: Response
+    """
     return respond_success(invitations=[obj.to_json() for obj in Invitation.query])
 
 
 @oauth_require_write_users_scope
 def _post_invitation():
+    """Invitationを作成する.
+
+    :return: 作成したInvitationの情報
+    :rtype: Response
+    """
     # maxInvites項目しか許可しない
     with MetaDataSession.begin():
         obj = Invitation(
@@ -49,6 +58,7 @@ def _post_invitation():
 
 @api.route('/invitations/<obj_uuid>', methods=['DELETE'])
 def api_invitation(obj_uuid):
+    """単一のInvitationのCRUD."""
     invitation = Invitation.query.get(obj_uuid)
     if not invitation:
         return respond_failure('not found', _status=404)
@@ -64,6 +74,12 @@ def api_invitation(obj_uuid):
 
 @oauth_require_write_users_scope
 def _delete_invitation(invitation):
+    """Invitationを削除する.
+
+    :param Invitation invitation: 削除するInvitation
+    :return: Invitationの情報
+    :rtype: Response
+    """
     with MetaDataSession.begin():
         MetaDataSession.delete(invitation)
 

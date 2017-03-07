@@ -1,15 +1,31 @@
 # -*- coding: utf-8 -*-
-"""
-"""
+
+"""WebUI Public Views."""
+
+# community module
 from flask import abort, render_template, request
 import sqlalchemy.exc
 
+# project module
 from circle_core.models import Invitation, MetaDataSession, User
 from . import public
 
 
+# type annotation
+try:
+    from typing import TYPE_CHECKING
+    if TYPE_CHECKING:
+        import uuid
+except ImportError:
+    pass
+
+
 @public.route('/invitation/<uuid:link_uuid>', methods=['GET', 'POST'])
 def invitation_endpoint(link_uuid):
+    """User招待リンク.
+
+    :param uuid.UUID link_uuid: User招待リンクのUUID
+    """
     invitation = Invitation.query.get(link_uuid)
     if not invitation or not invitation.can_invite():
         raise abort(404)

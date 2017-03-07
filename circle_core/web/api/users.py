@@ -18,6 +18,7 @@ from ..utils import (
 
 @api.route('/users/', methods=['GET', 'POST'])
 def api_users():
+    """全てのUserのCRUD."""
     if request.method == 'GET':
         return _get_users()
     # if request.method == 'POST':
@@ -27,11 +28,17 @@ def api_users():
 
 @oauth_require_read_users_scope
 def _get_users():
+    """全てのUserの情報を取得する.
+
+    :return: 全てのUserの情報
+    :rtype: Response
+    """
     return respond_success(users=[user.to_json() for user in User.query])
 
 
 @api.route('/users/me', methods=['GET'])
 def api_user_me():
+    """自身のUserのCRUD."""
     if request.method == 'GET':
         return _get_user_me()
     abort(405)
@@ -39,6 +46,11 @@ def api_user_me():
 
 @oauth_require_read_users_scope
 def _get_user_me():
+    """自身のUserの情報を取得する.
+
+    :return: 自身のUserの情報
+    :rtype: Response
+    """
     user_uuid = request.oauth.user.uuid
     user = User.query.get(user_uuid)
     if user is None:
@@ -48,6 +60,7 @@ def _get_user_me():
 
 @api.route('/users/<uuid:user_uuid>', methods=['GET', 'PUT', 'DELETE'])
 def api_user(user_uuid):
+    """単一のUserのCRUD."""
     user = User.query.get(user_uuid)
     if user is None:
         return respond_failure('User not found.', _status=404)
@@ -63,23 +76,23 @@ def api_user(user_uuid):
 
 @oauth_require_read_users_scope
 def _get_user(user):
+    """Userの情報を取得する.
+
+    :param User user: 取得するUser
+    :return: Userの情報
+    :rtype: Response
+    """
     return respond_success(user=user.to_json())
-
-
-@oauth_require_write_users_scope
-def _delete_user(user):
-    # 自分は削除できない
-    if user.uuid == request.oauth.user.uuid:
-        return respond_failure('Cannot delete yourself.')
-
-    with MetaDataSession.begin():
-        MetaDataSession.delete(user)
-
-    return respond_success(user={'uuid': user.uuid})
 
 
 @oauth_require_read_users_scope
 def _put_user(user):
+    """Userを更新する.
+
+    :param User user: 更新するUser
+    :return: Userの情報
+    :rtype: Response
+    """
     has_write, req = oauth.verify_request([CRScope.USER_RW.value])
 
     # TODO: viewでやるな
@@ -118,3 +131,21 @@ def _put_user(user):
         user.update_from_json(request.json)
 
     return respond_success(user=user.to_json())
+
+
+@oauth_require_write_users_scope
+def _delete_user(user):
+    """Userを削除する.
+
+    :param User user: 削除するUser
+    :return: Userの情報
+    :rtype: Response
+    """
+    # 自分は削除できない
+    if user.uuid == request.oauth.user.uuid:
+        return respond_failure('Cannot delete yourself.')
+
+    with MetaDataSession.begin():
+        MetaDataSession.delete(user)
+
+    return respond_success(user={'uuid': user.uuid})

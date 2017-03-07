@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 
 """認証関連APIの実装."""
+
+# system module
 import logging
 import time
 
+# community module
 from flask import abort, g, redirect, render_template, request, session, url_for
 
+# project module
 from circle_core.constants import CRScope
 from circle_core.exceptions import AuthorizationError
 from circle_core.models import NoResultFound, User
@@ -19,17 +23,18 @@ logger = logging.getLogger(__name__)
 
 
 def _login(user):
+    """ログインする."""
     session[SESSION_KEY_USER] = str(user.uuid)
 
 
 def _logout():
-    """web（というかcookie）からログアウトする"""
+    """web（というかcookie）からログアウトする."""
     session.pop(SESSION_KEY_USER, None)
 
 
 @authorize.before_request
 def before_request():
-    """ログイン確認"""
+    """ログイン確認."""
     g.user = None
     user_uuid = session.get(SESSION_KEY_USER)
     if not user_uuid:
@@ -48,7 +53,7 @@ authorize.add_url_rule('/oauth/callback', endpoint='oauth_callback', build_only=
 @authorize.route('/oauth/authorize', methods=['GET', 'POST'])
 @oauth.authorize_handler
 def oauth_authorize(*args, **kwargs):
-    """OAuth認証の確認を行う"""
+    """OAuth認証の確認を行う."""
     if not g.user:
         return redirect(url_for('.oauth_login', redirect=request.full_path))
 
@@ -71,7 +76,7 @@ def oauth_authorize(*args, **kwargs):
 
 @authorize.route('/oauth/login', methods=['GET', 'POST'])
 def oauth_login():
-    """oauthと永津いているが、通常のWebログイン"""
+    """通常のWebログイン."""
     if request.method == 'GET':
         redirect_to = request.args['redirect']
         if not redirect_to.startswith('/'):
@@ -97,9 +102,15 @@ def oauth_login():
 
 
 def _find_user_by_password(account, password):
-    # TODO: なんかステキなコントローラつくって移す
-    # account/passwordが適合するユーザを探す
+    """account/passwordが適合するユーザを取得する.
 
+    :param str account: アカウント名
+    :param str password: 平文パスワード
+    :return: User
+    :rtype: User
+    """
+
+    # TODO: コントローラを作成して移動
     try:
         user = User.query.filter_by(account=account).one()
     except NoResultFound:

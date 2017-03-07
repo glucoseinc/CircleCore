@@ -18,4 +18,5 @@ logger = logging.getLogger(__name__)
 
 @api.before_request
 def before_request():
+    """リクエスト前に呼ばれる."""
     check_login()

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+"""WebUI."""
+
 # system module
 from datetime import datetime
 import os
@@ -16,10 +18,28 @@ from circle_core.utils import portable_popen
 from .authorize.core import oauth
 
 
+# type annotation
+try:
+    from typing import TYPE_CHECKING, Union
+    if TYPE_CHECKING:
+        from circle_core.core import CircleCore
+except ImportError:
+    pass
+
+
 class CCWebApp(Flask):
     """Web管理インタフェース用のFlask Application.
+
+    :param float uptime: 起動時刻
+    :param int ws_port: Websocket Port Number
     """
     def __init__(self, core, base_url=None, ws_port=None, is_https=False):
+        """init.
+
+        :param CircleCore core: CircleCore Core
+        :param str base_url: ベースURL
+        :param int ws_port: Websocket Port Number
+        """
         super(CCWebApp, self).__init__(__name__)
 
         self.uptime = time.time()
@@ -85,6 +105,11 @@ class CCWebApp(Flask):
 
     @property
     def core(self):
+        """CircleCore Coreを取得する.
+
+        :return: CircleCore Core
+        :rtype: CircleCore
+        """
         return self.config['CORE']
 
     def build_frontend(self):
@@ -100,19 +125,27 @@ class CCWebApp(Flask):
 
 
 class UUIDConverter(BaseConverter):
-    """UUID値をURLに使うためのコンバーター.
-
-    :class:`~bson.objectid.ObjectId` objects;
-    :attr:`ObjectId`.
-    """
+    """UUID値をURLに使うためのコンバータ."""
 
     def to_python(self, value):
+        """Pythonで使用できる型に変換する.
+
+        :param str value: UUID
+        :return: UUID
+        :rtype: uuid.UUID
+        """
         try:
             return uuid.UUID(value)
         except ValueError:
             raise abort(404)
 
     def to_url(self, value):
+        """URLで使用できる型に変換する.
+
+        :param Union[str, uuid.UUID] value: UUID
+        :return: UUID
+        :rtype: str
+        """
         return str(value)
 
 
