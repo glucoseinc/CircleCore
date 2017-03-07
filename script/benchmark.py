@@ -122,8 +122,10 @@ ansible_ssh_private_key_file = ~/.ssh/kyudai-benchmark.pem
     def clear_metadata(self):
         master = self.connect_crcr(self.master_ip)
         self.exec_command(master, 'rm cc_dev/metadata.sqlite')
-        slave = self.connect_crcr(slave_ip)
-        self.exec_command(slave, 'rm cc_dev/metadata.sqlite')
+
+        for slave_ip in self.instance_ips:
+            slave = self.connect_crcr(slave_ip)
+            self.exec_command(slave, 'rm cc_dev/metadata.sqlite')
 
     def register_box(self):
         master = self.connect_crcr(self.master_ip)
@@ -172,8 +174,10 @@ ansible_ssh_private_key_file = ~/.ssh/kyudai-benchmark.pem
         streams['bot_stderr'] = stderr
 
         _, stdout, stderr = self.exec_command(master, 'crcr run')
-        streams['bot_stdout'] = stdout
-        streams['bot_stderr'] = stderr
+        streams['master_stdout'] = stdout
+        streams['master_stderr'] = stderr
+
+        sleep(10)  # メッセージボックスが空の状態で同期を始めると以降同期されない...気がする
 
         for slave_ip in self.instance_ips:
             slave = self.connect_crcr(slave_ip)
