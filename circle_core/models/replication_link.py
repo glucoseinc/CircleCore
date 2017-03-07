@@ -68,7 +68,7 @@ class ReplicationLink(UUIDMetaDataBase):
     ALL_MESSAGE_BOXES = object()
 
     @classmethod
-    def create(cls, display_name, memo, slaves, message_box_uuids):
+    def create(cls, display_name, memo, message_box_uuids):
         """ReplicationLinkを作成する。
         message boxの存在チェックとかを行う
 
