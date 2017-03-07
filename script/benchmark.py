@@ -178,14 +178,18 @@ ansible_ssh_private_key_file = ~/.ssh/kyudai-benchmark.pem
             streams['{}_stdout'.format(slave_ip)] = stdout
             streams['{}_stderr'.format(slave_ip)] = stderr
 
-        for name, stream in streams:
+        for name, stream in streams.items():
             def logger():
-                for line in stream:
-                    print(name, line)
+                while True:
+                    line = stream.readline()
+                    if line:
+                        print(name, line, end='')
+                    else:
+                        break
 
             Thread(target=logger, daemon=True).start()
 
-        sleep(10000000)
+        sleep(60 * 60 * 24)
 
     def execute(self):
         self.create_spot_instances()
