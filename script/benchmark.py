@@ -120,9 +120,11 @@ ansible_ssh_private_key_file = ~/.ssh/kyudai-benchmark.pem
 
     def register_shared_links(self):
         master = self.connect_crcr(self.master_ip)
+        self.exec_command(master, 'rm cc_dev/metadata.sqlite')
 
         for i, slave_ip in enumerate(self.instance_ips, start=1):
             slave = self.connect_crcr(slave_ip)
+            self.exec_command(slave, 'rm cc_dev/metadata.sqlite')
 
             _, stdout, _ = self.exec_command(slave, 'crcr env')
             stdout = stdout.read().decode('utf-8')
@@ -157,14 +159,17 @@ ansible_ssh_private_key_file = ~/.ssh/kyudai-benchmark.pem
         stdout = stdout.read().decode('utf-8')
         box_uuid = re.search(r'^MessageBox "([0-9A-Fa-f-]+)" is added\.$', stdout, re.MULTILINE).group(1)
 
-        self.exec_command(master,
+        _, bot_stdout, bot_stderr = self.exec_command(master,
             'python3 sample/sensor_counter.py --to ipc:///tmp/crcr_request.ipc --box-id {}'.format(box_uuid)
         )
-        self.exec_command(master, 'crcr run')
+        _, master_stdout, master_stderr = self.exec_command(master, 'crcr run')
 
         for slave_ip in self.instance_ips:
             slave = self.connect_crcr(slave_ip)
-            self.exec_command(slave, 'crcr run')
+            _, slave_stdout, slave_stderr = self.exec_command(slave, 'crcr run')
+
+        for line in slave_stdout.readlines():
+            print(line)
 
     def execute(self):
         self.create_spot_instances()
