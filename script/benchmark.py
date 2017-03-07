@@ -119,31 +119,13 @@ ansible_ssh_private_key_file = ~/.ssh/kyudai-benchmark.pem
             command
         ]))
 
-    def register_shared_links(self):
+    def clear_metadata(self):
         master = self.connect_crcr(self.master_ip)
         self.exec_command(master, 'rm cc_dev/metadata.sqlite')
+        slave = self.connect_crcr(slave_ip)
+        self.exec_command(slave, 'rm cc_dev/metadata.sqlite')
 
-        for i, slave_ip in enumerate(self.instance_ips, start=1):
-            slave = self.connect_crcr(slave_ip)
-            self.exec_command(slave, 'rm cc_dev/metadata.sqlite')
-
-            _, stdout, _ = self.exec_command(slave, 'crcr env')
-            stdout = stdout.read().decode('utf-8')
-            slave_uuid = re.search(r'^Circle Core: .*\(([0-9A-Fa-f-]+)\)$', stdout, re.MULTILINE).group(1)
-
-            _, stdout, _ = self.exec_command(
-                master,
-                'crcr replication_link add --name benchmark{} --cc {} --all-boxes'.format(i, slave_uuid)
-            )
-            stdout = stdout.read().decode('utf-8')
-            link_uuid = re.search(r'^Replication Link "([0-9A-Fa-f-]+)" is added\.$', stdout, re.MULTILINE).group(1)
-
-            self.exec_command(
-                slave,
-                'crcr replication_master add --endpoint ws://{}:8080/replication/{}'.format(self.master_ip, link_uuid)
-            )
-
-    def run_crcr(self):
+    def register_box(self):
         master = self.connect_crcr(self.master_ip)
 
         _, stdout, _ = self.exec_command(master, 'crcr schema add --name counterbot count:int body:string')
@@ -158,12 +140,33 @@ ansible_ssh_private_key_file = ~/.ssh/kyudai-benchmark.pem
             'crcr box add --name counterbot --schema {} --module {}'.format(schema_uuid, module_uuid)
         )
         stdout = stdout.read().decode('utf-8')
-        box_uuid = re.search(r'^MessageBox "([0-9A-Fa-f-]+)" is added\.$', stdout, re.MULTILINE).group(1)
+        self.box_uuid = re.search(r'^MessageBox "([0-9A-Fa-f-]+)" is added\.$', stdout, re.MULTILINE).group(1)
+
+    def exchange_shared_links(self):
+        master = self.connect_crcr(self.master_ip)
+
+        for i, slave_ip in enumerate(self.instance_ips, start=1):
+            slave = self.connect_crcr(slave_ip)
+
+            _, stdout, _ = self.exec_command(
+                master,
+                'crcr replication_link add --name benchmark{} --all-boxes'.format(i)
+            )
+            stdout = stdout.read().decode('utf-8')
+            link_uuid = re.search(r'^Replication Link "([0-9A-Fa-f-]+)" is added\.$', stdout, re.MULTILINE).group(1)
+
+            self.exec_command(
+                slave,
+                'crcr replication_master add --endpoint ws://{}:8080/replication/{}'.format(self.master_ip, link_uuid)
+            )
+
+    def run_crcr(self):
+        master = self.connect_crcr(self.master_ip)
 
         streams = {}
 
         _, stdout, stderr = self.exec_command(master,
-            'python3 sample/sensor_counter.py --to ipc:///tmp/crcr_request.ipc --box-id {}'.format(box_uuid)
+            'python3 sample/sensor_counter.py --to ipc:///tmp/crcr_request.ipc --box-id {}'.format(self.box_uuid)
         )
         streams['bot_stdout'] = stdout
         streams['bot_stderr'] = stderr
@@ -194,7 +197,9 @@ ansible_ssh_private_key_file = ~/.ssh/kyudai-benchmark.pem
     def execute(self):
         self.create_spot_instances()
         self.provision()
-        self.register_shared_links()
+        self.clear_metadata()
+        self.register_box()
+        self.exchange_shared_links()
         self.run_crcr()
 
 
