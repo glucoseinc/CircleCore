@@ -80,6 +80,7 @@ class Benchmarker:
             running_instances = \
                 self.client.describe_spot_fleet_instances(SpotFleetRequestId=fleet_id)['ActiveInstances']
             if len(running_instances) == self.qty:
+                sleep(10)
                 break
             else:
                 sleep(10)
