@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-Metadata操作ログ
-"""
+
+"""Metadata操作ログ."""
+
+# system module
 import collections
 
+# community module
 import click
 from sqlalchemy import inspect
 
+# project module
 from circle_core import models
 from circle_core.models import User
 from circle_core.models.base import UUIDMetaDataBase
@@ -14,7 +17,22 @@ from .base import logger
 from .metadata_event_listener import MetaDataEventListener
 
 
+# type annotation
+try:
+    from typing import TYPE_CHECKING
+    if TYPE_CHECKING:
+        import io
+        from .app import CircleCore
+except ImportError:
+    pass
+
+
 def get_current_user():
+    """操作しているユーザを取得する.
+
+    :return: 操作しているユーザ.
+    :rtype: str
+    """
     # flaskかな?
     from flask.globals import _request_ctx_stack
 
@@ -39,15 +57,25 @@ def get_current_user():
 
 
 class MetaDataEventLogger(object):
+    """MetaDataEventLogger.
+
+    :param MetaDataEventListener listener: イベントリスナ
+    :param io.TextIOWrapper log_file: ログファイル
     """
-    """
+
     def __init__(self, core, log_file_path):
+        """init.
+
+        :param CircleCore core: CircleCore Core
+        :param str log_file_path: ログファイルのパス
+        """
         self.listener = MetaDataEventListener()
         self.log_file = open(log_file_path, 'a')
 
         self._install()
 
     def _install(self):
+        """ロギングするイベントを登録する."""
         logger.debug('Installing metadata event handlers.')
 
         for key in dir(models):
@@ -59,6 +87,11 @@ class MetaDataEventLogger(object):
                 pass
 
     def handle_metadata_event(self, what, target):
+        """イベントをハンドリングする.
+
+        :param str what: イベント種別
+        :param Any target: 対象
+        """
         if what == 'before_insert':
             self.log('insert', target, uuid=target.uuid, data=target.to_json())
         elif what == 'before_delete':
@@ -97,6 +130,12 @@ class MetaDataEventLogger(object):
             self.log('update', target, diff=diff)
 
     def log(self, what, instance, **details):
+        """イベントをログファイルに書き込む.
+
+        :param str what: イベント種別
+        :param Any instance: 対象
+        :param details: 詳細
+        """
         data = collections.OrderedDict()
         data['user'] = get_current_user()
         data['what'] = what

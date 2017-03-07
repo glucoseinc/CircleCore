@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-CircleCoreのCore
-"""
+
+"""CircleCoreのCore."""
+
+# system module
 import configparser
 import contextlib
 import logging
 import os
-import sys
 import uuid
 
+# community module
 import alembic
 import alembic.config
 import sqlalchemy
 import sqlalchemy.exc
 
+# project module
 from circle_core.exceptions import ConfigError
 from circle_core.helpers import Receiver
 from circle_core.models import CcInfo, generate_uuid, MetaDataBase, MetaDataSession, NoResultFound
@@ -23,14 +25,44 @@ from .hub import CoreHub
 from .metadata_event_logger import MetaDataEventLogger
 
 
-DFEAULT_CONFIG_FILE_NAME = 'circle_core.ini'
+# type annotation
+try:
+    from typing import List, Optional, TYPE_CHECKING
+    if TYPE_CHECKING:
+        from sqlalchemy.engine import Engine
+        from ..database import Database
+except ImportError:
+    pass
+
+
+DEFAULT_CONFIG_FILE_NAME = 'circle_core.ini'
 
 
 class CircleCore(object):
+    """CircleCore Core Object.
+
+    :param bool debug: Debugフラグ
+    :param str prefix: crcrのデータを保存するディレクトリ
+    :param str metadata_file_path: metadataを保存するファイルのパス
+    :param str log_file_path: metadata変更ログを保存するファイルのパス
+    :param List workers: ワーカーリスト
+    :param str hub_socket: nanomsgのメッセージが流通するHubのSocket
+    :param str request_socket: nanomsgへのリクエストを受け付けるSocket
+    :param CoreHub hub: nanomsgのpubsubなどを管理するHub
+    :param CcInfo my_cc_info: 自身のCircleCore情報
+    :param logging.Logger audit_logger: ユーザー操作等を記録するためのロガー
+    :param Engine metadata_db_engine: metadataデータベースエンジン
+    :param MetaDataEventLogger metadata_event_logger: metadataイベントのロガー
+    """
+
     @classmethod
     def load_from_config_file(cls, config_filepath, debug=False):
-        """
-        コンフィグファイルのパスを指定して読み込む
+        """コンフィグファイルのパスを指定して読み込む.
+
+        :param str config_filepath: コンフィグファイルのパス
+        :param bool debug: Debugフラグ
+        :return: CircleCore Core Object
+        :rtype: CircleCore
         """
         config = cls._make_config_parser()
         with open(config_filepath) as fp:
@@ -39,11 +71,17 @@ class CircleCore(object):
 
     @classmethod
     def load_from_default_config_file(cls, debug=False):
+        """デフォルトのコンフィグファイルを読み込む.
+
+        :param bool debug: Debugフラグ
+        :return: CircleCore Core Object
+        :rtype: CircleCore
+        """
         config = cls._make_config_parser()
         okfiles = config.read([
-            './{}'.format(DFEAULT_CONFIG_FILE_NAME),
-            os.path.expanduser('~/{}'.format(DFEAULT_CONFIG_FILE_NAME)),
-            '/etc/circle_core/{}'.format(DFEAULT_CONFIG_FILE_NAME),
+            './{}'.format(DEFAULT_CONFIG_FILE_NAME),
+            os.path.expanduser('~/{}'.format(DEFAULT_CONFIG_FILE_NAME)),
+            '/etc/circle_core/{}'.format(DEFAULT_CONFIG_FILE_NAME),
         ])
         if not okfiles:
             raise ConfigError('no config file found')
@@ -52,6 +90,11 @@ class CircleCore(object):
 
     @classmethod
     def _make_config_parser(cls):
+        """ConfigParserを作成する.
+
+        :return: ConfigParser
+        :rtype: configparser.ConfigParser
+        """
         return configparser.ConfigParser(
             delimiters=('=',),
             default_section=None,
@@ -60,6 +103,13 @@ class CircleCore(object):
 
     @classmethod
     def load_from_config(cls, config, debug=False):
+        """コンフィグを読み込む.
+
+        :param configparser.ConfigParser config: コンフィグ
+        :param bool debug: Debugフラグ
+        :return: CircleCore Core Object
+        :rtype: CircleCore
+        """
         core_config = config['circle_core']
 
         core = cls(
@@ -95,11 +145,21 @@ class CircleCore(object):
         return core
 
     def __init__(self, config_uuid, prefix, metadata_file_path, log_file_path, hub_socket, request_socket, debug=False):
+        """init.
+
+        :param str config_uuid: 自身のUUID 'auto'の場合は自動生成する
+        :param str prefix: crcrのデータを保存するディレクトリ
+        :param str metadata_file_path: metadataを保存するファイルのパス
+        :param str log_file_path: metadata変更ログを保存するファイルのパス
+        :param str hub_socket: nanomsgのメッセージが流通するHubのSocket
+        :param str request_socket: nanomsgへのリクエストを受け付けるSocket
+        :param bool debug: Debugフラグ
+        """
         if config_uuid != 'auto':
             try:
                 config_uuid = uuid.UUID(config_uuid)
             except ValueError:
-                raise ConfigError('invalid uuid `{}`'.fomart(config_uuid))
+                raise ConfigError('invalid uuid `{}`'.format(config_uuid))
 
         self.debug = debug
         self.prefix = prefix
@@ -125,9 +185,22 @@ class CircleCore(object):
 
     # public
     def add_worker(self, worker_type, worker_key, worker_config):
+        """ワーカーを追加する.
+
+        :param str worker_type: ワーカーのタイプ
+        :param str worker_key: ワーカーのキー
+        :param configparser.SectionProxy worker_config: ワーカーのコンフィグ
+        """
         self.workers.append(make_worker(self, worker_type, worker_key, worker_config))
 
     def find_worker(self, worker_type, worker_key=None):
+        """合致するワーカーを取得する.
+
+        :param worker_type: ワーカーのタイプ
+        :param worker_key: ワーカーのキー
+        :return: 合致するワーカー
+        :rtype: Optional[Any]
+        """
         for worker in self.workers:
             if worker.worker_type != worker_type:
                 continue
@@ -138,6 +211,7 @@ class CircleCore(object):
             return worker
 
     def run(self):
+        """CircleCoreを起動する."""
         for worker in self.workers:
             worker.initialize()
 
@@ -152,19 +226,27 @@ class CircleCore(object):
                 worker.finalize()
 
     def get_database(self):
-        """Messageを保存している方のデータベース.
+        """Messageデータベースを取得する.
 
         今のところDatareceiverが握っているのでそれを返す
-        CircleCoreが持っているべき???"""
+
+        :return: Messageデータベース
+        :rtype: Database
+        """
         return self.find_worker(WORKER_DATARECEIVER).db
 
     def make_hub_receiver(self, topic=None):
+        """Message Hubのレシーバを作成する.
+
+        :param Optional[str] topic: topic名
+        :return: Message Hubのレシーバ
+        :rtype: Receiver
+        """
         return Receiver(self.hub_socket, topic)
 
     # private
     def prepare_directories(self):
-        """
-        """
+        """必要なディレクトリを作成する."""
         def _makedirs_safe(p):
             if not os.path.exists(p):
                 os.makedirs(p)
@@ -174,16 +256,19 @@ class CircleCore(object):
         _makedirs_safe(os.path.dirname(self.log_file_path))
 
     def open_log_file(self):
-        """ユーザー操作等を記録するためのロガーの設定を行う
+        """ユーザー操作等を記録するためのロガーの設定を行う.
 
-        コンソールに出すログの方はcliで初期化する"""
+        コンソールに出すログの方はcliで初期化する
+        """
         self.audit_logger = logging.getLogger('circle_core.audit')
 
     def open_metadata_db(self):
+        """metadataデータベースの設定をする."""
         self.metadata_db_engine = sqlalchemy.create_engine('sqlite:///' + os.path.abspath(self.metadata_file_path))
         MetaDataSession.configure(bind=self.metadata_db_engine)
 
     def migrate_metadata_db(self):
+        """metadataデータベースのマイグレーションを行う."""
         # dbにTableが一個もなかったらcreate allして、revisionをHEADにする
         dummy = sqlalchemy.MetaData()
         try:
@@ -210,7 +295,7 @@ class CircleCore(object):
 
     @contextlib.contextmanager
     def open_alembic(self):
-        """metadata dbを対象にalembicの環境を開く"""
+        """metadataデータベースを対象にalembicの環境を開く."""
         oldwd = os.getcwd()
         os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
 
@@ -224,9 +309,11 @@ class CircleCore(object):
             os.chdir(oldwd)
 
     def make_own_cc_info(self, config_uuid):
-        """自分のCC Infoを作成する
+        """自身のCircleCore Infoを作成する.
 
         :param str config_uuid: uuid, autoの場合は生成する
+        :return: 自身のCircleCore Info
+        :rtype: CcInfo
         """
         with MetaDataSession.begin():
             try:
@@ -249,4 +336,5 @@ class CircleCore(object):
         return my_cc_info
 
     def start_metadata_event_logger(self):
+        """metadataイベントのロガーを設定する."""
         self.metadata_event_logger = MetaDataEventLogger(self, self.log_file_path)
