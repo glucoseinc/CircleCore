@@ -6,7 +6,7 @@ import boto3
 
 
 @click.command()
-@click.option('--fleet-id', type=click.STRING)
+@click.option('--fleet-id', type=click.STRING, required=True)
 def main(fleet_id):
     client = boto3.client('ec2')
     running_instances = client.describe_spot_fleet_instances(SpotFleetRequestId=fleet_id)['ActiveInstances']
@@ -20,9 +20,9 @@ def main(fleet_id):
         instance_ip = instance['NetworkInterfaces'][0]['Association']['PublicIp']
 
         with open(str(Path(__file__).parent.joinpath('{}.sql'.format(instance_ip))), 'w') as f:
-            subprocess.run("mysql --host "+instance_ip+" -u root -Be 'SELECT * FROM ' \
+            subprocess.run("mysql --host "+instance_ip+" -u root -Be \"USE crcr_dev; SELECT * FROM \
                 $(mysql --host "+instance_ip+" -u root -Ee 'USE crcr_dev; SHOW TABLES' \
-                | awk '/^[^\*]/ { print $2; exit }') \
+                | awk '/^[^\*]/ { print $2; exit }')\" \
                 ",
                 shell=True,
                 check=True,

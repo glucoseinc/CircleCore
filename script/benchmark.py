@@ -1,3 +1,4 @@
+from itertools import chain
 from collections import namedtuple
 from datetime import datetime, timedelta
 from threading import Thread
@@ -14,7 +15,7 @@ import paramiko
 
 
 class Benchmarker:
-    def __init__(self, qty, until, instance_type, margin, github_user, github_pass, master_ip):
+    def __init__(self, qty, until, instance_type, margin, github_user, github_pass, master_ip, fleet_id):
         self.qty = qty
         self.until = until
         self.instance_type = instance_type
@@ -22,6 +23,7 @@ class Benchmarker:
         self.github_user = github_user
         self.github_pass = github_pass
         self.master_ip = master_ip
+        self.fleet_id = fleet_id
 
         self.client = boto3.client('ec2')
 
@@ -65,7 +67,7 @@ class Benchmarker:
             }],
             'TerminateInstancesWithExpiration': True,
             'SpotPrice': spot_price,
-            'ValidUntil': self.until
+            # 'ValidUntil': self.until
         }
         pprint(req)
         click.confirm('Are you sure to send this request?', abort=True)
@@ -79,14 +81,17 @@ class Benchmarker:
         while True:  # Wait until instances wake up
             running_instances = \
                 self.client.describe_spot_fleet_instances(SpotFleetRequestId=fleet_id)['ActiveInstances']
-            if len(running_instances) == self.qty:
-                sleep(10)
+            if self.fleet_id or len(running_instances) == self.qty:
+                click.confirm('Press y when the all instances are up', abort=True)
                 break
             else:
                 sleep(10)
 
         instance_ids = [instance['InstanceId'] for instance in running_instances]
-        instances = self.client.describe_instances(InstanceIds=instance_ids)['Reservations'][0]['Instances']
+        instances = chain.from_iterable(
+            reserve['Instances']
+            for reserve in self.client.describe_instances(InstanceIds=instance_ids)['Reservations']
+        )
         self.instance_ips = [instance['NetworkInterfaces'][0]['Association']['PublicIp'] for instance in instances]
 
     def provision(self):
@@ -196,6 +201,9 @@ ansible_ssh_private_key_file = ~/.ssh/kyudai-benchmark.pem
         sleep(60 * 60 * 24)
 
     def execute(self):
+        if self.fleet_id:
+            self.create_spot_fleet = lambda: self.fleet_id
+
         self.create_spot_instances()
         self.provision()
         self.clear_metadata()
@@ -215,6 +223,7 @@ ansible_ssh_private_key_file = ~/.ssh/kyudai-benchmark.pem
 @click.option('--github-user', required=True)
 @click.option('--github-pass', required=True)
 @click.option('--master-ip', default='54.249.123.46')
+@click.option('--fleet-id')
 def main(**kwargs):
     Benchmarker(**kwargs).execute()
 
