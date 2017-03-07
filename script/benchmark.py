@@ -1,5 +1,6 @@
 from collections import namedtuple
 from datetime import datetime, timedelta
+from threading import Thread
 from os.path import expanduser
 from pathlib import Path
 from pprint import pprint
@@ -159,17 +160,32 @@ ansible_ssh_private_key_file = ~/.ssh/kyudai-benchmark.pem
         stdout = stdout.read().decode('utf-8')
         box_uuid = re.search(r'^MessageBox "([0-9A-Fa-f-]+)" is added\.$', stdout, re.MULTILINE).group(1)
 
-        _, bot_stdout, bot_stderr = self.exec_command(master,
+        streams = {}
+
+        _, stdout, stderr = self.exec_command(master,
             'python3 sample/sensor_counter.py --to ipc:///tmp/crcr_request.ipc --box-id {}'.format(box_uuid)
         )
-        _, master_stdout, master_stderr = self.exec_command(master, 'crcr run')
+        streams['bot_stdout'] = stdout
+        streams['bot_stderr'] = stderr
+
+        _, stdout, stderr = self.exec_command(master, 'crcr run')
+        streams['bot_stdout'] = stdout
+        streams['bot_stderr'] = stderr
 
         for slave_ip in self.instance_ips:
             slave = self.connect_crcr(slave_ip)
-            _, slave_stdout, slave_stderr = self.exec_command(slave, 'crcr run')
+            _, stdout, stderr = self.exec_command(slave, 'crcr run')
+            streams['{}_stdout'.format(slave_ip)] = stdout
+            streams['{}_stderr'.format(slave_ip)] = stderr
 
-        for line in slave_stdout.readlines():
-            print(line)
+        for name, stream in streams:
+            def logger():
+                for line in stream:
+                    print(name, line)
+
+            Thread(target=logger, daemon=True).start()
+
+        sleep(10000000)
 
     def execute(self):
         self.create_spot_instances()
