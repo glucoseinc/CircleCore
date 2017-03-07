@@ -3,7 +3,7 @@ import React, {Component, PropTypes} from 'react'
 import MenuItem from 'material-ui/MenuItem'
 import Paper from 'material-ui/Paper'
 
-import {DeleteIcon} from 'src/components/bases/icons'
+import {CopyIcon, DeleteIcon} from 'src/components/bases/icons'
 import MoreIconMenu from 'src/components/bases/MoreIconMenu'
 import MemoLabel from 'src/components/commons/MemoLabel'
 import SchemaPropertiesLabel from 'src/components/commons/SchemaPropertiesLabel'
@@ -21,6 +21,7 @@ class SchemaInfoPaper extends Component {
     ownCcInfo: PropTypes.object.isRequired,
     onDisplayNameTouchTap: PropTypes.func,
     onModuleButtonTouchTap: PropTypes.func,
+    onTemplateTouchTap: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
   }
 
@@ -34,6 +35,7 @@ class SchemaInfoPaper extends Component {
       ownCcInfo,
       onDisplayNameTouchTap,
       onModuleButtonTouchTap,
+      onTemplateTouchTap,
       onDeleteTouchTap,
     } = this.props
 
@@ -78,6 +80,11 @@ class SchemaInfoPaper extends Component {
       <Paper>
         <div style={style.root}>
           <MoreIconMenu>
+            <MenuItem
+              primaryText="このスキーマを雛形にして新しいスキーマを作成する"
+              leftIcon={<CopyIcon />}
+              onTouchTap={() => onTemplateTouchTap(schema)}
+            />
             <MenuItem
               primaryText="このスキーマを削除する"
               leftIcon={<DeleteIcon />}

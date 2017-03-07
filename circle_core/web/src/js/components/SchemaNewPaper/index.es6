@@ -18,12 +18,20 @@ import PropertiesEditComponent from './PropertiesEditComponent'
  */
 class SchemaNewPaper extends Component {
   static propTypes = {
+    templateSchema: PropTypes.object,
     propertyTypes: PropTypes.object.isRequired,
     onCreateTouchTap: PropTypes.func,
   }
 
-  state = {
-    schema: new Schema().pushSchemaProperty(),
+  /**
+   * @constructor
+   */
+  constructor(...args) {
+    super(...args)
+
+    this.state = {
+      schema: this.props.templateSchema || new Schema().pushSchemaProperty(),
+    }
   }
 
   /**

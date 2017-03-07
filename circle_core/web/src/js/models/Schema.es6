@@ -18,7 +18,7 @@ export class SchemaProperty extends SchemaPropertyRecord {
   static fromObject(rawSchemaProperty) {
     return new SchemaProperty({
       name: rawSchemaProperty.name || '',
-      type: rawSchemaProperty.type || '',
+      type: rawSchemaProperty.type ? rawSchemaProperty.type.toUpperCase() : '',
     })
   }
 
@@ -35,7 +35,7 @@ export class SchemaProperty extends SchemaPropertyRecord {
    * @return {SchemaProperty}
    */
   updateType(value) {
-    return this.set('type', value)
+    return this.set('type', value.toUpperCase())
   }
 
   /**

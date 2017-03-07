@@ -3,7 +3,7 @@ import {connect} from 'react-redux'
 import {routerActions} from 'react-router-redux'
 
 import actions from 'src/actions'
-import {urls, createPathName} from 'src/routes'
+import {urls, createPathName, createQuery} from 'src/routes'
 
 import LoadingIndicator from 'src/components/bases/LoadingIndicator'
 import {SchemaIcon} from 'src/components/bases/icons'
@@ -28,6 +28,7 @@ class Schemas extends Component {
     ccInfos: PropTypes.object.isRequired,
     onDisplayNameTouchTap: PropTypes.func,
     onModuleButtonTouchTap: PropTypes.func,
+    onTemplateTouchTap: PropTypes.func,
     onDeleteOkButtonTouchTap: PropTypes.func,
   }
 
@@ -78,6 +79,7 @@ class Schemas extends Component {
       ccInfos,
       onDisplayNameTouchTap,
       onModuleButtonTouchTap,
+      onTemplateTouchTap,
     } = this.props
 
     if (isSchemaFetching || isCcInfoFetching) {
@@ -105,6 +107,7 @@ class Schemas extends Component {
                 ownCcInfo={ownCcInfo}
                 onDisplayNameTouchTap={(schema) => onDisplayNameTouchTap(schema.uuid)}
                 onModuleButtonTouchTap={onModuleButtonTouchTap}
+                onTemplateTouchTap={(shcmea) => onTemplateTouchTap(schema.uuid)}
                 onDeleteTouchTap={::this.onDeleteTouchTap}
               />
             )}
@@ -138,6 +141,10 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
   onDisplayNameTouchTap: (schemaId) => dispatch(routerActions.push(createPathName(urls.schema, {schemaId}))),
   onModuleButtonTouchTap: (moduleId) => dispatch(routerActions.push(createPathName(urls.module, {moduleId}))),
+  onTemplateTouchTap: (schemaId) => dispatch(routerActions.push({
+    pathname: createPathName(urls.schemasNew),
+    query: createQuery(urls.schemasNew, {schemaId}),
+  })),
   onDeleteOkButtonTouchTap: (schema) => dispatch(actions.schema.deleteRequest(schema.uuid)),
 })
 
