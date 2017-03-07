@@ -104,47 +104,73 @@ ansible_ssh_private_key_file = ~/.ssh/kyudai-benchmark.pem
             str(Path(__file__).parent.parent.joinpath('ansible', 'playbook.yaml'))
         ]).check_returncode()
 
+    def connect_crcr(self, ip):
+        conn = paramiko.SSHClient()
+        conn.load_system_host_keys()
+        conn.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        conn.connect(ip, username='ec2-user', key_filename=expanduser('~/.ssh/kyudai-benchmark.pem'))
+        return conn
+
+    def exec_command(self, conn, command):
+        return conn.exec_command('\n'.join([
+            'cd /home/ec2-user/CircleCore',
+            'export LD_LIBRARY_PATH=/usr/local/lib64',
+            command
+        ]))
+
     def register_shared_links(self):
-        def connect_crcr(ip):
-            conn = paramiko.SSHClient()
-            conn.load_system_host_keys()
-            conn.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            conn.connect(ip, username='ec2-user', key_filename=expanduser('~/.ssh/kyudai-benchmark.pem'))
-            return conn
-
-        def exec_command(conn, command):
-            return conn.exec_command('\n'.join([
-                'cd /home/ec2-user/CircleCore',
-                'export LD_LIBRARY_PATH=/usr/local/lib64',
-                command
-            ]))
-
-        master = connect_crcr(self.master_ip)
+        master = self.connect_crcr(self.master_ip)
 
         for i, slave_ip in enumerate(self.instance_ips, start=1):
-            slave = connect_crcr(slave_ip)
+            slave = self.connect_crcr(slave_ip)
 
-            _, stdout, _ = exec_command(slave, 'crcr env')
+            _, stdout, _ = self.exec_command(slave, 'crcr env')
             stdout = stdout.read().decode('utf-8')
             slave_uuid = re.search(r'^Circle Core: .*\(([0-9A-Fa-f-]+)\)$', stdout, re.MULTILINE).group(1)
 
-            _, stdout, _ = exec_command(
+            _, stdout, _ = self.exec_command(
                 master,
                 'crcr replication_link add --name benchmark{} --cc {} --all-boxes'.format(i, slave_uuid)
             )
             stdout = stdout.read().decode('utf-8')
             link_uuid = re.search(r'^Replication Link "([0-9A-Fa-f-]+)" is added\.$', stdout, re.MULTILINE).group(1)
 
-            exec_command(
+            self.exec_command(
                 slave,
                 'crcr replication_master add --endpoint ws://{}:8080/replication/{}'.format(self.master_ip, link_uuid)
             )
+
+    def run_crcr(self):
+        master = self.connect_crcr(self.master_ip)
+
+        _, stdout, _ = self.exec_command(master, 'crcr schema add --name counterbot count:int body:string')
+        stdout = stdout.read().decode('utf-8')
+        schema_uuid = re.search(r'^Schema "([0-9A-Fa-f-]+)" is added\.$', stdout, re.MULTILINE).group(1)
+
+        _, stdout, _ = self.exec_command(master, 'crcr module add --name counterbot')
+        stdout = stdout.read().decode('utf-8')
+        module_uuid = re.search(r'^Module "([0-9A-Fa-f-]+)" is added\.$', stdout, re.MULTILINE).group(1)
+
+        _, stdout, _ = self.exec_command(master,
+            'crcr box add --name counterbot --schema {} --module {}'.format(schema_uuid, module_uuid)
+        )
+        stdout = stdout.read().decode('utf-8')
+        box_uuid = re.search(r'^MessageBox "([0-9A-Fa-f-]+)" is added\.$', stdout, re.MULTILINE).group(1)
+
+        self.exec_command(master,
+            'python3 sample/sensor_counter.py --to ipc:///tmp/crcr_request.ipc --box-id {}'.format(box_uuid)
+        )
+        self.exec_command(master, 'crcr run')
+
+        for slave_ip in self.instance_ips:
+            slave = self.connect_crcr(slave_ip)
+            self.exec_command(slave, 'crcr run')
 
     def execute(self):
         self.create_spot_instances()
         self.provision()
         self.register_shared_links()
-        # self.run_crcr()
+        self.run_crcr()
 
 
 @click.command()
@@ -157,7 +183,7 @@ ansible_ssh_private_key_file = ~/.ssh/kyudai-benchmark.pem
 @click.option('--margin', default=0.01)
 @click.option('--github-user', required=True)
 @click.option('--github-pass', required=True)
-@click.option('--master-ip', default='54.250.241.134')
+@click.option('--master-ip', default='54.249.123.46')
 def main(**kwargs):
     Benchmarker(**kwargs).execute()
 
