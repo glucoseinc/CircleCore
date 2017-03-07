@@ -5,21 +5,21 @@
 # system module
 import json
 import logging
-from time import sleep
-from weakref import WeakValueDictionary
 
 # community module
 import nnpy
-from six import add_metaclass, PY3
 from tornado.ioloop import IOLoop
 
 # project module
 from .topics import TOPIC_LENGTH
 
-if PY3:
-    from json.decoder import JSONDecodeError
-else:
-    JSONDecodeError = ValueError
+
+# type annotation
+try:
+    from typing import Callable, Dict
+except ImportError:
+    pass
+
 
 __all__ = ('Receiver', 'Sender', 'Replier',)
 logger = logging.getLogger(__name__)
@@ -28,14 +28,17 @@ logger = logging.getLogger(__name__)
 class Receiver(object):
     """受信. PubSubのSub.
 
-    :param Socket _socket:
-    :param BaseTopic topic:
+    :param nnpy.Socket _socket: nanomsg Socket
+    :param str topic: topic名
     """
 
     def __init__(self, socket_url, topic=None):
-        """接続を開く.
+        """init.
 
-        :param BaseTopic topic:
+        接続を開く.
+
+        :param str socket_url: socketのURI
+        :param str topic: topic名
         """
         self._socket = nnpy.Socket(nnpy.AF_SP, nnpy.SUB)
         self._socket.connect(socket_url)
@@ -44,12 +47,16 @@ class Receiver(object):
         self.topic = topic
 
     def __del__(self):
-        """接続を閉じる."""
+        """del.
+
+        接続を閉じる.
+        """
         self._socket.close()
 
     def fileno(self):
         """Tornadoに叩かれる."""
-        return self._socket.getsockopt(nnpy.SOL_SOCKET, nnpy.RCVFD)
+        hoge = self._socket.getsockopt(nnpy.SOL_SOCKET, nnpy.RCVFD)
+        return hoge
 
     def close(self):
         """Tornadoに叩かれる."""
@@ -88,53 +95,65 @@ class Sender(object):
 
     同じアドレスにbindできるのは一度に一つのSocketだけなのでSingleton.
 
-    :param Socket _socket:
+    :param nnpy.Socket _socket:
     """
 
     def __init__(self, socket_url):
-        """接続を開く."""
+        """init.
+
+        接続を開く.
+
+        :param str socket_url: socketのURI
+        """
         self._socket = nnpy.Socket(nnpy.AF_SP, nnpy.PUB)
         self._socket.bind(socket_url)
-        # # TODO: bindの名前解決がasyncで行われるはずなので、それをスマートに待機する方法を調べておく
-        # sleep(0.5)  # おそらくbindが完了するまでブロックされていない。bindの直後にsendしても届かなかった。
+        # TODO: bindの名前解決がasyncで行われるはずなので、それをスマートに待機する方法を調べておく
 
     def __del__(self):
-        """接続を閉じる."""
+        """del.
+
+        接続を閉じる.
+        """
         self._socket.close()
 
     def send(self, topic, payload):
         """送信.
 
-        :param payload:
+        :param str topic: topic名
+        :param Dict payload: payload
         """
-        # nnpy.Socket.sendにunicodeを渡すとasciiでencodeしようとして例外を吐く
-        # self._socket.send(self.topic.encode(payload).encode('utf-8'))
         data = topic.ljust(48) + json.dumps(payload)
         return self._socket.send(data.encode('utf-8'))
 
 
 class Replier(object):
     def __init__(self, socket_url):
-        """接続を開く."""
+        """init.
+
+        接続を開く.
+
+        :param str socket_url: socketのURI
+        """
         self._socket = nnpy.Socket(nnpy.AF_SP, nnpy.REP)
         self._socket.bind(socket_url)
-        # # TODO: bindの名前解決がasyncで行われるはずなので、それをスマートに待機する方法を調べておく
-        # sleep(0.5)  # おそらくbindが完了するまでブロックされていない。bindの直後にsendしても届かなかった。
+        # TODO: bindの名前解決がasyncで行われるはずなので、それをスマートに待機する方法を調べておく
 
     def __del__(self):
-        """接続を閉じる."""
+        """del.
+
+        接続を閉じる.
+        """
         self._socket.close()
 
     def recv(self):
-        """受信
-        """
+        """受信."""
         raw = self._socket.recv()
         return json.loads(raw.decode('utf-8'))
 
     def send(self, payload):
         """送信.
 
-        :param payload:
+        :param Dict payload: payload
         """
         data = json.dumps(payload)
         return self._socket.send(data.encode('utf-8'))
@@ -150,7 +169,7 @@ class Replier(object):
     def register_ioloop(self, callback):
         """TornadoのIOLoopにメッセージ受信時のコールバックを登録.
 
-        :param FunctionType callback:
+        :param Callable callback:
         """
         def call_callback(*args):
             try:
