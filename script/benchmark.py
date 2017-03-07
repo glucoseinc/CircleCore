@@ -187,12 +187,8 @@ ansible_ssh_private_key_file = ~/.ssh/kyudai-benchmark.pem
 
         for name, stream in streams.items():
             def logger():
-                while True:
-                    line = stream.readline()
-                    if line:
-                        print(name, line, end='')
-                    else:
-                        break
+                for line in stream:
+                    print(name, line, end='')
 
             Thread(target=logger, daemon=True).start()
 
