@@ -1,3 +1,5 @@
+:orphan:
+
 ===========
 同期の仕様
 ===========
@@ -41,7 +43,7 @@ Slave
 
 
 同期ステータス
-===========
+==============
 
 Master, Slaveはそれぞれ `HANDSHAKING` ,  `MIGRATING` ,  `SYNCING` のステータスを持つ
 
@@ -83,12 +85,12 @@ to be describe...
 
 
 "sync_message" コマンド
----------------------
+-----------------------
 
 to be describe...
 
 
 "new_message" コマンド
----------------------
+----------------------
 
 to be describe...

@@ -1,3 +1,5 @@
+:orphan:
+
 メッセージハブの仕様
 ======================
 
@@ -36,7 +38,7 @@ Requestプロトコル
 リクエスト
   `new_message`
 フォーマット
-  .. code-block:: json
+  .. code-block:: javascript
 
       {
         "request": "new_message",
@@ -60,12 +62,12 @@ Topic長: 64chars
 トピック
   `module:[b58encoded Module UUID]:[b58encoded MessageBox UUID]`
 フォーマット
-  .. code-block:: json
+  .. code-block:: javascript
 
       {
-        'timestamp': "1486621655.249531", /* str メッセージを受け付け付けたタイミングでのunix epoch */
-        'counter': 238, /* int メッセージを受け付けたタイミングでのカウンタ */
-        'payload': {...} /* object メッセージのデータ */
+        "timestamp": "1486621655.249531", /* str メッセージを受け付け付けたタイミングでのunix epoch */
+        "counter": 238, /* int メッセージを受け付けたタイミングでのカウンタ */
+        "payload": {...} /* object メッセージのデータ */
       }
 
 
@@ -82,6 +84,6 @@ to be describe...
 
 
 メッセージボックスのメタデータ更新
----------------------------
+----------------------------------
 
 to be describe...
