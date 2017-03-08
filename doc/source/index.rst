@@ -6,13 +6,20 @@
 CircleCore v.0.1 documentation
 ==============================
 
-
 仕様
 ----
 
 :doc:`specs/replication`
 
 :doc:`specs/message_hub`
+
+
+構成
+----
+
+:doc:`structures/dirs`
+
+:doc:`structures/implementation`
 
 
 Module Reference
