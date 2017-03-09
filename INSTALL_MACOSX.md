@@ -45,20 +45,20 @@ $ git pull
 
 ### venv環境作成
 ```
-$ virtualenv -p ~/.pyenv/versions/3.5.2/bin/python .env/3.5.2
-$ . .env/3.5.2/bin/activate
+$ virtualenv -p ~/.pyenv/versions/3.5.2/bin/python .env
+$ . .env/bin/activate
 ```
 
 ### インストール
 ```
-(3.5.2) $ python setup.py develop
+(.env) $ python setup.py develop
 ```
 
 #### 手動でインストールする場合
 ```
-(3.5.2) $ pip install -e git://github.com/nanomsg/nnpy.git#egg=nnpy
-(3.5.2) $ pip install -e git://github.com/graphite-project/whisper.git@b783ab3f577f3f60db607adda241e29b7242bcf4#egg=whisper-0.10.0rc1
-(3.5.2) $ pip install -e '.[test]'
+(.env) $ pip install -e git://github.com/nanomsg/nnpy.git#egg=nnpy
+(.env) $ pip install -e git://github.com/graphite-project/whisper.git@b783ab3f577f3f60db607adda241e29b7242bcf4#egg=whisper-0.10.0rc1
+(.env) $ pip install -e '.[test]'
 ```
 
 ### iniファイル設定
@@ -73,13 +73,13 @@ $ npm run build
 
 ## サーバ起動
 ```
-(3.5.2) $ crcr run
+(.env) $ crcr run
 ```
 
 ## ユーザ作成
 ```
-(3.5.2) $ crcr user add --account admin --password admin --admin
-(3.5.2) $ crcr user add --account user --password user
+(.env) $ crcr user add --account admin --password admin --admin
+(.env) $ crcr user add --account user --password user
 ```
 
 ## 確認
@@ -91,25 +91,25 @@ $ npm run build
 ### Schema, MessageBox, Moduleを作成
 1. Schemaを作成
 ```
-(3.5.2) $ crcr schema add --name リアルタイム人流センサ speed:float lat:float lng:float direction:int x:float y:float timestamp:int pid:int psen:int
+(.env) $ crcr schema add --name リアルタイム人流センサ speed:float lat:float lng:float direction:int x:float y:float timestamp:int pid:int psen:int
 Schema "04c9520a-f50a-4314-bb46-aa8a2f3fbed1" is added. # 次で使用する
 ```
 
 1. Moduleを作成
 ```
-(3.5.2) $ crcr module add --name "リアルタイム人流センサ デバイス1"
+(.env) $ crcr module add --name "リアルタイム人流センサ デバイス1"
 Module "1a15b84b-99b5-4cd3-a509-6b72b68a86da" is added. # 次で使用する
 ```
 
 1. MessageBoxを作成
 ```
-(3.5.2) $ crcr box add --schema 04c9520a-f50a-4314-bb46-aa8a2f3fbed1 --module 1a15b84b-99b5-4cd3-a509-6b72b68a86da --name 正常データ #UUIDは適宜変更
+(.env) $ crcr box add --schema 04c9520a-f50a-4314-bb46-aa8a2f3fbed1 --module 1a15b84b-99b5-4cd3-a509-6b72b68a86da --name 正常データ #UUIDは適宜変更
 MessageBox "f34973b1-b5be-46a3-a8a8-f2bf306c3e70" is added. # 次で使用する
 ```
 
 ### BOT起動
 ```
-(3.5.2) $ python sample/sensor_echo.py --box-id f34973b1-b5be-46a3-a8a8-f2bf306c3e70 # UUIDはMessageBoxのものを使用
+(.env) $ python sample/sensor_echo.py --box-id f34973b1-b5be-46a3-a8a8-f2bf306c3e70 # UUIDはMessageBoxのものを使用
 ```
 
 ## Setup SSL certificate
