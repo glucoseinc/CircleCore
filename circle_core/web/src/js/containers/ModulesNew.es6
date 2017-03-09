@@ -44,11 +44,23 @@ class ModulesNew extends Component {
       , new Set()
     ).toArray().sort()
 
+    const attributeNameSuggestions = modules.reduce(
+      (attributeNameSet, module) => attributeNameSet.union(module.attributes.map((attribute) => attribute.name))
+      , new Set()
+    ).toArray().sort()
+
+    const attributeValueSuggestions = modules.reduce(
+      (attributeNameSet, module) => attributeNameSet.union(module.attributes.map((attribute) => attribute.value))
+      , new Set()
+    ).toArray().sort()
+
     return (
       <div className="page">
         <ModuleNewPaper
           schemas={schemas}
           tagSuggestions={tagSuggestions}
+          attributeNameSuggestions={attributeNameSuggestions}
+          attributeValueSuggestions={attributeValueSuggestions}
           onCreateTouchTap={onCreateTouchTap}
         />
       </div>

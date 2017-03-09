@@ -21,6 +21,8 @@ class ModuleNewPaper extends Component {
   static propTypes = {
     schemas: PropTypes.object.isRequired,
     tagSuggestions: PropTypes.array,
+    attributeNameSuggestions: PropTypes.array,
+    attributeValueSuggestions: PropTypes.array,
     onCreateTouchTap: PropTypes.func,
   }
 
@@ -38,6 +40,8 @@ class ModuleNewPaper extends Component {
     const {
       schemas,
       tagSuggestions = [],
+      attributeNameSuggestions = [],
+      attributeValueSuggestions = [],
       onCreateTouchTap,
     } = this.props
 
@@ -100,6 +104,8 @@ class ModuleNewPaper extends Component {
               <div style={style.attributesSection}>
                 <ModuleAttributesEditComponent
                   module={module}
+                  nameSuggestions={attributeNameSuggestions}
+                  valueSuggestions={attributeValueSuggestions}
                   onUpdate={(index, attribute) => this.setState(
                     {module: module.updateModuleAttribute(index, attribute)}
                   )}

@@ -16,6 +16,8 @@ class MetadataEdittingPaper extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     tagSuggestions: PropTypes.array,
+    attributeNameSuggestions: PropTypes.array,
+    attributeValueSuggestions: PropTypes.array,
     onUpdate: PropTypes.func,
     onOKButtonTouchTap: PropTypes.func,
     onCancelButtonTouchTap: PropTypes.func,
@@ -28,6 +30,8 @@ class MetadataEdittingPaper extends Component {
     const {
       module,
       tagSuggestions = [],
+      attributeNameSuggestions = [],
+      attributeValueSuggestions = [],
       onUpdate,
       onOKButtonTouchTap,
       onCancelButtonTouchTap,
@@ -76,6 +80,8 @@ class MetadataEdittingPaper extends Component {
               <div style={style.attributesSection}>
                 <ModuleAttributesEditComponent
                   module={module}
+                  nameSuggestions={attributeNameSuggestions}
+                  valueSuggestions={attributeValueSuggestions}
                   onUpdate={(index, attribute) => onUpdate(module.updateModuleAttribute(index, attribute))}
                   onDeleteTouchTap={(index) => onUpdate(module.removeModuleAttribute(index))}
                   onAddTouchTap={() => onUpdate(module.pushModuleAttribute())}

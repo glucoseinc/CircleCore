@@ -24,6 +24,8 @@ class ModuleDetail extends Component {
     schemas: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
     tagSuggestions: PropTypes.array,
+    attributeNameSuggestions: PropTypes.array,
+    attributeValueSuggestions: PropTypes.array,
     onUpdateTouchTap: PropTypes.func,
     onMessageBoxDeleteTouchTap: PropTypes.func,
     onMessageBoxDownloadTouchTap: PropTypes.func,
@@ -156,6 +158,8 @@ class ModuleDetail extends Component {
       schemas,
       ccInfos,
       tagSuggestions = [],
+      attributeNameSuggestions = [],
+      attributeValueSuggestions = [],
       onMessageBoxDeleteTouchTap,
       onMessageBoxDownloadTouchTap,
       onDeleteTouchTap,
@@ -209,6 +213,8 @@ class ModuleDetail extends Component {
       <MetadataEdittingPaper
         module={editingModule}
         tagSuggestions={tagSuggestions}
+        attributeNameSuggestions={attributeNameSuggestions}
+        attributeValueSuggestions={attributeValueSuggestions}
         onUpdate={(editingModule) => this.setState({editingModule})}
         onOKButtonTouchTap={() => this.onUpdateTouchTap()}
         onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
