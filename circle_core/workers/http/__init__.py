@@ -11,7 +11,7 @@ from tornado.wsgi import WSGIContainer
 from circle_core.constants import RequestType
 from circle_core.exceptions import ConfigError
 from circle_core.web import create_app
-from .replication_master import ReplicationMaster
+from .replication_master import ReplicationMasterHandler
 from ..base import CircleWorker, register_worker_factory
 
 logger = logging.getLogger(__name__)
@@ -84,7 +84,7 @@ class HTTPWorker(CircleWorker):
 
         ws_handler = None
         if self.ws_on:
-            ws_handler = (r'/replication/(?P<link_uuid>[0-9A-Fa-f-]+)', ReplicationMaster)
+            ws_handler = (r'/replication/(?P<link_uuid>[0-9A-Fa-f-]+)', ReplicationMasterHandler)
 
         admin_handler = None
         if self.admin_on:

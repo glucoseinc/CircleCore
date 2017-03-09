@@ -52,5 +52,9 @@ setup(
             'tcptest',
             'tox',
         ],
+        'doc': [
+            'Sphinx',
+            'sphinx-rtd-theme',
+        ]
     }
 )

@@ -17,20 +17,31 @@ from circle_core.utils import format_date
 from .base import generate_uuid, GUID, UUIDMetaDataBase
 
 
+# type annotation
+try:
+    from typing import Dict, List, Optional, TYPE_CHECKING
+    if TYPE_CHECKING:
+        from uuid import UUID
+except ImportError:
+    pass
+
+
 class User(UUIDMetaDataBase):
     """Userオブジェクト.
 
     :param UUID uuid: User UUID
-    :param str account: アカウント
+    :param str account: アカウント名
+    :param str _permissions: 権限
     :param List[str] permissions: 権限
     :param str work: 所属
     :param str mail_address: メールアドレス
     :param str telephone: 電話番号
     :param str encrypted_password: 暗号化パスワード
-    :param datetime.datetime created_at: 作成時
-    :param datetime.datetime updated_at: 最終更新時
-    :param datetime.datetime last_access_at: 最終アクセス時刻
+    :param datetime.datetime created_at: 作成日時
+    :param datetime.datetime updated_at: 更新日時
+    :param Optional[datetime.datetime] last_access_at: 最終アクセス日時
     """
+
     __tablename__ = 'users'
 
     uuid = sa.Column(GUID, primary_key=True)
@@ -41,15 +52,18 @@ class User(UUIDMetaDataBase):
     telephone = sa.Column(sa.Text, nullable=False, default='')
     encrypted_password = sa.Column(sa.String(255), nullable=False)
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
-    updated_at = sa.Column(
-        sa.DateTime, nullable=False,
-        default=datetime.datetime.utcnow,
-        onupdate=datetime.datetime.utcnow)
-    last_access_at = sa.Column(
-        sa.DateTime, nullable=True)
+    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow,
+                           onupdate=datetime.datetime.utcnow)
+    last_access_at = sa.Column(sa.DateTime, nullable=True)
 
     @classmethod
     def create(cls, **kwargs):
+        """このモデルを作成する.
+
+        :param Dict kwargs: キーワード引数
+        :return: Userオブジェクト
+        :rtype: User
+        """
         return cls(
             uuid=generate_uuid(model=cls),
             **kwargs
@@ -58,14 +72,7 @@ class User(UUIDMetaDataBase):
     def __init__(self, **kwargs):
         """init.
 
-        :param Union[str, UUID] uuid: User UUID
-        :param str account: アカウント
-        :param List[str] permissions: 権限
-        :param str work: 所属
-        :param str mail_address: メールアドレス
-        :param str telephone: 電話番号
-        :param str encrypted_password: 暗号化パスワード
-        :param str password: パスワード
+        :param Dict kwargs: キーワード引数
         """
 
         if 'password' in kwargs:
@@ -78,6 +85,11 @@ class User(UUIDMetaDataBase):
         super(User, self).__init__(**kwargs)
 
     def __repr__(self):
+        """repr.
+
+        :return: 文字列表現
+        :rtype: str
+        """
         return '<{module}.User {uuid} ({account})>'.format(
             module=__name__,
             uuid=self.uuid,
@@ -86,10 +98,19 @@ class User(UUIDMetaDataBase):
 
     @hybrid_property
     def permissions(self):
+        """権限リストを返す.
+
+        :return: 権限リスト
+        :rtype: List[str]
+        """
         return self._permissions.split(',') if self._permissions else []
 
     @permissions.setter
     def permissions(self, permissions):
+        """権限リストを更新する.
+
+        :param List[str] permissions: 権限リスト
+        """
         self._permissions = ','.join(permissions)
 
     def is_password_matched(self, password):
@@ -102,7 +123,7 @@ class User(UUIDMetaDataBase):
         return is_password_matched(password, self.encrypted_password)
 
     def is_admin(self):
-        """ユーザがadmin権限をもっているかどうか
+        """ユーザがadmin権限をもっているかどうか.
         :return: adminであればTrue
         :rtype: bool
         """
@@ -110,17 +131,26 @@ class User(UUIDMetaDataBase):
 
     @classmethod
     def check_password(cls, password):
+        """パスワードのvalidateを行う.
+
+        :param password:
+        """
         if len(password) < 6:
             raise ValueError('パスワードは6文字以上にしてください')
 
     def set_password(self, new_password):
+        """パスワードを更新する.
+
+        :param new_password: パスワード
+        """
         self.check_password(new_password)
         self.encrypted_password = encrypt_password(new_password)
 
     def to_json(self, full=False):
         """このモデルのJSON表現を返す.
 
-        :return: json表現のdict
+        :param bool full: 全ての情報を含めるか
+        :return: JSON表現のDict
         :rtype: Dict
         """
         d = {
@@ -140,6 +170,10 @@ class User(UUIDMetaDataBase):
         return d
 
     def update_from_json(self, jsonobj):
+        """JSON表現からモデルを更新する.
+
+        :param Dict jsonobj: JSON表現のDict
+        """
         for from_key, to_key in [
                 ('account', 'account'), ('mailAddress', 'mail_address'), ('work', 'work'), ('telephone', 'telephone'),
                 ('permissions', 'permissions')]:
@@ -168,7 +202,13 @@ def encrypt_password(password, salt=None):
 
 
 def is_password_matched(test, encrypted):
-    """パスワードをチェックする"""
+    """平文パスワードが暗号化パスワードにマッチしているか.
+
+    :param str test:平文パスワード
+    :param str encrypted: 暗号化パスワード
+    :return: マッチしているか
+    :rtype: bool
+    """
     try:
         _, six, salt, hashed = encrypted.split('$')
         if six != '6':

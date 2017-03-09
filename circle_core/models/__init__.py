@@ -2,8 +2,11 @@
 
 """CircleCore Models."""
 
+# community module
+from sqlalchemy.orm.exc import NoResultFound
+
 # project module
-from .base import generate_uuid, MetaDataBase, MetaDataSession, NoResultFound
+from .base import generate_uuid, MetaDataBase, MetaDataSession
 from .cc_info import CcInfo
 from .invitation import Invitation
 from .message_box import MessageBox

@@ -3,12 +3,30 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to CircleCore's documentation!
-======================================
+CircleCore v.0.1 documentation
+==============================
 
-Contents:
+仕様
+----
+
+:doc:`specs/replication`
+
+:doc:`specs/message_hub`
+
+
+構成
+----
+
+:doc:`structures/dirs`
+
+:doc:`structures/implementation`
+
+
+Module Reference
+-----------------
 
 :doc:`apis/modules`
+
 
 .. toctree::
    :maxdepth: 2

@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 @download.before_request
 def before_request():
+    """リクエスト前に呼ばれる."""
     token = request.args.get('access_token', None)
     if token:
         request.headers.environ['HTTP_AUTHORIZATION'] = 'Baerer {}'.format(token)
@@ -31,6 +32,13 @@ def before_request():
 
 
 def check_auth(username, password):
+    """パスワードをチェックする.
+
+    :param str username: アカウント名
+    :param str password: 平文パスワード
+    :return:
+    :rtype: bool
+    """
     try:
         user = User.query.filter_by(account=username).one()
     except NoResultFound:
@@ -40,6 +48,10 @@ def check_auth(username, password):
 
 
 def authenticate():
+    """認証を行う.
+
+    :rtype: Response
+    """
     return Response(response='Authorization Required',
                     status=401,
                     headers={'WWW-Authenticate': 'Basic realm="Authorization Required"'})

@@ -6,7 +6,7 @@
 from flask import abort, current_app, request, Response
 
 # project module
-from circle_core.models import generate_uuid, MessageBox, MetaDataSession, Module, NoResultFound
+from circle_core.models import MessageBox, MetaDataSession, Module, NoResultFound
 from .api import api
 from .utils import respond_failure, respond_success
 from ..utils import (
@@ -25,6 +25,7 @@ GRAPH_RANGE_TO_TIME_RANGE = {
 
 @api.route('/modules/', methods=['GET', 'POST'])
 def api_modules():
+    """全てのModuleのCRUD."""
     if request.method == 'GET':
         return _get_modules()
     if request.method == 'POST':
@@ -65,6 +66,7 @@ def _post_modules():
 
 @api.route('/modules/<module_uuid>', methods=['GET', 'PUT', 'DELETE'])
 def api_module(module_uuid):
+    """単一のModuleのCRUD."""
     module = Module.query.get(module_uuid)
     if not module:
         return respond_failure('not found', _status=404)

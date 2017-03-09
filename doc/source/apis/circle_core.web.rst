@@ -8,6 +8,7 @@ Subpackages
 
     circle_core.web.api
     circle_core.web.authorize
+    circle_core.web.download
     circle_core.web.public
 
 Submodules

@@ -4,7 +4,6 @@
 
 # community module
 from flask import abort, request
-from six import PY3
 
 # project module
 from circle_core.constants import CRDataType
@@ -15,12 +14,10 @@ from ..utils import (
     oauth_require_read_schema_scope, oauth_require_write_schema_scope
 )
 
-if PY3:
-    pass
-
 
 @api.route('/schemas/', methods=['GET', 'POST'])
 def api_schemas():
+    """全てのSchemaのCRUD."""
     if request.method == 'GET':
         return _get_schemas()
     if request.method == 'POST':
@@ -30,11 +27,21 @@ def api_schemas():
 
 @oauth_require_read_schema_scope
 def _get_schemas():
+    """全てのSchemaの情報を取得する.
+
+    :return: 全てのSchemaの情報
+    :rtype: Response
+    """
     return respond_success(schemas=[schema.to_json(with_modules=True) for schema in Schema.query])
 
 
 @oauth_require_write_schema_scope
 def _post_schemas():
+    """Schemaを作成する.
+
+    :return: 作成したSchemaの情報
+    :rtype: Response
+    """
     with MetaDataSession.begin():
         schema = Schema.create()
         schema.update_from_json(request.json)
@@ -45,6 +52,8 @@ def _post_schemas():
 
 @api.route('/schemas/<schema_uuid>', methods=['GET', 'DELETE'])
 def api_schema(schema_uuid):
+    """単一のSchemaのCRUD."""
+    # TODO: Sub Fuctionに渡す前にSchemaの実体を取得する
     if request.method == 'GET':
         return _get_schema(schema_uuid)
     if request.method == 'DELETE':
@@ -55,6 +64,12 @@ def api_schema(schema_uuid):
 
 @oauth_require_read_schema_scope
 def _get_schema(schema_uuid):
+    """Schemaの情報を取得する.
+
+    :param str schema_uuid: 取得するSchemaのUUID
+    :return: Schemaの情報
+    :rtype: Response
+    """
     schema = Schema.query.get(schema_uuid)
     if not schema:
         return respond_failure('not found', _status=404)
@@ -64,6 +79,12 @@ def _get_schema(schema_uuid):
 
 @oauth_require_write_schema_scope
 def _delete_schema(schema_uuid):
+    """Schemaを削除する.
+
+    :param str schema_uuid: 削除するSchemaのUUID
+    :return: Schemaの情報
+    :rtype: Response
+    """
     schema = Schema.query.get(schema_uuid)
     if not schema:
         return respond_failure('not found', _status=404)
@@ -84,5 +105,6 @@ def _delete_schema(schema_uuid):
 @api.route('/schemas/propertytypes')
 @oauth_require_read_schema_scope
 def api_get_property_types():
+    """全てのSchemaProperty Typeを取得する."""
     property_types = [{'name': data_type.value} for data_type in CRDataType]
     return respond_success(schemaPropertyTypes=property_types)

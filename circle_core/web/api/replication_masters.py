@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""共有リンク関連APIの実装."""
+"""共有マスター関連APIの実装."""
 
 # community module
 from flask import abort, request
@@ -17,6 +17,7 @@ from ..utils import (
 
 @api.route('/replication_masters/', methods=['GET', 'POST'])
 def api_repliction_masters():
+    """全てのReplicationMasterのCRUD."""
     if request.method == 'GET':
         return _get_replication_masters()
     elif request.method == 'POST':
@@ -26,6 +27,11 @@ def api_repliction_masters():
 
 @oauth_require_read_schema_scope
 def _get_replication_masters():
+    """全てのReplicationMasterの情報を取得する.
+
+    :return: 全てのReplicationMasterの情報
+    :rtype: Response
+    """
     # TODO: earger loading
     replication_masters = [
         obj.to_json() for obj in ReplicationMaster.query]
@@ -35,6 +41,11 @@ def _get_replication_masters():
 
 @oauth_require_write_schema_scope
 def _post_replication_masters():
+    """ReplicationMasterを作成する.
+
+    :return: 作成したReplicationMasterの情報
+    :rtype: Response
+    """
     data = request.json
     try:
         with MetaDataSession.begin():
@@ -51,6 +62,7 @@ def _post_replication_masters():
 
 @api.route('/replication_masters/<int:replication_master_id>', methods=['GET', 'DELETE'])
 def api_replication_master(replication_master_id):
+    """単一のReplicationMasterのCRUD."""
     repmaster = ReplicationMaster.query.get(replication_master_id)
     if not repmaster:
         return respond_failure('Replication Master not found.', _status=404)
@@ -64,6 +76,12 @@ def api_replication_master(replication_master_id):
 
 @oauth_require_read_schema_scope
 def _get_replication_master(replication_master):
+    """ReplicationMasterの情報を取得する.
+
+    :param ReplicationMaster replication_master: 取得するReplicationMaster
+    :return: ReplicationMasterの情報
+    :rtype: Response
+    """
     return respond_success(
         replicationMaster=replication_master.to_json()
     )
@@ -71,6 +89,12 @@ def _get_replication_master(replication_master):
 
 @oauth_require_write_schema_scope
 def _delete_replication_master(replication_master):
+    """ReplicationMasterを削除する.
+
+    :param ReplicationMaster replication_master: 削除するReplicationMaster
+    :return: ReplicationMasterの情報
+    :rtype: Response
+    """
     with MetaDataSession.begin():
         MetaDataSession.delete(replication_master)
 

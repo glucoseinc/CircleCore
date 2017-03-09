@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
+
 """Flask oauth implementation."""
+
+# system module
 import datetime
 import logging
 
@@ -7,6 +10,7 @@ import logging
 from flask import Blueprint, current_app, g, url_for
 from flask_oauthlib.provider import OAuth2Provider
 
+# project module
 from circle_core.constants import CRScope
 from circle_core.models import MetaDataSession, NoResultFound, OAuthClient, OAuthGrant, OAuthToken
 
@@ -18,7 +22,7 @@ WEBUICLIENT_CLIENT_ID = '8F9A5449-F219-4BC4-9EA6-5F4C3100CD25'
 
 
 def initialize_oauth():
-    """OAuth関連の起動時の初期化を行う"""
+    """OAuth関連の起動時の初期化を行う."""
 
     # WebUI用のOAuthClientを登録する
     client = OAuthClient.query.get(WEBUICLIENT_CLIENT_ID)

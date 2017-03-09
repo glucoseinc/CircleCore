@@ -1,41 +1,46 @@
 # -*- coding: utf-8 -*-
 
-"""User Model."""
+"""Invitation Model."""
 
 # system module
 import datetime
-from uuid import UUID
 
 # community module
 import click
 from flask import url_for
-from six import PY3
 import sqlalchemy as sa
 
+# project module
 from circle_core.utils import format_date, prepare_date
 from .base import GUID, UUIDMetaDataBase
 
-if PY3:
-    from typing import Dict, Optional, Union
+
+# type annotation
+try:
+    from typing import Dict, Optional, Union, TYPE_CHECKING
+    if TYPE_CHECKING:
+        from uuid import UUID
+except ImportError:
+    pass
 
 
 class Invitation(UUIDMetaDataBase):
     """User招待オブジェクト.
 
-    :param UUID uuid: User UUID
+    :param UUID uuid: Invitation UUID
     :param int max_invites: 最大招待可能人数 0は無制限
     :param int current_invites: 招待済人数
-    :param Optional[datetime.datetime] created_at: 作成日時
-    :param Optional[datetime.datetime] created_at: 更新日時
+    :param datetime.datetime created_at: 作成日時
+    :param datetime.datetime updated_at: 更新日時
     """
+
     __tablename__ = 'invitations'
 
     uuid = sa.Column(GUID, primary_key=True)
     max_invites = sa.Column(sa.Integer, nullable=False, default=1)
     current_invites = sa.Column(sa.Integer, nullable=False, default=0)
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
-    updated_at = sa.Column(sa.DateTime, nullable=False,
-                           default=datetime.datetime.utcnow,
+    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow,
                            onupdate=datetime.datetime.utcnow)
 
     __mapper_args__ = {
@@ -45,7 +50,7 @@ class Invitation(UUIDMetaDataBase):
     def __init__(self, uuid, max_invites, current_invites=0, created_at=None):
         """init.
 
-        :param Union[str, UUID] uuid: User UUID
+        :param Union[str, UUID] uuid: Invitation UUID
         :param int max_invites: 招待可能人数. 0は無制限
         :param int current_invites: 招待済人数
         :param Optional[datetime.datetime] created_at: 作成日時
@@ -62,11 +67,15 @@ class Invitation(UUIDMetaDataBase):
                                          current_invites=current_invites, created_at=created_at)
 
     def can_invite(self):
-        """この正体をつかって、さらにユーザを追加できるか?"""
+        """この招待をつかって、さらにユーザを追加できるか.
+
+        :return: 招待可否
+        :rtype: bool
+        """
         return self.current_invites < self.max_invites
 
     def inc_invites(self):
-        """招待完了数を増加させる"""
+        """招待完了数を増加させる."""
         self.current_invites += 1
 
     @property
@@ -97,7 +106,7 @@ class Invitation(UUIDMetaDataBase):
     def to_json(self):
         """このモデルのJSON表現を返す.
 
-        :return: json表現のdict
+        :return: JSON表現のDict
         :rtype: Dict
         """
         return {
@@ -112,8 +121,8 @@ class Invitation(UUIDMetaDataBase):
     def from_json(cls, jsonobj):
         """JSON表現からモデルを生成する.
 
-        :param Dict jsonobj: json表現のdict
-        :return: User招待オブジェクト.
+        :param Dict jsonobj: JSON表現のDict
+        :return: User招待オブジェクト
         :rtype: Invitation
         """
         return cls(jsonobj['uuid'], jsonobj['maxInvites'],

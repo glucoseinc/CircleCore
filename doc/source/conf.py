@@ -50,7 +50,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'CircleCore'
-copyright = '2016, glucose inc.'
+copyright = '2016-2017, glucose inc.'
 author = 'glucose inc.'
 
 # The version info for the project you're documenting, acts as replacement for

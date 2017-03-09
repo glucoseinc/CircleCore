@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-"""
+
+"""WebUI Public Views."""
+
 import logging
 
 from flask import Blueprint

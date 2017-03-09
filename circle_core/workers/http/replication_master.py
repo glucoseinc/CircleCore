@@ -59,7 +59,7 @@ class SyncState(object):
         return self.slave_head == self.master_head
 
 
-class ReplicationMaster(WebSocketHandler):
+class ReplicationMasterHandler(WebSocketHandler):
     """スキーマを交換し、まだ相手に送っていないデータを送る.
 
     :param UUID slave_uuid:
@@ -100,12 +100,9 @@ class ReplicationMaster(WebSocketHandler):
     def on_message(self, plain_msg):
         """センサーからメッセージが送られてきた際に呼ばれる.
 
-        {
-            command: command from slave
-            ...payload
-        }
+        {command: command from slave, ...payload}
 
-        :param unicode message:
+        :param unicode plain_msg:
         """
         logger.debug('message from slave: %s' % plain_msg)
         json_msg = json.loads(plain_msg)

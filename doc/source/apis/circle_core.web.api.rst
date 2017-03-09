@@ -44,6 +44,22 @@ circle_core.web.api.replication_links module
     :undoc-members:
     :show-inheritance:
 
+circle_core.web.api.replication_masters module
+----------------------------------------------
+
+.. automodule:: circle_core.web.api.replication_masters
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+circle_core.web.api.replication_masters module
+----------------------------------------------
+
+.. automodule:: circle_core.web.api.replication_masters
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 circle_core.web.api.schemas module
 ----------------------------------
 
