@@ -90,7 +90,7 @@ class Invitation(UUIDMetaDataBase):
                     flask_app = http_worker.flask_app
 
             if flask_app:
-                with flask_app.test_request_context('/'):
+                with flask_app.app_context():
                     return build_url()
         return None
 

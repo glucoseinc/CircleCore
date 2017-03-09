@@ -60,8 +60,6 @@ class HTTPWorker(CircleWorker):
         self.admin_base_url = admin_base_url
         self.skip_build = skip_build
         self.flask_app = None
-        if admin_on:
-            self.flask_app = create_app(self.core, self.admin_base_url, ws_port=self.ws_port)
 
         if tls_key_path and not tls_crt_path:
             raise ConfigError('tls_crt_path is missing')
@@ -70,9 +68,19 @@ class HTTPWorker(CircleWorker):
         self.tls_key_path = tls_key_path
         self.tls_crt_path = tls_crt_path
 
+        if admin_on:
+            if self.tls_crt_path and self.admin_base_url.startswith('http://'):
+                logger.warning('admin_base_url setting (%s) startswith http, not https', self.admin_base_url)
+
+            self.flask_app = create_app(
+                self.core, self.admin_base_url, ws_port=self.ws_port,
+                is_https=True if self.tls_crt_path else False)
+
     def initialize(self):
         if not (self.ws_on or self.admin_on):
             return
+
+        is_https = True if self.tls_crt_path else False
 
         ws_handler = None
         if self.ws_on:
@@ -83,14 +91,16 @@ class HTTPWorker(CircleWorker):
             if not self.skip_build:
                 self.flask_app.build_frontend()
 
-            with self.flask_app.test_request_context('/'):
+            with self.flask_app.app_context():
                 from flask import url_for
-                logger.info('Admin UI running on %s', url_for('_index', _external=True))
+                root_url = url_for('_index', _external=True)
+                assert root_url.startswith('https://' if is_https else 'http://')
+                logger.info('Admin UI running on %s', root_url)
 
             admin_handler = (r'.*', FallbackHandler, {'fallback': WSGIContainer(self.flask_app)})
 
         ssl_ctx = None
-        if self.tls_crt_path:
+        if is_https:
             ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
             ssl_ctx.load_cert_chain(self.tls_crt_path, self.tls_key_path)
 

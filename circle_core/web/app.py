@@ -19,7 +19,7 @@ from .authorize.core import oauth
 class CCWebApp(Flask):
     """Web管理インタフェース用のFlask Application.
     """
-    def __init__(self, core, base_url=None, ws_port=None):
+    def __init__(self, core, base_url=None, ws_port=None, is_https=False):
         super(CCWebApp, self).__init__(__name__)
 
         self.uptime = time.time()
@@ -40,6 +40,8 @@ class CCWebApp(Flask):
             # flaskのデフォルト実装だと、port番号を無視するが、Chromeの最新版(55)は無いとCookieを保存してくれない...
             if ':' in t.netloc and t.netloc.split(':')[1] != {'https': '443', 'http': '80'}[t.scheme]:
                 self.config['SESSION_COOKIE_DOMAIN'] = t.netloc
+        if is_https:
+            self.config['PREFERRED_URL_SCHEME'] = 'https'
 
         self.url_map.converters['uuid'] = UUIDConverter
 
@@ -77,7 +79,8 @@ class CCWebApp(Flask):
 
         from .authorize.core import initialize_oauth
 
-        with self.test_request_context('/'):
+        # with self.test_request_context('/'):
+        with self.app_context():
             initialize_oauth()
 
     @property
