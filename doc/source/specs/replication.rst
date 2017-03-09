@@ -52,45 +52,50 @@ Master, Slaveはそれぞれ `HANDSHAKING` ,  `MIGRATING` ,  `SYNCING` のステ
 `HANDSHAKING`
 ----------------
 
-to be describe...
+通信が確立した状態
 
 "hello" コマンド
 ---------------------
 
-to be describe...
+Slave -> Master
+  SlaveのCircleCore情報をMasterに通知する
 
 
 ----------------
 `MIGRATING`
 ----------------
 
-to be describe...
+共有するメッセージに関するメタデータの準備を行う
 
 "migrate" コマンド
 ---------------------
 
-to be describe...
+Master -> Slave
+  共有対象のメッセージボックス関連データを通知する
 
 "migrated" コマンド
 ---------------------
 
-to be describe...
-
+Slave -> Master
+  メッセージの共有準備ができたことを通知する
 
 ----------------
 `SYNCING`
 ----------------
 
-to be describe...
+メッセージの同期を行う
 
 
 "sync_message" コマンド
 -----------------------
 
-to be describe...
+Master -> Slave
+  前回までに同期済みのメッセージから、Masterが新たに受信した差分メッセージの配布を行う
 
+  新規の共有の場合は、Masterが受信済みの全てのメッセージを配布する
 
 "new_message" コマンド
 ----------------------
 
-to be describe...
+Master -> Slave
+  同期中にCircleモジュールから新たにメッセージを受信した時に、Slaveにもそのメッセージを配布する
