@@ -36,5 +36,5 @@ admin_base_url = http://${listen}:${port}
 # 起動時にadmin uiのスクリプトファイルの自動ビルドをスキップするか
 skip_build = off
 # httpsで起動する場合に設定
-tls_key_path = ./tests/tls.crt
-tls_crt_path = ./tests/tls.key
+tls_key_path = ./tests/tls.key
+tls_crt_path = ./tests/tls.crt
