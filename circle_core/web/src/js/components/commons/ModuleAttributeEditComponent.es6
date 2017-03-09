@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 
-import TextField from 'material-ui/TextField'
+import AutoComplete from 'material-ui/AutoComplete'
 
 import ComponentWithIconButton from 'src/components/bases/ComponentWithIconButton'
 import {DeleteIcon} from 'src/components/bases/icons'
@@ -12,6 +12,8 @@ import {DeleteIcon} from 'src/components/bases/icons'
 class ModuleAttributeEditComponent extends Component {
   static propTypes = {
     attribute: PropTypes.object.isRequired,
+    nameSuggestions: PropTypes.array,
+    valueSuggestions: PropTypes.array,
     onUpdate: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
     onNameChange: PropTypes.func,
@@ -24,6 +26,8 @@ class ModuleAttributeEditComponent extends Component {
   render() {
     const {
       attribute,
+      nameSuggestions = [],
+      valueSuggestions = [],
       onUpdate,
       onDeleteTouchTap,
     } = this.props
@@ -48,17 +52,19 @@ class ModuleAttributeEditComponent extends Component {
         icon={DeleteIcon}
         onIconButtonTouchTap={onDeleteTouchTap}
       >
-        <TextField
+        <AutoComplete
           floatingLabelText="属性名"
-          value={attribute.name}
+          dataSource={nameSuggestions}
+          searchText={attribute.name}
           style={style.attributeName}
-          onChange={(e, newValue) => onUpdate(attribute.updateName(newValue))}
+          onUpdateInput={(newValue) => onUpdate(attribute.updateName(newValue))}
         />
-        <TextField
+        <AutoComplete
           floatingLabelText="属性値"
+          dataSource={valueSuggestions}
           value={attribute.value}
           style={style.attributeType}
-          onChange={(e, newValue) => onUpdate(attribute.updateValue(newValue))}
+          onUpdateInput={(newValue) => onUpdate(attribute.updateValue(newValue))}
         />
       </ComponentWithIconButton>
     )

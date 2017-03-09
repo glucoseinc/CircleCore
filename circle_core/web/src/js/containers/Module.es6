@@ -154,6 +154,16 @@ class Module extends Component {
       , new Set()
     ).toArray().sort()
 
+    const attributeNameSuggestions = modules.reduce(
+      (attributeNameSet, module) => attributeNameSet.union(module.attributes.map((attribute) => attribute.name))
+      , new Set()
+    ).toArray().sort()
+
+    const attributeValueSuggestions = modules.reduce(
+      (attributeNameSet, module) => attributeNameSet.union(module.attributes.map((attribute) => attribute.value))
+      , new Set()
+    ).toArray().sort()
+
     return (
       <div className="page">
         <ModuleDetail
@@ -161,6 +171,8 @@ class Module extends Component {
           schemas={schemas}
           ccInfos={ccInfos}
           tagSuggestions={tagSuggestions}
+          attributeNameSuggestions={attributeNameSuggestions}
+          attributeValueSuggestions={attributeValueSuggestions}
           onUpdateTouchTap={this.props.onUpdateTouchTap}
           onMessageBoxDeleteTouchTap={(messageBoxIndex) => this.onMessageBoxDeleteTouchTap(messageBoxIndex)}
           onMessageBoxDownloadTouchTap={(...args) => this.onMessageBoxDownloadTouchTap(...args)}

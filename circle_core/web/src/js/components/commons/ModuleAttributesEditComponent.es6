@@ -10,6 +10,8 @@ import ModuleAttributeEditComponent from 'src/components/commons/ModuleAttribute
 class ModuleAttributesEditComponent extends Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
+    nameSuggestions: PropTypes.array,
+    valueSuggestions: PropTypes.array,
     onUpdate: PropTypes.func,
     onDeleteTouchTap: PropTypes.func,
     onAddTouchTap: PropTypes.func,
@@ -21,6 +23,8 @@ class ModuleAttributesEditComponent extends Component {
   render() {
     const {
       module,
+      nameSuggestions = [],
+      valueSuggestions = [],
       onUpdate,
       onDeleteTouchTap,
       onAddTouchTap,
@@ -45,6 +49,14 @@ class ModuleAttributesEditComponent extends Component {
       },
     }
 
+    const optimizedNameSuggestions = nameSuggestions.filter(
+      (suggestion) => !module.attributes.map((attribute) => attribute.name).includes(suggestion)
+    )
+
+    const optimizedValueSuggestions = valueSuggestions.filter(
+      (suggestion) => !module.attributes.map((attribute) => attribute.value).includes(suggestion)
+    )
+
     return (
       <div style={style.root}>
         <div style={style.attributes}>
@@ -52,6 +64,8 @@ class ModuleAttributesEditComponent extends Component {
             <div key={index} style={style.attributeBlock}>
               <ModuleAttributeEditComponent
                 attribute={attribute}
+                nameSuggestions={optimizedNameSuggestions}
+                valueSuggestions={optimizedValueSuggestions}
                 onUpdate={(newAttribute) => onUpdate(index, newAttribute)}
                 onDeleteTouchTap={() => onDeleteTouchTap(index)}
               />
