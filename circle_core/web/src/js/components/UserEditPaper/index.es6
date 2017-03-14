@@ -20,10 +20,12 @@ class UserEditPaper extends Component {
     onSaveTouchTap: PropTypes.func,
     saveButtonLabel: PropTypes.string,    // パスワードの入力が必須かどうか?
     isPasswordRequired: PropTypes.bool,
+    canChangePermission: PropTypes.bool,
   }
 
   static defaultProps = {
     isPasswordRequired: false,
+    canChangePermission: true,
   }
 
   /**
@@ -109,6 +111,7 @@ class UserEditPaper extends Component {
               <UserInfoEditComponent
                 user={editingUser}
                 errors={errors}
+                canChangePermission={this.props.canChangePermission}
                 onUpdate={(user) => this.setState({editingUser: user})}
               />
             </ComponentWithHeader>
