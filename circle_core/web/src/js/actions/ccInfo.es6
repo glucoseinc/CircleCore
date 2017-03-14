@@ -6,6 +6,11 @@ const payloadCreators = {
   fetchMyselfRequest: nullPayloadCreator,
   fetchMyselfSucceeded: (response) => response,
   fetchMyselfFailed: (message) => message,
+
+  // Update
+  updateRequest: (rawCcInfo) => rawCcInfo,
+  updateSucceeded: (response) => response,
+  updateFailed: (message) => message,
 }
 
 const ccActions = createCcActions('ccInfo', payloadCreators)
