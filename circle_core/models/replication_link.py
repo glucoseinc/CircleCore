@@ -137,7 +137,9 @@ class ReplicationLink(UUIDMetaDataBase):
         :rtype: Optional[str]
         """
         def build_link():
-            return 'ws://{server_name}:{port}/replication/{_uuid}'.format(
+            schema = 'wss' if current_app.config['PREFERRED_URL_SCHEME'] == 'https' else 'ws'
+            return '{schema}://{server_name}:{port}/replication/{_uuid}'.format(
+                schema=schema,
                 server_name=request.environ['SERVER_NAME'],
                 port=current_app.ws_port or request.environ['SERVER_PORT'],
                 _uuid=self.uuid

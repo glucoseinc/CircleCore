@@ -2,6 +2,8 @@
 """Master側のWebsocketの口とか、AdminのUIとか"""
 import logging
 
+import six
+
 # project module
 from circle_core.core.metadata_event_listener import MetaDataEventListener
 from circle_core.models import ReplicationMaster
@@ -18,6 +20,7 @@ def create_slave_driver(core, type, key, config):
 
     return SlaveDriverWorker(
         core, key,
+        ssl_validate_cert=config.getboolean('ssl_validate_cert', fallback=True),
     )
 
 
@@ -26,10 +29,11 @@ class SlaveDriverWorker(CircleWorker):
     """
     worker_type = WORKER_SLAVE_DRIVER
 
-    def __init__(self, core, worker_key):
+    def __init__(self, core, worker_key, ssl_validate_cert=True):
         super(SlaveDriverWorker, self).__init__(core, worker_key)
 
         self.replicators = {}
+        self.ssl_validate_cert = ssl_validate_cert
 
     def initialize(self):
         for master in ReplicationMaster.query:
@@ -43,11 +47,15 @@ class SlaveDriverWorker(CircleWorker):
         pass
 
     def finalize(self):
-        for replicator in self.replicators:
+        for replicator in six.itervalues(self.replicators):
             replicator.close()
 
     def start_replicator(self, master):
-        replicator = Replicator(self, master)
+        # Websocket接続時のOptionを設定している。 SSL関連とかで増やしたければここをいじる
+        request_options = {
+            'validate_cert': self.ssl_validate_cert,
+        }
+        replicator = Replicator(self, master, request_options=request_options)
         self.replicators[master.id] = replicator
         replicator.run()
 
