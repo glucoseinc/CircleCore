@@ -7,7 +7,7 @@ import uuid
 
 # community module
 from six import PY3
-from tornado import gen
+from tornado import gen, httpclient
 from tornado.websocket import websocket_connect, WebSocketClientConnection, WebSocketError
 
 # project module
@@ -51,13 +51,14 @@ class Replicator(object):
     :param str endpoint_url:
     """
 
-    def __init__(self, driver, master):
+    def __init__(self, driver, master, request_options=None):
         self.driver = driver
         self.master = master
         self.ws = None
         self.target_boxes = None
         self.writer = None
         self.closed = False
+        self.request_options = request_options or {}
 
         # fix url
         endpoint_url = master.endpoint_url
@@ -137,7 +138,11 @@ class Replicator(object):
 
     @gen.coroutine
     def _run_one_loop(self):
-        self.ws = yield websocket_connect(self.endpoint_url)
+        # make request
+        request = httpclient.HTTPRequest(self.endpoint_url, **self.request_options)
+
+        # make connection
+        self.ws = yield websocket_connect(request)
         self.state = ReplicationState.HANDSHAKING
 
         logger.info('Replication connection to %s: established', self.endpoint_url)

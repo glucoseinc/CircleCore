@@ -38,3 +38,7 @@ skip_build = off
 # httpsで起動する場合に設定
 tls_key_path = ./tests/tls.key
 tls_crt_path = ./tests/tls.crt
+
+[circle_core:slave_driver]
+# 共有リンク接続時に、証明書のチェックをスキップする場合はoffにする
+;ssl_validate_cert = off
