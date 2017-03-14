@@ -137,3 +137,28 @@ def user_remove(ctx, user_uuid):
         MetaDataSession.delete(user)
 
     click.echo('User "{}" is removed.'.format(user_uuid))
+
+
+@cli_user.command('change_password')
+@click.option(
+    'new_password', '--new-password', prompt=True, hide_input=True, confirmation_prompt=True)
+@click.argument('user_uuid', type=UUID)
+@click.pass_context
+def user_change_password(ctx, user_uuid, new_password):
+    """ユーザのパスワードを変更する
+
+    :param Context ctx: Context
+    :param UUID user_uuid: ユーザUUID
+    :param str new_password: 新しいパスワード
+    """
+    try:
+        user = User.query.filter_by(uuid=user_uuid).one()
+    except NoResultFound:
+        click.echo('User "{}" is not registered. Do nothing.'.format(user_uuid))
+        ctx.exit(code=-1)
+
+    with MetaDataSession.begin():
+        user.set_password(new_password)
+        MetaDataSession.add(user)
+
+    click.echo('User "{}"\'s password is changed.'.format(user_uuid))
