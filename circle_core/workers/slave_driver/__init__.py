@@ -2,6 +2,8 @@
 """Master側のWebsocketの口とか、AdminのUIとか"""
 import logging
 
+import six
+
 # project module
 from circle_core.core.metadata_event_listener import MetaDataEventListener
 from circle_core.models import ReplicationMaster
@@ -43,7 +45,7 @@ class SlaveDriverWorker(CircleWorker):
         pass
 
     def finalize(self):
-        for replicator in self.replicators:
+        for replicator in six.itervalues(self.replicators):
             replicator.close()
 
     def start_replicator(self, master):
