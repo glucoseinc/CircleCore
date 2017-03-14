@@ -102,6 +102,27 @@ export default class User extends UserRecord {
   }
 
   /**
+   * @param {Boolean} value
+   * @return {User}
+   */
+  updateIsAdmin(value) {
+    let permissions = this.permissions
+    const key = 'admin'
+    let pos = permissions.indexOf(key)
+
+    if(value) {
+      // push admin
+      if(pos <= 0)
+        permissions.push(key)
+    } else {
+      // pop admin
+      if(pos >= 0)
+        permissions.splice(pos, 1)
+    }
+    return this.set('permissions', permissions)
+  }
+
+  /**
    * @param {string} value
    * @return {User}
    */

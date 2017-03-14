@@ -55,6 +55,7 @@ class ChangeProfile extends Component {
         <UserEditPaper
           user={user}
           errors={errors}
+          canChangePermission={false}
           needCurrentPassword={true}
           onSaveTouchTap={onUpdateTouchTap}
         />

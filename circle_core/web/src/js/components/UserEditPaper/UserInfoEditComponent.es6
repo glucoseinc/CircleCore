@@ -1,5 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 
+import Checkbox from 'material-ui/Checkbox'
 import TextField from 'material-ui/TextField'
 
 import DisplayNameTextField from 'src/components/commons/DisplayNameTextField'
@@ -14,6 +15,11 @@ class UserInfoEditComponent extends Component {
     user: PropTypes.object.isRequired,
     errors: PropTypes.object,
     onUpdate: PropTypes.func,
+    canChangePermission: PropTypes.bool,
+  }
+
+  static defaultProps = {
+    canChangePermission: true,
   }
 
   /**
@@ -21,6 +27,7 @@ class UserInfoEditComponent extends Component {
    */
   render() {
     const {
+      canChangePermission,
       user,
       errors = {},
       onUpdate,
@@ -44,6 +51,15 @@ class UserInfoEditComponent extends Component {
           errorText={accountErrorText}
           onChange={(e) => onUpdate(user.updateDisplayName(e.target.value))}
         />
+
+        <Checkbox
+          label="管理権限"
+          disabled={!canChangePermission}
+          style={{margin: '12px 0'}}
+          checked={user.isAdmin}
+          onCheck={(e, v) => onUpdate(user.updateIsAdmin(v))}
+        />
+
         <WorkTextField
           obj={user}
           onChange={(e) => onUpdate(user.updateWork(e.target.value))}
