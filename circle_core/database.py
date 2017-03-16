@@ -59,10 +59,34 @@ class Database(object):
 
         self._metadata = sa.MetaData()
         self._metadata.reflect(self._engine)
-
         self._time_db_dir = time_db_dir
-
         self._thread_id = None
+
+        # 現在把握している最新のメッセージキーを保存する(つまり、未コミットのものも含む)
+        self._message_heads = self._get_current_message_heads()
+
+    def _get_current_message_heads(self):
+        connection = self._engine.connect()
+        d = {}
+
+        for box in MessageBox.query:
+            key = None
+            table = self.find_table_for_message_box(box, create_if_not_exists=False)
+            if table:
+                query = (
+                    sa.sql.select([table.c._created_at, table.c._counter])
+                    .order_by(table.c._created_at.desc(), table.c._counter.desc())
+                    .limit(1)
+                )
+                rows = connection.execute(query).fetchall()
+
+                if rows:
+                    key = ModuleMessagePrimaryKey(ModuleMessage.make_timestamp(rows[0][0]), rows[0][1])
+
+            d[box.uuid] = key
+
+        connection.close()
+        return d
 
     def connect(self):
         """Return a new Connection object.
@@ -143,6 +167,10 @@ class Database(object):
         assert connection, 'TODO: create new connection if not present it'
         self._check_thread()
 
+        previous_head = self._message_heads.get(message_box.uuid)
+        if previous_head and previous_head >= message.primary_key:
+            raise ValueError('message is older than latest head')
+
         table = self.find_table_for_message_box(message_box)
         query = table.insert().values(
             _created_at=message.timestamp,
@@ -150,6 +178,8 @@ class Database(object):
             **message.payload
         )
         connection.execute(query)
+        # update head
+        self._message_heads[message_box.uuid] = message.primary_key
 
     def drop_message_box(self, message_box, connection=None):
         """MessageBox Tableを削除する.
@@ -171,7 +201,7 @@ class Database(object):
             self._thread_id = threading.get_ident()
         assert self._thread_id == threading.get_ident()
 
-    def get_latest_primary_key(self, message_box, connection=None):
+    def get_latest_primary_key(self, message_box):
         """get latest primary key.
         TODO: fill blank
 
@@ -180,20 +210,7 @@ class Database(object):
         :return:
         :rtype:
         """
-        if not connection:
-            connection = self._engine.connect()
-
-        table = self.find_table_for_message_box(message_box)
-        query = (
-            sa.sql.select([table.c._created_at, table.c._counter])
-            .order_by(table.c._created_at.desc(), table.c._counter.desc())
-            .limit(1)
-        )
-        with connection.begin():
-            rows = connection.execute(query).fetchall()
-        if not rows:
-            return None
-        return ModuleMessagePrimaryKey(ModuleMessage.make_timestamp(rows[0][0]), rows[0][1])
+        return self._message_heads.get(message_box.uuid)
 
     def count_messages(self, message_box, head=None, limit=None, connection=None):
         """メッセージ数を返す.

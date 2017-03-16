@@ -49,14 +49,28 @@ from ...models.message_box import MessageBox
 logger = logging.getLogger(__name__)
 
 
+NotInitialized = object()
+
+
 class SyncState(object):
-    def __init__(self, box):
+    def __init__(self, box, master_head):
         self.box = box
-        self.slave_head = None
-        self.master_head = None
+        self.master_head = master_head
+        self.slave_head = NotInitialized
 
     def is_synced(self):
+        if self.slave_head is NotInitialized:
+            raise RuntimeError('sync state\'s slave status is not initialized.')
+        if self.master_head is NotInitialized:
+            raise RuntimeError('sync state\'s master status is not initialized.')
         return self.slave_head == self.master_head
+
+    def __repr__(self):
+        return '<SyncState box:{} master_head:{} slave_head:{}>'.format(
+            self.box.uuid,
+            self.master_head,
+            self.slave_head,
+        )
 
 
 class ReplicationMasterHandler(WebSocketHandler):
@@ -67,7 +81,7 @@ class ReplicationMasterHandler(WebSocketHandler):
 
     def open(self, link_uuid):
         """他のCircleCoreから接続された際に呼ばれる."""
-        logger.debug('Connected from another CircleCore')
+        logger.debug('%s Connected from slave CircleCore', link_uuid)
         self.link_uuid = link_uuid
         self.replication_link = ReplicationLink.query.get(link_uuid)
 
@@ -77,17 +91,14 @@ class ReplicationMasterHandler(WebSocketHandler):
                        reason='ReplicationLink {} was not found.'.format(link_uuid))
             return
 
+        database = self.get_core().get_database()
         self.state = ReplicationState.HANDSHAKING
         self.sync_states = ImmutableDict(
-            (box.uuid, SyncState(box)) for box in self.replication_link.message_boxes
+            (box.uuid, SyncState(box, database.get_latest_primary_key(box)))
+            for box in self.replication_link.message_boxes
         )
-
-        # get master heads
-        database = self.get_core().get_database()
-        conn = database.connect()
-        for box_uuid, sync_state in self.sync_states.items():
-            head = database.get_latest_primary_key(sync_state.box, connection=conn)
-            sync_state.master_head = head
+        self.syncing = False
+        logger.debug('initial sync status: %s', self.sync_states)
 
         # messageに関するイベントを監視する
         self.receiver = self.get_core().make_hub_receiver(make_message_topic())
@@ -191,44 +202,80 @@ class ReplicationMasterHandler(WebSocketHandler):
         database = self.get_core().get_database()
         conn = database.connect()
 
-        try:
-            heads = json_msg.get('heads', {})
-            for box in self.replication_link.message_boxes:
-                head = ModuleMessagePrimaryKey.from_json(heads.get(str(box.uuid)))
-                logger.info('box: %r, head: %r', box, head)
-                self.sync_states[box.uuid].slave_head = head
+        # save slave head
+        heads = json_msg.get('heads', {})
+        for box in self.replication_link.message_boxes:
+            sync_state = self.sync_states[box.uuid]
+            sync_state.slave_head = ModuleMessagePrimaryKey.from_json(heads.get(str(box.uuid)))
+            logger.debug('box: %s, slave head: %r', box.uuid, self.sync_states[box.uuid].slave_head)
 
-                for message in database.enum_messages(box, head=head, connection=conn):
-                    logger.debug('sync message %s', message)
-                    self._send_command(
-                        MasterCommand.SYNC_MESSAGE,
-                        message=message.to_json()
-                    )
-                    self.sync_states[box.uuid].slave_head = message.primary_key
-                logger.info('box: %r synced', box)
-        except:
-            import traceback
-            traceback.print_exc()
-            raise
-        finally:
-            conn.close()
+        conn.close()
+
+        self.syncing = True
+        while True:
+            all_synced = yield self.sync()
+            if all_synced:
+                break
+            yield gen.moment
+        # logger.debug('all sync completed')
+        self.syncing = False
+
+    @gen.coroutine
+    def sync(self):
+        all_synced = True
+        database = self.get_core().get_database()
+        conn = database.connect()
+
+        for box in self.replication_link.message_boxes:
+            sync_state = self.sync_states[box.uuid]
+
+            # logger.debug(
+            #     'sync message box %s: from %s to %s', box.uuid,
+            #     sync_state.slave_head,
+            #     sync_state.master_head)
+            for message in database.enum_messages(box, head=self.sync_states[box.uuid].slave_head, connection=conn):
+                logger.debug('sync message %s', message)
+                yield self._send_command(
+                    MasterCommand.SYNC_MESSAGE,
+                    message=message.to_json()
+                )
+                sync_state.slave_head = message.primary_key
+
+            # logger.debug('  sync to %s', sync_state.slave_head)
+
+            if not sync_state.is_synced():
+                all_synced = False
+
+        conn.close()
+        raise gen.Return(all_synced)
 
     # Hub
     def on_new_message(self, topic, jsonobj):
         """新しいメッセージを受けとった"""
         message = ModuleMessage.from_json(jsonobj)
+        logger.debug('on_new_message: %s', message)
 
         if message.box_id not in self.sync_states:
-            # not interested
+            # not target
             return
-
         sync_state = self.sync_states[message.box_id]
-        if sync_state.is_synced():
-            # pass to slave
-            logger.debug('pass message %s', message)
-            self._send_command(
-                MasterCommand.NEW_MESSAGE,
-                message=message.to_json()
-            )
-            sync_state.slave_head = message.primary_key
-        sync_state.master_head = message.primary_key
+
+        try:
+            if not sync_state.is_synced():
+                logger.debug('skip message %s, because not synced', message)
+                logger.debug(
+                    '  master %s, slave %s',
+                    self.sync_states[message.box_id].master_head,
+                    self.sync_states[message.box_id].slave_head)
+            else:
+                assert not self.syncing
+                sync_state.slave_head = message.primary_key
+
+                # pass to slave
+                logger.debug('pass message %s', message)
+                self._send_command(
+                    MasterCommand.NEW_MESSAGE,
+                    message=message.to_json()
+                )
+        finally:
+            sync_state.master_head = message.primary_key
