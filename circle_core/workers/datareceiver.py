@@ -30,14 +30,14 @@ WORKER_DATARECEIVER = 'datareceiver'
 def create_http_worker(core, type, key, config):
     assert type == WORKER_DATARECEIVER
     defaults = {
-        'cyclce_time': '5.0',
+        'cycle_time': '2.0',
         'cycle_count': '100',
     }
     return DataReceiverWorker(
         core, key,
         db_url=config.get('db'),
         time_db_dir=config.get('time_db_dir'),
-        cycle_time=config.getfloat('cyclce_time', vars=defaults),
+        cycle_time=config.getfloat('cycle_time', vars=defaults),
         cycle_count=config.getint('cycle_count', vars=defaults),
     )
 
@@ -99,6 +99,7 @@ class DataReceiverWorker(CircleWorker):
         response = {'response': 'message_accepted', 'message': message}
 
         # pusblish
+        logger.debug('publish new message: %s', message)
         self.core.hub.publish(
             make_message_topic(message_box.module.uuid, message_box.uuid),
             message

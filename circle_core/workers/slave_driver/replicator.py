@@ -189,7 +189,7 @@ class Replicator(object):
         # 各MessageBoxのヘッドを取る
         heads = {}
         for box in self.target_boxes.values():
-            pkey = database.get_latest_primary_key(box, connection=self.writer.connection)
+            pkey = database.get_latest_primary_key(box)
             if pkey is None:  # メッセージボックスが空だったら
                 heads[str(box.uuid)] = ModuleMessagePrimaryKey.origin().to_json()
             else:
