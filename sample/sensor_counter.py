@@ -12,7 +12,8 @@ import nnpy
 @click.option('send_to', '--to', type=click.STRING, default='ipc:///tmp/crcr_request.ipc')
 @click.option('box_id', '--box-id', type=UUID, required=True)
 @click.option('interval', '--interval', type=float, default=1.0)
-def counter_bot(send_to, box_id, interval=1.0):
+@click.option('silent', '--silent', is_flag=True)
+def counter_bot(send_to, box_id, interval=1.0, silent=False):
     """一秒ごとに適当なメッセージを投げる.
 
     スキーマ登録: crcr schema add --name counterbot count:int body:string
@@ -37,7 +38,8 @@ def counter_bot(send_to, box_id, interval=1.0):
         }, indent=2, ensure_ascii=False)
         socket.send(msg)
 
-        click.echo('I sent a message {} times'.format(i))
+        if not silent:
+            click.echo('I sent a message {} times'.format(i))
         sleep(interval)
 
 

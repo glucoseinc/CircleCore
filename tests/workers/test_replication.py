@@ -27,7 +27,7 @@ def terminate_crcr():
 
 def test_reproduce_missing_message(tmpdir_factory):
     master_dir = str(tmpdir_factory.mktemp('master'))
-    os.chdir(master_dir)
+    slave_dir = str(tmpdir_factory.mktemp('slave'))
 
     # prepare database
     engine = create_engine('mysql+mysqlconnector://root@localhost')
@@ -47,6 +47,11 @@ def test_reproduce_missing_message(tmpdir_factory):
         'sample', 'sensor_counter.py'
     ))
 
+    # MetaDataSessionがシングルトンなのでCliRunnerを使うとslaveもmasterも同じmetadata.sqliteを読んでしまう
+    # なので、masterとslaveのディレクトリを分ける...
+
+    # master
+    os.chdir(master_dir)
     with open('circle_core.ini', 'w') as config:
         config.write("""
 [circle_core]
@@ -58,6 +63,8 @@ hub_socket = ipc://${{prefix}}/crcr_hub.ipc
 request_socket = ipc://${{prefix}}/crcr_request.ipc
 db = {db_url}
 time_db_dir = ${{prefix}}
+cycle_time=3
+cycle_count=20
 
 [circle_core:http]
 listen = 127.0.0.1
@@ -66,11 +73,7 @@ websocket = on
 admin = on
 admin_base_url = http://${{listen}}:${{port}}
 skip_build = on
-        """.format(db_url=master_db_url))
-
-    # MetaDataSessionがシングルトンなのでCliRunnerを使うとslaveもmasterも同じmetadata.sqliteを読んでしまう
-    running_master = subprocess.Popen(['crcr', '--debug', 'run'])
-    sleep(1)
+""".format(db_url=master_db_url))
 
     result = subprocess.run(['crcr', 'module', 'add', '--name', 'counterbot'], check=True, stdout=subprocess.PIPE)
     module_uuid = re.search(r'^Module "([0-9A-Fa-f-]+)" is added\.$', result.stdout.decode(), re.MULTILINE).group(1)
@@ -82,6 +85,7 @@ skip_build = on
     )
     schema_uuid = re.search(r'^Schema "([0-9A-Fa-f-]+)" is added\.$', result.stdout.decode(), re.MULTILINE).group(1)
 
+    # run master
     result = subprocess.run([
         'crcr',
         'box',
@@ -96,14 +100,6 @@ skip_build = on
     box_uuid = re.search(r'^MessageBox "([0-9A-Fa-f-]+)" is added\.$', result.stdout.decode(), re.MULTILINE).group(1)
     table_name = 'message_box_{}'.format(b58encode(UUID(box_uuid).bytes))
 
-    bot = subprocess.Popen([
-        sys.executable,
-        counter_py,
-        '--box-id', box_uuid,
-        '--to', 'ipc://crcr_request.ipc',
-        '--interval', '0.1'
-    ])
-
     result = subprocess.run(
         ['crcr', 'replication_link', 'add', '--name', 'slave1', '--all-boxes'],
         check=True,
@@ -115,7 +111,27 @@ skip_build = on
         re.MULTILINE
     ).group(1)
 
-    slave_dir = str(tmpdir_factory.mktemp('slave'))
+    # run master & counter
+    running_master = subprocess.Popen(['crcr', '--debug', 'run'])
+    sleep(1)
+
+    bot = subprocess.Popen([
+        sys.executable,
+        counter_py,
+        '--box-id', box_uuid,
+        '--to', 'ipc://crcr_request.ipc',
+        '--interval', '0.1',
+        '--silent',
+    ])
+
+    # masterにデータを注入
+    # masterのメッセージボックスが空の状態でレプリケーションを始めると以降受信したメッセージがslaveに転送されない
+    try:
+        bot.wait(timeout=3)
+    except subprocess.TimeoutExpired:
+        pass
+
+    # slave
     os.chdir(slave_dir)
 
     with open('circle_core.ini', 'w') as config:
@@ -129,6 +145,8 @@ hub_socket = ipc://${{prefix}}/crcr_hub.ipc
 request_socket = ipc://${{prefix}}/crcr_request.ipc
 db = {db_url}
 time_db_dir = ${{prefix}}
+cycle_time=3
+cycle_count=20
 
 [circle_core:http]
 listen = 127.0.0.1
@@ -137,7 +155,7 @@ websocket = on
 admin = on
 admin_base_url = http://${{listen}}:${{port}}
 skip_build = on
-        """.format(db_url=slave_db_url))
+""".format(db_url=slave_db_url))
 
     subprocess.run([
         'crcr',
@@ -147,16 +165,10 @@ skip_build = on
         'ws://localhost:5001/replication/{}'.format(link_uuid)
     ], check=True)
 
-    try:
-        bot.wait(timeout=10)
-    except subprocess.TimeoutExpired:
-        pass
-
-    # masterのメッセージボックスが空の状態でレプリケーションを始めると以降受信したメッセージがslaveに転送されない
     running_slave = subprocess.Popen(['crcr', '--debug', 'run'])
 
     try:
-        bot.wait(timeout=20)
+        bot.wait(timeout=3)
     except subprocess.TimeoutExpired:
         pass
 
@@ -167,14 +179,11 @@ skip_build = on
 
     master_messages = frozenset(
         tuple(t) for t in create_engine(master_db_url)
-        .connect()
-        .execute('SELECT * FROM {}'.format(table_name))
-        .fetchall()
+        .connect().execute('SELECT _created_at, _counter FROM {}'.format(table_name)).fetchall()
     )
     slave_messages = frozenset(
         tuple(t) for t in create_engine(slave_db_url)
-        .connect().execute('SELECT * FROM {}'.format(table_name))
-        .fetchall()
+        .connect().execute('SELECT _created_at, _counter FROM {}'.format(table_name)).fetchall()
     )
 
-    assert master_messages == slave_messages, 'missing messages : {}'.format(master_messages - slave_messages)
+    assert master_messages == slave_messages, 'missing messages : {}'.format(sorted(master_messages - slave_messages))
