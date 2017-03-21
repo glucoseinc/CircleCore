@@ -52,8 +52,13 @@ def get_current_user():
             return 'public@web'
 
     # cliかな?
-    if click.get_current_context():
+    try:
+        click.get_current_context()
+    except RuntimeError:  # click context doesn't exist
+        return '@test'
+    else:
         return '@cli'
+
 
 
 class MetaDataEventLogger(object):
