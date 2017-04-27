@@ -72,7 +72,7 @@ class Database(object):
         for box in MessageBox.query:
             key = None
             table = self.find_table_for_message_box(box, create_if_not_exists=False)
-            if table:
+            if table is not None:
                 query = (
                     sa.sql.select([table.c._created_at, table.c._counter])
                     .order_by(table.c._created_at.desc(), table.c._counter.desc())
