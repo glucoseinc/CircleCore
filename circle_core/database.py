@@ -379,6 +379,13 @@ class QueuedWriter(object):
         if not self.transaction:
             self.begin_transaction()
 
+        if self.updates:
+            if message.timestamp < self.updates[-1][1]:
+                logger.error(
+                    'bad timestamp, time is rolling back. message:%s queued_latest:%s',
+                    message.timestamp,
+                    self.updates[-1][1])
+
         self.database.store_message(message_box, message, connection=self.connection)
         self.updates.append((message.box_id, message.timestamp))
         self.write_count += 1

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""CLI invitation."""
+"""CLI utility commands."""
 
 # system module
 import datetime
@@ -46,6 +46,18 @@ def date2ts(ctx, date):
     """
     ts = time.mktime(parser.parse(date).timetuple())
     click.echo('{}'.format(ts))
+
+
+@cli_util.command()
+@click.argument('ts', type=int)
+@click.pass_context
+def ts2date(ctx, ts):
+    """unix timestampを日付する
+
+    :param Context ctx: Context
+    """
+    click.echo('UTC:   {}'.format(time.gmtime(ts)))
+    click.echo('Local: {}'.format(time.localtime(ts)))
 
 
 cli_cliutil = cli_util
