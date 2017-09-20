@@ -234,5 +234,5 @@ def api_message_box_data(module_uuid, messagebox_uuid):
         messages=messages,
         query=query,
         schema=box.schema.to_json(),
-        total=database.count_messages(box),
+        # total=database.count_messages(box),
     )
