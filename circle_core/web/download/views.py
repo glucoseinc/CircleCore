@@ -23,6 +23,7 @@ def download_message_box_data(module_uuid, message_box_uuid):
 
     start = request.args.get('start', None)
     if start:
+        # TODO: ユーティリティ関数にまとめる
         start = time.mktime(parser.parse(start).timetuple())
 
     end = request.args.get('end', None)
