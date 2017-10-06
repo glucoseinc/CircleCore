@@ -420,7 +420,7 @@ class QueuedWriter(object):
                 if timestamp >= last_timestamp:
                     break
             if idx:
-                updates, self.updates = self.updates[:idx - 1], self.updates[idx - 1:]
+                updates, self.updates = self.updates[:idx], self.updates[idx:]
                 self.time_db_bundle.update(updates)
 
         # remove timeout and reset
