@@ -63,3 +63,8 @@ $ npm run watch
 ```
 
 see doc/README.md .
+
+
+-----
+
+Copyright 2018 Kyushu University
