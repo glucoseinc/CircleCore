@@ -3,7 +3,6 @@ import pytest
 
 from circle_core.models import generate_uuid, MessageBox, MetaDataSession, Module, Schema
 from circle_core.models.module import ModuleAttribute, ModuleAttributes
-
 from .utils import setup_db
 
 

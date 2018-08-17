@@ -135,7 +135,11 @@ class Database(object):
         if not isinstance(box_or_uuid, uuid.UUID):
             box_or_uuid = box_or_uuid.uuid
 
-        return 'message_box_' + b58encode(box_or_uuid.bytes)
+        encoded = b58encode(box_or_uuid.bytes)
+        if isinstance(encoded, bytes):
+            encoded = encoded.decode('latin1')
+
+        return 'message_box_{}'.format(encoded)
 
     def find_table_for_message_box(self, message_box, create_if_not_exists=True):
         """MessageBox Tableを取得する.

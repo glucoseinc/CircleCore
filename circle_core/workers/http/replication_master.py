@@ -19,7 +19,6 @@ Note right of S: when Slave's circle core info is updated
 S->M: "circle_core_updated" cmd
 ```
 
-
 """
 import enum
 import json
@@ -28,7 +27,6 @@ import threading
 import uuid
 
 from click import get_current_context
-
 from tornado import gen
 from tornado.ioloop import IOLoop
 from tornado.web import HTTPError

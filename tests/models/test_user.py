@@ -2,7 +2,6 @@
 import pytest
 
 from circle_core.models import MetaDataSession, User
-
 from .utils import setup_db
 
 

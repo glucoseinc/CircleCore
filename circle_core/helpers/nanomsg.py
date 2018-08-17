@@ -83,7 +83,7 @@ class Receiver(object):
                 topic, message = plain_msg[:TOPIC_LENGTH], plain_msg[TOPIC_LENGTH:]
                 message = json.loads(message)
                 callback(topic, message)
-            except:
+            except Exception:
                 import traceback
                 traceback.print_exc()
 

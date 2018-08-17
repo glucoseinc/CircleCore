@@ -98,7 +98,7 @@ skip_build = on
         module_uuid
     ], check=True, stdout=subprocess.PIPE)
     box_uuid = re.search(r'^MessageBox "([0-9A-Fa-f-]+)" is added\.$', result.stdout.decode(), re.MULTILINE).group(1)
-    table_name = 'message_box_{}'.format(b58encode(UUID(box_uuid).bytes))
+    table_name = 'message_box_{}'.format(b58encode(UUID(box_uuid).bytes).decode('latin1'))
 
     result = subprocess.run(
         ['crcr', 'replication_link', 'add', '--name', 'slave1', '--all-boxes'],
