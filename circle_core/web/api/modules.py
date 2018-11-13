@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """モジュール関連APIの実装."""
+from uuid import UUID
 
 # community module
 from flask import abort, current_app, request, Response
@@ -162,20 +163,28 @@ def _respond_rickshaw_graph_data(boxes, graph_range):
     from circle_core.timed_db import TimedDBBundle
 
     timed_db_bundle = TimedDBBundle(current_app.core.prefix)
-
     # tz_offset = int(request.args.get('tzOffset', 0))
     tz_offset = 0
+    graph_data = fetch_rickshaw_graph_data(
+        boxes,
+        graph_range,
+        timed_db_bundle,
+        time.time() - tz_offset)
+    return respond_success(graphData=graph_data)
 
+
+def fetch_rickshaw_graph_data(boxes, graph_range, timed_db_bundle, end_time):
+    assert graph_range in GRAPH_RANGE_TO_TIME_RANGE
     # とりま30m
     time_range = GRAPH_RANGE_TO_TIME_RANGE[graph_range]
-    end_time = time.time() - tz_offset
     start_time = end_time - time_range
 
     graph_data = []
     graph_steps = None
     missing_boxes = []
     for box in boxes:
-        db = timed_db_bundle.find_db(box.uuid)
+        box_uuid = box if isinstance(box, UUID) else box.uuid
+        db = timed_db_bundle.find_db(box_uuid)
         data = db.fetch(start_time, end_time)
         if not data:
             missing_boxes.append(box)
@@ -189,7 +198,7 @@ def _respond_rickshaw_graph_data(boxes, graph_range):
                 raise ValueError('graph range mismatch')
 
         graph_data.append({
-            'messageBox': box.to_json(),
+            'messageBox': dict(uuid=str(box_uuid)) if isinstance(box, UUID) else box.to_json(),
             'data': [dict(x=x, y=y) for x, y in zip(range(start, end, step), values)],
         })
 
@@ -199,12 +208,12 @@ def _respond_rickshaw_graph_data(boxes, graph_range):
     # グラフが無いやつはNullのグラフで埋める
     for box in missing_boxes:
         graph_data.append({
-            'messageBox': box.to_json(),
+            'messageBox': dict(uuid=str(box_uuid)) if isinstance(box, UUID) else box.to_json(),
             'data': [dict(x=x, y=None) for x in range(*graph_steps)],
         })
     graph_data.sort(key=lambda x: x['messageBox']['uuid'])
 
-    return respond_success(graphData=graph_data)
+    return graph_data
 
 
 @api.route('/modules/<uuid:module_uuid>/<uuid:messagebox_uuid>/data')
@@ -234,5 +243,5 @@ def api_message_box_data(module_uuid, messagebox_uuid):
         messages=messages,
         query=query,
         schema=box.schema.to_json(),
-        total=database.count_messages(box),
+        # total=database.count_messages(box),
     )
