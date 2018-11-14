@@ -57,6 +57,7 @@ rules:
   # react/jsx-sort-props: warn
   react/jsx-tag-spacing: warn
   react/jsx-wrap-multilines: warn
+  require-jsdoc: off
 
   import/no-unresolved: error
   import/order:

@@ -1,5 +1,5 @@
-import {fork, put, takeEvery} from 'redux-saga/effects'
 import {routerActions} from 'react-router-redux'
+import {fork, put, takeEvery} from 'redux-saga/effects'
 
 import {actionTypes} from 'src/actions'
 import {urls} from 'src/routes'

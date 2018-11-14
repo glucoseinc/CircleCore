@@ -1,5 +1,5 @@
-import {call, fork, put, select, takeLatest} from 'redux-saga/effects'
 import {LOCATION_CHANGE} from 'react-router-redux'
+import {call, fork, put, select, takeLatest} from 'redux-saga/effects'
 
 import actions from 'src/actions'
 import {checkHasAuthCodeReceived, fetchTokenByAuthorizationCode} from 'src/Authorization'
