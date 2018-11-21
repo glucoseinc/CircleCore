@@ -35,7 +35,7 @@ class ModuleButtons extends React.Component {
         marginTop: -4,
       },
     }
-
+    console.log(schema.modules, modules)
     return (
       <ComponentWithIcon icon={ModuleIcon}>
         <div style={style.modules}>

@@ -139,9 +139,9 @@ class MessageBoxEditablePaper extends React.Component {
     }
 
     const messageBox = module.messageBoxes.get(messageBoxIndex)
-    require('assert')(messageBox !== undefined)
+    require('assert')(messageBox !== undefined, 'bad messageBox')
     const schema = schemas.get(messageBox.schema)
-    require('assert')(schema !== undefined)
+    require('assert')(schema !== undefined, 'bad schema')
 
     const masterCcInfo = ccInfos.get(module.ccUuid)
     const slaveCcInfos = messageBox.slaveCcInfos.map((slaveCcInfoId) => ccInfos.get(slaveCcInfoId))

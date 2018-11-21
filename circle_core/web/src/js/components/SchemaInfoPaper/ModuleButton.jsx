@@ -9,7 +9,7 @@ import FlatButton from 'material-ui/FlatButton'
  */
 class ModuleButton extends React.Component {
   static propTypes = {
-    module: PropTypes.object.isRequired,
+    module: PropTypes.object,
     onClick: PropTypes.func,
   }
 
@@ -37,9 +37,10 @@ class ModuleButton extends React.Component {
       <FlatButton
         style={style.root}
         primary={true}
-        label={module.label}
+        disabled={module ? false : true}
+        label={module ? module.label : 'Loading...'}
         labelStyle={style.label}
-        onClick={() => onClick(module.uuid)}
+        onClick={() => module && onClick(module.uuid)}
       />
     )
   }
