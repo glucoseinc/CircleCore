@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import CCRaisedButton from 'src/components/bases/CCRaisedButton'
 
@@ -6,7 +7,7 @@ import CCRaisedButton from 'src/components/bases/CCRaisedButton'
 /**
  * 一覧へ戻るボタン
  */
-class BackButton extends Component {
+class BackButton extends React.Component {
   static propTypes = {
     onTouchTap: PropTypes.func,
   }

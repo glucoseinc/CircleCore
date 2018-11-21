@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Paper from 'material-ui/Paper'
 
@@ -13,7 +14,7 @@ import WorkTextField from 'src/components/commons/WorkTextField'
 /**
  * CircleCoreInfo編集コンポーネント
  */
-class CcInfoEditPaper extends Component {
+class CcInfoEditPaper extends React.Component {
   static propTypes = {
     ccInfo: PropTypes.object.isRequired,
     onUpdateTouchTap: PropTypes.func,

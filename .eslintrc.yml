@@ -34,8 +34,9 @@ rules:
     - error
     - never
   no-console: off
+  no-debugger: warn
   no-unused-vars:
-    - error
+    - warn
     - args: none
 
   react/sort-comp: warn
@@ -73,5 +74,12 @@ rules:
   import/no-duplicates: warn
 
 settings:
-  import/resolver:
-    babel-module: {}
+  react:
+    version: "15.0"
+#   import/respolver:
+#     alias: [
+#       ['src', 'circle_core/web/src'],
+#     ]
+#   # import/internal-module-folders:
+#   #   - src
+  import/resolver: 'webpack'

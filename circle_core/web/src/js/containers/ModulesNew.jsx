@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import {connect} from 'react-redux'
 import {Set} from 'immutable'
 
@@ -12,7 +13,7 @@ import ModuleNewPaper from 'src/components/ModuleNewPaper'
 /**
  * Module作成
  */
-class ModulesNew extends Component {
+class ModulesNew extends React.Component {
   static propTypes = {
     isSchemaFetching: PropTypes.bool.isRequired,
     isModuleFetching: PropTypes.bool.isRequired,

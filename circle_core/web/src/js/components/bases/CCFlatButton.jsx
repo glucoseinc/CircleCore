@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import FlatButton from 'material-ui/FlatButton'
 
@@ -6,7 +7,7 @@ import FlatButton from 'material-ui/FlatButton'
 /**
  * フラットボタン
  */
-class CCFlatButton extends Component {
+class CCFlatButton extends React.Component {
   static propTypes = {
     style: PropTypes.object,
     labelStyle: PropTypes.object,

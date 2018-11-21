@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import PasswordAutoGenerateComponent from './PasswordAutoGenerateComponent'
 import PasswordManualChangeComponent from './PasswordManualChangeComponent'
@@ -7,7 +8,7 @@ import PasswordManualChangeComponent from './PasswordManualChangeComponent'
 /**
 * パスワード変更コンポーネント
 */
-class PasswordChangeComponent extends Component {
+class PasswordChangeComponent extends React.Component {
   static propTypes = {
     errors: PropTypes.object,
     onUpdate: PropTypes.func,

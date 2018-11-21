@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import {blue500} from 'material-ui/styles/colors'
 
@@ -10,7 +11,7 @@ import {ReplicationLinkIcon} from 'src/components/bases/icons'
 /**
  * URLラベル
  */
-class UrlLabel extends Component {
+class UrlLabel extends React.Component {
   static propTypes = {
     obj: PropTypes.object.isRequired,
   }

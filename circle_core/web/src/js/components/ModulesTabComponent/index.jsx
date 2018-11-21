@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import {Set} from 'immutable'
 
 import {Tabs, Tab} from 'material-ui/Tabs'
@@ -14,7 +15,7 @@ import ModuleInfoPaper from './ModuleInfoPaper'
 /**
  * Module一覧タブコンポーネント
  */
-class ModulesTabComponent extends Component {
+class ModulesTabComponent extends React.Component {
   static propTypes = {
     modules: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
@@ -110,7 +111,7 @@ class ModulesTabComponent extends Component {
         <Tab style={style.tab} label="リスト一覧">
           {searchTextField}
           <div style={style.content}>
-            {filteredModules.valueSeq().map((module) =>
+            {filteredModules.valueSeq().map((module) => (
               <ModuleInfoPaper
                 key={module.uuid}
                 module={module}
@@ -119,7 +120,7 @@ class ModulesTabComponent extends Component {
                 onTagButtonTouchTap={::this.setSearchText}
                 onDeleteTouchTap={onDeleteTouchTap}
               />
-            )}
+            ))}
           </div>
         </Tab>
       </Tabs>

@@ -1,5 +1,6 @@
 // ログイン状態を見てユーザーを振り分ける
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
@@ -10,7 +11,7 @@ import {OAUTH_AUTHORIZATION_URL} from 'src/Authorization'
 /**
  * ログイン済ユーザ用のフレーム
  */
-class UserOnlyFrame extends Component {
+class UserOnlyFrame extends React.Component {
   static propTypes = {
     tokenIsValid: PropTypes.bool.isRequired,
     children: PropTypes.node,
@@ -39,7 +40,7 @@ class UserOnlyFrame extends Component {
    * @param {object} router
    */
   guestWillTransfer(props, router) {
-    if(!props.tokenIsValid) {
+    if (!props.tokenIsValid) {
       // /oauth/authorization はReact化ではないため、location.hrefを動かさないといけない
       // location.href = OAUTH_AUTHORIZATION_URL
       router.replace(OAUTH_AUTHORIZATION_URL)
@@ -50,7 +51,7 @@ class UserOnlyFrame extends Component {
    * @override
    */
   render() {
-    if(!this.props.tokenIsValid) {
+    if (!this.props.tokenIsValid) {
       return <div>ログイン中...</div>
     }
     return <div className="appContainer is-user">{this.props.children}</div>
@@ -75,7 +76,7 @@ export const UserOnly = connect(
 /**
  * 未ログインユーザ用のフレーム
  */
-class GuestOnlyFrame extends Component {
+class GuestOnlyFrame extends React.Component {
   static propTypes = {
     tokenIsValid: PropTypes.bool.isRequired,
     children: PropTypes.node,
@@ -104,7 +105,7 @@ class GuestOnlyFrame extends Component {
    * @param {object} router
    */
   userWillTransfer(props, router) {
-    if(props.tokenIsValid) {
+    if (props.tokenIsValid) {
       router.replace('/')
     }
   }

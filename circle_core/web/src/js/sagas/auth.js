@@ -12,19 +12,20 @@ import {checkHasAuthCodeReceived, fetchTokenByAuthorizationCode} from 'src/Autho
 function* checkAuthorizationHash({payload: {hash}}) {
   const authCode = checkHasAuthCodeReceived(hash)
 
-  if(!authCode)
+  if (!authCode) {
     return
+  }
 
-  let auth = yield select((state) => state.auth)
+  const auth = yield select((state) => state.auth)
 
-  if(auth.tokenIsValid) {
+  if (auth.tokenIsValid) {
     // 認証済みだったらAuthCodeは無視
     return
   }
 
-  let tokenData = yield call(fetchTokenByAuthorizationCode, authCode)
+  const tokenData = yield call(fetchTokenByAuthorizationCode, authCode)
 
-  if(tokenData) {
+  if (tokenData) {
     yield put(actions.auth.loginSucceeded(tokenData))
   } else {
     yield put(actions.auth.loginFailed(tokenData))

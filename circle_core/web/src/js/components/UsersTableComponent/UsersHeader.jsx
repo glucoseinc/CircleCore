@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React from 'react'
 
 import {grey600} from 'material-ui/styles/colors'
 
@@ -8,7 +8,7 @@ import tableStyle from './tableStyle'
 /**
 * UsersHeader
 */
-class UsersHeader extends Component {
+class UsersHeader extends React.Component {
   static propTypes = {
   }
 

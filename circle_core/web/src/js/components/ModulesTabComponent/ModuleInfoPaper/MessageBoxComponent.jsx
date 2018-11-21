@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import {blue500} from 'material-ui/styles/colors'
 
@@ -8,7 +9,7 @@ import ReplicationSlavesComponent from 'src/components/commons/ReplicationSlaves
 /**
 * MessageBoxコンポーネント
 */
-class MessageBoxComponent extends Component {
+class MessageBoxComponent extends React.Component {
   static propTypes = {
     messageBox: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,

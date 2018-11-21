@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import IconButton from 'material-ui/IconButton'
 
@@ -6,7 +7,7 @@ import IconButton from 'material-ui/IconButton'
 /**
  * アイコンボタン付きコンポーネント
  */
-class ComponentWithIconButton extends Component {
+class ComponentWithIconButton extends React.Component {
   static propTypes = {
     rootStyle: PropTypes.object,
     childrenStyle: PropTypes.object,

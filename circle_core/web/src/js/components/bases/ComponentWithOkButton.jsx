@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import CCFlatButton from './CCFlatButton'
 
@@ -6,7 +7,7 @@ import CCFlatButton from './CCFlatButton'
 /**
  * OKボタン付きコンポーネント
  */
-class ComponentWithOkButton extends Component {
+class ComponentWithOkButton extends React.Component {
   static propTypes = {
     okButtonLabel: PropTypes.string,
     onOKButtonTouchTap: PropTypes.func,
@@ -18,9 +19,9 @@ class ComponentWithOkButton extends Component {
    */
   render() {
     const {
-        okButtonLabel = 'OK',
-        onOKButtonTouchTap,
-        children,
+      okButtonLabel = 'OK',
+      onOKButtonTouchTap,
+      children,
     } = this.props
 
     const style = {

@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import AutoComplete from 'material-ui/AutoComplete'
 import IconButton from 'material-ui/IconButton'
@@ -10,7 +11,7 @@ import {ClearIcon, SearchIcon} from 'src/components/bases/icons'
 /**
  * 検索テキストフィールド
  */
-class SearchTextField extends Component {
+class SearchTextField extends React.Component {
   static propTypes = {
     hintText: PropTypes.string,
     fullWidth: PropTypes.bool,

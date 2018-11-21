@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import {grey300, grey400} from 'material-ui/styles/colors'
 
@@ -6,7 +7,7 @@ import {grey300, grey400} from 'material-ui/styles/colors'
 /**
 * ModuleAttributesテーブル
 */
-class ModuleAttributesTable extends Component {
+class ModuleAttributesTable extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
   }

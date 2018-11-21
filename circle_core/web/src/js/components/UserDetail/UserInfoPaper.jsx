@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Paper from 'material-ui/Paper'
 
@@ -9,7 +10,7 @@ import {EmailIcon, PhoneIcon, WorkIcon} from 'src/components/bases/icons'
 /**
 * UserInfoコンポーネント
 */
-class UserInfoPaper extends Component {
+class UserInfoPaper extends React.Component {
   static propTypes = {
     user: PropTypes.object.isRequired,
   }

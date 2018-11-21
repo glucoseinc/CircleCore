@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import {grey400} from 'material-ui/styles/colors'
 
@@ -6,7 +7,7 @@ import {grey400} from 'material-ui/styles/colors'
 /**
  * アイコン付きコンポーネント
  */
-class ComponentWithIcon extends Component {
+class ComponentWithIcon extends React.Component {
   static propTypes = {
     icon: PropTypes.func.isRequired,
     children: PropTypes.node,
@@ -17,8 +18,8 @@ class ComponentWithIcon extends Component {
    */
   render() {
     const {
-        icon,
-        children,
+      icon,
+      children,
     } = this.props
 
     const style = {

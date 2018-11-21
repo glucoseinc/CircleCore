@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Paper from 'material-ui/Paper'
 
@@ -8,7 +9,7 @@ import MemoComponent from 'src/components/commons/MemoComponent'
 /**
  * メタデータエリア
  */
-class MetadataPaper extends Component {
+class MetadataPaper extends React.Component {
   static propTypes = {
     obj: PropTypes.object.isRequired,
   }

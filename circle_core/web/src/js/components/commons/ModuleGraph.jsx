@@ -1,9 +1,9 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import moment from 'moment'
 import Rickshaw from 'rickshaw'
 
 import CCAPI from 'src/api'
-
 import LoadingIndicator from 'src/components/bases/LoadingIndicator'
 
 
@@ -99,7 +99,7 @@ class GraphTime {
  * MessageBoxを渡すとMessageBoxのグラフを書く
  * クラスを分けようと思ったのだけど、継承させて書くとちょっと面倒なので、ifで...
  */
-class ModuleGraph extends Component {
+class ModuleGraph extends React.Component {
   static propTypes = {
     autoUpdate: PropTypes.number,
     module: PropTypes.object.isRequired,
@@ -122,6 +122,12 @@ class ModuleGraph extends Component {
     }
     this.graph = null
     this.updateTimer = null
+
+    this.graphContainerRef = React.createRef()
+    this.yAxisRef = React.createRef()
+    this.chartRef = React.createRef()
+    this.previewRef = React.createRef()
+    this.legendRef = React.createRef()
   }
 
   /**
@@ -138,7 +144,7 @@ class ModuleGraph extends Component {
    * @override
    */
   componentWillReceiveProps(nextProps) {
-    if(this.props.range != nextProps.range) {
+    if (this.props.range != nextProps.range) {
       // rangeが変わったのでグラフデータ再取得
       this.setState({graphData: null})
       this.fetchGraphData(nextProps.range)
@@ -149,12 +155,13 @@ class ModuleGraph extends Component {
    * @override
    */
   componentWillUpdate(nextProps, nextState) {
-    if(this.props.autoUpdate != nextProps.autoUpdate) {
+    if (this.props.autoUpdate != nextProps.autoUpdate) {
       this.clearUpdateTimer()
 
       // グラフデータが既に取得済みであれば、タイマーを再設定
-      if(nextState.graphData)
+      if (nextState.graphData) {
         this.setUpdateTimer(nextProps.autoUpdate)
+      }
     }
   }
 
@@ -164,7 +171,7 @@ class ModuleGraph extends Component {
   componentWillUnmount() {
     this.clearUpdateTimer()
 
-    if(this.resizeHandler) {
+    if (this.resizeHandler) {
       window.removeEventListener('resize', this.resizeHandler)
       delete this.resizeHandler
     }
@@ -190,12 +197,13 @@ class ModuleGraph extends Component {
       tzOffset: TZ_OFFSET * 60,
     }
 
-    if(this.props.messageBox)
+    if (this.props.messageBox) {
       request = CCAPI.getMessageBoxGraphData(this.props.module, this.props.messageBox, query)
-    else
+    } else {
       request = CCAPI.getModuleGraphData(this.props.module, query)
+    }
 
-    let {graphData} = await request
+    const {graphData} = await request
 
     this.setState({graphData}, () => {
       this.updateGraph()
@@ -215,25 +223,26 @@ class ModuleGraph extends Component {
       graphData,
     } = this.state
 
-    if(!this.refs.graphContainer || !graphData)
+    if (!this.graphContainerRef.current || !graphData) {
       return
+    }
 
-    let palette = new Rickshaw.Color.Palette({scheme: 'colorwheel'})
+    const palette = new Rickshaw.Color.Palette({scheme: 'colorwheel'})
 
     // remove graph if exists
-    if(this.graph) {
-      this.refs.yAxis.innerHTML = ''
-      this.refs.chart.innerHTML = ''
-      this.refs.preview.innerHTML = ''
-      if(this.isShowLegend) {
-        this.refs.legend.innerHTML = ''
+    if (this.graph) {
+      this.yAxisRef.current.innerHTML = ''
+      this.chartRef.current.innerHTML = ''
+      this.previewRef.current.innerHTML = ''
+      if (this.isShowLegend) {
+        this.legendRef.current.innerHTML = ''
       }
       delete this.graph
     }
 
-    let graph = new Rickshaw.Graph({
+    const graph = new Rickshaw.Graph({
       strokeWidth: 1,
-      element: this.refs.chart,
+      element: this.chartRef.current,
       renderer: 'line',
       series: graphData.map((gd) => {
         return {
@@ -243,7 +252,7 @@ class ModuleGraph extends Component {
         }
       }),
     })
-    let timeFixture = new GraphTime()
+    const timeFixture = new GraphTime()
     new Rickshaw.Graph.Axis.Time({
       graph,
       timeFixture: timeFixture,
@@ -253,20 +262,20 @@ class ModuleGraph extends Component {
       graph: graph,
       orientation: 'left',
       tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
-      element: this.refs.yAxis,
+      element: this.yAxisRef.current,
     })
     new Rickshaw.Graph.RangeSlider.Preview({
       graph,
       height: 40,
-      element: this.refs.preview,
+      element: this.previewRef.current,
     })
     new Rickshaw.Graph.HoverDetail( {
       graph: graph,
     })
-    if(this.isShowLegend) {
+    if (this.isShowLegend) {
       new Rickshaw.Graph.Legend( {
         graph,
-        element: this.refs.legend,
+        element: this.legendRef.current,
       })
     }
 
@@ -279,10 +288,11 @@ class ModuleGraph extends Component {
    */
   onResize() {
     // TODO:navDrawerのOpenが完了したタイミングで幅が変わるので、グラフがはみ出る...
-    if(!this.refs.chart)
+    if (!this.chartRef.current) {
       return
+    }
 
-    const bb = this.refs.chart.getBoundingClientRect()
+    const bb = this.chartRef.current.getBoundingClientRect()
 
     this.graph.configure({
       width: bb.width,
@@ -295,7 +305,7 @@ class ModuleGraph extends Component {
    * グラフ更新タイマーが設定されてあれば、キャンセルする
    */
   clearUpdateTimer() {
-    if(this.updateTimer) {
+    if (this.updateTimer) {
       clearTimeout(this.updateTimer)
       this.updateTimer = null
     }
@@ -307,8 +317,9 @@ class ModuleGraph extends Component {
    */
   setUpdateTimer(delay) {
     require('assert')(this.updateTimer == null)
-    if(!delay)
+    if (!delay) {
       return
+    }
     this.updateTimer = setTimeout(() => {
       this.updateTimer = null
       this.fetchGraphData()
@@ -325,14 +336,14 @@ class ModuleGraph extends Component {
 
     return (
       <div
-        ref="graphContainer"
+        ref={this.graphContainerRef}
         className={`graph graph-module ${graphData ? '' : 'is-loading'}`}
       >
         {!graphData && <LoadingIndicator className="graph-loadingIndicator" />}
-        <div ref="yAxis" className="graph-yAxis" />
-        <div ref="chart" className="graph-chart" />
-        <div ref="preview" className="graph-preview" />
-        {this.isShowLegend && <div ref="legend" className="graph-legend" />}
+        <div ref={this.yAxisRef} className="graph-yAxis" />
+        <div ref={this.chartRef} className="graph-chart" />
+        <div ref={this.previewRef} className="graph-preview" />
+        {this.isShowLegend && <div ref={this.legendRef} className="graph-legend" />}
       </div>
     )
   }

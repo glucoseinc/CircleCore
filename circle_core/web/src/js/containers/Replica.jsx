@@ -1,44 +1,48 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import {connect} from 'react-redux'
-import {routerActions} from 'react-router-redux'
 
 import actions from 'src/actions'
-import {urls, createPathName} from 'src/routes'
 
 import LoadingIndicator from 'src/components/bases/LoadingIndicator'
-import {ReplicationLinkIcon} from 'src/components/bases/icons'
 
 import ReplicationLinkDeleteDialog from 'src/components/commons/ReplicationLinkDeleteDialog'
 
-import Empty from 'src/components/Empty'
-import ReplicationLinkInfoPaper from 'src/components/ReplicationLinkInfoPaper'
+import ReplicationLinkDetail from 'src/components/ReplicationLinkDetail'
 
 
 /**
- * ReplicationLink一覧
+ * ReplicationLink詳細
  */
-class Replicas extends Component {
+class Replica extends React.Component {
   static propTypes = {
-    isReplicationLinkFetching: PropTypes.bool.isRequired,
+    isFetching: PropTypes.bool.isRequired,
     replicationLinks: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
-    onDisplayNameTouchTap: PropTypes.func,
+    params: PropTypes.object.isRequired,
+    setTitle: PropTypes.func,
     onDeleteOkButtonTouchTap: PropTypes.func,
   }
 
   state = {
-    deleteReplicationLink: null,
     isReplicationLinkDeleteDialogOpen: false,
   }
 
   /**
-   * 追加メニュー 削除の選択時の動作
-   * @param {object} replicationLink
+   * @override
    */
-  onDeleteTouchTap(replicationLink) {
+  componentWillReceiveProps(nextProps) {
+    const replicationLink = nextProps.replicationLinks.get(nextProps.params.replicationLinkId)
+    const title = replicationLink !== undefined ? replicationLink.label : ''
+    this.props.setTitle(title)
+  }
+
+  /**
+   * 削除ボタン押下時の動作
+   */
+  onDeleteTouchTap() {
     this.setState({
-      deleteReplicationLink: replicationLink,
       isReplicationLinkDeleteDialogOpen: true,
     })
   }
@@ -50,7 +54,6 @@ class Replicas extends Component {
    */
   onDeleteDialogButtonTouchTap(execute, replicationLink) {
     this.setState({
-      deleteReplicationLink: null,
       isReplicationLinkDeleteDialogOpen: false,
     })
     if (execute && replicationLink) {
@@ -63,50 +66,44 @@ class Replicas extends Component {
    */
   render() {
     const {
-      deleteReplicationLink,
       isReplicationLinkDeleteDialogOpen,
     } = this.state
     const {
-      isReplicationLinkFetching,
+      isFetching,
       replicationLinks,
       modules,
       ccInfos,
-      onDisplayNameTouchTap,
+      params,
     } = this.props
 
-    if (isReplicationLinkFetching) {
+    if (isFetching) {
       return (
         <LoadingIndicator />
       )
     }
 
+    const replicationLink = replicationLinks.get(params.replicationLinkId)
+
+    if (replicationLink === undefined) {
+      return (
+        <div>
+          {params.replicationLinkId}は存在しません
+        </div>
+      )
+    }
+
     return (
-      <div>
-        {replicationLinks.size === 0 ? (
-          <Empty
-            icon={ReplicationLinkIcon}
-            itemName="共有リンク"
-          />
-        ) : (
-          <div className="page">
-            <div className="replicationLinks">
-              {replicationLinks.valueSeq().map((replicationLink) =>
-                <ReplicationLinkInfoPaper
-                  key={replicationLink.uuid}
-                  replicationLink={replicationLink}
-                  modules={modules}
-                  ccInfos={ccInfos}
-                  onDeleteTouchTap={::this.onDeleteTouchTap}
-                  onDisplayNameTouchTap={onDisplayNameTouchTap}
-                />
-              )}
-            </div>
-          </div>
-        )}
+      <div className="page">
+        <ReplicationLinkDetail
+          replicationLink={replicationLink}
+          modules={modules}
+          ccInfos={ccInfos}
+          onDeleteTouchTap={() => this.onDeleteTouchTap()}
+        />
 
         <ReplicationLinkDeleteDialog
           open={isReplicationLinkDeleteDialogOpen}
-          replicationLink={deleteReplicationLink}
+          replicationLink={replicationLink}
           onOkTouchTap={(replicationLink) => this.onDeleteDialogButtonTouchTap(true, replicationLink)}
           onCancelTouchTap={() => this.onDeleteDialogButtonTouchTap(false)}
         />
@@ -117,20 +114,18 @@ class Replicas extends Component {
 
 
 const mapStateToProps = (state) => ({
-  isReplicationLinkFetching: state.asyncs.isReplicationLinkFetching,
+  isFetching: state.asyncs.isReplicationLinkFetching,
   replicationLinks: state.entities.replicationLinks,
   modules: state.entities.modules,
   ccInfos: state.entities.ccInfos,
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  onDisplayNameTouchTap: (replicationLinkId) => (
-    dispatch(routerActions.push(createPathName(urls.replica, {replicationLinkId})))
-  ),
+  setTitle: (title) => dispatch(actions.page.setTitle(title)),
   onDeleteOkButtonTouchTap: (replicationLink) => dispatch(actions.replicationLink.deleteRequest(replicationLink.uuid)),
 })
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(Replicas)
+)(Replica)

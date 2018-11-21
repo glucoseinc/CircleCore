@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import MenuItem from 'material-ui/MenuItem'
 import Paper from 'material-ui/Paper'
@@ -14,7 +15,7 @@ import UrlLabel from 'src/components/commons/UrlLabel'
 /**
 * Invitation一覧ペーパー
 */
-class InvitationInfoPaper extends Component {
+class InvitationInfoPaper extends React.Component {
   static propTypes = {
     invitation: PropTypes.object.isRequired,
     readOnly: PropTypes.bool,

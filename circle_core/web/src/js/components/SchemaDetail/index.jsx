@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import ComponentWithTitle from 'src/components/bases/ComponentWithTitle'
 
@@ -12,7 +13,7 @@ import PropertiesTableComponent from './PropertiesTableComponent'
 /**
  * Schema詳細コンポーネント
  */
-class SchemaDetail extends Component {
+class SchemaDetail extends React.Component {
   static propTypes = {
     schema: PropTypes.object.isRequired,
     ownCcInfo: PropTypes.object.isRequired,

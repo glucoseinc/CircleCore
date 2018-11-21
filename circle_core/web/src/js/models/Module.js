@@ -284,11 +284,11 @@ export default class Module extends ModuleRecord {
    * @return {bool}
    */
   isReadyToCreate() {
-    if(this.messageBoxes.filterNot((messageBox) => messageBox.isValid()).size !== 0) {
+    if (this.messageBoxes.filterNot((messageBox) => messageBox.isValid()).size !== 0) {
       // 入力が不完全なMessageBoxがある
       return false
     }
-    if(this.tags.filter((tag) => tag.length === 0).size !== 0) {
+    if (this.tags.filter((tag) => tag.length === 0).size !== 0) {
       // 空欄のタグがある
       return false
     }
@@ -298,7 +298,7 @@ export default class Module extends ModuleRecord {
       // タグの重複がある
       return false
     }
-    if(this.displayName.length === 0) {
+    if (this.displayName.length === 0) {
       // 表示名が空欄
       return false
     }

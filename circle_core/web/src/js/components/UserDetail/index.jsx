@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import ComponentWithTitle from 'src/components/bases/ComponentWithTitle'
 import DisplayNamePaper from 'src/components/commons/DisplayNamePaper'
@@ -9,7 +10,7 @@ import UserInfoPaper from './UserInfoPaper'
 /**
 * User詳細コンポーネント
 */
-class UserDetail extends Component {
+class UserDetail extends React.Component {
   static propTypes = {
     user: PropTypes.object.isRequired,
   }

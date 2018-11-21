@@ -8,8 +8,7 @@ import React from 'react'
 import {render} from 'react-dom'
 import {Provider} from 'react-redux'
 import {Router, Route, browserHistory} from 'react-router'
-import injectTapEventPlugin from 'react-tap-event-plugin'
-import Title from 'react-title-component'
+import Title from '@testlio/react-title-component'
 import {combineReducers, createStore, applyMiddleware} from 'redux'
 import createSagaMiddleware from 'redux-saga'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
@@ -20,9 +19,6 @@ import {fork} from 'redux-saga/effects'
 import {colorError} from 'src/colors'
 import muiTheme from 'src/muiTheme'
 import PublicFrame from 'src/public/frame'
-
-
-injectTapEventPlugin()
 
 
 /**
@@ -38,6 +34,8 @@ class OAuthLogin extends React.Component {
     this.state = {
       errors: {},
     }
+    this.accountRef = React.createRef()
+    this.passwordRef = React.createRef()
   }
 
   /**
@@ -45,16 +43,16 @@ class OAuthLogin extends React.Component {
    * @param {Event} e イベントオブジェクト
    */
   onSubmit(e) {
-    let errors = {}
+    const errors = {}
 
-    if(!this.refs.account.getValue()) {
+    if (!this.accountRef.current.getValue()) {
       errors['account'] = 'アカウント名は必須です'
     }
-    if(!this.refs.password.getValue()) {
+    if (!this.passwordRef.current.getValue()) {
       errors['password'] = 'パスワードは必須です'
     }
 
-    if(Object.keys(errors).length) {
+    if (Object.keys(errors).length) {
       // has error
       e.preventDefault()
     }
@@ -85,7 +83,7 @@ class OAuthLogin extends React.Component {
           )}
 
           <TextField
-            ref="account"
+            ref={this.accountRef}
             name="account"
             hintText="アカウント"
             floatingLabelText="アカウント"
@@ -94,7 +92,7 @@ class OAuthLogin extends React.Component {
           /><br />
 
           <TextField
-            ref="password"
+            ref={this.passwordRef}
             name="password"
             hintText="パスワード"
             floatingLabelText="パスワード"
@@ -117,12 +115,18 @@ class OAuthLogin extends React.Component {
  * OAuth認証画面。 UIすっとばして強制的にPOSTしてしまう
  */
 class OAuthAuthorize extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this.formRef = React.createRef()
+  }
   /**
    * @override
    */
   componentDidMount() {
-    const form = this.refs.form
-    form.submit()
+    if (this.formRef.current) {
+      this.formRef.current.submit()
+    }
   }
 
   /**
@@ -133,8 +137,7 @@ class OAuthAuthorize extends React.Component {
 
     return (
       <div className="authorizeForm" style={{display: 'none'}}>
-
-        <form action="/oauth/authorize" method="POST" ref="form">
+        <form action="/oauth/authorize" method="POST" ref={this.formRef}>
           {Object.entries(hiddenValues).map(([k, v]) => {
             return (
               <input type="hidden" name={k} value={v} key={k} />

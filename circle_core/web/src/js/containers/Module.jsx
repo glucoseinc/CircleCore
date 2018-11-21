@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import {connect} from 'react-redux'
 import {Set} from 'immutable'
 import moment from 'moment'
@@ -19,7 +20,7 @@ import ModuleDetail from 'src/components/ModuleDetail'
 /**
  * Module詳細
  */
-class Module extends Component {
+class Module extends React.Component {
   static propTypes = {
     isModuleFetching: PropTypes.bool.isRequired,
     isModuleUpdating: PropTypes.bool.isRequired,
@@ -92,7 +93,7 @@ class Module extends Component {
       isMessageBoxDeleteDialogOpen: false,
       deleteMessageBoxIndex: null,
     })
-    if(execute && module) {
+    if (execute && module) {
       this.props.onUpdateTouchTap(module)
     }
   }

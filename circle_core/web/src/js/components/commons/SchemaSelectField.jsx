@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import MenuItem from 'material-ui/MenuItem'
 import SelectField from 'material-ui/SelectField'
@@ -7,7 +8,7 @@ import SelectField from 'material-ui/SelectField'
 /**
  * Schemaセレクトフィールド
  */
-class SchemaSelectField extends Component {
+class SchemaSelectField extends React.Component {
   static propTypes = {
     selectedSchemaId: PropTypes.string.isRequired,
     schemas: PropTypes.object.isRequired,
@@ -33,13 +34,13 @@ class SchemaSelectField extends Component {
         onChange={onChange}
         {...other}
       >
-        {schemas.valueSeq().map((_schema) =>
+        {schemas.valueSeq().map((_schema) => (
           <MenuItem
             key={_schema.uuid}
             value={_schema.uuid}
             primaryText={_schema.label}
           />
-        )}
+        ))}
       </SelectField>
     )
   }

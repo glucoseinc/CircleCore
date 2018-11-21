@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import ComponentWithIcon from 'src/components/bases/ComponentWithIcon'
 import LabelWithCopyButton from 'src/containers/bases/LabelWithCopyButton'
@@ -8,7 +9,7 @@ import {IdIcon} from 'src/components/bases/icons'
 /**
  * IDラベル
  */
-class IdLabel extends Component {
+class IdLabel extends React.Component {
   static propTypes = {
     obj: PropTypes.object.isRequired,
   }

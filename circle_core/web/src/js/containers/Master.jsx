@@ -1,10 +1,11 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import {connect} from 'react-redux'
 import {routerActions} from 'react-router-redux'
 
 import AppBar from 'material-ui/AppBar'
 import Snackbar from 'material-ui/Snackbar'
-import Title from 'react-title-component'
+import Title from '@testlio/react-title-component'
 import withWidth, {LARGE} from 'material-ui/utils/withWidth'
 
 import actions from 'src/actions'
@@ -18,7 +19,7 @@ import DevTools from 'src/containers/DevTools'
 /**
  * メインコンテンツ
  */
-class Master extends Component {
+class Master extends React.Component {
   static propTypes = {
     title: PropTypes.string,
     isSnackbarOpen: PropTypes.bool,

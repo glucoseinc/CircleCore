@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import FlatButton from 'material-ui/FlatButton'
 import {grey200, redA200} from 'material-ui/styles/colors'
@@ -9,7 +10,7 @@ import {RANGES, RANGE_LABELS} from 'src/components/commons/ModuleGraph'
 /**
 * ModuleGraphTimeRange
 */
-class ModuleGraphTimeRange extends Component {
+class ModuleGraphTimeRange extends React.Component {
   static propTypes = {
     activeTimeRange: PropTypes.string.isRequired,
     style: PropTypes.object,
@@ -50,7 +51,7 @@ class ModuleGraphTimeRange extends Component {
 
     return (
       <div style={mergedStyle.root}>
-        {RANGES.map((range) =>
+        {RANGES.map((range) => (
           <FlatButton
             key={range}
             style={activeTimeRange === range ? mergedStyle.activeTimeRange : mergedStyle.timeRange}
@@ -58,7 +59,7 @@ class ModuleGraphTimeRange extends Component {
             labelStyle={activeTimeRange === range ? mergedStyle.activeTimeRangeLabel : mergedStyle.timeRangeLabel}
             onTouchTap={() => onTouchTap(range)}
           />
-        )}
+        ))}
       </div>
     )
   }

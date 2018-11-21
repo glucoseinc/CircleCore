@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import {grey600} from 'material-ui/styles/colors'
 
 import {ModuleIcon} from 'src/components/bases/icons'
@@ -9,7 +10,7 @@ const moduleColor = grey600
 /**
  * ReplicationLinkターゲットラベル
  */
-class ReplicationTargetLabel extends Component {
+class ReplicationTargetLabel extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     messageBoxes: PropTypes.array.isRequired,

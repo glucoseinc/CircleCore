@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Paper from 'material-ui/Paper'
 
@@ -10,7 +11,7 @@ import DisplayNameTextField from 'src/components/commons/DisplayNameTextField'
 /**
  * 表示名エリア(編集状態)
  */
-class DisplayNameEdittingPaper extends Component {
+class DisplayNameEdittingPaper extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     onUpdate: PropTypes.func,

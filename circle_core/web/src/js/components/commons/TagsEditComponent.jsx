@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import AddFlatButton from 'src/components/commons/AddFlatButton'
 import TagEditComponent from 'src/components/commons/TagEditComponent'
@@ -7,7 +8,7 @@ import TagEditComponent from 'src/components/commons/TagEditComponent'
 /**
  * タグ編集コンポーネント
  */
-class TagsEditComponent extends Component {
+class TagsEditComponent extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     suggestions: PropTypes.array,

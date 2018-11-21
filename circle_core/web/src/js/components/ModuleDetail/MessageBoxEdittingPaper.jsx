@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Paper from 'material-ui/Paper'
 
@@ -9,7 +10,7 @@ import MessageBoxEditComponent from 'src/components/commons/MessageBoxEditCompon
 /**
  * MessageBoxエリア(編集状態)
  */
-class MessageBoxEdittingPaper extends Component {
+class MessageBoxEdittingPaper extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     messageBoxIndex: PropTypes.number.isRequired,

@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import {connect} from 'react-redux'
 
 import actions from 'src/actions'
@@ -9,7 +10,7 @@ import ReplicationLinkNewPaper from 'src/components/ReplicationLinkNewPaper'
 /**
  * ReplicationLink作成
  */
-class ReplicasNew extends Component {
+class ReplicasNew extends React.Component {
   static propTypes = {
     isReplicationLinkCreating: PropTypes.bool.isRequired,
     isModuleFetching: PropTypes.bool.isRequired,

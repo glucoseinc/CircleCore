@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import MenuItem from 'material-ui/MenuItem'
 import Paper from 'material-ui/Paper'
@@ -12,7 +13,7 @@ import ReplicationTargetsLabel from 'src/components/commons/ReplicationTargetsLa
 /**
  * ReplicationLink一覧ペーパー
  */
-class ReplicationLinkInfoPaper extends Component {
+class ReplicationLinkInfoPaper extends React.Component {
   static propTypes = {
     replicationLink: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,

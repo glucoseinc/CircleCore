@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import MenuItem from 'material-ui/MenuItem'
 import Paper from 'material-ui/Paper'
@@ -14,7 +15,7 @@ import TagButtons from './TagButtons'
 /**
  * Module一覧ペーパー
  */
-class ModuleInfoPaper extends Component {
+class ModuleInfoPaper extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,

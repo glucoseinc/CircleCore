@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import AutoComplete from 'material-ui/AutoComplete'
 
@@ -9,7 +10,7 @@ import {DeleteIcon} from 'src/components/bases/icons'
 /**
 * ModuleAttribute編集コンポーネント
 */
-class ModuleAttributeEditComponent extends Component {
+class ModuleAttributeEditComponent extends React.Component {
   static propTypes = {
     attribute: PropTypes.object.isRequired,
     nameSuggestions: PropTypes.array,

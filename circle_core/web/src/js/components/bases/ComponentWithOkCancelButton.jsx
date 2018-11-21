@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import CCFlatButton from './CCFlatButton'
 
@@ -6,7 +7,7 @@ import CCFlatButton from './CCFlatButton'
 /**
  * OKボタン/キャンセルボタン付きコンポーネント
  */
-class ComponentWithOkCancelButton extends Component {
+class ComponentWithOkCancelButton extends React.Component {
   static propTypes = {
     okButtonLabel: PropTypes.string,
     cancelButtonLabel: PropTypes.string,
@@ -22,13 +23,13 @@ class ComponentWithOkCancelButton extends Component {
    */
   render() {
     const {
-        okButtonLabel = 'OK',
-        cancelButtonLabel = 'キャンセル',
-        okButtonDisabled = false,
-        cancelButtonDisabled = false,
-        onOKButtonTouchTap,
-        onCancelButtonTouchTap,
-        children,
+      okButtonLabel = 'OK',
+      cancelButtonLabel = 'キャンセル',
+      okButtonDisabled = false,
+      cancelButtonDisabled = false,
+      onOKButtonTouchTap,
+      onCancelButtonTouchTap,
+      children,
     } = this.props
 
     const style = {

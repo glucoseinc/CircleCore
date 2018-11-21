@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import DisplayNameTextField from 'src/components/commons/DisplayNameTextField'
 import MemoTextField from 'src/components/commons/MemoTextField'
@@ -8,7 +9,7 @@ import SchemaSelectField from 'src/components/commons/SchemaSelectField'
 /**
  * MessageBox編集コンポーネント
  */
-class MessageBoxEditComponent extends Component {
+class MessageBoxEditComponent extends React.Component {
   static propTypes = {
     messageBox: PropTypes.object.isRequired,
     schemas: PropTypes.object.isRequired,

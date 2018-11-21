@@ -1,11 +1,12 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import TextField from 'material-ui/TextField'
 
 
 /**
  */
-class PropertyNameTextField extends Component {
+class PropertyNameTextField extends React.Component {
   static propTypes = {
     property: PropTypes.object.isRequired,
     onChange: PropTypes.func,

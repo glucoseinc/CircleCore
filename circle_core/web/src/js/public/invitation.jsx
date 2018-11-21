@@ -1,6 +1,6 @@
 /* global CRCR_INVITATION_IS_COMPLETED:false CRCR_INVITATION_ERROR:false CRCR_INVITATION_USER:false */
+import Title from '@testlio/react-title-component'
 import React from 'react'
-import Title from 'react-title-component'
 import Paper from 'material-ui/Paper'
 
 import {colorError} from 'src/colors'
@@ -12,10 +12,15 @@ import UserEditPaper from 'src/components/UserEditPaper'
  * 招待リンクからのユーザー作成
  */
 export default class UserInvitation extends React.Component {
-  state = {
-    isCompleted: false,
-    user: null,
-    formValues: {},
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      isCompleted: false,
+      user: null,
+      formValues: {},
+    }
+    this.formRef = React.createRef()
   }
 
   /**
@@ -67,7 +72,7 @@ export default class UserInvitation extends React.Component {
         password: newPassword,
       },
     }, () => {
-      this.refs.form.submit()
+      this.formRef.current.submit()
     })
   }
 
@@ -75,7 +80,7 @@ export default class UserInvitation extends React.Component {
    * @override
    */
   render() {
-    if(this.state.isCompleted) {
+    if (this.state.isCompleted) {
       return this.renderCompleted()
     }
 
@@ -106,7 +111,7 @@ export default class UserInvitation extends React.Component {
           onSaveTouchTap={::this.onSaveTouchTap}
         />
 
-        <form ref="form" method="POST">
+        <form ref={this.formRef} method="POST">
           {Object.keys(this.state.formValues).map((key) =>
             <input type="hidden" name={key} value={this.state.formValues[key]} key={key} />
           )}

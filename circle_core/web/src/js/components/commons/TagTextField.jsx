@@ -1,11 +1,12 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import AutoComplete from 'material-ui/AutoComplete'
 
 /**
  * タグテキストフィールド
  */
-class TagTextField extends Component {
+class TagTextField extends React.Component {
   static propTypes = {
     tag: PropTypes.string.isRequired,
     suggestions: PropTypes.array,

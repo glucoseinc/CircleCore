@@ -1,11 +1,12 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import TextField from 'material-ui/TextField'
 
 
 /**
  * メモテキストフィールド
  */
-class MemoTextField extends Component {
+class MemoTextField extends React.Component {
   static propTypes = {
     obj: PropTypes.object.isRequired,
     onChange: PropTypes.func,

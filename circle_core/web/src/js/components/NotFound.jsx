@@ -1,6 +1,6 @@
-import React, {Component} from 'react'
+import React from 'react'
 import {Link} from 'react-router'
-import Title from 'react-title-component'
+import Title from '@testlio/react-title-component'
 
 import AppBar from 'material-ui/AppBar'
 import Paper from 'material-ui/Paper'
@@ -12,7 +12,7 @@ import CCFlatButton from 'src/components/bases/CCFlatButton'
 /**
  * 404 Not Found
  */
-class NotFound extends Component {
+class NotFound extends React.Component {
   static propTypes = {
   }
 

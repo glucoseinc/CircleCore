@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Paper from 'material-ui/Paper'
 
@@ -8,7 +9,7 @@ import ModuleGraph from 'src/components/commons/ModuleGraph'
 /**
  * ModuleCard
  */
-class ModuleCard extends Component {
+class ModuleCard extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     autoUpdate: PropTypes.bool.isRequired,

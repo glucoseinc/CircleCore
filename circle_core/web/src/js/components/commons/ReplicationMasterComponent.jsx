@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import ComponentWithSubTitle from 'src/components/bases/ComponentWithSubTitle'
 import {CoreIcon} from 'src/components/bases/icons'
@@ -7,7 +8,7 @@ import {CoreIcon} from 'src/components/bases/icons'
 /**
 * 共有マスターコンポーネント
 */
-class ReplicationMasterComponent extends Component {
+class ReplicationMasterComponent extends React.Component {
   static propTypes = {
     masterCcInfo: PropTypes.object.isRequired,
     style: PropTypes.object,

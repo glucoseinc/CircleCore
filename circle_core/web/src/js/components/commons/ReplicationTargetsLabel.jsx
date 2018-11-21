@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import ComponentWithIcon from 'src/components/bases/ComponentWithIcon'
 import {ReplicationTargetIcon} from 'src/components/bases/icons'
@@ -8,7 +9,7 @@ import ReplicationTargetLabel from 'src/components/commons/ReplicationTargetLabe
 /**
  * ReplicationLinkターゲットリストラベル
  */
-class ReplicationTargetsLabel extends Component {
+class ReplicationTargetsLabel extends React.Component {
   static propTypes = {
     replicationLink: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
@@ -25,8 +26,9 @@ class ReplicationTargetsLabel extends Component {
 
     // sort boxes by module
     const boxesByModules = replicationLink.messageBoxes.reduce((map, box) => {
-      if(!map.hasOwnProperty(box.module))
+      if (!map.hasOwnProperty(box.module)) {
         map[box.module] = []
+      }
       map[box.module].push(box)
       return map
     }, {})

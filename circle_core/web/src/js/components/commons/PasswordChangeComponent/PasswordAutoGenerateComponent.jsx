@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import {grey900} from 'material-ui/styles/colors'
 
@@ -15,7 +16,7 @@ function generatePassword() {
   const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
   let r = ''
 
-  for(let i = 0; i < l; i++) {
+  for (let i = 0; i < l; i++) {
     r += chars[Math.floor(Math.random() * chars.length)]
   }
   return r
@@ -25,7 +26,7 @@ function generatePassword() {
 /**
 * パスワード自動生成コンポーネント
 */
-class PasswordAutoGenerateComponent extends Component {
+class PasswordAutoGenerateComponent extends React.Component {
   static propTypes = {
     onUpdate: PropTypes.func,
     onToggleInputMethod: PropTypes.func,

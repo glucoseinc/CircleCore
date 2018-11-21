@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import {Link} from 'react-router'
 
 import {createPathName, createQuery} from 'src/routes'
@@ -7,7 +8,7 @@ import {createPathName, createQuery} from 'src/routes'
 /**
  * リンクボタン
  */
-class CCLink extends Component {
+class CCLink extends React.Component {
   static propTypes = {
     url: PropTypes.object.isRequired,
     params: PropTypes.object,

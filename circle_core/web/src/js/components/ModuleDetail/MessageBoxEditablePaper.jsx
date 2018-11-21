@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import {grey100} from 'material-ui/styles/colors'
 import DatePicker from 'material-ui/DatePicker'
@@ -24,7 +25,7 @@ import MessageBoxDataInfo from './MessageBoxDataInfo'
 /**
  * MessageBoxエリア(編集可能)
  */
-class MessageBoxEditablePaper extends Component {
+class MessageBoxEditablePaper extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     messageBoxIndex: PropTypes.number.isRequired,

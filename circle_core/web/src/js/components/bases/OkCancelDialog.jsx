@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Dialog from 'material-ui/Dialog'
 import FlatButton from 'material-ui/FlatButton'
@@ -7,7 +8,7 @@ import FlatButton from 'material-ui/FlatButton'
 /**
  * OK/Cancelボタンを持つダイアログ
  */
-class OkCancelDialog extends Component {
+class OkCancelDialog extends React.Component {
   static propTypes = {
     title: PropTypes.string,
     okLabel: PropTypes.string,

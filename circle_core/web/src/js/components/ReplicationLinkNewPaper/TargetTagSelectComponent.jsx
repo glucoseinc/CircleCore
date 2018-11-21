@@ -1,8 +1,8 @@
-import React, {Component, PropTypes} from 'react'
 import {List} from 'immutable'
-
 import MenuItem from 'material-ui/MenuItem'
 import SelectField from 'material-ui/SelectField'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import ComponentWithIcon from 'src/components/bases/ComponentWithIcon'
 import {ModuleIcon} from 'src/components/bases/icons'
@@ -11,7 +11,7 @@ import {ModuleIcon} from 'src/components/bases/icons'
 /**
  * ReplicationLink対象選択コンポーネント(タイプ：タグ)
  */
-class TargetTagSelectComponent extends Component {
+class TargetTagSelectComponent extends React.Component {
   static propTypes = {
     replicationLink: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
@@ -80,25 +80,25 @@ class TargetTagSelectComponent extends Component {
               onUpdate(replicationLink.updateMessageBoxes(messageBoxIds.toArray()))
             }}
           >
-            {selectedModule.tags.valueSeq().map((tag) =>
+            {selectedModule.tags.valueSeq().map((tag) => (
               <MenuItem
                 key={tag}
                 value={tag}
                 primaryText={tag}
               />
-            )}
+            ))}
           </SelectField>
         </div>
         <ComponentWithIcon icon={ModuleIcon}>
           <div style={style.modules}>
-            {filteredModules.valueSeq().map((module) =>
+            {filteredModules.valueSeq().map((module) => (
               <div
                 key={module.uuid}
                 style={style.module}
               >
                 {module.label}
               </div>
-            )}
+            ))}
           </div>
         </ComponentWithIcon>
       </div>

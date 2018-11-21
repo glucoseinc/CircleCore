@@ -3,7 +3,6 @@ import {render} from 'react-dom'
 import {Provider} from 'react-redux'
 import {Router, browserHistory} from 'react-router'
 import {syncHistoryWithStore} from 'react-router-redux'
-import injectTapEventPlugin from 'react-tap-event-plugin'
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 
@@ -11,10 +10,6 @@ import configureStore from './store/configureStore'
 import rootSaga from './sagas'
 import rootRoute from './routes'
 import muiTheme from './muiTheme'
-
-require('../css/main.css')
-
-injectTapEventPlugin()
 
 const initialState = {}
 export const store = configureStore(browserHistory, initialState)

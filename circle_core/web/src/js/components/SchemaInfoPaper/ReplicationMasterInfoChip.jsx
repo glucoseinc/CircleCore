@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Avatar from 'material-ui/Avatar'
 import Chip from 'material-ui/Chip'
@@ -8,7 +9,7 @@ import {redA100, redA700, white} from 'material-ui/styles/colors'
 /**
  * 同期Masterチップ
  */
-class ReplicationMasterInfoChip extends Component {
+class ReplicationMasterInfoChip extends React.Component {
   static propTypes = {
     replicationMaster: PropTypes.object.isRequired,
   }

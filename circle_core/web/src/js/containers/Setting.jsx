@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import {connect} from 'react-redux'
 
 import actions from 'src/actions'
@@ -11,7 +12,7 @@ import CcInfoEditPaper from 'src/components/CcInfoEditPaper'
 /**
  * CircleCore情報変更
  */
-class Setting extends Component {
+class Setting extends React.Component {
   static propTypes = {
     isCcInfoFetching: PropTypes.bool.isRequired,
     isCcInfoUpdating: PropTypes.bool.isRequired,

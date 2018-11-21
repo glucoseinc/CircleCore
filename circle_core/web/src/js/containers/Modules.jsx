@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import {connect} from 'react-redux'
 import {routerActions} from 'react-router-redux'
 
@@ -21,7 +22,7 @@ import ModulesTabComponent from 'src/components/ModulesTabComponent'
 /**
  * Module一覧
  */
-class Modules extends Component {
+class Modules extends React.Component {
   static propTypes = {
     isModuleFetching: PropTypes.bool.isRequired,
     modules: PropTypes.object.isRequired,

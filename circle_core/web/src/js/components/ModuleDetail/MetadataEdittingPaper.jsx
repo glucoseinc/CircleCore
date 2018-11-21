@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Paper from 'material-ui/Paper'
 
@@ -12,7 +13,7 @@ import TagsEditComponent from 'src/components/commons/TagsEditComponent'
 /**
  * メタデータエリア(編集状態)
  */
-class MetadataEdittingPaper extends Component {
+class MetadataEdittingPaper extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     tagSuggestions: PropTypes.array,

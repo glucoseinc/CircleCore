@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import FloatingActionButton from 'material-ui/FloatingActionButton'
 
@@ -8,7 +9,7 @@ import {AddIcon} from 'src/components/bases/icons'
 /**
  * ＋アイコンのフローティングアクションボタン
  */
-class AddFloatingActionButton extends Component {
+class AddFloatingActionButton extends React.Component {
   static propTypes = {
     onTouchTap: PropTypes.func,
   }

@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Divider from 'material-ui/Divider'
 import {List, ListItem} from 'material-ui/List'
@@ -8,7 +9,7 @@ import {grey400, grey600} from 'material-ui/styles/colors'
 
 /**
  */
-class MenuSection extends Component {
+class MenuSection extends React.Component {
   static propTypes = {
     section: PropTypes.object.isRequired,
     selectedValue: PropTypes.string,
@@ -76,7 +77,7 @@ class MenuSection extends Component {
 
 /**
  */
-class MenuList extends Component {
+class MenuList extends React.Component {
   static propTypes = {
     sections: PropTypes.array.isRequired,
     selectedValue: PropTypes.string,
@@ -95,7 +96,7 @@ class MenuList extends Component {
 
     return (
       <List>
-        {sections.map((section, sectionIndex) =>
+        {sections.map((section, sectionIndex) => (
           <MenuSection
             key={sectionIndex}
             section={section}
@@ -103,7 +104,7 @@ class MenuList extends Component {
             index={sectionIndex}
             onItemTouchTap={onItemTouchTap}
           />
-        )}
+        ))}
       </List>
     )
   }

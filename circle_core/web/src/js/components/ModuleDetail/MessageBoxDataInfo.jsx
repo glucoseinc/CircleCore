@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import moment from 'moment'
 
 import {SchemaPropertyLabel} from 'src/components/commons/SchemaPropertiesLabel'
@@ -7,7 +8,7 @@ import {SchemaPropertyLabel} from 'src/components/commons/SchemaPropertiesLabel'
 /**
  * MessageBoxDataInfoのメッセージ1行分
  */
-class MessageRow extends Component {
+class MessageRow extends React.Component {
   static propTypes = {
     message: PropTypes.object.isRequired,
     schemaProperties: PropTypes.array.isRequired,
@@ -55,7 +56,7 @@ function valueToString(val, type) {
 /**
 * MessageBox更新情報
 */
-class MessageBoxDataInfo extends Component {
+class MessageBoxDataInfo extends React.Component {
   static propTypes = {
     messageBox: PropTypes.object.isRequired,
     module: PropTypes.object.isRequired,
@@ -76,7 +77,7 @@ class MessageBoxDataInfo extends Component {
       schemaProperties,
     } = fetchingData
 
-    if(loading) {
+    if (loading) {
       return <div>loading...</div>
     }
 
@@ -95,22 +96,21 @@ class MessageBoxDataInfo extends Component {
                 counter
               </th>
               {schemaProperties.map(({name, type}, index) =>
-                <th key={index} className="messageBox-latestMessages-value">
+                (<th key={index} className="messageBox-latestMessages-value">
                   <SchemaPropertyLabel name={name} type={type} style={{fontSize: 'inherit'}} />
-                </th>
+                </th>)
               )}
             </tr>
           </thead>
           <tbody>
             {messages.length
-              ? messages.map((message, index) =>
+              ? messages.map((message, index) => (
                 <MessageRow
                   key={index}
                   message={message}
                   schemaProperties={schemaProperties}
                 />
-                )
-              : (
+              )) : (
                 <tr>
                   <td className="messageBox-latestMessages-nodata" colSpan={3 + schemaProperties.length}>NO DATA</td>
                 </tr>

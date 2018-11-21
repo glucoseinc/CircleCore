@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import FlatButton from 'material-ui/FlatButton'
 
@@ -6,7 +7,7 @@ import FlatButton from 'material-ui/FlatButton'
 /**
  * タグボタン
  */
-class TagButton extends Component {
+class TagButton extends React.Component {
   static propTypes = {
     tag: PropTypes.string.isRequired,
     onTouchTap: PropTypes.func,

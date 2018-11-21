@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import {grey600} from 'material-ui/styles/colors'
 
@@ -6,7 +7,7 @@ import {grey600} from 'material-ui/styles/colors'
 /**
  * ヘッダ付きコンポーネント
  */
-class ComponentWithHeader extends Component {
+class ComponentWithHeader extends React.Component {
   static propTypes = {
     headerLabel: PropTypes.string.isRequired,
     children: PropTypes.node,
@@ -17,8 +18,8 @@ class ComponentWithHeader extends Component {
    */
   render() {
     const {
-        headerLabel,
-        children,
+      headerLabel,
+      children,
     } = this.props
 
     const style = {

@@ -42,7 +42,7 @@ export default class ReplicationMaster extends ReplicationMasterRecord {
    * @return {bool}
    */
   isReadyToCreate() {
-    if(!this.endpointUrl) {
+    if (!this.endpointUrl) {
       return false
     }
     return true

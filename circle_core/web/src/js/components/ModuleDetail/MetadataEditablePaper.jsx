@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Paper from 'material-ui/Paper'
 
@@ -14,7 +15,7 @@ import ModuleAttributesTable from './ModuleAttributesTable'
 /**
  * メタデータエリア(編集可能)
  */
-class MetadataEditablePaper extends Component {
+class MetadataEditablePaper extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     onEditTouchTap: PropTypes.func,

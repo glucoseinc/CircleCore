@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import ComponentWithIcon from 'src/components/bases/ComponentWithIcon'
 import {ReplicationSlaveIcon} from 'src/components/bases/icons'
@@ -8,7 +9,7 @@ import ReplicationSlaveLabel from 'src/components/commons/ReplicationSlaveLabel'
 /**
  * ReplicationLink接続先リストラベル
  */
-class ReplicationSlavesLabel extends Component {
+class ReplicationSlavesLabel extends React.Component {
   static propTypes = {
     replicationLink: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
@@ -27,7 +28,7 @@ class ReplicationSlavesLabel extends Component {
 
     return (
       <ComponentWithIcon icon={ReplicationSlaveIcon}>
-        {targetSlaves.map((slave, index) =>
+        {targetSlaves.map((slave, index) => (
           <ReplicationSlaveLabel
             key={slave.uuid}
             ccInfo={slave}
@@ -35,7 +36,7 @@ class ReplicationSlavesLabel extends Component {
               marginTop: index > 0 ? 8 : 0,
             }}
           />
-        )}
+        ))}
       </ComponentWithIcon>
     )
   }

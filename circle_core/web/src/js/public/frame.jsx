@@ -1,10 +1,10 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import {connect} from 'react-redux'
 import {routerActions} from 'react-router-redux'
-
 import AppBar from 'material-ui/AppBar'
 import Snackbar from 'material-ui/Snackbar'
-import Title from 'react-title-component'
+import Title from '@testlio/react-title-component'
 
 import actions from 'src/actions'
 import ErrorDialog from 'src/components/ErrorDialog'
@@ -14,7 +14,7 @@ import ErrorDialog from 'src/components/ErrorDialog'
  * フレーム
  * src/containers/Masterのサブセット
  */
-class PublicFrame extends Component {
+class PublicFrame extends React.Component {
   static propTypes = {
     title: PropTypes.string,
     isSnackbarOpen: PropTypes.bool,

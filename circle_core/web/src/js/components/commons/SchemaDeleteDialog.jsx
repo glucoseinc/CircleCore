@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import DeleteDialog from 'src/components/commons/DeleteDialog'
 
@@ -6,7 +7,7 @@ import DeleteDialog from 'src/components/commons/DeleteDialog'
 /**
  * Schema削除ダイアログ
  */
-class SchemaDeleteDialog extends Component {
+class SchemaDeleteDialog extends React.Component {
   static propTypes = {
     open: PropTypes.bool,
     schema: PropTypes.object,

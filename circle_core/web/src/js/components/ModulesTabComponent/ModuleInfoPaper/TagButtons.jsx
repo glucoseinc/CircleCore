@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import ComponentWithIcon from 'src/components/bases/ComponentWithIcon'
 import {TagIcon} from 'src/components/bases/icons'
@@ -9,7 +10,7 @@ import TagButton from './TagButton'
 /**
  * Tagボタンリスト
  */
-class TagButtons extends Component {
+class TagButtons extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     onTouchTap: PropTypes.func,
@@ -41,12 +42,12 @@ class TagButtons extends Component {
       <ComponentWithIcon icon={TagIcon}>
         <div style={style.tags}>
           {module.tags.valueSeq().map((tag, index) =>
-            <div key={index} style={style.tag}>
+            (<div key={index} style={style.tag}>
               <TagButton
                 tag={tag}
                 onTouchTap={(onTouchTap)}
               />
-            </div>
+            </div>)
           )}
         </div>
       </ComponentWithIcon>

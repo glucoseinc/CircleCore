@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import {connect} from 'react-redux'
 import {routerActions} from 'react-router-redux'
 
@@ -19,7 +20,7 @@ import SchemaInfoPaper from 'src/components/SchemaInfoPaper'
 /**
  * Schema一覧
  */
-class Schemas extends Component {
+class Schemas extends React.Component {
   static propTypes = {
     isSchemaFetching: PropTypes.bool.isRequired,
     isCcInfoFetching: PropTypes.bool.isRequired,
@@ -99,7 +100,7 @@ class Schemas extends Component {
           />
         ) : (
           <div className="page">
-            {schemas.valueSeq().map((schema) =>
+            {schemas.valueSeq().map((schema) => (
               <SchemaInfoPaper
                 key={schema.uuid}
                 schema={schema}
@@ -110,7 +111,7 @@ class Schemas extends Component {
                 onTemplateTouchTap={(shcmea) => onTemplateTouchTap(schema.uuid)}
                 onDeleteTouchTap={::this.onDeleteTouchTap}
               />
-            )}
+            ))}
           </div>
         )}
 

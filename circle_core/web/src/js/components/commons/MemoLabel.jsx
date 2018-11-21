@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import ComponentWithIcon from 'src/components/bases/ComponentWithIcon'
 import {MemoIcon} from 'src/components/bases/icons'
@@ -7,7 +8,7 @@ import {MemoIcon} from 'src/components/bases/icons'
 /**
  * メモラベル
  */
-class MemoLabel extends Component {
+class MemoLabel extends React.Component {
   static propTypes = {
     obj: PropTypes.object.isRequired,
   }

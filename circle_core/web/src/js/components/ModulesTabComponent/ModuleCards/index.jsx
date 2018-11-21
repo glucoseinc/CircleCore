@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import {GridList, GridTile} from 'material-ui/GridList'
 import Toggle from 'material-ui/Toggle'
@@ -12,7 +13,7 @@ import ModuleCard from './ModuleCard'
 /**
  * Module一覧(カード)
  */
-class ModuleCards extends Component {
+class ModuleCards extends React.Component {
   static propTypes = {
     cols: PropTypes.number,
     timeAxisUnit: PropTypes.number,

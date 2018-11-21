@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import OkDialog from 'src/components/bases/OkDialog'
 
@@ -6,7 +7,7 @@ import OkDialog from 'src/components/bases/OkDialog'
 /**
 * ErrorDialog
 */
-class ErrorDialog extends Component {
+class ErrorDialog extends React.Component {
   static propTypes = {
     title: PropTypes.string,
     messages: PropTypes.object,

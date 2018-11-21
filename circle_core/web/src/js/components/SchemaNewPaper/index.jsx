@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Paper from 'material-ui/Paper'
 
@@ -16,7 +17,7 @@ import PropertiesEditComponent from './PropertiesEditComponent'
 /**
  * Schema作成
  */
-class SchemaNewPaper extends Component {
+class SchemaNewPaper extends React.Component {
   static propTypes = {
     templateSchema: PropTypes.object,
     propertyTypes: PropTypes.object.isRequired,

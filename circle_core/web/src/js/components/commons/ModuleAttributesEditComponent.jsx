@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import AddFlatButton from 'src/components/commons/AddFlatButton'
 import ModuleAttributeEditComponent from 'src/components/commons/ModuleAttributeEditComponent'
@@ -7,7 +8,7 @@ import ModuleAttributeEditComponent from 'src/components/commons/ModuleAttribute
 /**
 * ModuleAttribute編集コンポーネント
 */
-class ModuleAttributesEditComponent extends Component {
+class ModuleAttributesEditComponent extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     nameSuggestions: PropTypes.array,
@@ -61,7 +62,7 @@ class ModuleAttributesEditComponent extends Component {
       <div style={style.root}>
         <div style={style.attributes}>
           {module.attributes.valueSeq().map((attribute, index) =>
-            <div key={index} style={style.attributeBlock}>
+            (<div key={index} style={style.attributeBlock}>
               <ModuleAttributeEditComponent
                 attribute={attribute}
                 nameSuggestions={optimizedNameSuggestions}
@@ -69,7 +70,7 @@ class ModuleAttributesEditComponent extends Component {
                 onUpdate={(newAttribute) => onUpdate(index, newAttribute)}
                 onDeleteTouchTap={() => onDeleteTouchTap(index)}
               />
-            </div>
+            </div>)
           )}
         </div>
         <div style={style.actionsBlock}>

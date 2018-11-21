@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import ComponentWithIcon from 'src/components/bases/ComponentWithIcon'
 import {AttributeIcon} from 'src/components/bases/icons'
@@ -7,7 +8,7 @@ import {AttributeIcon} from 'src/components/bases/icons'
 /**
 * ModuleAttributesラベルコンポーネント
 */
-class ModuleAttributesLabel extends Component {
+class ModuleAttributesLabel extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
   }
@@ -37,9 +38,9 @@ class ModuleAttributesLabel extends Component {
       <ComponentWithIcon icon={AttributeIcon}>
         <div style={style.attributes}>
           {module.attributes.valueSeq().map((attribute, index) =>
-            <div key={index} style={style.attribute}>
+            (<div key={index} style={style.attribute}>
               {attribute.name} : {attribute.value}
-            </div>
+            </div>)
           )}
         </div>
       </ComponentWithIcon>

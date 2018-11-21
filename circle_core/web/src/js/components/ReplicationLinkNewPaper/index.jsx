@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Paper from 'material-ui/Paper'
 
@@ -16,7 +17,7 @@ import TargetSelectComponent from './TargetSelectComponent'
 /**
  * ReplicationLink作成
  */
-class ReplicationLinkNewPaper extends Component {
+class ReplicationLinkNewPaper extends React.Component {
   static propTypes = {
     modules: PropTypes.object.isRequired,
     selectedModule: PropTypes.object,

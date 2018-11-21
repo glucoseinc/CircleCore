@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import {connect} from 'react-redux'
 import Paper from 'material-ui/Paper'
 import TextField from 'material-ui/TextField'
@@ -11,7 +12,7 @@ import CreateButton from 'src/components/commons/CreateButton'
 /**
  * Module作成
  */
-class ReplicationMasterNew extends Component {
+class ReplicationMasterNew extends React.Component {
   static propTypes = {
     onCreateTouchTap: PropTypes.func,
   }

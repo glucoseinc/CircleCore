@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import {grey300} from 'material-ui/styles/colors'
 
@@ -11,7 +12,7 @@ import MessageBoxComponent from './MessageBoxComponent'
 /**
  * MessageBoxリストラベル
  */
-class MessageBoxesLabel extends Component {
+class MessageBoxesLabel extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
@@ -39,7 +40,7 @@ class MessageBoxesLabel extends Component {
     return (
       <ComponentWithIcon icon={MessageBoxIcon}>
         <div style={style.messageBoxes}>
-          {module.messageBoxes.valueSeq().map((messageBox, index) =>
+          {module.messageBoxes.valueSeq().map((messageBox, index) => (
             <MessageBoxComponent
               key={messageBox.uuid}
               messageBox={messageBox}
@@ -47,7 +48,7 @@ class MessageBoxesLabel extends Component {
               masterCcInfo={masterCcInfo}
               backgroundColor={index % 2 ? null : grey300}
             />
-          )}
+          ))}
         </div>
       </ComponentWithIcon>
     )

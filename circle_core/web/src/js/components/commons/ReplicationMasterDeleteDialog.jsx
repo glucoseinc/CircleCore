@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import TextField from 'material-ui/TextField'
 
@@ -8,7 +9,7 @@ import OkCancelDialog from 'src/components/bases/OkCancelDialog'
 /**
  * 共有マスター削除ダイアログ
  */
-class ReplicationMasterDeleteDialog extends Component {
+class ReplicationMasterDeleteDialog extends React.Component {
   static propTypes = {
     open: PropTypes.bool,
     replicationMaster: PropTypes.object,

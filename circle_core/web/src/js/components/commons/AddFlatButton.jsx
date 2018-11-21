@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import CCFlatButton from 'src/components/bases/CCFlatButton'
 import {AddIcon} from 'src/components/bases/icons'
@@ -7,7 +8,7 @@ import {AddIcon} from 'src/components/bases/icons'
 /**
  * 追加フラットボタン
  */
-class AddFlatButton extends Component {
+class AddFlatButton extends React.Component {
   static propTypes = {
     label: PropTypes.string,
   }

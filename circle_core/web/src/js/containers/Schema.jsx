@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import {connect} from 'react-redux'
 import {routerActions} from 'react-router-redux'
 
@@ -15,7 +16,7 @@ import SchemaDetail from 'src/components/SchemaDetail'
 /**
  * Schema詳細
  */
-class Schema extends Component {
+class Schema extends React.Component {
   static propTypes = {
     isSchemaFetching: PropTypes.bool.isRequired,
     isCcInfoFetching: PropTypes.bool.isRequired,

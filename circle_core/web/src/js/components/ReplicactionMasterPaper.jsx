@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import React from 'react'
 
 import MenuItem from 'material-ui/MenuItem'
@@ -12,8 +13,8 @@ import MoreIconMenu from 'src/components/bases/MoreIconMenu'
  */
 export default class ReplicactionMasterPaper extends React.Component {
   static propTypes = {
-    replicationMaster: React.PropTypes.object.isRequired,
-    onDeleteTouchTap: React.PropTypes.func.isRequired,
+    replicationMaster: PropTypes.object.isRequired,
+    onDeleteTouchTap: PropTypes.func.isRequired,
   }
 
   /**

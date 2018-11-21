@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import ComponentWithTitle from 'src/components/bases/ComponentWithTitle'
 
@@ -18,7 +19,7 @@ import MetadataEdittingPaper from './MetadataEdittingPaper'
 /**
  * Module詳細コンポーネント
  */
-class ModuleDetail extends Component {
+class ModuleDetail extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     schemas: PropTypes.object.isRequired,
@@ -126,7 +127,7 @@ class ModuleDetail extends Component {
    * @param {object} messageBox
    */
   async fetchLatestData(messageBox) {
-    let {messages, schema: {properties}} = await CCAPI.fetchLatestMessageBox(
+    const {messages, schema: {properties}} = await CCAPI.fetchLatestMessageBox(
       this.props.module.uuid,
       messageBox.uuid
     )
@@ -227,24 +228,24 @@ class ModuleDetail extends Component {
     )
 
     const messageBoxAddPaper = editingArea === ModuleDetail.editingArea.messageBox
-    && editingAreaIndex === module.messageBoxes.size ? (
-      <div style={style.messageBoxAddingArea}>
-        <MessageBoxEdittingPaper
-          module={editingModule}
-          messageBoxIndex={editingAreaIndex}
-          schemas={schemas}
-          onUpdate={(editingModule) => this.setState({editingModule})}
-          onOKButtonTouchTap={() => this.onUpdateTouchTap()}
-          onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
+      && editingAreaIndex === module.messageBoxes.size ? (
+        <div style={style.messageBoxAddingArea}>
+          <MessageBoxEdittingPaper
+            module={editingModule}
+            messageBoxIndex={editingAreaIndex}
+            schemas={schemas}
+            onUpdate={(editingModule) => this.setState({editingModule})}
+            onOKButtonTouchTap={() => this.onUpdateTouchTap()}
+            onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
+          />
+        </div>
+      ) : !module.isReplication ? (
+        <MessageBoxAddActionPaper
+          onTouchTap={() => this.onMessageBoxAddTouchTap()}
         />
-      </div>
-    ) : !module.isReplication ? (
-      <MessageBoxAddActionPaper
-        onTouchTap={() => this.onMessageBoxAddTouchTap()}
-      />
-    ) : (
-      null
-    )
+      ) : (
+        null
+      )
 
     const canDeleteMessageBox = module.messageBoxes.size <= 1
 

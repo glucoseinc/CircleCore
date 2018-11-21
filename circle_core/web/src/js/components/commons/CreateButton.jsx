@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import CCRaisedButton from 'src/components/bases/CCRaisedButton'
 
@@ -8,7 +9,7 @@ import {AddIcon} from 'src/components/bases/icons'
 /**
  * 作成ボタン
  */
-class CreateButton extends Component {
+class CreateButton extends React.Component {
   static propTypes = {
     label: PropTypes.string,
     disabled: PropTypes.bool,

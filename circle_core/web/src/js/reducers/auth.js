@@ -13,7 +13,7 @@ const initialState = {
 const entities = handleActions({
   [LOCATION_CHANGE]: (state, action) => {
     // 起動時にTokenを読み込む
-    if(!state.tokenLoaded) {
+    if (!state.tokenLoaded) {
       CCAPI.setToken(state.token)
       state.token.load()
       return {...state, tokenLoaded: true, tokenIsValid: state.token.isValid()}
@@ -23,10 +23,11 @@ const entities = handleActions({
   },
 
   [actionTypes.auth.loginSucceeded]: (state, action) => {
-    let {access_token, refresh_token, scope} = action.payload
+    // eslint-disable-next-line camelcase
+    const {access_token, refresh_token, scope} = action.payload
     state.token.update(access_token, refresh_token, scope)
     state.token.save()
-    let tokenIsValid = state.token.isValid()
+    const tokenIsValid = state.token.isValid()
 
     return {...state, tokenIsValid}
   },

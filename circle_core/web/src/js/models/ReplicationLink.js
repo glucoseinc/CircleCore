@@ -115,10 +115,10 @@ export default class ReplicationLink extends ReplicationLinkRecord {
    * @return {bool}
    */
   isReadyToCreate() {
-    if(this.messageBoxes.size === 0) {
+    if (this.messageBoxes.size === 0) {
       return false
     }
-    if(this.displayName.length === 0) {
+    if (this.displayName.length === 0) {
       return false
     }
     return true

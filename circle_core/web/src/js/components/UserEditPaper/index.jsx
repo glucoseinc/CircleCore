@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Paper from 'material-ui/Paper'
 import TextField from 'material-ui/TextField'
@@ -12,13 +13,13 @@ import UserInfoEditComponent from './UserInfoEditComponent'
 /**
 * User編集
 */
-class UserEditPaper extends Component {
+class UserEditPaper extends React.Component {
   static propTypes = {
     user: PropTypes.object.isRequired,
     errors: PropTypes.object,
     needCurrentPassword: PropTypes.bool,
     onSaveTouchTap: PropTypes.func,
-    saveButtonLabel: PropTypes.string,    // パスワードの入力が必須かどうか?
+    saveButtonLabel: PropTypes.string, // パスワードの入力が必須かどうか?
     isPasswordRequired: PropTypes.bool,
     canChangePermission: PropTypes.bool,
   }
@@ -44,11 +45,13 @@ class UserEditPaper extends Component {
    * @return {bool}
    */
   isReadyToSave() {
-    if(!(this.state.editingUser.isReadytoCreate() && this.state.newPassword !== null))
+    if (!(this.state.editingUser.isReadytoCreate() && this.state.newPassword !== null)) {
       return false
+    }
 
-    if(this.props.isPasswordRequired && !this.state.newPassword)
+    if (this.props.isPasswordRequired && !this.state.newPassword) {
       return false
+    }
 
     return true
   }

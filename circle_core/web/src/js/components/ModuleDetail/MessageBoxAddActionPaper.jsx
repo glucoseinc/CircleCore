@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Paper from 'material-ui/Paper'
 
@@ -9,7 +10,7 @@ import {AddIcon} from 'src/components/bases/icons'
 /**
  * MessageBox追加操作エリア
  */
-class MessageBoxAddActionPaper extends Component {
+class MessageBoxAddActionPaper extends React.Component {
   static propTypes = {
     onTouchTap: PropTypes.func,
   }

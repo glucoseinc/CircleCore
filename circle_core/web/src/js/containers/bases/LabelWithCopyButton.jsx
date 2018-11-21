@@ -1,6 +1,6 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import {connect} from 'react-redux'
-import {findDOMNode} from 'react-dom'
 
 import IconButton from 'material-ui/IconButton'
 import {grey500} from 'material-ui/styles/colors'
@@ -13,7 +13,7 @@ import {CopyIcon} from 'src/components/bases/icons'
 /**
  * Clopboard copy用のテキストエリア
  */
-class HiddenTextArea extends Component {
+class HiddenTextArea extends React.Component {
   static propTypes = {
     text: PropTypes.string.isRequired,
   }
@@ -38,13 +38,19 @@ class HiddenTextArea extends Component {
 /**
  * Copyボタン付きラベル
  */
-class LabelWithCopyButton extends Component {
+class LabelWithCopyButton extends React.Component {
   static propTypes = {
     label: PropTypes.string.isRequired,
     labelStyle: PropTypes.object,
     messageWhenCopying: PropTypes.string.isRequired,
     copyButtonOnly: PropTypes.bool,
     onTouchTap: PropTypes.func,
+  }
+
+  constructor(props) {
+    super(props)
+
+    this.hiddenTextAreaRef = React.createRef()
   }
 
   /**
@@ -55,11 +61,12 @@ class LabelWithCopyButton extends Component {
       messageWhenCopying,
       onTouchTap,
     } = this.props
-    const dom = findDOMNode(this.refs.hiddenTextArea)
-    dom.focus()
-    dom.select()
+    console.error(this.hiddenTextAreaRef.current)
+    const textAreaNode = this.hiddenTextAreaRef.current
+    textAreaNode.focus()
+    textAreaNode.select()
     document.execCommand('copy')
-    dom.blur()
+    textAreaNode.blur()
     onTouchTap(messageWhenCopying)
   }
 
@@ -111,7 +118,7 @@ class LabelWithCopyButton extends Component {
 
     return (
       <div style={style.root}>
-        <HiddenTextArea text={label} ref="hiddenTextArea" />
+        <HiddenTextArea text={label} ref={this.hiddenTextArea} />
         {labelArea}
         <IconButton
           style={style.iconButton}

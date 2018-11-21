@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import DeleteDialog from 'src/components/commons/DeleteDialog'
 
@@ -6,7 +7,7 @@ import DeleteDialog from 'src/components/commons/DeleteDialog'
 /**
  * Invitation削除ダイアログ
  */
-class InvitationDeleteDialog extends Component {
+class InvitationDeleteDialog extends React.Component {
   static propTypes = {
     open: PropTypes.bool,
     invitation: PropTypes.object,

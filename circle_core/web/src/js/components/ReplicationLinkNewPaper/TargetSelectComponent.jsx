@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton'
 
@@ -9,7 +10,7 @@ import TargetTagSelectComponent from './TargetTagSelectComponent'
 /**
  * ReplicationLink対象選択コンポーネント
  */
-class TargetSelectComponent extends Component {
+class TargetSelectComponent extends React.Component {
   static propTypes = {
     replicationLink: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,

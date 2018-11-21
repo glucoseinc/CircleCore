@@ -36,11 +36,12 @@ class OAuthToken {
    * @return {bool} 読み込めればtrue, 読み込めなければfalse
    */
   load() {
-    let raw = this._storage.getItem(this._storageKey)
-    if(!raw)
+    const raw = this._storage.getItem(this._storageKey)
+    if (!raw) {
       return false
+    }
 
-    let [accessToken, refreshToken, scope] = raw.split(':')
+    const [accessToken, refreshToken, scope] = raw.split(':')
     this.update(accessToken, refreshToken, decodeURIComponent(scope))
     return true
   }
@@ -49,7 +50,7 @@ class OAuthToken {
    * tokenをストレージに保存する
    */
   save() {
-    let vals = [this.accessToken, this.refreshToken, this.scopes.join(' ')]
+    const vals = [this.accessToken, this.refreshToken, this.scopes.join(' ')]
 
     this._storage.setItem(
       this._storageKey,
@@ -85,7 +86,7 @@ class OAuthToken {
     this.accessToken = accessToken
     this.refreshToken = refreshToken
 
-    if(scope !== undefined) {
+    if (scope !== undefined) {
       this.scopes = scope.split(' ')
     }
   }
@@ -96,14 +97,14 @@ class OAuthToken {
    * @return {bool}
    */
   hasScope(scope) {
-    if(this.scopes === null) {
+    if (this.scopes === null) {
       throw new Error('scope is not initialized')
     }
     return this.scopes.indexOf(scope) >= 0 ? true : false
   }
 }
 
-export let oauthToken = new OAuthToken(localStorage, TOKEN_KEY, CLIENT_ID, CLIENT_SECRET)
+export const oauthToken = new OAuthToken(localStorage, TOKEN_KEY, CLIENT_ID, CLIENT_SECRET)
 
 
 /**
@@ -112,7 +113,7 @@ export let oauthToken = new OAuthToken(localStorage, TOKEN_KEY, CLIENT_ID, CLIEN
 export async function logout() {
   try {
     await CCAPI.revokeToken()
-  } catch(e) {
+  } catch (e) {
     // pass error
   }
   oauthToken.clear()
@@ -126,10 +127,10 @@ export async function logout() {
  * @return {Object} Parse済クエリ
  */
 function _parseQuery(queryString) {
-  let query = {}
+  const query = {}
   queryString.forEach((part) => {
-    let pos = part.indexOf('=')
-    if(pos >= 0) {
+    const pos = part.indexOf('=')
+    if (pos >= 0) {
       query[decodeURIComponent(part.substr(0, pos))] = decodeURIComponent(part.substr(pos + 1))
     } else {
       query[decodeURIComponent(part)] = null
@@ -145,16 +146,16 @@ function _parseQuery(queryString) {
  * @return {bool} AuthCodeが返ってきている
  */
 export function checkHasAuthCodeReceived(hash) {
-  if(!hash.startsWith('#')) {
+  if (!hash.startsWith('#')) {
     // invalid hash string
     return null
   }
 
-  let query = _parseQuery(hash.substr(1).split('&'))
-  if(query.access_token) {
+  const query = _parseQuery(hash.substr(1).split('&'))
+  if (query.access_token) {
     // unsupported
     return null
-  } else if(query.code) {
+  } else if (query.code) {
     return query.code
   }
 
@@ -168,24 +169,24 @@ export function checkHasAuthCodeReceived(hash) {
  * @return {Object} accessToken, refreshToken
  */
 export async function fetchTokenByAuthorizationCode(authorizationCode) {
-  let response
   try {
-    response = await CCAPI.oauthToken({
+    const response = await CCAPI.oauthToken({
       grant_type: 'authorization_code',
       code: authorizationCode,
       redirect_uri: `${location.origin}/oauth/callback`,
       client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET,
     })
 
-    if(response.token_type != 'Bearer') {
+    if (response.token_type != 'Bearer') {
       throw new Error('unknown token type')
     }
-  } catch(e) {
+
+    return response
+  } catch (e) {
     // failed to get token
     return null
   }
-
-  return response
 }
 
 

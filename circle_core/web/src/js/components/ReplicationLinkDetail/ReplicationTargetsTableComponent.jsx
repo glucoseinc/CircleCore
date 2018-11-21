@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Paper from 'material-ui/Paper'
 import {grey300, grey600, grey900, white} from 'material-ui/styles/colors'
@@ -22,7 +23,7 @@ const tableStyle = {
 /**
 * 共有項目テーブルのヘッダ
 */
-class ReplicationTargetsTableHeader extends Component {
+class ReplicationTargetsTableHeader extends React.Component {
   static propTypes = {
   }
 
@@ -56,7 +57,7 @@ class ReplicationTargetsTableHeader extends Component {
 /**
 * 共有項目テーブルのロウ
 */
-class ReplicationTargetsTableRow extends Component {
+class ReplicationTargetsTableRow extends React.Component {
   static propTypes = {
     messageBoxes: PropTypes.array.isRequired,
     module: PropTypes.object.isRequired,
@@ -102,9 +103,9 @@ class ReplicationTargetsTableRow extends Component {
         <div style={style.module}>{module.displayName}</div>
         <div style={style.messageBoxes}>
           {messageBoxes.map((messageBox) =>
-            <div key={messageBox.uuid} style={style.messageBox}>
+            (<div key={messageBox.uuid} style={style.messageBox}>
               {messageBox.displayName}
-            </div>
+            </div>)
           )}
         </div>
       </div>
@@ -116,7 +117,7 @@ class ReplicationTargetsTableRow extends Component {
 /**
 * 共有項目テーブルコンポーネント
 */
-class ReplicationTargetsTableComponent extends Component {
+class ReplicationTargetsTableComponent extends React.Component {
   static propTypes = {
     messageBoxes: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
@@ -147,7 +148,7 @@ class ReplicationTargetsTableComponent extends Component {
     }
 
     const targetModules = messageBoxes.reduce((m, messageBox) => {
-      if(!m.hasOwnProperty(messageBox.module)) {
+      if (!m.hasOwnProperty(messageBox.module)) {
         m[messageBox.module] = {
           module: modules.get(messageBox.module),
           messageBoxes: [],

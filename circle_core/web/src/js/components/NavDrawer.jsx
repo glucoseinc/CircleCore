@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import AppBar from 'material-ui/AppBar'
 import Drawer from 'material-ui/Drawer'
@@ -26,7 +27,7 @@ function mapURLToMenuItem(url) {
 
 /**
  */
-class NavDrawer extends Component {
+class NavDrawer extends React.Component {
   static propTypes = {
     location: PropTypes.object,
     alwaysOpen: PropTypes.bool.isRequired,

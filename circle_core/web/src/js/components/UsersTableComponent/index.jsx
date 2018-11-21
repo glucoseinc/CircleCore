@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import UserInfoPaper from './UserInfoPaper'
 import UsersHeader from './UsersHeader'
@@ -7,7 +8,7 @@ import UsersHeader from './UsersHeader'
 /**
 * Userテーブルコンポーネント
 */
-class UsersTableComponent extends Component {
+class UsersTableComponent extends React.Component {
   static propTypes = {
     users: PropTypes.object.isRequired,
     myID: PropTypes.string,
@@ -42,7 +43,7 @@ class UsersTableComponent extends Component {
             <UsersHeader />
           </div>
           <div style={style.row}>
-            {users.valueSeq().map((user, index) =>
+            {users.valueSeq().map((user, index) => (
               <UserInfoPaper
                 key={user.uuid}
                 user={user}
@@ -51,7 +52,7 @@ class UsersTableComponent extends Component {
                 onDisplayNameTouchTap={onDisplayNameTouchTap}
                 onDeleteTouchTap={onDeleteTouchTap}
               />
-            )}
+            ))}
           </div>
         </div>
       </div>

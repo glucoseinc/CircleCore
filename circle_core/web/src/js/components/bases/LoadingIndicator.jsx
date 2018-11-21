@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React from 'react'
 
 import RefreshIndicator from 'material-ui/RefreshIndicator'
 import {orange500} from 'material-ui/styles/colors'
@@ -7,7 +7,7 @@ import {orange500} from 'material-ui/styles/colors'
 /**
  * ロード中インジゲーター
  */
-class LoadingIndicator extends Component {
+class LoadingIndicator extends React.Component {
   /**
    * @override
    */

@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import AddFlatButton from 'src/components/commons/AddFlatButton'
 import MessageBoxEditComponentWithButton from 'src/components/commons/MessageBoxEditComponentWithButton'
@@ -7,7 +8,7 @@ import MessageBoxEditComponentWithButton from 'src/components/commons/MessageBox
 /**
  * MessageBox編集コンポーネント
  */
-class MessageBoxesEditComponent extends Component {
+class MessageBoxesEditComponent extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     schemas: PropTypes.object.isRequired,
@@ -52,7 +53,7 @@ class MessageBoxesEditComponent extends Component {
       <div style={style.root}>
         <div style={style.messageBoxes}>
           {module.messageBoxes.valueSeq().map((messageBox, index) =>
-            <div key={index} style={style.messageBoxBlock}>
+            (<div key={index} style={style.messageBoxBlock}>
               <MessageBoxEditComponentWithButton
                 messageBox={messageBox}
                 schemas={schemas}
@@ -60,7 +61,7 @@ class MessageBoxesEditComponent extends Component {
                 onUpdate={(newMessageBox) => onUpdate(index, newMessageBox)}
                 onDeleteTouchTap={() => onDeleteTouchTap(index)}
               />
-            </div>
+            </div>)
           )}
         </div>
         <div style={style.actionsBlock}>

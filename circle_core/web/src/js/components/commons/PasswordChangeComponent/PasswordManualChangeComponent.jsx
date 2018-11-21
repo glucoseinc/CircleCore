@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import TextField from 'material-ui/TextField'
 
@@ -8,7 +9,7 @@ import CCFlatButton from 'src/components/bases/CCFlatButton'
 /**
 * パスワード手動変更コンポーネント
 */
-class PasswordManualChangeComponent extends Component {
+class PasswordManualChangeComponent extends React.Component {
   static propTypes = {
     errors: PropTypes.object,
     onUpdate: PropTypes.func,

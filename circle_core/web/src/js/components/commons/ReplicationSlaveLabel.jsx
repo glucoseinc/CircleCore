@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import {grey500} from 'material-ui/styles/colors'
 
 import LabelWithCopyButton from 'src/containers/bases/LabelWithCopyButton'
@@ -7,7 +8,7 @@ import LabelWithCopyButton from 'src/containers/bases/LabelWithCopyButton'
 /**
  * ReplicationLink接続先ラベル.
  */
-class ReplicationSlaveLabel extends Component {
+class ReplicationSlaveLabel extends React.Component {
   static propTypes = {
     ccInfo: PropTypes.object.isRequired,
     rootStyle: PropTypes.object,

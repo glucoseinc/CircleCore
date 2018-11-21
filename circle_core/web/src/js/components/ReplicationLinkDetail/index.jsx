@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import ComponentWithTitle from 'src/components/bases/ComponentWithTitle'
 
@@ -13,7 +14,7 @@ import ReplicationSlavesListComponent from './ReplicationSlavesListComponent'
 /**
 * ReplocationLink詳細コンポーネント
 */
-class ReplocationLinkDetail extends Component {
+class ReplocationLinkDetail extends React.Component {
   static propTypes = {
     replicationLink: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,

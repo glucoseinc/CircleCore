@@ -109,8 +109,8 @@ class APICaller {
 
     try {
       return await req
-    } catch(err) {
-      if(err.status == 403) {
+    } catch (err) {
+      if (err.status == 403) {
         // refresh token, and retry
         await this._extendToken()
 
@@ -128,7 +128,7 @@ class APICaller {
    * @return {Promise} リクエストのPromise
    */
   _extendToken() {
-    if(this._extendTokenRequest) {
+    if (this._extendTokenRequest) {
       // extend中
       return this._extendTokenRequest
     }
@@ -193,7 +193,7 @@ class CCAPI extends APICaller {
    */
   async oauthToken(query) {
     // form-url-encodedで送らないといけないので...
-    let res = await request.post('/oauth/token')
+    const res = await request.post('/oauth/token')
       .type('form')
       .set('Accept', 'application/json')
       .send(query)
@@ -206,7 +206,7 @@ class CCAPI extends APICaller {
    */
   async revokeToken() {
     // form-url-encodedで送らないといけないので...
-    let res = await request.get('/oauth/revoke')
+    const res = await request.get('/oauth/revoke')
       .set('Accept', 'application/json')
     return res.body
   }

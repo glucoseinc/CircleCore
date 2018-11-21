@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import RaisedButton from 'material-ui/RaisedButton'
 
@@ -6,7 +7,7 @@ import RaisedButton from 'material-ui/RaisedButton'
 /**
  * レイズドボタン
  */
-class CCRaisedButton extends Component {
+class CCRaisedButton extends React.Component {
   static propTypes = {
     style: PropTypes.object,
     labelStyle: PropTypes.object,

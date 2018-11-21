@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import {connect} from 'react-redux'
 
 import actions from 'src/actions'
@@ -17,7 +18,7 @@ import InvitationInfoPaper from 'src/components/InvitationInfoPaper'
 /**
  * Invitation一覧
  */
-class Invitations extends Component {
+class Invitations extends React.Component {
   static propTypes = {
     isInvitationCreating: PropTypes.bool.isRequired,
     isInvitationFetching: PropTypes.bool.isRequired,
@@ -97,14 +98,14 @@ class Invitations extends Component {
           />
         ) : (
           <div className="page">
-            {invitations.valueSeq().map((invitation) =>
+            {invitations.valueSeq().map((invitation) => (
               <InvitationInfoPaper
                 key={invitation.uuid}
                 invitation={invitation}
                 readOnly={isReadOnly}
                 onDeleteTouchTap={::this.onDeleteTouchTap}
               />
-            )}
+            ))}
           </div>
         )}
 

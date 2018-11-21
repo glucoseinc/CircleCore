@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import {connect} from 'react-redux'
 
 import actions from 'src/actions'
@@ -18,7 +19,7 @@ import ReplicactionMasterPaper from 'src/components/ReplicactionMasterPaper'
 /**
  * 共有マスター一覧
  */
-class ReplicactionMasters extends Component {
+class ReplicactionMasters extends React.Component {
   static propTypes = {
     isReplicationMasterFetching: PropTypes.bool.isRequired,
     replicationMasters: PropTypes.object.isRequired,
@@ -85,13 +86,13 @@ class ReplicactionMasters extends Component {
           />
         ) : (
           <div className="page">
-            {replicationMasters.valueSeq().map((repMaster) =>
+            {replicationMasters.valueSeq().map((repMaster) => (
               <ReplicactionMasterPaper
                 key={repMaster.id}
                 replicationMaster={repMaster}
                 onDeleteTouchTap={::this.onDeleteTouchTap}
               />
-            )}
+            ))}
           </div>
         )}
 

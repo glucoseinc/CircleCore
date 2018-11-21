@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Paper from 'material-ui/Paper'
 
@@ -17,7 +18,7 @@ import TagsEditComponent from 'src/components/commons/TagsEditComponent'
 /**
  * Module作成
  */
-class ModuleNewPaper extends Component {
+class ModuleNewPaper extends React.Component {
   static propTypes = {
     schemas: PropTypes.object.isRequired,
     tagSuggestions: PropTypes.array,

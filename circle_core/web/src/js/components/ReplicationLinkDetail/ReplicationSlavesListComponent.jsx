@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Paper from 'material-ui/Paper'
 import {grey300, grey600, white} from 'material-ui/styles/colors'
@@ -9,7 +10,7 @@ import IdLabel from 'src/components/commons/IdLabel'
 /**
 * 接続先リストのアイテム
 */
-class ReplicationSlavesListItem extends Component {
+class ReplicationSlavesListItem extends React.Component {
   static propTypes = {
     ccInfo: PropTypes.object.isRequired,
     backgroundColor: PropTypes.string,
@@ -64,7 +65,7 @@ class ReplicationSlavesListItem extends Component {
 /**
 * 接続先リストコンポーネント
 */
-class ReplicationSlavesListComponent extends Component {
+class ReplicationSlavesListComponent extends React.Component {
   static propTypes = {
     replicationLink: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,

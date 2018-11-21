@@ -6,8 +6,8 @@
  */
 export function changeFlagAction(stateName, newState) {
   return (state, action) => {
-    let up = {}
-    up[stateName] = newState
-    return Object.assign({}, state, up)
+    return Object.assign({}, state, {
+      stateName: newState,
+    })
   }
 }

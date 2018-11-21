@@ -15,7 +15,7 @@ const initialState = {
   invitations: new Map(),
   messageBoxes: new Map(),
   modules: new Map(),
-  myID: null,  // 自分のUserオブジェクトのuuid
+  myID: null, // 自分のUserオブジェクトのuuid
   replicationLinks: new Map(),
   replicationMasters: new Map(),
   schemas: new Map(),

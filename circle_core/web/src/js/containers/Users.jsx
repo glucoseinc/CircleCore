@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import {connect} from 'react-redux'
 import {routerActions} from 'react-router-redux'
 
@@ -17,7 +18,7 @@ import UsersTableComponent from 'src/components/UsersTableComponent'
 /**
  * User一覧
  */
-class Users extends Component {
+class Users extends React.Component {
   static propTypes = {
     isUserFetching: PropTypes.bool.isRequired,
     users: PropTypes.object.isRequired,

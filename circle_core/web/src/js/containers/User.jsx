@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import {connect} from 'react-redux'
 
 import actions from 'src/actions'
@@ -12,7 +13,7 @@ import UserEditPaper from 'src/components/UserEditPaper'
 /**
  * User詳細
  */
-class User extends Component {
+class User extends React.Component {
   static propTypes = {
     isUserFetching: PropTypes.bool.isRequired,
     isUserUpdating: PropTypes.bool.isRequired,

@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Paper from 'material-ui/Paper'
 import {grey300, grey600, grey900, white} from 'material-ui/styles/colors'
@@ -20,7 +21,7 @@ const style = {
 /**
  * プロパティ情報テーブルのヘッダ
  */
-export class PropertyHeader extends Component {
+export class PropertyHeader extends React.Component {
   static propTypes = {
   }
 
@@ -52,7 +53,7 @@ export class PropertyHeader extends Component {
 /**
  * プロパティ情報テーブルのロウ
  */
-class PropertyRow extends Component {
+class PropertyRow extends React.Component {
   static propTypes = {
     property: PropTypes.object.isRequired,
     backgroundColor: PropTypes.string,
@@ -90,7 +91,7 @@ class PropertyRow extends Component {
 /**
  * プロパティテーブルコンポーネント
  */
-class PropertiesTableComponent extends Component {
+class PropertiesTableComponent extends React.Component {
   static propTypes = {
     schema: PropTypes.object.isRequired,
   }

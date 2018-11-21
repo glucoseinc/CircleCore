@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import OkDialog from 'src/components/bases/OkDialog'
 
@@ -6,7 +7,7 @@ import OkDialog from 'src/components/bases/OkDialog'
 /**
 * Invitation作成完了ダイアログ
 */
-class InvitationCreatedDialog extends Component {
+class InvitationCreatedDialog extends React.Component {
   static propTypes = {
     open: PropTypes.bool,
     invitation: PropTypes.object,

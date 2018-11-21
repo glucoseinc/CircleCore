@@ -11,7 +11,7 @@ const mergeSchemas = (state, action) => {
   return {
     ...state,
     schemas: state.schemas.merge(schemas),
-    modules: modules.merge(state.modules),  // new modules are imperfect
+    modules: modules.merge(state.modules), // new modules are imperfect
   }
 }
 
@@ -23,7 +23,7 @@ const refreshSchemas = (state, action) => {
   return {
     ...state,
     schemas,
-    modules: modules.merge(state.modules),  // new modules are imperfect
+    modules: modules.merge(state.modules), // new modules are imperfect
   }
 }
 

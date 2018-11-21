@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import ComponentWithIconButton from 'src/components/bases/ComponentWithIconButton'
 import {DeleteIcon} from 'src/components/bases/icons'
@@ -10,7 +11,7 @@ import PropertyTypeSelectField from 'src/components/commons/PropertyTypeSelectFi
 /**
  * SchemaProperty編集コンポーネント
  */
-class PropertyEditComponent extends Component {
+class PropertyEditComponent extends React.Component {
   static propTypes = {
     property: PropTypes.object.isRequired,
     propertyTypes: PropTypes.object.isRequired,

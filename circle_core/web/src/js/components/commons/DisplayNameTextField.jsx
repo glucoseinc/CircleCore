@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import TextField from 'material-ui/TextField'
 
@@ -6,7 +7,7 @@ import TextField from 'material-ui/TextField'
 /**
  * 表示名テキストフィールド
  */
-class DisplayNameTextField extends Component {
+class DisplayNameTextField extends React.Component {
   static propTypes = {
     obj: PropTypes.object.isRequired,
     floatingLabelText: PropTypes.string,

@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Paper from 'material-ui/Paper'
 import {blue500} from 'material-ui/styles/colors'
@@ -10,7 +11,7 @@ import UrlLabel from 'src/components/commons/UrlLabel'
 /**
  * 表示名エリア
  */
-class DisplayNamePaper extends Component {
+class DisplayNamePaper extends React.Component {
   static propTypes = {
     obj: PropTypes.object.isRequired,
     secondaryType: PropTypes.string,
@@ -40,8 +41,8 @@ class DisplayNamePaper extends Component {
 
     const SecondaryLabel =
       secondaryType === 'id' ? IdLabel :
-      secondaryType === 'url' ? UrlLabel :
-      () => null
+        secondaryType === 'url' ? UrlLabel :
+          () => null
 
     return (
       <Paper>

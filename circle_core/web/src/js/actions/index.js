@@ -1,7 +1,7 @@
 export {actionTypePrefix} from './utils'
 
-let actions = {}
-let actionTypes = {}
+const actions = {}
+const actionTypes = {}
 
 
 // load action groups
@@ -19,7 +19,7 @@ const groupNames = [
   'user',
 ]
 groupNames.forEach((group) => {
-  let mod = require(`./${group}`)
+  const mod = require(`./${group}`)
 
   actions[group] = mod.default
   actionTypes[group] = mod.actionTypes

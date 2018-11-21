@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Paper from 'material-ui/Paper'
 import {blue500} from 'material-ui/styles/colors'
@@ -13,7 +14,7 @@ import UrlLabel from 'src/components/commons/UrlLabel'
 /**
  * 表示名エリア(編集可能)
  */
-class DisplayNameEditablePaper extends Component {
+class DisplayNameEditablePaper extends React.Component {
   static propTypes = {
     obj: PropTypes.object.isRequired,
     editDisabled: PropTypes.bool,
@@ -51,8 +52,8 @@ class DisplayNameEditablePaper extends Component {
 
     const SecondaryLabel =
       secondaryType === 'id' ? IdLabel :
-      secondaryType === 'url' ? UrlLabel :
-      () => null
+        secondaryType === 'url' ? UrlLabel :
+          () => null
 
     return (
       <Paper>

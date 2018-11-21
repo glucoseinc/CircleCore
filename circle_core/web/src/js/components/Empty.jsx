@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Paper from 'material-ui/Paper'
 import {grey400, grey700} from 'material-ui/styles/colors'
@@ -6,7 +7,7 @@ import {grey400, grey700} from 'material-ui/styles/colors'
 /**
 * Empty
 */
-class Empty extends Component {
+class Empty extends React.Component {
   static propTypes = {
     icon: PropTypes.func.isRequired,
     itemName: PropTypes.string,

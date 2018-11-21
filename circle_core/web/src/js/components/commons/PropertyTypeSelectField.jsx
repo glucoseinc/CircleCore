@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import MenuItem from 'material-ui/MenuItem'
 import SelectField from 'material-ui/SelectField'
@@ -7,7 +8,7 @@ import SelectField from 'material-ui/SelectField'
 /**
  * PropertyTypeセレクトフィールド
  */
-class PropertyTypeSelectField extends Component {
+class PropertyTypeSelectField extends React.Component {
   static propTypes = {
     selectedProperty: PropTypes.object.isRequired,
     propertyTypes: PropTypes.object.isRequired,
@@ -31,13 +32,13 @@ class PropertyTypeSelectField extends Component {
         value={selectedProperty.type}
         onChange={onChange}
       >
-        {propertyTypes.valueSeq().map((propertyType) =>
+        {propertyTypes.valueSeq().map((propertyType) => (
           <MenuItem
             key={propertyType.name}
             value={propertyType.name}
             primaryText={propertyType.name}
           />
-        )}
+        ))}
       </SelectField>
     )
   }

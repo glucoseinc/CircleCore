@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import IconButton from 'material-ui/IconButton'
 
@@ -8,7 +9,7 @@ import {DeleteIcon} from 'src/components/bases/icons'
 /**
  * 削除アイコンボタン
  */
-class DeleteIconButton extends Component {
+class DeleteIconButton extends React.Component {
   static propTypes = {
     size: PropTypes.number,
     iconSize: PropTypes.number,

@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import {grey600} from 'material-ui/styles/colors'
 
@@ -6,7 +7,7 @@ import {grey600} from 'material-ui/styles/colors'
 /**
  * サブタイトル付きコンポーネント
  */
-class ComponentWithSubTitle extends Component {
+class ComponentWithSubTitle extends React.Component {
   static propTypes = {
     subTitle: PropTypes.string.isRequired,
     icon: PropTypes.func,
@@ -19,9 +20,9 @@ class ComponentWithSubTitle extends Component {
    */
   render() {
     const {
-        subTitle,
-        icon,
-        children,
+      subTitle,
+      icon,
+      children,
     } = this.props
 
     const style = {

@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import {grey900, orange700} from 'material-ui/styles/colors'
 
@@ -9,7 +10,7 @@ import {SchemaPryoertyIcon} from 'src/components/bases/icons'
 /**
  * スキーマの型1個分
  */
-export class SchemaPropertyLabel extends Component {
+export class SchemaPropertyLabel extends React.Component {
   static propTypes = {
     name: PropTypes.string.isRequired,
     type: PropTypes.string.isRequired,
@@ -55,7 +56,7 @@ export class SchemaPropertyLabel extends Component {
 /**
  * SchemaPropertyリストラベル
  */
-export default class SchemaPropertiesLabel extends Component {
+export default class SchemaPropertiesLabel extends React.Component {
   static propTypes = {
     schema: PropTypes.object.isRequired,
   }

@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Checkbox from 'material-ui/Checkbox'
 
@@ -6,7 +7,7 @@ import Checkbox from 'material-ui/Checkbox'
 /**
  * ReplicationLink対象選択コンポーネント(タイプ：モジュール)
  */
-class TargetMessageBoxSelectComponent extends Component {
+class TargetMessageBoxSelectComponent extends React.Component {
   static propTypes = {
     replicationLink: PropTypes.object.isRequired,
     selectedModule: PropTypes.object.isRequired,
@@ -65,11 +66,11 @@ class TargetMessageBoxSelectComponent extends Component {
             labelStyle={style.selectLabel}
             onCheck={(e, isInputChecked) => onUpdate(
               isInputChecked ? replicationLink.updateMessageBoxes(messageBoxIds.toArray())
-              : replicationLink.clearMessageBoxes()
+                : replicationLink.clearMessageBoxes()
             )}
           />
           <div style={style.messageBoxes}>
-            {selectedModule.messageBoxes.valueSeq().map((messageBox) =>
+            {selectedModule.messageBoxes.valueSeq().map((messageBox) => (
               <Checkbox
                 key={messageBox.uuid}
                 checked={replicationLink.messageBoxes.includes(messageBox.uuid)}
@@ -78,10 +79,10 @@ class TargetMessageBoxSelectComponent extends Component {
                 labelStyle={style.selectLabel}
                 onCheck={(e, isInputChecked) => onUpdate(
                   isInputChecked ? replicationLink.addMessageBox(messageBox.uuid)
-                  : replicationLink.deleteMessageBox(messageBox.uuid)
+                    : replicationLink.deleteMessageBox(messageBox.uuid)
                 )}
               />
-            )}
+            ))}
           </div>
         </div>
       </div>

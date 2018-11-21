@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import Checkbox from 'material-ui/Checkbox'
 import TextField from 'material-ui/TextField'
@@ -10,7 +11,7 @@ import WorkTextField from 'src/components/commons/WorkTextField'
 /**
 * UserInfo編集コンポーネント
 */
-class UserInfoEditComponent extends Component {
+class UserInfoEditComponent extends React.Component {
   static propTypes = {
     user: PropTypes.object.isRequired,
     errors: PropTypes.object,

@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 import {connect} from 'react-redux'
 
 import actions from 'src/actions'
@@ -11,7 +12,7 @@ import SchemaNewPaper from 'src/components/SchemaNewPaper'
 /**
  * Schema作成
  */
-class SchemasNew extends Component {
+class SchemasNew extends React.Component {
   static propTypes = {
     isSchemaFetching: PropTypes.bool.isRequired,
     isSchemaPropertyTypeFetching: PropTypes.bool.isRequired,

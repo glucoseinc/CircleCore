@@ -1,10 +1,11 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 
 /**
  * タイトル付きコンポーネント
  */
-class ComponentWithTitle extends Component {
+class ComponentWithTitle extends React.Component {
   static propTypes = {
     title: PropTypes.string.isRequired,
     additional: PropTypes.node,

@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import ComponentWithIconButton from 'src/components/bases/ComponentWithIconButton'
 import {DeleteIcon} from 'src/components/bases/icons'
@@ -9,7 +10,7 @@ import TagTextField from 'src/components/commons/TagTextField'
 /**
  * タグ編集コンポーネント
  */
-class TagEditComponent extends Component {
+class TagEditComponent extends React.Component {
   static propTypes = {
     tag: PropTypes.string.isRequired,
     suggestions: PropTypes.array,

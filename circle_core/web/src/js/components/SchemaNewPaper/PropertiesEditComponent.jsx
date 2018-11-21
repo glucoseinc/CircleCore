@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 import AddFlatButton from 'src/components/commons/AddFlatButton'
 
@@ -8,7 +9,7 @@ import PropertyEditComponent from './PropertyEditComponent'
 /**
  * SchemaProperty編集コンポーネント
  */
-class PropertiesEditComponent extends Component {
+class PropertiesEditComponent extends React.Component {
   static propTypes = {
     schema: PropTypes.object.isRequired,
     propertyTypes: PropTypes.object.isRequired,
@@ -52,7 +53,7 @@ class PropertiesEditComponent extends Component {
       <div style={style.root}>
         <div style={style.properties}>
           {schema.properties.valueSeq().map((property, index) =>
-            <div key={index} style={style.propertyBlock}>
+            (<div key={index} style={style.propertyBlock}>
               <PropertyEditComponent
                 property={property}
                 propertyTypes={propertyTypes}
@@ -60,7 +61,7 @@ class PropertiesEditComponent extends Component {
                 onUpdate={(property) => onUpdate(index, property)}
                 onDeleteTouchTap={() => onDeleteTouchTap(index)}
               />
-            </div>
+            </div>)
           )}
         </div>
         <div style={style.actionsBlock}>
