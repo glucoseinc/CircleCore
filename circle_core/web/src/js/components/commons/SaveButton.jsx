@@ -11,7 +11,7 @@ class SaveButton extends React.Component {
   static propTypes = {
     label: PropTypes.string,
     disabled: PropTypes.bool,
-    onTouchTap: PropTypes.func,
+    onClick: PropTypes.func,
   }
 
   /**
@@ -21,7 +21,7 @@ class SaveButton extends React.Component {
     const {
       label = '保存する',
       disabled = false,
-      onTouchTap,
+      onClick,
     } = this.props
 
     const style = {
@@ -36,7 +36,7 @@ class SaveButton extends React.Component {
         label={label}
         primary={true}
         disabled={disabled}
-        onTouchTap={onTouchTap}
+        onClick={onClick}
       />
     )
   }

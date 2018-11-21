@@ -11,8 +11,8 @@ class SchemaDeleteDialog extends React.Component {
   static propTypes = {
     open: PropTypes.bool,
     schema: PropTypes.object,
-    onOkTouchTap: PropTypes.func.isRequired,
-    onCancelTouchTap: PropTypes.func.isRequired,
+    onOkClick: PropTypes.func.isRequired,
+    onCancelClick: PropTypes.func.isRequired,
   }
 
   /**
@@ -22,16 +22,16 @@ class SchemaDeleteDialog extends React.Component {
     const {
       open,
       schema,
-      onOkTouchTap,
-      onCancelTouchTap,
+      onOkClick,
+      onCancelClick,
     } = this.props
 
     return (
       <DeleteDialog
         obj={schema}
         title="このメッセージスキーマを削除しますか？"
-        onOkTouchTap={onOkTouchTap}
-        onCancelTouchTap={onCancelTouchTap}
+        onOkClick={onOkClick}
+        onCancelClick={onCancelClick}
         open={open}
       />
     )

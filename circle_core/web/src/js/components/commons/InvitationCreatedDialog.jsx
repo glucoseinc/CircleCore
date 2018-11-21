@@ -11,7 +11,7 @@ class InvitationCreatedDialog extends React.Component {
   static propTypes = {
     open: PropTypes.bool,
     invitation: PropTypes.object,
-    onTouchTap: PropTypes.func.isRequired,
+    onClick: PropTypes.func.isRequired,
   }
 
   /**
@@ -21,7 +21,7 @@ class InvitationCreatedDialog extends React.Component {
     const {
       invitation,
       open = false,
-      onTouchTap,
+      onClick,
     } = this.props
 
     if (invitation === undefined || invitation === null) {
@@ -32,7 +32,7 @@ class InvitationCreatedDialog extends React.Component {
       <OkDialog
         title="招待リンクを作成しました"
         label="閉じる"
-        onTouchTap={onTouchTap}
+        onClick={onClick}
         open={open}
       >
         <p>{invitation.url}</p>

@@ -20,8 +20,8 @@ class UserInfoPaper extends React.Component {
     user: PropTypes.object.isRequired,
     deleteDisabled: PropTypes.bool,
     readOnly: PropTypes.bool,
-    onDisplayNameTouchTap: PropTypes.func,
-    onDeleteTouchTap: PropTypes.func,
+    onDisplayNameClick: PropTypes.func,
+    onDeleteClick: PropTypes.func,
   }
 
   /**
@@ -32,8 +32,8 @@ class UserInfoPaper extends React.Component {
       user,
       deleteDisabled = true,
       readOnly = true,
-      onDisplayNameTouchTap,
-      onDeleteTouchTap,
+      onDisplayNameClick,
+      onDeleteClick,
     } = this.props
 
     const style = {
@@ -82,7 +82,7 @@ class UserInfoPaper extends React.Component {
           primaryText="このユーザーを削除する"
           leftIcon={<DeleteIcon />}
           disabled={deleteDisabled}
-          onTouchTap={() => onDeleteTouchTap(user)}
+          onClick={() => onDeleteClick(user)}
         />
       </MoreIconMenu>
     )
@@ -90,7 +90,7 @@ class UserInfoPaper extends React.Component {
     return (
       <Paper>
         <div style={style.root}>
-          <div style={style.displayName} onTouchTap={() => onDisplayNameTouchTap(user)}>{user.displayName}</div>
+          <div style={style.displayName} onClick={() => onDisplayNameClick(user)}>{user.displayName}</div>
           <div style={style.id}>
             <LabelWithCopyButton
               label={user.uuid}

@@ -18,7 +18,7 @@ class ModuleCards extends React.Component {
     cols: PropTypes.number,
     timeAxisUnit: PropTypes.number,
     modules: PropTypes.object.isRequired,
-    onDisplayNameTouchTap: PropTypes.func,
+    onDisplayNameClick: PropTypes.func,
   }
 
   static defaultProps = {
@@ -44,7 +44,7 @@ class ModuleCards extends React.Component {
     const {
       cols,
       modules,
-      onDisplayNameTouchTap,
+      onDisplayNameClick,
     } = this.props
     const {
       autoUpdate,
@@ -92,7 +92,7 @@ class ModuleCards extends React.Component {
         <ModuleGraphTimeRange
           activeTimeRange={graphRange}
           style={style.timeRangeSection}
-          onTouchTap={(range) => this.setState({graphRange: range})}
+          onClick={(range) => this.setState({graphRange: range})}
         />
 
         <GridList
@@ -110,7 +110,7 @@ class ModuleCards extends React.Component {
                 module={module}
                 autoUpdate={autoUpdate}
                 graphRange={graphRange}
-                onDisplayNameTouchTap={onDisplayNameTouchTap}
+                onDisplayNameClick={onDisplayNameClick}
               />
             </GridTile>
           ))}

@@ -19,9 +19,9 @@ class ModuleInfoPaper extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
-    onDisplayNameTouchTap: PropTypes.func,
-    onTagButtonTouchTap: PropTypes.func,
-    onDeleteTouchTap: PropTypes.func,
+    onDisplayNameClick: PropTypes.func,
+    onTagButtonClick: PropTypes.func,
+    onDeleteClick: PropTypes.func,
   }
 
   /**
@@ -31,9 +31,9 @@ class ModuleInfoPaper extends React.Component {
     const {
       module,
       ccInfos,
-      onDisplayNameTouchTap,
-      onTagButtonTouchTap,
-      onDeleteTouchTap,
+      onDisplayNameClick,
+      onTagButtonClick,
+      onDeleteClick,
     } = this.props
 
     const style = {
@@ -72,12 +72,12 @@ class ModuleInfoPaper extends React.Component {
             <MenuItem
               primaryText="このモジュールを削除する"
               leftIcon={<DeleteIcon />}
-              onTouchTap={() => onDeleteTouchTap(module)}
+              onClick={() => onDeleteClick(module)}
             />
           </MoreIconMenu>
 
           <div style={style.leftArea}>
-            <div style={style.displayName} onTouchTap={() => onDisplayNameTouchTap(module)}>
+            <div style={style.displayName} onClick={() => onDisplayNameClick(module)}>
               {module.displayName || '(no name)'}
             </div>
           </div>
@@ -92,7 +92,7 @@ class ModuleInfoPaper extends React.Component {
             <div style={style.tagsSection}>
               <TagButtons
                 module={module}
-                onTouchTap={onTagButtonTouchTap}
+                onClick={onTagButtonClick}
               />
             </div>
             <div style={style.attributesSection}>

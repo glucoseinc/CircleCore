@@ -19,7 +19,7 @@ class ChangeProfile extends React.Component {
     users: PropTypes.object.isRequired,
     errors: PropTypes.object,
     myID: PropTypes.string,
-    onUpdateTouchTap: PropTypes.func,
+    onUpdateClick: PropTypes.func,
   }
 
   /**
@@ -32,7 +32,7 @@ class ChangeProfile extends React.Component {
       users,
       errors = {},
       myID,
-      onUpdateTouchTap,
+      onUpdateClick,
     } = this.props
 
     if (isUserFetching || isUserUpdating) {
@@ -58,7 +58,7 @@ class ChangeProfile extends React.Component {
           errors={errors}
           canChangePermission={false}
           needCurrentPassword={true}
-          onSaveTouchTap={onUpdateTouchTap}
+          onSaveClick={onUpdateClick}
         />
       </div>
     )
@@ -75,7 +75,7 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  onUpdateTouchTap: (user, currentPassword, newPassword) => {
+  onUpdateClick: (user, currentPassword, newPassword) => {
     const rawUser = {
       ...user.toJS(),
       currentPassword,

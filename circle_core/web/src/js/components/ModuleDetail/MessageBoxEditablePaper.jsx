@@ -34,9 +34,9 @@ class MessageBoxEditablePaper extends React.Component {
     style: PropTypes.object,
     deleteDispabled: PropTypes.bool,
     fetchingData: PropTypes.object.isRequired,
-    onEditTouchTap: PropTypes.func,
-    onDeleteTouchTap: PropTypes.func,
-    onDownloadTouchTap: PropTypes.func,
+    onEditClick: PropTypes.func,
+    onDeleteClick: PropTypes.func,
+    onDownloadClick: PropTypes.func,
   }
 
   state = {
@@ -61,9 +61,9 @@ class MessageBoxEditablePaper extends React.Component {
       ccInfos,
       deleteDispabled = false,
       fetchingData,
-      onEditTouchTap,
-      onDeleteTouchTap,
-      onDownloadTouchTap,
+      onEditClick,
+      onDeleteClick,
+      onDownloadClick,
     } = this.props
 
     const style = {
@@ -151,13 +151,13 @@ class MessageBoxEditablePaper extends React.Component {
         <MenuItem
           primaryText="このメッセージボックスを編集する"
           leftIcon={<EditIcon />}
-          onTouchTap={onEditTouchTap}
+          onClick={onEditClick}
         />
         <MenuItem
           primaryText="このメッセージボックスを削除する"
           disabled={deleteDispabled}
           leftIcon={<DeleteIcon />}
-          onTouchTap={onDeleteTouchTap}
+          onClick={onDeleteClick}
         />
       </MoreIconMenu>
     ) : (
@@ -180,7 +180,7 @@ class MessageBoxEditablePaper extends React.Component {
           <ModuleGraphTimeRange
             activeTimeRange={graphRange}
             style={style.timeRange}
-            onTouchTap={(range) => this.setState({graphRange: range})}
+            onClick={(range) => this.setState({graphRange: range})}
           />
           <div style={style.graph}>
             <ModuleGraph
@@ -241,7 +241,7 @@ class MessageBoxEditablePaper extends React.Component {
               primary={true}
               icon={DownloadIcon}
               disabled={downloadStartDate === null || downloadEndDate === null ? true : false}
-              onTouchTap={() => onDownloadTouchTap(module, messageBox, downloadStartDate, downloadEndDate)}
+              onClick={() => onDownloadClick(module, messageBox, downloadStartDate, downloadEndDate)}
             />
           </div>
         </div>

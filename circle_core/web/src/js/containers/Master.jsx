@@ -46,7 +46,7 @@ class Master extends React.Component {
    * NavDrawerの開閉
    * @param {bool} open
    */
-  onNavDrawerButtonTouchTap(open) {
+  onNavDrawerButtonClick(open) {
     this.setState({
       navDrawerOpen: open,
     })
@@ -55,7 +55,7 @@ class Master extends React.Component {
   /**
    * @param {string} pathname
    */
-  onNavDrawerMenuTouchTap(pathname) {
+  onNavDrawerMenuItemClick(pathname) {
     this.setState({
       navDrawerOpen: false,
     })
@@ -106,7 +106,7 @@ class Master extends React.Component {
           <AppBar
             title={title}
             showMenuIconButton={appBarShowMenuIconButton}
-            onLeftIconButtonTouchTap={() => this.onNavDrawerButtonTouchTap(true)}
+            onLeftIconButtonClick={() => this.onNavDrawerButtonClick(true)}
           />
           <div style={style.children}>
             {children}
@@ -117,8 +117,8 @@ class Master extends React.Component {
           alwaysOpen={navDrawerAlwaysOpen}
           open={navDrawerOpen}
           location={location}
-          onRequestChange={::this.onNavDrawerButtonTouchTap}
-          onNavItemTouchTap={::this.onNavDrawerMenuTouchTap}
+          onRequestChange={::this.onNavDrawerButtonClick}
+          onNavItemClick={::this.onNavDrawerMenuItemClick}
         />
 
         <Snackbar

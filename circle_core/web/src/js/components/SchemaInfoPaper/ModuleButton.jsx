@@ -10,7 +10,7 @@ import FlatButton from 'material-ui/FlatButton'
 class ModuleButton extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
-    onTouchTap: PropTypes.func,
+    onClick: PropTypes.func,
   }
 
   /**
@@ -19,7 +19,7 @@ class ModuleButton extends React.Component {
   render() {
     const {
       module,
-      onTouchTap,
+      onClick,
     } = this.props
 
     const style = {
@@ -39,7 +39,7 @@ class ModuleButton extends React.Component {
         primary={true}
         label={module.label}
         labelStyle={style.label}
-        onTouchTap={() => onTouchTap(module.uuid)}
+        onClick={() => onClick(module.uuid)}
       />
     )
   }

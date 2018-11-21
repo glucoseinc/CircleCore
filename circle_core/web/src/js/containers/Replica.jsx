@@ -22,7 +22,7 @@ class Replica extends React.Component {
     ccInfos: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,
     setTitle: PropTypes.func,
-    onDeleteOkButtonTouchTap: PropTypes.func,
+    onDeleteOkButtonClick: PropTypes.func,
   }
 
   state = {
@@ -41,7 +41,7 @@ class Replica extends React.Component {
   /**
    * 削除ボタン押下時の動作
    */
-  onDeleteTouchTap() {
+  onDeleteClick() {
     this.setState({
       isReplicationLinkDeleteDialogOpen: true,
     })
@@ -52,12 +52,12 @@ class Replica extends React.Component {
    * @param {bool} execute
    * @param {object} replicationLink
    */
-  onDeleteDialogButtonTouchTap(execute, replicationLink) {
+  onDeleteDialogButtonClick(execute, replicationLink) {
     this.setState({
       isReplicationLinkDeleteDialogOpen: false,
     })
     if (execute && replicationLink) {
-      this.props.onDeleteOkButtonTouchTap(replicationLink)
+      this.props.onDeleteOkButtonClick(replicationLink)
     }
   }
 
@@ -98,14 +98,14 @@ class Replica extends React.Component {
           replicationLink={replicationLink}
           modules={modules}
           ccInfos={ccInfos}
-          onDeleteTouchTap={() => this.onDeleteTouchTap()}
+          onDeleteClick={() => this.onDeleteClick()}
         />
 
         <ReplicationLinkDeleteDialog
           open={isReplicationLinkDeleteDialogOpen}
           replicationLink={replicationLink}
-          onOkTouchTap={(replicationLink) => this.onDeleteDialogButtonTouchTap(true, replicationLink)}
-          onCancelTouchTap={() => this.onDeleteDialogButtonTouchTap(false)}
+          onOkClick={(replicationLink) => this.onDeleteDialogButtonClick(true, replicationLink)}
+          onCancelClick={() => this.onDeleteDialogButtonClick(false)}
         />
       </div>
     )
@@ -122,7 +122,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   setTitle: (title) => dispatch(actions.page.setTitle(title)),
-  onDeleteOkButtonTouchTap: (replicationLink) => dispatch(actions.replicationLink.deleteRequest(replicationLink.uuid)),
+  onDeleteOkButtonClick: (replicationLink) => dispatch(actions.replicationLink.deleteRequest(replicationLink.uuid)),
 })
 
 export default connect(

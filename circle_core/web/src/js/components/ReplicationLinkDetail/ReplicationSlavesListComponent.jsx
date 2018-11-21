@@ -14,7 +14,7 @@ class ReplicationSlavesListItem extends React.Component {
   static propTypes = {
     ccInfo: PropTypes.object.isRequired,
     backgroundColor: PropTypes.string,
-    onIdCopyButtonTouchTap: PropTypes.func,
+    onIdCopyButtonClick: PropTypes.func,
   }
 
   /**
@@ -24,7 +24,7 @@ class ReplicationSlavesListItem extends React.Component {
     const {
       ccInfo,
       backgroundColor,
-      onIdCopyButtonTouchTap,
+      onIdCopyButtonClick,
     } = this.props
 
     const style = {
@@ -54,7 +54,7 @@ class ReplicationSlavesListItem extends React.Component {
         </div>
         <IdLabel
           obj={ccInfo}
-          onCopyButtonTouchTap={onIdCopyButtonTouchTap}
+          onCopyButtonClick={onIdCopyButtonClick}
         />
       </div>
     )
@@ -69,7 +69,7 @@ class ReplicationSlavesListComponent extends React.Component {
   static propTypes = {
     replicationLink: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
-    onIdCopyButtonTouchTap: PropTypes.func,
+    onIdCopyButtonClick: PropTypes.func,
   }
 
   /**
@@ -79,7 +79,7 @@ class ReplicationSlavesListComponent extends React.Component {
     const {
       replicationLink,
       ccInfos,
-      onIdCopyButtonTouchTap,
+      onIdCopyButtonClick,
     } = this.props
 
     const style = {
@@ -102,7 +102,7 @@ class ReplicationSlavesListComponent extends React.Component {
                 key={slaveOrUuid.uuid}
                 ccInfo={slaveOrUuid}
                 backgroundColor={index % 2 ? white : grey300}
-                onIdCopyButtonTouchTap={onIdCopyButtonTouchTap}
+                onIdCopyButtonClick={onIdCopyButtonClick}
               />
             )
           )}

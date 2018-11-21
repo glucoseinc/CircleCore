@@ -27,10 +27,10 @@ class Schemas extends React.Component {
     schemas: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
-    onDisplayNameTouchTap: PropTypes.func,
-    onModuleButtonTouchTap: PropTypes.func,
-    onTemplateTouchTap: PropTypes.func,
-    onDeleteOkButtonTouchTap: PropTypes.func,
+    onDisplayNameClick: PropTypes.func,
+    onModuleButtonClick: PropTypes.func,
+    onTemplateClick: PropTypes.func,
+    onDeleteOkButtonClick: PropTypes.func,
   }
 
   state = {
@@ -42,7 +42,7 @@ class Schemas extends React.Component {
    * 追加メニュー 削除の選択時の動作
    * @param {object} schema
    */
-  onDeleteTouchTap(schema) {
+  onDeleteClick(schema) {
     this.setState({
       deleteSchema: schema,
       isSchemaDeleteDialogOpen: true,
@@ -54,13 +54,13 @@ class Schemas extends React.Component {
    * @param {bool} execute
    * @param {object} schema
    */
-  onDeleteDialogButtonTouchTap(execute, schema) {
+  onDeleteDialogButtonClick(execute, schema) {
     this.setState({
       deleteSchema: null,
       isSchemaDeleteDialogOpen: false,
     })
     if (execute && schema) {
-      this.props.onDeleteOkButtonTouchTap(schema)
+      this.props.onDeleteOkButtonClick(schema)
     }
   }
 
@@ -78,9 +78,9 @@ class Schemas extends React.Component {
       schemas,
       modules,
       ccInfos,
-      onDisplayNameTouchTap,
-      onModuleButtonTouchTap,
-      onTemplateTouchTap,
+      onDisplayNameClick,
+      onModuleButtonClick,
+      onTemplateClick,
     } = this.props
 
     if (isSchemaFetching || isCcInfoFetching) {
@@ -106,10 +106,10 @@ class Schemas extends React.Component {
                 schema={schema}
                 modules={modules}
                 ownCcInfo={ownCcInfo}
-                onDisplayNameTouchTap={(schema) => onDisplayNameTouchTap(schema.uuid)}
-                onModuleButtonTouchTap={onModuleButtonTouchTap}
-                onTemplateTouchTap={(shcmea) => onTemplateTouchTap(schema.uuid)}
-                onDeleteTouchTap={::this.onDeleteTouchTap}
+                onDisplayNameClick={(schema) => onDisplayNameClick(schema.uuid)}
+                onModuleButtonClick={onModuleButtonClick}
+                onTemplateClick={(shcmea) => onTemplateClick(schema.uuid)}
+                onDeleteClick={::this.onDeleteClick}
               />
             ))}
           </div>
@@ -122,8 +122,8 @@ class Schemas extends React.Component {
         <SchemaDeleteDialog
           open={isSchemaDeleteDialogOpen}
           schema={deleteSchema}
-          onOkTouchTap={(schema) => this.onDeleteDialogButtonTouchTap(true, schema)}
-          onCancelTouchTap={() => this.onDeleteDialogButtonTouchTap(false)}
+          onOkClick={(schema) => this.onDeleteDialogButtonClick(true, schema)}
+          onCancelClick={() => this.onDeleteDialogButtonClick(false)}
         />
       </div>
     )
@@ -140,13 +140,13 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  onDisplayNameTouchTap: (schemaId) => dispatch(routerActions.push(createPathName(urls.schema, {schemaId}))),
-  onModuleButtonTouchTap: (moduleId) => dispatch(routerActions.push(createPathName(urls.module, {moduleId}))),
-  onTemplateTouchTap: (schemaId) => dispatch(routerActions.push({
+  onDisplayNameClick: (schemaId) => dispatch(routerActions.push(createPathName(urls.schema, {schemaId}))),
+  onModuleButtonClick: (moduleId) => dispatch(routerActions.push(createPathName(urls.module, {moduleId}))),
+  onTemplateClick: (schemaId) => dispatch(routerActions.push({
     pathname: createPathName(urls.schemasNew),
     query: createQuery(urls.schemasNew, {schemaId}),
   })),
-  onDeleteOkButtonTouchTap: (schema) => dispatch(actions.schema.deleteRequest(schema.uuid)),
+  onDeleteOkButtonClick: (schema) => dispatch(actions.schema.deleteRequest(schema.uuid)),
 })
 
 export default connect(

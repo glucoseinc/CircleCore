@@ -11,8 +11,8 @@ class ModuleDeleteDialog extends React.Component {
   static propTypes = {
     open: PropTypes.bool,
     module: PropTypes.object,
-    onOkTouchTap: PropTypes.func.isRequired,
-    onCancelTouchTap: PropTypes.func.isRequired,
+    onOkClick: PropTypes.func.isRequired,
+    onCancelClick: PropTypes.func.isRequired,
   }
 
   /**
@@ -22,16 +22,16 @@ class ModuleDeleteDialog extends React.Component {
     const {
       open = false,
       module,
-      onOkTouchTap,
-      onCancelTouchTap,
+      onOkClick,
+      onCancelClick,
     } = this.props
 
     return (
       <DeleteDialog
         obj={module}
         title="このモジュールを削除しますか？"
-        onOkTouchTap={onOkTouchTap}
-        onCancelTouchTap={onCancelTouchTap}
+        onOkClick={onOkClick}
+        onCancelClick={onCancelClick}
         open={open}
       />
     )

@@ -18,7 +18,7 @@ import ModuleAttributesTable from './ModuleAttributesTable'
 class MetadataEditablePaper extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
-    onEditTouchTap: PropTypes.func,
+    onEditClick: PropTypes.func,
   }
 
   /**
@@ -27,7 +27,7 @@ class MetadataEditablePaper extends React.Component {
   render() {
     const {
       module,
-      onEditTouchTap,
+      onEditClick,
     } = this.props
 
     const style = {
@@ -73,7 +73,7 @@ class MetadataEditablePaper extends React.Component {
         <div style={style.root}>
           <ComponentWithIconButton
             icon={EditIcon}
-            onIconButtonTouchTap={onEditTouchTap}
+            onIconButtonClick={onEditClick}
           >
             <div style={style.contents}>
               <div style={style.tagsSection}>

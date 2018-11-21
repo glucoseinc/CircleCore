@@ -24,7 +24,7 @@ class ModuleNewPaper extends React.Component {
     tagSuggestions: PropTypes.array,
     attributeNameSuggestions: PropTypes.array,
     attributeValueSuggestions: PropTypes.array,
-    onCreateTouchTap: PropTypes.func,
+    onCreateClick: PropTypes.func,
   }
 
   state = {
@@ -43,7 +43,7 @@ class ModuleNewPaper extends React.Component {
       tagSuggestions = [],
       attributeNameSuggestions = [],
       attributeValueSuggestions = [],
-      onCreateTouchTap,
+      onCreateClick,
     } = this.props
 
     const style = {
@@ -98,8 +98,8 @@ class ModuleNewPaper extends React.Component {
                   module={module}
                   suggestions={tagSuggestions}
                   onUpdate={(index, tag) => this.setState({module: module.updateTag(index, tag)})}
-                  onDeleteTouchTap={(index) => this.setState({module: module.removeTag(index)})}
-                  onAddTouchTap={() => this.setState({module: module.pushTag()})}
+                  onDeleteClick={(index) => this.setState({module: module.removeTag(index)})}
+                  onAddClick={() => this.setState({module: module.pushTag()})}
                 />
               </div>
               <div style={style.attributesSection}>
@@ -110,8 +110,8 @@ class ModuleNewPaper extends React.Component {
                   onUpdate={(index, attribute) => this.setState(
                     {module: module.updateModuleAttribute(index, attribute)}
                   )}
-                  onDeleteTouchTap={(index) => this.setState({module: module.removeModuleAttribute(index)})}
-                  onAddTouchTap={() => this.setState({module: module.pushModuleAttribute()})}
+                  onDeleteClick={(index) => this.setState({module: module.removeModuleAttribute(index)})}
+                  onAddClick={() => this.setState({module: module.pushModuleAttribute()})}
                 />
               </div>
               <div style={style.memoSection}>
@@ -129,8 +129,8 @@ class ModuleNewPaper extends React.Component {
                 module={module}
                 schemas={schemas}
                 onUpdate={(index, messageBox) => this.setState({module: module.updateMessageBox(index, messageBox)})}
-                onDeleteTouchTap={(index) => this.setState({module: module.removeMessageBox(index)})}
-                onAddTouchTap={() => this.setState({module: module.pushMessageBox()})}
+                onDeleteClick={(index) => this.setState({module: module.removeMessageBox(index)})}
+                onAddClick={() => this.setState({module: module.pushMessageBox()})}
               />
             </ComponentWithHeader>
           </div>
@@ -138,7 +138,7 @@ class ModuleNewPaper extends React.Component {
           <div style={style.actionsArea}>
             <CreateButton
               disabled={module.isReadyToCreate() ? false : true}
-              onTouchTap={() => onCreateTouchTap(module)}
+              onClick={() => onCreateClick(module)}
             />
           </div>
         </div>

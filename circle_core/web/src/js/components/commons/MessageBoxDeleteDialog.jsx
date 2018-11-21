@@ -12,8 +12,8 @@ class MessageBoxDeleteDialog extends React.Component {
     open: PropTypes.bool,
     module: PropTypes.object.isRequired,
     messageBoxIndex: PropTypes.number.isRequired,
-    onOkTouchTap: PropTypes.func.isRequired,
-    onCancelTouchTap: PropTypes.func.isRequired,
+    onOkClick: PropTypes.func.isRequired,
+    onCancelClick: PropTypes.func.isRequired,
   }
 
   /**
@@ -24,8 +24,8 @@ class MessageBoxDeleteDialog extends React.Component {
       open = false,
       module,
       messageBoxIndex,
-      onOkTouchTap,
-      onCancelTouchTap,
+      onOkClick,
+      onCancelClick,
     } = this.props
 
     const messageBox = module.messageBoxes.get(messageBoxIndex)
@@ -34,8 +34,8 @@ class MessageBoxDeleteDialog extends React.Component {
       <DeleteDialog
         obj={messageBox}
         title="このメッセージボックスを削除しますか？"
-        onOkTouchTap={() => onOkTouchTap(messageBoxIndex)}
-        onCancelTouchTap={onCancelTouchTap}
+        onOkClick={() => onOkClick(messageBoxIndex)}
+        onCancelClick={onCancelClick}
         open={open}
       />
     )

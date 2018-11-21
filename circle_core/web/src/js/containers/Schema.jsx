@@ -24,8 +24,8 @@ class Schema extends React.Component {
     ccInfos: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,
     setTitle: PropTypes.func,
-    onBackButtonTouchTap: PropTypes.func,
-    onDeleteOkButtonTouchTap: PropTypes.func,
+    onBackButtonClick: PropTypes.func,
+    onDeleteOkButtonClick: PropTypes.func,
   }
 
   state = {
@@ -44,7 +44,7 @@ class Schema extends React.Component {
   /**
    * 削除ボタン押下時の動作
    */
-  onDeleteTouchTap() {
+  onDeleteClick() {
     this.setState({
       isSchemaDeleteDialogOpen: true,
     })
@@ -55,12 +55,12 @@ class Schema extends React.Component {
    * @param {bool} execute
    * @param {object} schema
    */
-  onDeleteDialogButtonTouchTap(execute, schema) {
+  onDeleteDialogButtonClick(execute, schema) {
     this.setState({
       isSchemaDeleteDialogOpen: false,
     })
     if (execute && schema) {
-      this.props.onDeleteOkButtonTouchTap(schema)
+      this.props.onDeleteOkButtonClick(schema)
     }
   }
 
@@ -77,7 +77,7 @@ class Schema extends React.Component {
       schemas,
       ccInfos,
       params,
-      onBackButtonTouchTap,
+      onBackButtonClick,
     } = this.props
 
     if (isSchemaFetching || isCcInfoFetching) {
@@ -103,15 +103,15 @@ class Schema extends React.Component {
         <SchemaDetail
           schema={schema}
           ownCcInfo={ownCcInfo}
-          onBackTouchTap={onBackButtonTouchTap}
-          onDeleteTouchTap={::this.onDeleteTouchTap}
+          onBackClick={onBackButtonClick}
+          onDeleteClick={::this.onDeleteClick}
         />
 
         <SchemaDeleteDialog
           open={isSchemaDeleteDialogOpen}
           schema={schema}
-          onOkTouchTap={(schema) => this.onDeleteDialogButtonTouchTap(true, schema)}
-          onCancelTouchTap={() => this.onDeleteDialogButtonTouchTap(false)}
+          onOkClick={(schema) => this.onDeleteDialogButtonClick(true, schema)}
+          onCancelClick={() => this.onDeleteDialogButtonClick(false)}
         />
       </div>
     )
@@ -128,8 +128,8 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   setTitle: (title) => dispatch(actions.page.setTitle(title)),
-  onBackButtonTouchTap: () => dispatch(routerActions.push(urls.schemas.fullPath)),
-  onDeleteOkButtonTouchTap: (schema) => dispatch(actions.schema.deleteRequest(schema.uuid)),
+  onBackButtonClick: () => dispatch(routerActions.push(urls.schemas.fullPath)),
+  onDeleteOkButtonClick: (schema) => dispatch(actions.schema.deleteRequest(schema.uuid)),
 })
 
 export default connect(

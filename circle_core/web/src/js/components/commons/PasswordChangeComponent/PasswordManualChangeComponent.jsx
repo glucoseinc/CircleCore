@@ -114,7 +114,7 @@ class PasswordManualChangeComponent extends React.Component {
           <CCFlatButton
             label="新しいパスワードを自動生成する"
             primary={true}
-            onTouchTap={onToggleInputMethod}
+            onClick={onToggleInputMethod}
           />
         </div>
       </div>

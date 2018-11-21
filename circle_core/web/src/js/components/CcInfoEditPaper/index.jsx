@@ -17,7 +17,7 @@ import WorkTextField from 'src/components/commons/WorkTextField'
 class CcInfoEditPaper extends React.Component {
   static propTypes = {
     ccInfo: PropTypes.object.isRequired,
-    onUpdateTouchTap: PropTypes.func,
+    onUpdateClick: PropTypes.func,
   }
 
   /**
@@ -38,7 +38,7 @@ class CcInfoEditPaper extends React.Component {
       editingCcInfo,
     } = this.state
     const {
-      onUpdateTouchTap,
+      onUpdateClick,
     } = this.props
 
     const style = {
@@ -71,7 +71,7 @@ class CcInfoEditPaper extends React.Component {
         <div style={style.root}>
           <ComponentWithOkButton
             okButtonLabel="更新する"
-            onOKButtonTouchTap={() => onUpdateTouchTap(editingCcInfo)}
+            onOKButtonClick={() => onUpdateClick(editingCcInfo)}
           >
             <div style={style.contents}>
               <div style={style.displayNameArea}>

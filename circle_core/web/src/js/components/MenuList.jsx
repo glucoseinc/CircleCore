@@ -14,7 +14,7 @@ class MenuSection extends React.Component {
     section: PropTypes.object.isRequired,
     selectedValue: PropTypes.string,
     index: PropTypes.number.isRequired,
-    onItemTouchTap: PropTypes.func,
+    onItemClick: PropTypes.func,
   }
 
 
@@ -26,7 +26,7 @@ class MenuSection extends React.Component {
       section,
       selectedValue,
       index,
-      onItemTouchTap,
+      onItemClick,
     } = this.props
 
     const colorMenuListItemText = grey600
@@ -65,7 +65,7 @@ class MenuSection extends React.Component {
               style={_style}
               primaryText={item.text}
               leftIcon={item.icon ? <item.icon color={colorMenuListItemText} /> : null}
-              onTouchTap={onItemTouchTap ? () => onItemTouchTap(item.value) : () => null}
+              onClick={onItemClick ? () => onItemClick(item.value) : () => null}
             />
           )
         })}
@@ -81,7 +81,7 @@ class MenuList extends React.Component {
   static propTypes = {
     sections: PropTypes.array.isRequired,
     selectedValue: PropTypes.string,
-    onItemTouchTap: PropTypes.func,
+    onItemClick: PropTypes.func,
   }
 
   /**
@@ -91,7 +91,7 @@ class MenuList extends React.Component {
     const {
       sections,
       selectedValue,
-      onItemTouchTap,
+      onItemClick,
     } = this.props
 
     return (
@@ -102,7 +102,7 @@ class MenuList extends React.Component {
             section={section}
             selectedValue={selectedValue}
             index={sectionIndex}
-            onItemTouchTap={onItemTouchTap}
+            onItemClick={onItemClick}
           />
         ))}
       </List>

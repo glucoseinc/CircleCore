@@ -20,8 +20,8 @@ class MetadataEdittingPaper extends React.Component {
     attributeNameSuggestions: PropTypes.array,
     attributeValueSuggestions: PropTypes.array,
     onUpdate: PropTypes.func,
-    onOKButtonTouchTap: PropTypes.func,
-    onCancelButtonTouchTap: PropTypes.func,
+    onOKButtonClick: PropTypes.func,
+    onCancelButtonClick: PropTypes.func,
   }
 
   /**
@@ -34,8 +34,8 @@ class MetadataEdittingPaper extends React.Component {
       attributeNameSuggestions = [],
       attributeValueSuggestions = [],
       onUpdate,
-      onOKButtonTouchTap,
-      onCancelButtonTouchTap,
+      onOKButtonClick,
+      onCancelButtonClick,
     } = this.props
 
     const style = {
@@ -65,8 +65,8 @@ class MetadataEdittingPaper extends React.Component {
           <ComponentWithOkCancelButton
             okButtonLabel="保存"
             okButtonDisabled={module.isReadyToCreate() ? false : true}
-            onOKButtonTouchTap={onOKButtonTouchTap}
-            onCancelButtonTouchTap={onCancelButtonTouchTap}
+            onOKButtonClick={onOKButtonClick}
+            onCancelButtonClick={onCancelButtonClick}
           >
             <div style={style.contents}>
               <div style={style.tagsSection}>
@@ -74,8 +74,8 @@ class MetadataEdittingPaper extends React.Component {
                   module={module}
                   suggestions={tagSuggestions}
                   onUpdate={(index, tag) => onUpdate(module.updateTag(index, tag))}
-                  onDeleteTouchTap={(index) => onUpdate(module.removeTag(index))}
-                  onAddTouchTap={() => onUpdate(module.pushTag())}
+                  onDeleteClick={(index) => onUpdate(module.removeTag(index))}
+                  onAddClick={() => onUpdate(module.pushTag())}
                 />
               </div>
               <div style={style.attributesSection}>
@@ -84,8 +84,8 @@ class MetadataEdittingPaper extends React.Component {
                   nameSuggestions={attributeNameSuggestions}
                   valueSuggestions={attributeValueSuggestions}
                   onUpdate={(index, attribute) => onUpdate(module.updateModuleAttribute(index, attribute))}
-                  onDeleteTouchTap={(index) => onUpdate(module.removeModuleAttribute(index))}
-                  onAddTouchTap={() => onUpdate(module.pushModuleAttribute())}
+                  onDeleteClick={(index) => onUpdate(module.removeModuleAttribute(index))}
+                  onAddClick={() => onUpdate(module.pushModuleAttribute())}
                 />
               </div>
               <div style={style.memoSection}>

@@ -24,8 +24,8 @@ class Users extends React.Component {
     users: PropTypes.object.isRequired,
     myID: PropTypes.string,
     token: PropTypes.object.isRequired,
-    onDisplayNameTouchTap: PropTypes.func,
-    onDeleteOkButtonTouchTap: PropTypes.func,
+    onDisplayNameClick: PropTypes.func,
+    onDeleteOkButtonClick: PropTypes.func,
   }
 
   state = {
@@ -37,7 +37,7 @@ class Users extends React.Component {
    * 追加メニュー 削除の選択時の動作
    * @param {object} user
    */
-  onDeleteTouchTap(user) {
+  onDeleteClick(user) {
     this.setState({
       deleteUser: user,
       isUserDeleteDialogOpen: true,
@@ -49,13 +49,13 @@ class Users extends React.Component {
    * @param {bool} execute
    * @param {object} user
    */
-  onDeleteDialogButtonTouchTap(execute, user) {
+  onDeleteDialogButtonClick(execute, user) {
     this.setState({
       deleteUser: null,
       isUserDeleteDialogOpen: false,
     })
     if (execute && user) {
-      this.props.onDeleteOkButtonTouchTap(user)
+      this.props.onDeleteOkButtonClick(user)
     }
   }
 
@@ -73,7 +73,7 @@ class Users extends React.Component {
       users,
       myID,
       token,
-      onDisplayNameTouchTap,
+      onDisplayNameClick,
     } = this.props
 
     if (isUserFetching) {
@@ -97,8 +97,8 @@ class Users extends React.Component {
               users={users}
               myID={myID}
               readOnly={isReadOnly}
-              onDisplayNameTouchTap={(user) => onDisplayNameTouchTap(user.uuid)}
-              onDeleteTouchTap={(user) => this.onDeleteTouchTap(user)}
+              onDisplayNameClick={(user) => onDisplayNameClick(user.uuid)}
+              onDeleteClick={(user) => this.onDeleteClick(user)}
             />
           </div>
         )}
@@ -106,8 +106,8 @@ class Users extends React.Component {
         <UserDeleteDialog
           open={isUserDeleteDialogOpen}
           user={deleteUser}
-          onOkTouchTap={(user) => this.onDeleteDialogButtonTouchTap(true, user)}
-          onCancelTouchTap={() => this.onDeleteDialogButtonTouchTap(false)}
+          onOkClick={(user) => this.onDeleteDialogButtonClick(true, user)}
+          onCancelClick={() => this.onDeleteDialogButtonClick(false)}
         />
       </div>
     )
@@ -124,8 +124,8 @@ const mapStateToProps = (state) => ({
 
 
 const mapDispatchToProps = (dispatch) => ({
-  onDisplayNameTouchTap: (userId) => dispatch(routerActions.push(createPathName(urls.user, {userId}))),
-  onDeleteOkButtonTouchTap: (user) => dispatch(actions.user.deleteRequest(user.uuid)),
+  onDisplayNameClick: (userId) => dispatch(routerActions.push(createPathName(urls.user, {userId}))),
+  onDeleteOkButtonClick: (user) => dispatch(actions.user.deleteRequest(user.uuid)),
 })
 
 export default connect(

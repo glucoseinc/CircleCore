@@ -16,7 +16,7 @@ class ReplicasNew extends React.Component {
     isModuleFetching: PropTypes.bool.isRequired,
     modules: PropTypes.object.isRequired,
     location: PropTypes.object,
-    onCreateTouchTap: PropTypes.func,
+    onCreateClick: PropTypes.func,
   }
 
   /**
@@ -28,7 +28,7 @@ class ReplicasNew extends React.Component {
       isModuleFetching,
       modules,
       location,
-      onCreateTouchTap,
+      onCreateClick,
     } = this.props
 
     const moduleId = location.query.module_id
@@ -60,7 +60,7 @@ class ReplicasNew extends React.Component {
         <ReplicationLinkNewPaper
           modules={modules}
           selectedModule={selectedModule}
-          onCreateTouchTap={onCreateTouchTap}
+          onCreateClick={onCreateClick}
         />
       </div>
     )
@@ -75,7 +75,7 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  onCreateTouchTap: (replicationLink) => dispatch(actions.replicationLink.createRequest(replicationLink.toJS())),
+  onCreateClick: (replicationLink) => dispatch(actions.replicationLink.createRequest(replicationLink.toJS())),
 })
 
 export default connect(

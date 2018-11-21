@@ -18,8 +18,8 @@ class ReplicationLinkInfoPaper extends React.Component {
     replicationLink: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
-    onDisplayNameTouchTap: PropTypes.func,
-    onDeleteTouchTap: PropTypes.func,
+    onDisplayNameClick: PropTypes.func,
+    onDeleteClick: PropTypes.func,
   }
 
   /**
@@ -30,8 +30,8 @@ class ReplicationLinkInfoPaper extends React.Component {
       replicationLink,
       modules,
       ccInfos,
-      onDisplayNameTouchTap,
-      onDeleteTouchTap,
+      onDisplayNameClick,
+      onDeleteClick,
     } = this.props
 
     const style = {
@@ -68,12 +68,12 @@ class ReplicationLinkInfoPaper extends React.Component {
           <MenuItem
             primaryText="この共有リンクを削除する"
             leftIcon={<DeleteIcon />}
-            onTouchTap={() => onDeleteTouchTap(replicationLink)}
+            onClick={() => onDeleteClick(replicationLink)}
           />
         </MoreIconMenu>
 
         <div style={style.leftArea}>
-          <div style={style.displayName} onTouchTap={() => onDisplayNameTouchTap(replicationLink.uuid)}>
+          <div style={style.displayName} onClick={() => onDisplayNameClick(replicationLink.uuid)}>
             {replicationLink.displayName || '(no name)'}
           </div>
         </div>

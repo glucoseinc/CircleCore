@@ -17,7 +17,7 @@ class Setting extends React.Component {
     isCcInfoFetching: PropTypes.bool.isRequired,
     isCcInfoUpdating: PropTypes.bool.isRequired,
     ccInfos: PropTypes.object.isRequired,
-    onUpdateTouchTap: PropTypes.func,
+    onUpdateClick: PropTypes.func,
   }
 
   /**
@@ -28,7 +28,7 @@ class Setting extends React.Component {
       isCcInfoFetching,
       isCcInfoUpdating,
       ccInfos,
-      onUpdateTouchTap,
+      onUpdateClick,
     } = this.props
 
     if (isCcInfoFetching || isCcInfoUpdating) {
@@ -43,7 +43,7 @@ class Setting extends React.Component {
       <div className="page">
         <CcInfoEditPaper
           ccInfo={ownCcInfo}
-          onUpdateTouchTap={onUpdateTouchTap}
+          onUpdateClick={onUpdateClick}
         />
       </div>
     )
@@ -58,7 +58,7 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  onUpdateTouchTap: (ccInfo) => dispatch(actions.ccInfo.updateRequest(ccInfo.toJS())),
+  onUpdateClick: (ccInfo) => dispatch(actions.ccInfo.updateRequest(ccInfo.toJS())),
 })
 
 export default connect(

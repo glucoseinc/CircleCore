@@ -11,8 +11,8 @@ class UserDeleteDialog extends React.Component {
   static propTypes = {
     open: PropTypes.bool,
     user: PropTypes.object,
-    onOkTouchTap: PropTypes.func.isRequired,
-    onCancelTouchTap: PropTypes.func.isRequired,
+    onOkClick: PropTypes.func.isRequired,
+    onCancelClick: PropTypes.func.isRequired,
   }
 
   /**
@@ -22,16 +22,16 @@ class UserDeleteDialog extends React.Component {
     const {
       open = false,
       user,
-      onOkTouchTap,
-      onCancelTouchTap,
+      onOkClick,
+      onCancelClick,
     } = this.props
 
     return (
       <DeleteDialog
         obj={user}
         title="このユーザーを削除しますか？"
-        onOkTouchTap={onOkTouchTap}
-        onCancelTouchTap={onCancelTouchTap}
+        onOkClick={onOkClick}
+        onCancelClick={onCancelClick}
         open={open}
       />
     )

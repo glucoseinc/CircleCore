@@ -13,7 +13,7 @@ import TagButton from './TagButton'
 class TagButtons extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
-    onTouchTap: PropTypes.func,
+    onClick: PropTypes.func,
   }
 
   /**
@@ -22,7 +22,7 @@ class TagButtons extends React.Component {
   render() {
     const {
       module,
-      onTouchTap,
+      onClick,
     } = this.props
 
     const style = {
@@ -45,7 +45,7 @@ class TagButtons extends React.Component {
             (<div key={index} style={style.tag}>
               <TagButton
                 tag={tag}
-                onTouchTap={(onTouchTap)}
+                onClick={(onClick)}
               />
             </div>)
           )}

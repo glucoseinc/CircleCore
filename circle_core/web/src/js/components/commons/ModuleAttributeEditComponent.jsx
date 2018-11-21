@@ -16,7 +16,7 @@ class ModuleAttributeEditComponent extends React.Component {
     nameSuggestions: PropTypes.array,
     valueSuggestions: PropTypes.array,
     onUpdate: PropTypes.func,
-    onDeleteTouchTap: PropTypes.func,
+    onDeleteClick: PropTypes.func,
     onNameChange: PropTypes.func,
     onValueChange: PropTypes.func,
   }
@@ -30,7 +30,7 @@ class ModuleAttributeEditComponent extends React.Component {
       nameSuggestions = [],
       valueSuggestions = [],
       onUpdate,
-      onDeleteTouchTap,
+      onDeleteClick,
     } = this.props
 
     const style = {
@@ -51,7 +51,7 @@ class ModuleAttributeEditComponent extends React.Component {
         rootStyle={style.root}
         childrenStyle={style.children}
         icon={DeleteIcon}
-        onIconButtonTouchTap={onDeleteTouchTap}
+        onIconButtonClick={onDeleteClick}
       >
         <AutoComplete
           floatingLabelText="属性名"

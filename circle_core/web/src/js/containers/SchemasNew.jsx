@@ -19,7 +19,7 @@ class SchemasNew extends React.Component {
     schemaPropertyTypes: PropTypes.object.isRequired,
     schemas: PropTypes.object.isRequired,
     location: PropTypes.object.isRequired,
-    onCreateTouchTap: PropTypes.func,
+    onCreateClick: PropTypes.func,
   }
 
   /**
@@ -32,7 +32,7 @@ class SchemasNew extends React.Component {
       schemas,
       schemaPropertyTypes,
       location,
-      onCreateTouchTap,
+      onCreateClick,
     } = this.props
 
     const schemaId = location.query.schema_id
@@ -57,7 +57,7 @@ class SchemasNew extends React.Component {
         <SchemaNewPaper
           templateSchema={schema}
           propertyTypes={schemaPropertyTypes}
-          onCreateTouchTap={onCreateTouchTap}
+          onCreateClick={onCreateClick}
         />
       </div>
     )
@@ -73,7 +73,7 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  onCreateTouchTap: (schema) => dispatch(actions.schema.createRequest(schema.toJS())),
+  onCreateClick: (schema) => dispatch(actions.schema.createRequest(schema.toJS())),
 })
 
 export default connect(

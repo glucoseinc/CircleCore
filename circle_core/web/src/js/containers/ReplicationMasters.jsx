@@ -23,7 +23,7 @@ class ReplicactionMasters extends React.Component {
   static propTypes = {
     isReplicationMasterFetching: PropTypes.bool.isRequired,
     replicationMasters: PropTypes.object.isRequired,
-    onDeleteOkButtonTouchTap: PropTypes.func,
+    onDeleteOkButtonClick: PropTypes.func,
   }
 
   state = {
@@ -35,7 +35,7 @@ class ReplicactionMasters extends React.Component {
    * 追加メニュー 削除の選択時の動作
    * @param {object} replicationMaster
    */
-  onDeleteTouchTap(replicationMaster) {
+  onDeleteClick(replicationMaster) {
     this.setState({
       deleteReplicationMaster: replicationMaster,
       isReplicationMasterDeleteDialogOpen: true,
@@ -47,13 +47,13 @@ class ReplicactionMasters extends React.Component {
    * @param {bool} execute
    * @param {object} replicationMaster
    */
-  onDeleteDialogButtonTouchTap(execute, replicationMaster) {
+  onDeleteDialogButtonClick(execute, replicationMaster) {
     this.setState({
       deleteReplicationMaster: null,
       isReplicationMasterDeleteDialogOpen: false,
     })
     if (execute && replicationMaster) {
-      this.props.onDeleteOkButtonTouchTap(replicationMaster)
+      this.props.onDeleteOkButtonClick(replicationMaster)
     }
   }
 
@@ -90,7 +90,7 @@ class ReplicactionMasters extends React.Component {
               <ReplicactionMasterPaper
                 key={repMaster.id}
                 replicationMaster={repMaster}
-                onDeleteTouchTap={::this.onDeleteTouchTap}
+                onDeleteClick={::this.onDeleteClick}
               />
             ))}
           </div>
@@ -103,8 +103,8 @@ class ReplicactionMasters extends React.Component {
         <ReplicationMasterDeleteDialog
           open={isReplicationMasterDeleteDialogOpen}
           replicationMaster={deleteReplicationMaster}
-          onOkTouchTap={(replicationMaster) => this.onDeleteDialogButtonTouchTap(true, replicationMaster)}
-          onCancelTouchTap={() => this.onDeleteDialogButtonTouchTap(false)}
+          onOkClick={(replicationMaster) => this.onDeleteDialogButtonClick(true, replicationMaster)}
+          onCancelClick={() => this.onDeleteDialogButtonClick(false)}
         />
 
       </div>
@@ -119,7 +119,7 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  onDeleteOkButtonTouchTap: (replicationMaster) => {
+  onDeleteOkButtonClick: (replicationMaster) => {
     return dispatch(actions.replicationMaster.deleteRequest(replicationMaster.id))
   },
 })

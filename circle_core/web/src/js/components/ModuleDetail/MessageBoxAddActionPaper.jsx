@@ -12,7 +12,7 @@ import {AddIcon} from 'src/components/bases/icons'
  */
 class MessageBoxAddActionPaper extends React.Component {
   static propTypes = {
-    onTouchTap: PropTypes.func,
+    onClick: PropTypes.func,
   }
 
   /**
@@ -20,7 +20,7 @@ class MessageBoxAddActionPaper extends React.Component {
    */
   render() {
     const {
-      onTouchTap,
+      onClick,
     } = this.props
 
     const style = {
@@ -39,7 +39,7 @@ class MessageBoxAddActionPaper extends React.Component {
             icon={AddIcon}
             label="メッセージボックスを追加する"
             primary={true}
-            onTouchTap={onTouchTap}
+            onClick={onClick}
           />
         </div>
       </Paper>

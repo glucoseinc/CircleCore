@@ -26,9 +26,9 @@ class Invitations extends React.Component {
     invitations: PropTypes.object.isRequired,
     newInvitation: PropTypes.object,
     token: PropTypes.object.isRequired,
-    onCreateTouchTap: PropTypes.func,
+    onCreateClick: PropTypes.func,
     onCreatedDialogClose: PropTypes.func,
-    onDeleteOkButtonTouchTap: PropTypes.func,
+    onDeleteOkButtonClick: PropTypes.func,
   }
 
   state = {
@@ -40,7 +40,7 @@ class Invitations extends React.Component {
    * 追加メニュー 削除の選択時の動作
    * @param {object} invitation
    */
-  onDeleteTouchTap(invitation) {
+  onDeleteClick(invitation) {
     this.setState({
       deleteInvitation: invitation,
       isInvitationDeleteDialogOpen: true,
@@ -52,13 +52,13 @@ class Invitations extends React.Component {
    * @param {bool} execute
    * @param {object} invitation
    */
-  onDeleteDialogButtonTouchTap(execute, invitation) {
+  onDeleteDialogButtonClick(execute, invitation) {
     this.setState({
       deleteInvitation: null,
       isInvitationDeleteDialogOpen: false,
     })
     if (execute && invitation) {
-      this.props.onDeleteOkButtonTouchTap(invitation)
+      this.props.onDeleteOkButtonClick(invitation)
     }
   }
 
@@ -77,7 +77,7 @@ class Invitations extends React.Component {
       invitations,
       newInvitation,
       token,
-      onCreateTouchTap,
+      onCreateClick,
       onCreatedDialogClose,
     } = this.props
 
@@ -103,27 +103,27 @@ class Invitations extends React.Component {
                 key={invitation.uuid}
                 invitation={invitation}
                 readOnly={isReadOnly}
-                onDeleteTouchTap={::this.onDeleteTouchTap}
+                onDeleteClick={::this.onDeleteClick}
               />
             ))}
           </div>
         )}
 
         <AddFloatingActionButton
-          onTouchTap={onCreateTouchTap}
+          onClick={onCreateClick}
         />
 
         <InvitationCreatedDialog
           open={isInvitationCreatedDialogOpen}
           invitation={newInvitation}
-          onTouchTap={onCreatedDialogClose}
+          onClick={onCreatedDialogClose}
         />
 
         <InvitationDeleteDialog
           open={isInvitationDeleteDialogOpen}
           invitation={deleteInvitation}
-          onOkTouchTap={(invitation) => this.onDeleteDialogButtonTouchTap(true, invitation)}
-          onCancelTouchTap={() => this.onDeleteDialogButtonTouchTap(false)}
+          onOkClick={(invitation) => this.onDeleteDialogButtonClick(true, invitation)}
+          onCancelClick={() => this.onDeleteDialogButtonClick(false)}
         />
       </div>
     )
@@ -141,9 +141,9 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  onCreateTouchTap: () => dispatch(actions.invitation.createRequest({maxInvites: 1})),
+  onCreateClick: () => dispatch(actions.invitation.createRequest({maxInvites: 1})),
   onCreatedDialogClose: () => dispatch(actions.invitation.createdDialogClose()),
-  onDeleteOkButtonTouchTap: (invitation) => dispatch(actions.invitation.deleteRequest(invitation.uuid)),
+  onDeleteOkButtonClick: (invitation) => dispatch(actions.invitation.deleteRequest(invitation.uuid)),
 })
 
 export default connect(

@@ -15,8 +15,8 @@ class DisplayNameEdittingPaper extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     onUpdate: PropTypes.func,
-    onOKButtonTouchTap: PropTypes.func,
-    onCancelButtonTouchTap: PropTypes.func,
+    onOKButtonClick: PropTypes.func,
+    onCancelButtonClick: PropTypes.func,
   }
 
   /**
@@ -26,8 +26,8 @@ class DisplayNameEdittingPaper extends React.Component {
     const {
       module,
       onUpdate,
-      onOKButtonTouchTap,
-      onCancelButtonTouchTap,
+      onOKButtonClick,
+      onCancelButtonClick,
     } = this.props
 
     const style = {
@@ -49,8 +49,8 @@ class DisplayNameEdittingPaper extends React.Component {
           <ComponentWithOkCancelButton
             okButtonLabel="保存"
             okButtonDisabled={module.isReadyToCreate() ? false : true}
-            onOKButtonTouchTap={onOKButtonTouchTap}
-            onCancelButtonTouchTap={onCancelButtonTouchTap}
+            onOKButtonClick={onOKButtonClick}
+            onCancelButtonClick={onCancelButtonClick}
           >
             <div style={style.contents}>
               <DisplayNameTextField

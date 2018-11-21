@@ -13,10 +13,10 @@ class OkCancelDialog extends React.Component {
     title: PropTypes.string,
     okLabel: PropTypes.string,
     okDisabled: PropTypes.bool,
-    onOkTouchTap: PropTypes.func.isRequired,
+    onOkClick: PropTypes.func.isRequired,
     cancelLabel: PropTypes.string,
     cancelDisabled: PropTypes.bool,
-    onCancelTouchTap: PropTypes.func.isRequired,
+    onCancelClick: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired,
     children: PropTypes.node,
   }
@@ -29,10 +29,10 @@ class OkCancelDialog extends React.Component {
       title,
       okLabel = 'OK',
       okDisabled = false,
-      onOkTouchTap,
+      onOkClick,
       cancelLabel = 'Cancel',
       cancelDisabled = false,
-      onCancelTouchTap,
+      onCancelClick,
       open,
       children,
     } = this.props
@@ -49,10 +49,10 @@ class OkCancelDialog extends React.Component {
         title={title}
         actions={[
           <FlatButton
-            key="cancel" label={cancelLabel} secondary={true} disabled={cancelDisabled} onTouchTap={onCancelTouchTap}
+            key="cancel" label={cancelLabel} secondary={true} disabled={cancelDisabled} onClick={onCancelClick}
           />,
           <FlatButton
-            key="ok" label={okLabel} primary={true} disabled={okDisabled} onTouchTap={onOkTouchTap}
+            key="ok" label={okLabel} primary={true} disabled={okDisabled} onClick={onOkClick}
           />,
         ]}
         actionsContainerStyle={style.actions}

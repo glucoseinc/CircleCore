@@ -44,7 +44,7 @@ class LabelWithCopyButton extends React.Component {
     labelStyle: PropTypes.object,
     messageWhenCopying: PropTypes.string.isRequired,
     copyButtonOnly: PropTypes.bool,
-    onTouchTap: PropTypes.func,
+    onClick: PropTypes.func,
   }
 
   constructor(props) {
@@ -56,10 +56,10 @@ class LabelWithCopyButton extends React.Component {
   /**
    * コピーボタン押下時、クリップボードにUUIDをコピーし親にイベントを送る
    */
-  onTouchTap() {
+  onClick() {
     const {
       messageWhenCopying,
-      onTouchTap,
+      onClick,
     } = this.props
     console.error(this.hiddenTextAreaRef.current)
     const textAreaNode = this.hiddenTextAreaRef.current
@@ -67,7 +67,7 @@ class LabelWithCopyButton extends React.Component {
     textAreaNode.select()
     document.execCommand('copy')
     textAreaNode.blur()
-    onTouchTap(messageWhenCopying)
+    onClick(messageWhenCopying)
   }
 
   /**
@@ -123,7 +123,7 @@ class LabelWithCopyButton extends React.Component {
         <IconButton
           style={style.iconButton}
           iconStyle={style.icon}
-          onTouchTap={() => this.onTouchTap()}
+          onClick={() => this.onClick()}
         >
           <CopyIcon color={grey500} />
         </IconButton>
@@ -137,7 +137,7 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  onTouchTap: (message) => dispatch(actions.page.showSnackbar(message)),
+  onClick: (message) => dispatch(actions.page.showSnackbar(message)),
 })
 
 export default connect(

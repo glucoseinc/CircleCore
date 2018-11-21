@@ -19,7 +19,7 @@ class InvitationInfoPaper extends React.Component {
   static propTypes = {
     invitation: PropTypes.object.isRequired,
     readOnly: PropTypes.bool,
-    onDeleteTouchTap: PropTypes.func,
+    onDeleteClick: PropTypes.func,
   }
 
   /**
@@ -29,7 +29,7 @@ class InvitationInfoPaper extends React.Component {
     const {
       invitation,
       readOnly = true,
-      onDeleteTouchTap,
+      onDeleteClick,
     } = this.props
 
     const style = {
@@ -84,7 +84,7 @@ class InvitationInfoPaper extends React.Component {
         <MenuItem
           primaryText="この招待リンクを削除する"
           leftIcon={<DeleteIcon />}
-          onTouchTap={() => onDeleteTouchTap(invitation)}
+          onClick={() => onDeleteClick(invitation)}
         />
       </MoreIconMenu>
     )

@@ -13,8 +13,8 @@ class ReplicationMasterDeleteDialog extends React.Component {
   static propTypes = {
     open: PropTypes.bool,
     replicationMaster: PropTypes.object,
-    onOkTouchTap: PropTypes.func.isRequired,
-    onCancelTouchTap: PropTypes.func.isRequired,
+    onOkClick: PropTypes.func.isRequired,
+    onCancelClick: PropTypes.func.isRequired,
   }
 
   state = {
@@ -31,8 +31,8 @@ class ReplicationMasterDeleteDialog extends React.Component {
     const {
       open,
       replicationMaster,
-      onOkTouchTap,
-      onCancelTouchTap,
+      onOkClick,
+      onCancelClick,
     } = this.props
 
     if (replicationMaster === undefined || replicationMaster === null) {
@@ -44,9 +44,9 @@ class ReplicationMasterDeleteDialog extends React.Component {
         title="この共有マスターを削除しますか？"
         okLabel="削除する"
         okDisabled={replicationMaster.endpointUrl !== inputURL}
-        onOkTouchTap={() => onOkTouchTap(replicationMaster)}
+        onOkClick={() => onOkClick(replicationMaster)}
         cancelLabel="キャンセル"
-        onCancelTouchTap={onCancelTouchTap}
+        onCancelClick={onCancelClick}
         open={open}
       >
         <p>{replicationMaster.endpointUrl}</p>

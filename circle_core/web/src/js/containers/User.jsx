@@ -21,7 +21,7 @@ class User extends React.Component {
     errors: PropTypes.object,
     token: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,
-    onUpdateTouchTap: PropTypes.func,
+    onUpdateClick: PropTypes.func,
   }
 
   /**
@@ -35,7 +35,7 @@ class User extends React.Component {
       errors = {},
       token,
       params,
-      onUpdateTouchTap,
+      onUpdateClick,
     } = this.props
 
     if (isUserFetching || isUserUpdating) {
@@ -58,7 +58,7 @@ class User extends React.Component {
       <UserEditPaper
         user={user}
         errors={errors}
-        onSaveTouchTap={onUpdateTouchTap}
+        onSaveClick={onUpdateClick}
       />
     ) : (
       <UserDetail
@@ -84,7 +84,7 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  onUpdateTouchTap: (user, currentPassword, newPassword) => {
+  onUpdateClick: (user, currentPassword, newPassword) => {
     dispatch(actions.user.updateRequest({...user.toJS(), newPassword}))
   },
 })

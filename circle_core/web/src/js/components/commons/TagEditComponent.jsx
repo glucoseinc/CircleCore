@@ -16,7 +16,7 @@ class TagEditComponent extends React.Component {
     suggestions: PropTypes.array,
     error: PropTypes.bool,
     onUpdate: PropTypes.func,
-    onDeleteTouchTap: PropTypes.func,
+    onDeleteClick: PropTypes.func,
   }
 
   /**
@@ -28,7 +28,7 @@ class TagEditComponent extends React.Component {
       suggestions = [],
       error = false,
       onUpdate,
-      onDeleteTouchTap,
+      onDeleteClick,
     } = this.props
 
     const style={
@@ -45,7 +45,7 @@ class TagEditComponent extends React.Component {
         rootStyle={style.root}
         childrenStyle={style.children}
         icon={DeleteIcon}
-        onIconButtonTouchTap={onDeleteTouchTap}
+        onIconButtonClick={onDeleteClick}
       >
         <TagTextField
           tag={tag}

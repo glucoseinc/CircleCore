@@ -11,7 +11,7 @@ import {AddIcon} from 'src/components/bases/icons'
  */
 class AddFloatingActionButton extends React.Component {
   static propTypes = {
-    onTouchTap: PropTypes.func,
+    onClick: PropTypes.func,
   }
 
   state = {
@@ -23,7 +23,7 @@ class AddFloatingActionButton extends React.Component {
    */
   render() {
     const {
-      onTouchTap,
+      onClick,
     } = this.props
 
     const style = {
@@ -36,7 +36,7 @@ class AddFloatingActionButton extends React.Component {
       <FloatingActionButton
         style={style}
         secondary={true}
-        onTouchTap={onTouchTap}
+        onClick={onClick}
       >
         <AddIcon />
       </FloatingActionButton>

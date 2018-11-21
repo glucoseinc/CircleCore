@@ -20,8 +20,8 @@ class ModulesTabComponent extends React.Component {
     modules: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
     width: PropTypes.number.isRequired,
-    onDisplayNameTouchTap: PropTypes.func,
-    onDeleteTouchTap: PropTypes.func,
+    onDisplayNameClick: PropTypes.func,
+    onDeleteClick: PropTypes.func,
   }
 
   state = {
@@ -49,8 +49,8 @@ class ModulesTabComponent extends React.Component {
       modules,
       ccInfos,
       width,
-      onDisplayNameTouchTap,
-      onDeleteTouchTap,
+      onDisplayNameClick,
+      onDeleteClick,
     } = this.props
 
     const style = {
@@ -103,7 +103,7 @@ class ModulesTabComponent extends React.Component {
             <ModuleCards
               modules={filteredModules}
               cols={width == SMALL ? 1 : 2}
-              onDisplayNameTouchTap={onDisplayNameTouchTap}
+              onDisplayNameClick={onDisplayNameClick}
             />
           </div>
         </Tab>
@@ -116,9 +116,9 @@ class ModulesTabComponent extends React.Component {
                 key={module.uuid}
                 module={module}
                 ccInfos={ccInfos}
-                onDisplayNameTouchTap={onDisplayNameTouchTap}
-                onTagButtonTouchTap={::this.setSearchText}
-                onDeleteTouchTap={onDeleteTouchTap}
+                onDisplayNameClick={onDisplayNameClick}
+                onTagButtonClick={::this.setSearchText}
+                onDeleteClick={onDeleteClick}
               />
             ))}
           </div>

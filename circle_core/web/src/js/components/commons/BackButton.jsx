@@ -9,7 +9,7 @@ import CCRaisedButton from 'src/components/bases/CCRaisedButton'
  */
 class BackButton extends React.Component {
   static propTypes = {
-    onTouchTap: PropTypes.func,
+    onClick: PropTypes.func,
   }
 
   /**
@@ -17,7 +17,7 @@ class BackButton extends React.Component {
    */
   render() {
     const {
-      onTouchTap,
+      onClick,
     } = this.props
 
     const style = {
@@ -31,7 +31,7 @@ class BackButton extends React.Component {
         style={style.root}
         label="一覧へ戻る"
         primary={true}
-        onTouchTap={onTouchTap}
+        onClick={onClick}
       />
     )
   }

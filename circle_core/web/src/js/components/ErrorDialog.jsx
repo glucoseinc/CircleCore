@@ -57,7 +57,7 @@ class ErrorDialog extends React.Component {
       <OkDialog
         title={title}
         label="閉じる"
-        onTouchTap={onCloseRequest}
+        onClick={onCloseRequest}
         open={open}
       >
         {children}

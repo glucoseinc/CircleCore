@@ -13,8 +13,8 @@ class ComponentWithOkCancelButton extends React.Component {
     cancelButtonLabel: PropTypes.string,
     okButtonDisabled: PropTypes.bool,
     cancelButtonDisabled: PropTypes.bool,
-    onOKButtonTouchTap: PropTypes.func,
-    onCancelButtonTouchTap: PropTypes.func,
+    onOKButtonClick: PropTypes.func,
+    onCancelButtonClick: PropTypes.func,
     children: PropTypes.node,
   }
 
@@ -27,8 +27,8 @@ class ComponentWithOkCancelButton extends React.Component {
       cancelButtonLabel = 'キャンセル',
       okButtonDisabled = false,
       cancelButtonDisabled = false,
-      onOKButtonTouchTap,
-      onCancelButtonTouchTap,
+      onOKButtonClick,
+      onCancelButtonClick,
       children,
     } = this.props
 
@@ -59,13 +59,13 @@ class ComponentWithOkCancelButton extends React.Component {
           <CCFlatButton
             label={cancelButtonLabel}
             disabled={cancelButtonDisabled}
-            onTouchTap={onCancelButtonTouchTap}
+            onClick={onCancelButtonClick}
           />
           <CCFlatButton
             label={okButtonLabel}
             primary={true}
             disabled={okButtonDisabled}
-            onTouchTap={onOKButtonTouchTap}
+            onClick={onOKButtonClick}
           />
         </div>
       </div>

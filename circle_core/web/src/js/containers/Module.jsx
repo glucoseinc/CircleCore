@@ -30,8 +30,8 @@ class Module extends React.Component {
     token: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,
     setTitle: PropTypes.func,
-    onUpdateTouchTap: PropTypes.func,
-    onDeleteOkButtonTouchTap: PropTypes.func,
+    onUpdateClick: PropTypes.func,
+    onDeleteOkButtonClick: PropTypes.func,
   }
 
   state = {
@@ -52,7 +52,7 @@ class Module extends React.Component {
   /**
    * 削除ボタン押下時の動作
    */
-  onDeleteTouchTap() {
+  onDeleteClick() {
     this.setState({
       isModuleDeleteDialogOpen: true,
     })
@@ -63,12 +63,12 @@ class Module extends React.Component {
    * @param {bool} execute
    * @param {object} module
    */
-  onDeleteDialogButtonTouchTap(execute, module) {
+  onDeleteDialogButtonClick(execute, module) {
     this.setState({
       isModuleDeleteDialogOpen: false,
     })
     if (execute && module) {
-      this.props.onDeleteOkButtonTouchTap(module)
+      this.props.onDeleteOkButtonClick(module)
     }
   }
 
@@ -76,7 +76,7 @@ class Module extends React.Component {
    * MessageBox削除ボタン押下時の動作
    * @param {number} messageBoxIndex
    */
-  onMessageBoxDeleteTouchTap(messageBoxIndex) {
+  onMessageBoxDeleteClick(messageBoxIndex) {
     this.setState({
       isMessageBoxDeleteDialogOpen: true,
       deleteMessageBoxIndex: messageBoxIndex,
@@ -88,13 +88,13 @@ class Module extends React.Component {
    * @param {bool} execute
    * @param {object} module
    */
-  onMessageBoxDeleteDialogButtonTouchTap(execute, module) {
+  onMessageBoxDeleteDialogButtonClick(execute, module) {
     this.setState({
       isMessageBoxDeleteDialogOpen: false,
       deleteMessageBoxIndex: null,
     })
     if (execute && module) {
-      this.props.onUpdateTouchTap(module)
+      this.props.onUpdateClick(module)
     }
   }
 
@@ -105,7 +105,7 @@ class Module extends React.Component {
    * @param {object} startDate
    * @param {object} endDate
    */
-  async onMessageBoxDownloadTouchTap(module, messageBox, startDate, endDate) {
+  async onMessageBoxDownloadClick(module, messageBox, startDate, endDate) {
     const params = {
       start: moment(startDate).format('YYYYMMDD'),
       end: moment(endDate).format('YYYYMMDD'),
@@ -174,10 +174,10 @@ class Module extends React.Component {
           tagSuggestions={tagSuggestions}
           attributeNameSuggestions={attributeNameSuggestions}
           attributeValueSuggestions={attributeValueSuggestions}
-          onUpdateTouchTap={this.props.onUpdateTouchTap}
-          onMessageBoxDeleteTouchTap={(messageBoxIndex) => this.onMessageBoxDeleteTouchTap(messageBoxIndex)}
-          onMessageBoxDownloadTouchTap={(...args) => this.onMessageBoxDownloadTouchTap(...args)}
-          onDeleteTouchTap={::this.onDeleteTouchTap}
+          onUpdateClick={this.props.onUpdateClick}
+          onMessageBoxDeleteClick={(messageBoxIndex) => this.onMessageBoxDeleteClick(messageBoxIndex)}
+          onMessageBoxDownloadClick={(...args) => this.onMessageBoxDownloadClick(...args)}
+          onDeleteClick={::this.onDeleteClick}
         />
 
         <CCLink url={urls.replicasNew} params={params}>
@@ -187,8 +187,8 @@ class Module extends React.Component {
         <ModuleDeleteDialog
           open={isModuleDeleteDialogOpen}
           module={module}
-          onOkTouchTap={(module) => this.onDeleteDialogButtonTouchTap(true, module)}
-          onCancelTouchTap={() => this.onDeleteDialogButtonTouchTap(false)}
+          onOkClick={(module) => this.onDeleteDialogButtonClick(true, module)}
+          onCancelClick={() => this.onDeleteDialogButtonClick(false)}
         />
 
         {module && typeof deleteMessageBoxIndex === 'number' &&
@@ -196,9 +196,9 @@ class Module extends React.Component {
             open={isMessageBoxDeleteDialogOpen}
             module={module}
             messageBoxIndex={deleteMessageBoxIndex}
-            onOkTouchTap={(messageBoxIndex) =>
-              this.onMessageBoxDeleteDialogButtonTouchTap(true, module.removeMessageBox(messageBoxIndex))}
-            onCancelTouchTap={() => this.onMessageBoxDeleteDialogButtonTouchTap(false)}
+            onOkClick={(messageBoxIndex) =>
+              this.onMessageBoxDeleteDialogButtonClick(true, module.removeMessageBox(messageBoxIndex))}
+            onCancelClick={() => this.onMessageBoxDeleteDialogButtonClick(false)}
           />
         }
       </div>
@@ -218,8 +218,8 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   setTitle: (title) => dispatch(actions.page.setTitle(title)),
-  onUpdateTouchTap: (module) => dispatch(actions.module.updateRequest(module.toJS())),
-  onDeleteOkButtonTouchTap: (module) => dispatch(actions.module.deleteRequest(module.uuid)),
+  onUpdateClick: (module) => dispatch(actions.module.updateRequest(module.toJS())),
+  onDeleteOkButtonClick: (module) => dispatch(actions.module.deleteRequest(module.uuid)),
 })
 
 export default connect(

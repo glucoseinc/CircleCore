@@ -13,8 +13,8 @@ class MessageBoxesEditComponent extends React.Component {
     module: PropTypes.object.isRequired,
     schemas: PropTypes.object.isRequired,
     onUpdate: PropTypes.func,
-    onDeleteTouchTap: PropTypes.func,
-    onAddTouchTap: PropTypes.func,
+    onDeleteClick: PropTypes.func,
+    onAddClick: PropTypes.func,
   }
 
   /**
@@ -25,8 +25,8 @@ class MessageBoxesEditComponent extends React.Component {
       module,
       schemas,
       onUpdate,
-      onDeleteTouchTap,
-      onAddTouchTap,
+      onDeleteClick,
+      onAddClick,
     } = this.props
 
     const style = {
@@ -59,7 +59,7 @@ class MessageBoxesEditComponent extends React.Component {
                 schemas={schemas}
                 deleteDisabled={module.messageBoxes.size <= 1}
                 onUpdate={(newMessageBox) => onUpdate(index, newMessageBox)}
-                onDeleteTouchTap={() => onDeleteTouchTap(index)}
+                onDeleteClick={() => onDeleteClick(index)}
               />
             </div>)
           )}
@@ -67,7 +67,7 @@ class MessageBoxesEditComponent extends React.Component {
         <div style={style.actionsBlock}>
           <AddFlatButton
             label="メッセージボックスを追加する"
-            onTouchTap={onAddTouchTap}
+            onClick={onAddClick}
           />
         </div>
       </div>

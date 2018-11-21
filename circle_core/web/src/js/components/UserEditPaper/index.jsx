@@ -18,7 +18,7 @@ class UserEditPaper extends React.Component {
     user: PropTypes.object.isRequired,
     errors: PropTypes.object,
     needCurrentPassword: PropTypes.bool,
-    onSaveTouchTap: PropTypes.func,
+    onSaveClick: PropTypes.func,
     saveButtonLabel: PropTypes.string, // パスワードの入力が必須かどうか?
     isPasswordRequired: PropTypes.bool,
     canChangePermission: PropTypes.bool,
@@ -68,7 +68,7 @@ class UserEditPaper extends React.Component {
     const {
       needCurrentPassword = false,
       errors = {},
-      onSaveTouchTap,
+      onSaveClick,
     } = this.props
 
     const style = {
@@ -134,7 +134,7 @@ class UserEditPaper extends React.Component {
             <SaveButton
               label={this.props.saveButtonLabel}
               disabled={this.isReadyToSave() ? false : true}
-              onTouchTap={() => onSaveTouchTap(editingUser, currentPassword, newPassword)}
+              onClick={() => onSaveClick(editingUser, currentPassword, newPassword)}
             />
           </div>
         </div>

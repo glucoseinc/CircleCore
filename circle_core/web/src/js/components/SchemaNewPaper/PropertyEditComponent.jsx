@@ -17,7 +17,7 @@ class PropertyEditComponent extends React.Component {
     propertyTypes: PropTypes.object.isRequired,
     deleteDisabled: PropTypes.bool,
     onUpdate: PropTypes.func,
-    onDeleteTouchTap: PropTypes.func,
+    onDeleteClick: PropTypes.func,
   }
 
   /**
@@ -29,7 +29,7 @@ class PropertyEditComponent extends React.Component {
       propertyTypes,
       deleteDisabled = false,
       onUpdate,
-      onDeleteTouchTap,
+      onDeleteClick,
     } = this.props
 
     const style = {
@@ -47,7 +47,7 @@ class PropertyEditComponent extends React.Component {
         rootStyle={style.root}
         icon={DeleteIcon}
         iconButtonDisabled={deleteDisabled}
-        onIconButtonTouchTap={onDeleteTouchTap}
+        onIconButtonClick={onDeleteClick}
       >
         <div style={style.property}>
           <PropertyNameTextField

@@ -24,8 +24,8 @@ class Replicas extends React.Component {
     replicationLinks: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
-    onDisplayNameTouchTap: PropTypes.func,
-    onDeleteOkButtonTouchTap: PropTypes.func,
+    onDisplayNameClick: PropTypes.func,
+    onDeleteOkButtonClick: PropTypes.func,
   }
 
   state = {
@@ -37,7 +37,7 @@ class Replicas extends React.Component {
    * 追加メニュー 削除の選択時の動作
    * @param {object} replicationLink
    */
-  onDeleteTouchTap(replicationLink) {
+  onDeleteClick(replicationLink) {
     this.setState({
       deleteReplicationLink: replicationLink,
       isReplicationLinkDeleteDialogOpen: true,
@@ -49,13 +49,13 @@ class Replicas extends React.Component {
    * @param {bool} execute
    * @param {object} replicationLink
    */
-  onDeleteDialogButtonTouchTap(execute, replicationLink) {
+  onDeleteDialogButtonClick(execute, replicationLink) {
     this.setState({
       deleteReplicationLink: null,
       isReplicationLinkDeleteDialogOpen: false,
     })
     if (execute && replicationLink) {
-      this.props.onDeleteOkButtonTouchTap(replicationLink)
+      this.props.onDeleteOkButtonClick(replicationLink)
     }
   }
 
@@ -72,7 +72,7 @@ class Replicas extends React.Component {
       replicationLinks,
       modules,
       ccInfos,
-      onDisplayNameTouchTap,
+      onDisplayNameClick,
     } = this.props
 
     if (isReplicationLinkFetching) {
@@ -97,8 +97,8 @@ class Replicas extends React.Component {
                   replicationLink={replicationLink}
                   modules={modules}
                   ccInfos={ccInfos}
-                  onDeleteTouchTap={::this.onDeleteTouchTap}
-                  onDisplayNameTouchTap={onDisplayNameTouchTap}
+                  onDeleteClick={::this.onDeleteClick}
+                  onDisplayNameClick={onDisplayNameClick}
                 />
               ))}
             </div>
@@ -108,8 +108,8 @@ class Replicas extends React.Component {
         <ReplicationLinkDeleteDialog
           open={isReplicationLinkDeleteDialogOpen}
           replicationLink={deleteReplicationLink}
-          onOkTouchTap={(replicationLink) => this.onDeleteDialogButtonTouchTap(true, replicationLink)}
-          onCancelTouchTap={() => this.onDeleteDialogButtonTouchTap(false)}
+          onOkClick={(replicationLink) => this.onDeleteDialogButtonClick(true, replicationLink)}
+          onCancelClick={() => this.onDeleteDialogButtonClick(false)}
         />
       </div>
     )
@@ -125,10 +125,10 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  onDisplayNameTouchTap: (replicationLinkId) => (
+  onDisplayNameClick: (replicationLinkId) => (
     dispatch(routerActions.push(createPathName(urls.replica, {replicationLinkId})))
   ),
-  onDeleteOkButtonTouchTap: (replicationLink) => dispatch(actions.replicationLink.deleteRequest(replicationLink.uuid)),
+  onDeleteOkButtonClick: (replicationLink) => dispatch(actions.replicationLink.deleteRequest(replicationLink.uuid)),
 })
 
 export default connect(

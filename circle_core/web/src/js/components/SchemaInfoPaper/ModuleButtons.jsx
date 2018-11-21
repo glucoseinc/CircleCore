@@ -14,7 +14,7 @@ class ModuleButtons extends React.Component {
   static propTypes = {
     schema: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
-    onTouchTap: PropTypes.func,
+    onClick: PropTypes.func,
   }
 
   /**
@@ -24,7 +24,7 @@ class ModuleButtons extends React.Component {
     const {
       schema,
       modules,
-      onTouchTap,
+      onClick,
     } = this.props
 
     const style = {
@@ -43,7 +43,7 @@ class ModuleButtons extends React.Component {
             <ModuleButton
               key={moduleId}
               module={modules.get(moduleId)}
-              onTouchTap={(onTouchTap)}
+              onClick={(onClick)}
             />
           ))}
         </div>

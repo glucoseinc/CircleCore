@@ -19,7 +19,7 @@ class DisplayNameEditablePaper extends React.Component {
     obj: PropTypes.object.isRequired,
     editDisabled: PropTypes.bool,
     secondaryType: PropTypes.string,
-    onEditTouchTap: PropTypes.func,
+    onEditClick: PropTypes.func,
   }
 
   /**
@@ -29,7 +29,7 @@ class DisplayNameEditablePaper extends React.Component {
     const {
       obj,
       secondaryType = 'id',
-      onEditTouchTap,
+      onEditClick,
     } = this.props
 
     const style = {
@@ -60,7 +60,7 @@ class DisplayNameEditablePaper extends React.Component {
         <div style={style.root}>
           <ComponentWithIconButton
             icon={EditIcon}
-            onIconButtonTouchTap={onEditTouchTap}
+            onIconButtonClick={onEditClick}
           >
             <div style={style.contents}>
               <div style={style.displayName}>

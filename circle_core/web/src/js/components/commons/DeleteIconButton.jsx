@@ -14,7 +14,7 @@ class DeleteIconButton extends React.Component {
     size: PropTypes.number,
     iconSize: PropTypes.number,
     disabled: PropTypes.bool,
-    onTouchTap: PropTypes.func,
+    onClick: PropTypes.func,
   }
 
   /**
@@ -25,7 +25,7 @@ class DeleteIconButton extends React.Component {
       size = 24,
       iconSize = 24,
       disabled = false,
-      onTouchTap,
+      onClick,
     } = this.props
 
     const style = {
@@ -44,7 +44,7 @@ class DeleteIconButton extends React.Component {
         style={style.root}
         iconStyle={style.icon}
         disabled={disabled}
-        onTouchTap={onTouchTap}
+        onClick={onClick}
       >
         <DeleteIcon />
       </IconButton>

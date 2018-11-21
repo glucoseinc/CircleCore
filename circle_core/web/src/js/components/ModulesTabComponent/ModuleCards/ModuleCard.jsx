@@ -14,7 +14,7 @@ class ModuleCard extends React.Component {
     module: PropTypes.object.isRequired,
     autoUpdate: PropTypes.bool.isRequired,
     graphRange: PropTypes.string.isRequired,
-    onDisplayNameTouchTap: PropTypes.func,
+    onDisplayNameClick: PropTypes.func,
   }
 
   /**
@@ -25,7 +25,7 @@ class ModuleCard extends React.Component {
       module,
       autoUpdate,
       graphRange,
-      onDisplayNameTouchTap,
+      onDisplayNameClick,
     } = this.props
 
     const style = {
@@ -51,7 +51,7 @@ class ModuleCard extends React.Component {
         <div style={style.root}>
           <ModuleGraph module={module} range={graphRange} autoUpdate={autoUpdate ? 60 : 0} />
           <div style={style.infomations}>
-            <div style={style.displayName} onTouchTap={() => onDisplayNameTouchTap(module)}>
+            <div style={style.displayName} onClick={() => onDisplayNameClick(module)}>
               {module.displayName}
             </div>
           </div>

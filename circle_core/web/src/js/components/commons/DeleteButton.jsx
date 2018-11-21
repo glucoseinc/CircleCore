@@ -11,7 +11,7 @@ class DeleteButton extends React.Component {
   static propTypes = {
     label: PropTypes.string,
     disabled: PropTypes.bool,
-    onTouchTap: PropTypes.func,
+    onClick: PropTypes.func,
   }
 
   /**
@@ -21,7 +21,7 @@ class DeleteButton extends React.Component {
     const {
       label = '削除する',
       disabled = false,
-      onTouchTap,
+      onClick,
     } = this.props
 
     const style = {
@@ -35,7 +35,7 @@ class DeleteButton extends React.Component {
         style={style.root}
         label={label}
         disabled={disabled}
-        onTouchTap={onTouchTap}
+        onClick={onClick}
       />
     )
   }

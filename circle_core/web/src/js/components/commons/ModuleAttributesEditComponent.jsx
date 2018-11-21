@@ -14,8 +14,8 @@ class ModuleAttributesEditComponent extends React.Component {
     nameSuggestions: PropTypes.array,
     valueSuggestions: PropTypes.array,
     onUpdate: PropTypes.func,
-    onDeleteTouchTap: PropTypes.func,
-    onAddTouchTap: PropTypes.func,
+    onDeleteClick: PropTypes.func,
+    onAddClick: PropTypes.func,
   }
 
   /**
@@ -27,8 +27,8 @@ class ModuleAttributesEditComponent extends React.Component {
       nameSuggestions = [],
       valueSuggestions = [],
       onUpdate,
-      onDeleteTouchTap,
-      onAddTouchTap,
+      onDeleteClick,
+      onAddClick,
     } = this.props
 
     const style = {
@@ -68,7 +68,7 @@ class ModuleAttributesEditComponent extends React.Component {
                 nameSuggestions={optimizedNameSuggestions}
                 valueSuggestions={optimizedValueSuggestions}
                 onUpdate={(newAttribute) => onUpdate(index, newAttribute)}
-                onDeleteTouchTap={() => onDeleteTouchTap(index)}
+                onDeleteClick={() => onDeleteClick(index)}
               />
             </div>)
           )}
@@ -76,7 +76,7 @@ class ModuleAttributesEditComponent extends React.Component {
         <div style={style.actionsBlock}>
           <AddFlatButton
             label="属性を追加する"
-            onTouchTap={onAddTouchTap}
+            onClick={onAddClick}
           />
         </div>
       </div>

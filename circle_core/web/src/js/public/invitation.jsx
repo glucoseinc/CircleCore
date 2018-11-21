@@ -58,8 +58,8 @@ export default class UserInvitation extends React.Component {
    * @param {string} currentPassword 使わない
    * @param {string} newPassword
    */
-  onSaveTouchTap(user, currentPassword, newPassword) {
-    console.log('onSaveTouchTap', user, currentPassword, newPassword)
+  onSaveClick(user, currentPassword, newPassword) {
+    console.log('onSaveClick', user, currentPassword, newPassword)
 
     // formからsubmitさせたいので結構なクソコード. because API tokenを持ってないので。
     this.setState({
@@ -108,7 +108,7 @@ export default class UserInvitation extends React.Component {
           isPasswordRequired={true}
           user={this.state.user}
           saveButtonLabel="登録する"
-          onSaveTouchTap={::this.onSaveTouchTap}
+          onSaveClick={::this.onSaveClick}
         />
 
         <form ref={this.formRef} method="POST">

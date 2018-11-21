@@ -19,7 +19,7 @@ class ModulesNew extends React.Component {
     isModuleFetching: PropTypes.bool.isRequired,
     schemas: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
-    onCreateTouchTap: PropTypes.func,
+    onCreateClick: PropTypes.func,
   }
 
   /**
@@ -31,7 +31,7 @@ class ModulesNew extends React.Component {
       isModuleFetching,
       schemas,
       modules,
-      onCreateTouchTap,
+      onCreateClick,
     } = this.props
 
     if (isSchemaFetching || isModuleFetching) {
@@ -62,7 +62,7 @@ class ModulesNew extends React.Component {
           tagSuggestions={tagSuggestions}
           attributeNameSuggestions={attributeNameSuggestions}
           attributeValueSuggestions={attributeValueSuggestions}
-          onCreateTouchTap={onCreateTouchTap}
+          onCreateClick={onCreateClick}
         />
       </div>
     )
@@ -78,7 +78,7 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  onCreateTouchTap: (module) => dispatch(actions.module.createRequest(module.toJS())),
+  onCreateClick: (module) => dispatch(actions.module.createRequest(module.toJS())),
 })
 
 export default connect(

@@ -13,8 +13,8 @@ class UsersTableComponent extends React.Component {
     users: PropTypes.object.isRequired,
     myID: PropTypes.string,
     readOnly: PropTypes.bool,
-    onDisplayNameTouchTap: PropTypes.func,
-    onDeleteTouchTap: PropTypes.func,
+    onDisplayNameClick: PropTypes.func,
+    onDeleteClick: PropTypes.func,
   }
 
   /**
@@ -25,8 +25,8 @@ class UsersTableComponent extends React.Component {
       users,
       myID = null,
       readOnly = true,
-      onDisplayNameTouchTap,
-      onDeleteTouchTap,
+      onDisplayNameClick,
+      onDeleteClick,
     } = this.props
 
     const style = {
@@ -49,8 +49,8 @@ class UsersTableComponent extends React.Component {
                 user={user}
                 deleteDisabled={myID === null || myID === user.uuid}
                 readOnly={readOnly}
-                onDisplayNameTouchTap={onDisplayNameTouchTap}
-                onDeleteTouchTap={onDeleteTouchTap}
+                onDisplayNameClick={onDisplayNameClick}
+                onDeleteClick={onDeleteClick}
               />
             ))}
           </div>

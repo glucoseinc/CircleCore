@@ -14,7 +14,7 @@ import CreateButton from 'src/components/commons/CreateButton'
  */
 class ReplicationMasterNew extends React.Component {
   static propTypes = {
-    onCreateTouchTap: PropTypes.func,
+    onCreateClick: PropTypes.func,
   }
 
   state = {
@@ -56,7 +56,7 @@ class ReplicationMasterNew extends React.Component {
           <div style={style.actionsArea}>
             <CreateButton
               disabled={replicationMaster.isReadyToCreate() ? false : true}
-              onTouchTap={() => this.props.onCreateTouchTap(replicationMaster)}
+              onClick={() => this.props.onCreateClick(replicationMaster)}
             />
           </div>
         </Paper>
@@ -70,7 +70,7 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  onCreateTouchTap: (replicationMaster) => dispatch(actions.replicationMaster.createRequest(replicationMaster.toJS())),
+  onCreateClick: (replicationMaster) => dispatch(actions.replicationMaster.createRequest(replicationMaster.toJS())),
 })
 
 export default connect(

@@ -14,8 +14,8 @@ class PropertiesEditComponent extends React.Component {
     schema: PropTypes.object.isRequired,
     propertyTypes: PropTypes.object.isRequired,
     onUpdate: PropTypes.func,
-    onDeleteTouchTap: PropTypes.func,
-    onAddTouchTap: PropTypes.func,
+    onDeleteClick: PropTypes.func,
+    onAddClick: PropTypes.func,
   }
 
   /**
@@ -26,8 +26,8 @@ class PropertiesEditComponent extends React.Component {
       schema,
       propertyTypes,
       onUpdate,
-      onDeleteTouchTap,
-      onAddTouchTap,
+      onDeleteClick,
+      onAddClick,
     } = this.props
 
     const style = {
@@ -59,7 +59,7 @@ class PropertiesEditComponent extends React.Component {
                 propertyTypes={propertyTypes}
                 deleteDisabled={schema.properties.size <= 1}
                 onUpdate={(property) => onUpdate(index, property)}
-                onDeleteTouchTap={() => onDeleteTouchTap(index)}
+                onDeleteClick={() => onDeleteClick(index)}
               />
             </div>)
           )}
@@ -67,7 +67,7 @@ class PropertiesEditComponent extends React.Component {
         <div style={style.actionsBlock}>
           <AddFlatButton
             label="プロパティを追加する"
-            onTouchTap={onAddTouchTap}
+            onClick={onAddClick}
           />
         </div>
       </div>

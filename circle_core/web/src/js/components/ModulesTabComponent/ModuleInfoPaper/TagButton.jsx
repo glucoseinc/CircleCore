@@ -10,7 +10,7 @@ import FlatButton from 'material-ui/FlatButton'
 class TagButton extends React.Component {
   static propTypes = {
     tag: PropTypes.string.isRequired,
-    onTouchTap: PropTypes.func,
+    onClick: PropTypes.func,
   }
 
   /**
@@ -19,7 +19,7 @@ class TagButton extends React.Component {
   render() {
     const {
       tag,
-      onTouchTap,
+      onClick,
     } = this.props
 
     const style = {
@@ -40,7 +40,7 @@ class TagButton extends React.Component {
         primary={true}
         label={tag}
         labelStyle={style.label}
-        onTouchTap={() => onTouchTap(tag)}
+        onClick={() => onClick(tag)}
       />
     )
   }

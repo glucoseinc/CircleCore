@@ -11,8 +11,8 @@ class ReplicationLinkDeleteDialog extends React.Component {
   static propTypes = {
     open: PropTypes.bool,
     replicationLink: PropTypes.object,
-    onOkTouchTap: PropTypes.func.isRequired,
-    onCancelTouchTap: PropTypes.func.isRequired,
+    onOkClick: PropTypes.func.isRequired,
+    onCancelClick: PropTypes.func.isRequired,
   }
 
   /**
@@ -22,16 +22,16 @@ class ReplicationLinkDeleteDialog extends React.Component {
     const {
       open = false,
       replicationLink,
-      onOkTouchTap,
-      onCancelTouchTap,
+      onOkClick,
+      onCancelClick,
     } = this.props
 
     return (
       <DeleteDialog
         obj={replicationLink}
         title="この共有リンクを削除しますか？"
-        onOkTouchTap={onOkTouchTap}
-        onCancelTouchTap={onCancelTouchTap}
+        onOkClick={onOkClick}
+        onCancelClick={onCancelClick}
         open={open}
       />
     )

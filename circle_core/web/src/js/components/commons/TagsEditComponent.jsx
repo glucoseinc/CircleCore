@@ -13,8 +13,8 @@ class TagsEditComponent extends React.Component {
     module: PropTypes.object.isRequired,
     suggestions: PropTypes.array,
     onUpdate: PropTypes.func,
-    onDeleteTouchTap: PropTypes.func,
-    onAddTouchTap: PropTypes.func,
+    onDeleteClick: PropTypes.func,
+    onAddClick: PropTypes.func,
   }
 
   /**
@@ -25,8 +25,8 @@ class TagsEditComponent extends React.Component {
       module,
       suggestions = [],
       onUpdate,
-      onDeleteTouchTap,
-      onAddTouchTap,
+      onDeleteClick,
+      onAddClick,
     } = this.props
 
     const style = {
@@ -62,7 +62,7 @@ class TagsEditComponent extends React.Component {
                   suggestions={optimizedSuggestions}
                   error={error}
                   onUpdate={(newTag) => onUpdate(index, newTag)}
-                  onDeleteTouchTap={() => onDeleteTouchTap(index)}
+                  onDeleteClick={() => onDeleteClick(index)}
                 />
               </div>
             )
@@ -71,7 +71,7 @@ class TagsEditComponent extends React.Component {
         <div style={style.actionsBlock}>
           <AddFlatButton
             label="タグを追加する"
-            onTouchTap={onAddTouchTap}
+            onClick={onAddClick}
           />
         </div>
       </div>

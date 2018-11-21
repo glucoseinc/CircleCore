@@ -14,7 +14,7 @@ import MoreIconMenu from 'src/components/bases/MoreIconMenu'
 export default class ReplicactionMasterPaper extends React.Component {
   static propTypes = {
     replicationMaster: PropTypes.object.isRequired,
-    onDeleteTouchTap: PropTypes.func.isRequired,
+    onDeleteClick: PropTypes.func.isRequired,
   }
 
   /**
@@ -23,7 +23,7 @@ export default class ReplicactionMasterPaper extends React.Component {
   render() {
     const {
       replicationMaster,
-      onDeleteTouchTap,
+      onDeleteClick,
     } = this.props
 
     const style = {
@@ -40,7 +40,7 @@ export default class ReplicactionMasterPaper extends React.Component {
             <MenuItem
               primaryText="この共有マスタを削除する"
               leftIcon={<DeleteIcon />}
-              onTouchTap={() => onDeleteTouchTap(replicationMaster)}
+              onClick={() => onDeleteClick(replicationMaster)}
             />
           </MoreIconMenu>
 

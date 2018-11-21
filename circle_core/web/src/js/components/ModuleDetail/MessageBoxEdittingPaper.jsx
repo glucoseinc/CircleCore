@@ -18,8 +18,8 @@ class MessageBoxEdittingPaper extends React.Component {
     disabledChangeSchema: PropTypes.bool,
     style: PropTypes.object,
     onUpdate: PropTypes.func,
-    onOKButtonTouchTap: PropTypes.func,
-    onCancelButtonTouchTap: PropTypes.func,
+    onOKButtonClick: PropTypes.func,
+    onCancelButtonClick: PropTypes.func,
   }
 
   /**
@@ -32,8 +32,8 @@ class MessageBoxEdittingPaper extends React.Component {
       schemas,
       disabledChangeSchema = false,
       onUpdate,
-      onOKButtonTouchTap,
-      onCancelButtonTouchTap,
+      onOKButtonClick,
+      onCancelButtonClick,
     } = this.props
 
     const style = {
@@ -58,8 +58,8 @@ class MessageBoxEdittingPaper extends React.Component {
         <ComponentWithOkCancelButton
           okButtonLabel="保存"
           okButtonDisabled={module.isReadyToCreate() ? false : true}
-          onOKButtonTouchTap={onOKButtonTouchTap}
-          onCancelButtonTouchTap={onCancelButtonTouchTap}
+          onOKButtonClick={onOKButtonClick}
+          onCancelButtonClick={onCancelButtonClick}
         >
           <div style={style.contents}>
             <MessageBoxEditComponent

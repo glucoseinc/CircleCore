@@ -21,7 +21,7 @@ class ReplicationLinkNewPaper extends React.Component {
   static propTypes = {
     modules: PropTypes.object.isRequired,
     selectedModule: PropTypes.object,
-    onCreateTouchTap: PropTypes.func,
+    onCreateClick: PropTypes.func,
   }
 
   state = {
@@ -38,7 +38,7 @@ class ReplicationLinkNewPaper extends React.Component {
     const {
       modules,
       selectedModule,
-      onCreateTouchTap,
+      onCreateClick,
     } = this.props
 
     const style = {
@@ -106,7 +106,7 @@ class ReplicationLinkNewPaper extends React.Component {
           <div style={style.actionsArea}>
             <CreateButton
               disabled={replicationLink.isReadyToCreate() ? false : true}
-              onTouchTap={() => onCreateTouchTap(replicationLink)}
+              onClick={() => onCreateClick(replicationLink)}
             />
           </div>
         </div>

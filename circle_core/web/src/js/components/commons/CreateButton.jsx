@@ -13,7 +13,7 @@ class CreateButton extends React.Component {
   static propTypes = {
     label: PropTypes.string,
     disabled: PropTypes.bool,
-    onTouchTap: PropTypes.func,
+    onClick: PropTypes.func,
   }
 
   /**
@@ -23,7 +23,7 @@ class CreateButton extends React.Component {
     const {
       label = '追加する',
       disabled = false,
-      onTouchTap,
+      onClick,
     } = this.props
 
     const style = {
@@ -43,7 +43,7 @@ class CreateButton extends React.Component {
         icon={AddIcon}
         primary={true}
         disabled={disabled}
-        onTouchTap={onTouchTap}
+        onClick={onClick}
       />
     )
   }

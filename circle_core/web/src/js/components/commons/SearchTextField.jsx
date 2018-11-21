@@ -85,7 +85,7 @@ class SearchTextField extends React.Component {
           />
           <IconButton
             style={style.clearIconButton}
-            onTouchTap={() => onChange('')}
+            onClick={() => onChange('')}
           >
             <ClearIcon color={muiTheme.textField.hintColor} />
           </IconButton>

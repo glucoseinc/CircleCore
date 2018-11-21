@@ -10,7 +10,7 @@ import CCFlatButton from './CCFlatButton'
 class ComponentWithOkButton extends React.Component {
   static propTypes = {
     okButtonLabel: PropTypes.string,
-    onOKButtonTouchTap: PropTypes.func,
+    onOKButtonClick: PropTypes.func,
     children: PropTypes.node,
   }
 
@@ -20,7 +20,7 @@ class ComponentWithOkButton extends React.Component {
   render() {
     const {
       okButtonLabel = 'OK',
-      onOKButtonTouchTap,
+      onOKButtonClick,
       children,
     } = this.props
 
@@ -51,7 +51,7 @@ class ComponentWithOkButton extends React.Component {
           <CCFlatButton
             label={okButtonLabel}
             primary={true}
-            onTouchTap={onOKButtonTouchTap}
+            onClick={onOKButtonClick}
           />
         </div>
       </div>

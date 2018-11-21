@@ -27,10 +27,10 @@ class ModuleDetail extends React.Component {
     tagSuggestions: PropTypes.array,
     attributeNameSuggestions: PropTypes.array,
     attributeValueSuggestions: PropTypes.array,
-    onUpdateTouchTap: PropTypes.func,
-    onMessageBoxDeleteTouchTap: PropTypes.func,
-    onMessageBoxDownloadTouchTap: PropTypes.func,
-    onDeleteTouchTap: PropTypes.func,
+    onUpdateClick: PropTypes.func,
+    onMessageBoxDeleteClick: PropTypes.func,
+    onMessageBoxDownloadClick: PropTypes.func,
+    onDeleteClick: PropTypes.func,
   }
 
   static editingArea = {
@@ -75,7 +75,7 @@ class ModuleDetail extends React.Component {
    * @param {string} editingArea
    * @param {number} editingAreaIndex
    */
-  onEditTouchTap(editingArea, editingAreaIndex) {
+  onEditClick(editingArea, editingAreaIndex) {
     this.setState({
       editingArea,
       editingAreaIndex,
@@ -86,7 +86,7 @@ class ModuleDetail extends React.Component {
   /**
    * メッセージボックス追加ボタン押下時の動作
    */
-  onMessageBoxAddTouchTap() {
+  onMessageBoxAddClick() {
     const {
       module,
     } = this.props
@@ -100,8 +100,8 @@ class ModuleDetail extends React.Component {
   /**
    * 保存ボタン押下時の動作
    */
-  onUpdateTouchTap() {
-    this.props.onUpdateTouchTap(this.state.editingModule)
+  onUpdateClick() {
+    this.props.onUpdateClick(this.state.editingModule)
     // TODO: 保存失敗時には編集中の状態を復元したい
     this.setState({
       editingArea: null,
@@ -114,7 +114,7 @@ class ModuleDetail extends React.Component {
   /**
    * 編集キャンセルボタン押下時の動作
    */
-  onEditCancelTouchTap() {
+  onEditCancelClick() {
     this.setState({
       editingArea: null,
       editingAreaIndex: null,
@@ -161,9 +161,9 @@ class ModuleDetail extends React.Component {
       tagSuggestions = [],
       attributeNameSuggestions = [],
       attributeValueSuggestions = [],
-      onMessageBoxDeleteTouchTap,
-      onMessageBoxDownloadTouchTap,
-      onDeleteTouchTap,
+      onMessageBoxDeleteClick,
+      onMessageBoxDownloadClick,
+      onDeleteClick,
     } = this.props
 
     const style = {
@@ -199,14 +199,14 @@ class ModuleDetail extends React.Component {
       <DisplayNameEdittingPaper
         module={editingModule}
         onUpdate={(editingModule) => this.setState({editingModule})}
-        onOKButtonTouchTap={() => this.onUpdateTouchTap()}
-        onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
+        onOKButtonClick={() => this.onUpdateClick()}
+        onCancelButtonClick={() => this.onEditCancelClick()}
       />
     ) : (
       <DisplayNameEditablePaper
         obj={module}
         secondaryType={null}
-        onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.displayName, null)}
+        onEditClick={() => this.onEditClick(ModuleDetail.editingArea.displayName, null)}
       />
     )
 
@@ -217,13 +217,13 @@ class ModuleDetail extends React.Component {
         attributeNameSuggestions={attributeNameSuggestions}
         attributeValueSuggestions={attributeValueSuggestions}
         onUpdate={(editingModule) => this.setState({editingModule})}
-        onOKButtonTouchTap={() => this.onUpdateTouchTap()}
-        onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
+        onOKButtonClick={() => this.onUpdateClick()}
+        onCancelButtonClick={() => this.onEditCancelClick()}
       />
     ) : (
       <MetadataEditablePaper
         module={module}
-        onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.metadata, null)}
+        onEditClick={() => this.onEditClick(ModuleDetail.editingArea.metadata, null)}
       />
     )
 
@@ -235,13 +235,13 @@ class ModuleDetail extends React.Component {
             messageBoxIndex={editingAreaIndex}
             schemas={schemas}
             onUpdate={(editingModule) => this.setState({editingModule})}
-            onOKButtonTouchTap={() => this.onUpdateTouchTap()}
-            onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
+            onOKButtonClick={() => this.onUpdateClick()}
+            onCancelButtonClick={() => this.onEditCancelClick()}
           />
         </div>
       ) : !module.isReplication ? (
         <MessageBoxAddActionPaper
-          onTouchTap={() => this.onMessageBoxAddTouchTap()}
+          onClick={() => this.onMessageBoxAddClick()}
         />
       ) : (
         null
@@ -274,8 +274,8 @@ class ModuleDetail extends React.Component {
                   schemas={schemas}
                   disabledChangeSchema={disabledChangeSchema}
                   onUpdate={(editingModule) => this.setState({editingModule})}
-                  onOKButtonTouchTap={() => this.onUpdateTouchTap()}
-                  onCancelButtonTouchTap={() => this.onEditCancelTouchTap()}
+                  onOKButtonClick={() => this.onUpdateClick()}
+                  onCancelButtonClick={() => this.onEditCancelClick()}
                   style={{marginBottom: '32px'}}
                 />
               ) : (
@@ -286,9 +286,9 @@ class ModuleDetail extends React.Component {
                   schemas={schemas}
                   ccInfos={ccInfos}
                   deleteDispabled={canDeleteMessageBox}
-                  onEditTouchTap={() => this.onEditTouchTap(ModuleDetail.editingArea.messageBox, index)}
-                  onDeleteTouchTap={() => onMessageBoxDeleteTouchTap(index)}
-                  onDownloadTouchTap={onMessageBoxDownloadTouchTap}
+                  onEditClick={() => this.onEditClick(ModuleDetail.editingArea.messageBox, index)}
+                  onDeleteClick={() => onMessageBoxDeleteClick(index)}
+                  onDownloadClick={onMessageBoxDownloadClick}
                   style={{marginBottom: '32px'}}
                   fetchingData={fetchingData}
                 />
@@ -301,7 +301,7 @@ class ModuleDetail extends React.Component {
         <div style={style.actionsArea}>
           <DeleteButton
             label="このモジュールを削除する"
-            onTouchTap={onDeleteTouchTap}
+            onClick={onDeleteClick}
           />
         </div>
       </div>

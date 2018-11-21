@@ -13,7 +13,7 @@ class ComponentWithIconButton extends React.Component {
     childrenStyle: PropTypes.object,
     icon: PropTypes.func.isRequired,
     iconButtonDisabled: PropTypes.bool,
-    onIconButtonTouchTap: PropTypes.func,
+    onIconButtonClick: PropTypes.func,
     children: PropTypes.node,
   }
 
@@ -26,7 +26,7 @@ class ComponentWithIconButton extends React.Component {
       childrenStyle = {},
       icon,
       iconButtonDisabled = false,
-      onIconButtonTouchTap,
+      onIconButtonClick,
       children,
     } = this.props
 
@@ -74,7 +74,7 @@ class ComponentWithIconButton extends React.Component {
             style={style.button}
             iconStyle={style.icon}
             disabled={iconButtonDisabled}
-            onTouchTap={onIconButtonTouchTap}
+            onClick={onIconButtonClick}
           >
             <Icon />
           </IconButton>

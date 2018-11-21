@@ -33,7 +33,7 @@ class NavDrawer extends React.Component {
     alwaysOpen: PropTypes.bool.isRequired,
     open: PropTypes.bool.isRequired,
     onRequestChange: PropTypes.func.isRequired,
-    onNavItemTouchTap: PropTypes.func.isRequired,
+    onNavItemClick: PropTypes.func.isRequired,
   }
 
   /**
@@ -77,7 +77,7 @@ class NavDrawer extends React.Component {
       alwaysOpen,
       open,
       onRequestChange,
-      onNavItemTouchTap,
+      onNavItemClick,
     } = this.props
 
     const docked = alwaysOpen ? true : false
@@ -98,7 +98,7 @@ class NavDrawer extends React.Component {
         <MenuList
           sections={menuSections}
           selectedValue={location.pathname}
-          onItemTouchTap={onNavItemTouchTap}
+          onItemClick={onNavItemClick}
         />
       </Drawer>
     )

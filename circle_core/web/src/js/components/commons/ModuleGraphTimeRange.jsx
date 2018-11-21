@@ -14,7 +14,7 @@ class ModuleGraphTimeRange extends React.Component {
   static propTypes = {
     activeTimeRange: PropTypes.string.isRequired,
     style: PropTypes.object,
-    onTouchTap: PropTypes.func,
+    onClick: PropTypes.func,
   }
 
   /**
@@ -24,7 +24,7 @@ class ModuleGraphTimeRange extends React.Component {
     const {
       activeTimeRange,
       style,
-      onTouchTap,
+      onClick,
     } = this.props
 
     const mergedStyle = {
@@ -57,7 +57,7 @@ class ModuleGraphTimeRange extends React.Component {
             style={activeTimeRange === range ? mergedStyle.activeTimeRange : mergedStyle.timeRange}
             label={RANGE_LABELS[range]}
             labelStyle={activeTimeRange === range ? mergedStyle.activeTimeRangeLabel : mergedStyle.timeRangeLabel}
-            onTouchTap={() => onTouchTap(range)}
+            onClick={() => onClick(range)}
           />
         ))}
       </div>

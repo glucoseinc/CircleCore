@@ -15,8 +15,8 @@ class DeleteDialog extends React.Component {
     obj: PropTypes.object,
     primaryLabelName: PropTypes.string,
     title: PropTypes.string,
-    onOkTouchTap: PropTypes.func.isRequired,
-    onCancelTouchTap: PropTypes.func.isRequired,
+    onOkClick: PropTypes.func.isRequired,
+    onCancelClick: PropTypes.func.isRequired,
   }
 
   state = {
@@ -35,8 +35,8 @@ class DeleteDialog extends React.Component {
       obj,
       primaryLabelName = 'displayName',
       title = '削除しますか？',
-      onOkTouchTap,
-      onCancelTouchTap,
+      onOkClick,
+      onCancelClick,
     } = this.props
 
     if (obj === undefined || obj === null) {
@@ -48,9 +48,9 @@ class DeleteDialog extends React.Component {
         title={title}
         okLabel="削除する"
         okDisabled={obj.uuid !== inputId}
-        onOkTouchTap={() => onOkTouchTap(obj)}
+        onOkClick={() => onOkClick(obj)}
         cancelLabel="キャンセル"
-        onCancelTouchTap={onCancelTouchTap}
+        onCancelClick={onCancelClick}
         open={open}
       >
         <p>{obj[primaryLabelName] || '(no name)'}</p>

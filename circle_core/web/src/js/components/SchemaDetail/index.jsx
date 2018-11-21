@@ -17,8 +17,8 @@ class SchemaDetail extends React.Component {
   static propTypes = {
     schema: PropTypes.object.isRequired,
     ownCcInfo: PropTypes.object.isRequired,
-    onBackTouchTap: PropTypes.func,
-    onDeleteTouchTap: PropTypes.func,
+    onBackClick: PropTypes.func,
+    onDeleteClick: PropTypes.func,
   }
 
   /**
@@ -28,8 +28,8 @@ class SchemaDetail extends React.Component {
     const {
       schema,
       ownCcInfo,
-      onBackTouchTap,
-      onDeleteTouchTap,
+      onBackClick,
+      onDeleteClick,
     } = this.props
 
     const style = {
@@ -88,12 +88,12 @@ class SchemaDetail extends React.Component {
 
         <div style={style.actionsArea}>
           <div style={style.backButton}>
-            <BackButton onTouchTap={onBackTouchTap} />
+            <BackButton onClick={onBackClick} />
           </div>
           <div style={style.deleteButton}>
             <DeleteButton
               disabled={deleteButtonDisabled}
-              onTouchTap={onDeleteTouchTap}
+              onClick={onDeleteClick}
             />
           </div>
         </div>

@@ -88,7 +88,7 @@ class PasswordAutoGenerateComponent extends React.Component {
           <CCFlatButton
             label="新しいパスワードを自分で決める"
             primary={true}
-            onTouchTap={onToggleInputMethod}
+            onClick={onToggleInputMethod}
           />
         </div>
       </div>

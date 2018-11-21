@@ -19,7 +19,7 @@ class ReplocationLinkDetail extends React.Component {
     replicationLink: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
-    onDeleteTouchTap: PropTypes.func,
+    onDeleteClick: PropTypes.func,
   }
 
   /**
@@ -30,7 +30,7 @@ class ReplocationLinkDetail extends React.Component {
       replicationLink,
       modules,
       ccInfos,
-      onDeleteTouchTap,
+      onDeleteClick,
     } = this.props
 
     const style = {
@@ -97,7 +97,7 @@ class ReplocationLinkDetail extends React.Component {
 
         <div style={style.actionsArea}>
           <DeleteButton
-            onTouchTap={onDeleteTouchTap}
+            onClick={onDeleteClick}
           />
         </div>
       </div>

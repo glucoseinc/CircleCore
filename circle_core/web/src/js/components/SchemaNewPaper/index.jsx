@@ -21,7 +21,7 @@ class SchemaNewPaper extends React.Component {
   static propTypes = {
     templateSchema: PropTypes.object,
     propertyTypes: PropTypes.object.isRequired,
-    onCreateTouchTap: PropTypes.func,
+    onCreateClick: PropTypes.func,
   }
 
   /**
@@ -44,7 +44,7 @@ class SchemaNewPaper extends React.Component {
     } = this.state
     const {
       propertyTypes,
-      onCreateTouchTap,
+      onCreateClick,
     } = this.props
 
     const style = {
@@ -90,8 +90,8 @@ class SchemaNewPaper extends React.Component {
                 schema={schema}
                 propertyTypes={propertyTypes}
                 onUpdate={(index, property) => this.setState({schema: schema.updateSchemaProperty(index, property)})}
-                onDeleteTouchTap={(index) => this.setState({schema: schema.removeSchemaProperty(index)})}
-                onAddTouchTap={() => this.setState({schema: schema.pushSchemaProperty()})}
+                onDeleteClick={(index) => this.setState({schema: schema.removeSchemaProperty(index)})}
+                onAddClick={() => this.setState({schema: schema.pushSchemaProperty()})}
               />
             </ComponentWithHeader>
           </div>
@@ -110,7 +110,7 @@ class SchemaNewPaper extends React.Component {
           <div style={style.actionsArea}>
             <CreateButton
               disabled={schema.isReadyToCreate() ? false : true}
-              onTouchTap={() => onCreateTouchTap(schema)}
+              onClick={() => onCreateClick(schema)}
             />
           </div>
         </div>

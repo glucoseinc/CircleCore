@@ -13,7 +13,7 @@ class OkDialog extends React.Component {
     title: PropTypes.string,
     label: PropTypes.string,
     disabled: PropTypes.bool,
-    onTouchTap: PropTypes.func.isRequired,
+    onClick: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired,
     children: PropTypes.node,
   }
@@ -26,7 +26,7 @@ class OkDialog extends React.Component {
       title,
       label = 'OK',
       disabled = false,
-      onTouchTap,
+      onClick,
       open,
       children,
     } = this.props
@@ -43,7 +43,7 @@ class OkDialog extends React.Component {
         title={title}
         actions={[
           <FlatButton
-            key="ok" label={label} primary={true} disabled={disabled} onTouchTap={onTouchTap}
+            key="ok" label={label} primary={true} disabled={disabled} onClick={onClick}
           />,
         ]}
         actionsContainerStyle={style.actions}

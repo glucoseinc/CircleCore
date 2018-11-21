@@ -11,8 +11,8 @@ class InvitationDeleteDialog extends React.Component {
   static propTypes = {
     open: PropTypes.bool,
     invitation: PropTypes.object,
-    onOkTouchTap: PropTypes.func.isRequired,
-    onCancelTouchTap: PropTypes.func.isRequired,
+    onOkClick: PropTypes.func.isRequired,
+    onCancelClick: PropTypes.func.isRequired,
   }
 
   /**
@@ -22,8 +22,8 @@ class InvitationDeleteDialog extends React.Component {
     const {
       open,
       invitation,
-      onOkTouchTap,
-      onCancelTouchTap,
+      onOkClick,
+      onCancelClick,
     } = this.props
 
     return (
@@ -31,8 +31,8 @@ class InvitationDeleteDialog extends React.Component {
         obj={invitation}
         primaryLabelName="url"
         title="この招待リンクを削除しますか？"
-        onOkTouchTap={onOkTouchTap}
-        onCancelTouchTap={onCancelTouchTap}
+        onOkClick={onOkClick}
+        onCancelClick={onCancelClick}
         open={open}
       />
     )
