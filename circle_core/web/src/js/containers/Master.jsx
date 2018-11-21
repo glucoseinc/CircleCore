@@ -5,7 +5,7 @@ import {routerActions} from 'react-router-redux'
 
 import AppBar from 'material-ui/AppBar'
 import Snackbar from 'material-ui/Snackbar'
-import Title from '@testlio/react-title-component'
+import Title from '@shnjp/react-title-component'
 import withWidth, {LARGE} from 'material-ui/utils/withWidth'
 
 import actions from 'src/actions'

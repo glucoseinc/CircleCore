@@ -1,5 +1,5 @@
 /* global CRCR_INVITATION_IS_COMPLETED:false CRCR_INVITATION_ERROR:false CRCR_INVITATION_USER:false */
-import Title from '@testlio/react-title-component'
+import Title from '@shnjp/react-title-component'
 import React from 'react'
 import Paper from 'material-ui/Paper'
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import {Link} from 'react-router'
-import Title from '@testlio/react-title-component'
+import Title from '@shnjp/react-title-component'
 
 import AppBar from 'material-ui/AppBar'
 import Paper from 'material-ui/Paper'
