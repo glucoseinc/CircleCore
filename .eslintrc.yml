@@ -34,8 +34,9 @@ rules:
     - error
     - never
   no-console: off
+  no-debugger: warn
   no-unused-vars:
-    - error
+    - warn
     - args: none
 
   react/sort-comp: warn
@@ -57,6 +58,7 @@ rules:
   # react/jsx-sort-props: warn
   react/jsx-tag-spacing: warn
   react/jsx-wrap-multilines: warn
+  require-jsdoc: off
 
   import/no-unresolved: error
   import/order:
@@ -72,5 +74,12 @@ rules:
   import/no-duplicates: warn
 
 settings:
-  import/resolver:
-    babel-module: {}
+  react:
+    version: "15.0"
+#   import/respolver:
+#     alias: [
+#       ['src', 'circle_core/web/src'],
+#     ]
+#   # import/internal-module-folders:
+#   #   - src
+  import/resolver: 'webpack'

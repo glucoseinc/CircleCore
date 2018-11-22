@@ -4,13 +4,13 @@
 
 # system module
 import datetime
-from uuid import UUID
 import time
+from uuid import UUID
 
 # community module
 from base58 import b58decode
-from dateutil import parser
 import click
+from dateutil import parser
 from six import PY3
 
 

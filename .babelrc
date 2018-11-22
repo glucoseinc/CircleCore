@@ -1,19 +1,15 @@
 {
-  "presets": ["react", "es2015", "stage-1"],
   "plugins": [
+    "@babel/plugin-proposal-class-properties",
     "transform-function-bind",
-    ["module-resolver", {
-      "root": ["./circle_core/web/src"],
-      "alias": {
-        "src": "./circle_core/web/src/js",
-      }
-    }]
   ],
-  "env": {
-    "development": {
-      "presets": [
-        "power-assert"
-      ]
-    }
-  }
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "useBuiltIns": "entry"
+      }
+    ],
+    "@babel/preset-react"
+  ]
 }

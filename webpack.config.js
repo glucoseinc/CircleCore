@@ -1,7 +1,9 @@
 /* eslint-disable require-jsdoc */
+const path = require('path')
 const DefinePlugin = require('webpack/lib/DefinePlugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
+
+const _resolve = (...args) => path.resolve(__dirname, ...args)
 
 class LoggerPlugin {
   apply(compiler) {
@@ -18,13 +20,14 @@ class LoggerPlugin {
   }
 }
 
-const SOURCE_DIR = './circle_core/web/src'
-const DEST_DIR = './circle_core/web/static'
+const SOURCE_DIR = _resolve('./circle_core/web/src')
+const DEST_DIR = _resolve('./circle_core/web/static')
 
 module.exports = {
+  context: _resolve(SOURCE_DIR, 'js'),
   entry: {
-    main: ['babel-polyfill', `${SOURCE_DIR}/js/main.es6`],
-    public: ['babel-polyfill', `${SOURCE_DIR}/js/public.es6`],
+    main: ['@babel/polyfill', `${SOURCE_DIR}/js/main.jsx`],
+    public: ['@babel/polyfill', `${SOURCE_DIR}/js/public.jsx`],
   },
   output: {
     path: DEST_DIR,
@@ -32,44 +35,44 @@ module.exports = {
     chunkFilename: '[id].[chunkhash].chunked.js',
   },
   module: {
-    preLoaders: [
+    rules: [
       {
-        test: /\.es6$/,
+        enforce: 'pre',
+        test: /\.jsx?$/,
         exclude: /node_modules/,
-        loader: 'eslint',
+        loader: 'eslint-loader',
       },
-    ],
-    loaders: [
       {
-        test: /\.es6$/,
+        test: /\.jsx?$/,
         exclude: /node_modules/,
-        loader: 'babel',
+        loader: 'babel-loader',
         query: {
           cacheDirectory: true,
         },
       },
       {
         test: /\.css$/,
-        loader: ExtractTextPlugin.extract('css!postcss'),
-      },
+        loader: 'ignore-loader'
+      }
     ],
   },
-  // devtool: 'source-map',
+  devtool: 'source-map',
   resolve: {
-    root: `${SOURCE_DIR}/js`,
-    modulesDirectories: ['node_modules'],
-    extensions: ['', '.es6', '.js'],
+    alias: {
+      'src': _resolve(SOURCE_DIR, 'js')
+    },
+    modules: [
+      'node_modules',
+    ],
+    extensions: ['.jsx', '.js'],
   },
   plugins: [
-    new ExtractTextPlugin('main.css'),
     new CopyWebpackPlugin([
       {
-        from: `${SOURCE_DIR}/images/`,
+        from: _resolve(SOURCE_DIR, 'images'),
       },
     ]),
-    new DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-    }),
     new LoggerPlugin(),
   ],
+  target: 'web',
 }

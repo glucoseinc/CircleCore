@@ -1,0 +1,128 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.5.4
+      - image: circleci/mysql:latest
+
+    environment:
+      PIPENV_VENV_IN_PROJECT: "true"
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - run:
+          name: submodule
+          command: |
+            git submodule init
+            git submodule update
+            git submodule foreach git pull origin master
+
+      - restore_cache:
+          keys:
+          - v4-python-dependencies-{{ arch }}-{{ checksum "Pipfile.lock" }}
+          - v1-python-dependencies-
+
+      - run:
+          name: Setup build environment
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y cmake
+
+      - run:
+          name: Install nanomsg
+          command: |
+            if [ ! -d ~/nanomsg-1.1.5 ]; then
+              cd ~
+              wget https://github.com/nanomsg/nanomsg/archive/1.1.5.tar.gz
+              tar zxvf 1.1.5.tar.gz
+              cd nanomsg-1.1.5
+              if [ -d build ]; then
+                rm -rdf build
+              fi
+              mkdir build && cd build
+              cmake ..
+              cmake --build .
+
+              cd ~/nanomsg-1.1.5/build
+              ctest -C Debug .
+              sudo cmake --build . --target install
+              sudo ldconfig
+            fi
+
+      - run:
+          name: Install python dependencies
+          command: |
+            sudo pip install -U pip pipenv
+            pipenv --python 3.5
+            pipenv install --dev --deploy
+
+      - save_cache:
+          paths:
+            - ./.venv
+          key: v4-python-dependencies-{{ arch }}-{{ checksum "Pipfile.lock" }}
+
+      - run:
+          name: Install latest node
+          command: |
+            curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+
+            curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+            echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+
+            sudo apt-get update
+            sudo apt-get install yarn
+
+      - run:
+          name: Install node dependencies
+          command: |
+            yarn install
+
+      - save_cache:
+          paths:
+            - ./node_modules
+          key: v1-node-dependencies-{{ arch }}-{{ checksum "yarn.lock" }}
+
+#      - persist_to_workspace:
+#          root: . # workspaceのrootパス（絶対パスかworking_directoryからの相対パス）
+#          paths:
+#            - . # 共有するパス（絶対パスかrootからの相対パス）
+#
+#  test:
+#    docker:
+#      - image: circleci/python:3.5.4
+#
+#    environment:
+#      PIPENV_VENV_IN_PROJECT: "true"
+#
+#    working_directory: ~/repo
+#
+#    steps:
+#      - attach_workspace: # workspaceをアタッチする
+#          at: .
+
+      - run:
+          name: run tests
+          command: |
+            pipenv run lint
+            pipenv run test
+
+            yarn lint
+            yarn run build
+
+      - store_artifacts:
+          path: coverage_python
+          destination: coverage_python
+
+#workflows:
+#  version: 2
+#  build_and_test:
+#    jobs:
+#      - build
+#      - test:
+#          requires:
+#            - build
+#
