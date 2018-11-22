@@ -5,13 +5,13 @@
 # system module
 import datetime
 import math
-from uuid import UUID
 import time
+from uuid import UUID
 
 # community module
 from base58 import b58decode
-from dateutil import parser
 import click
+from dateutil import parser
 from six import PY3
 
 from circle_core.timed_db import TimedDBBundle
@@ -78,5 +78,5 @@ def dump_whisper(dir, box_id, end_time, graph_range):
     graph_data = fetch_rickshaw_graph_data([UUID(box_id)], graph_range, time_db_bundle, end_time)
     print(graph_data)
 
-    time_db = time_db_bundle.find_db(UUID(box_id))
+    # time_db = time_db_bundle.find_db(UUID(box_id))
     # time_db

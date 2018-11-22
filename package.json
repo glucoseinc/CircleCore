@@ -4,6 +4,7 @@
   "description": "CircleCore",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint --ext jsx circle_core/web/src/js",
     "lint-fix": "eslint --ext jsx --fix circle_core/web/src/js",
     "clean": "rm -f ./circle_core/web/static/*",
     "build": "npm run clean && run-p build:prod:*",

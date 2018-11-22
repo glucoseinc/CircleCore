@@ -4,7 +4,10 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [scripts]
+build_doc = "sh -c 'cd doc && make html'"
+lint = "flake8 circle_core tests"
 run_debug = "crcr --debug run"
+test = "sh -c 'coverage run --source circle_core -m pytest --strict tests && coverage report -m && coverage html'"
 
 [dev-packages]
 circle_core = {path = ".",extras = ["doc", "test"],editable = true}
