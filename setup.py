@@ -28,7 +28,7 @@ if PY2:
 
 
 setup(
-    name='CircleCore',
+    name='circle_core',
     version='0.1',
     packages=find_packages(exclude=['tests']),
     install_requires=install_requires,

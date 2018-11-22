@@ -1,0 +1,35 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[scripts]
+run_debug = "crcr --debug run"
+
+[dev-packages]
+circle_core = {path = ".",extras = ["doc", "test"],editable = true}
+coverage = "==4.5.1"
+flake8 = "==3.6.0"
+flake8-import-order = "==0.18"
+pytest = "*"
+pytest-timeout = "*"
+tcptest = "*"
+tox = "==3.5.3"
+
+[packages]
+alembic = "*"
+base58 = "*"
+click = "==6.7"
+flask = "*"
+Flask-OAuthlib = "*"
+mysql-connector-python-rf = "*"
+nnpy = "==1.4.2"
+python-dateutil = "*"
+six = "*"
+sqlalchemy = ">=1.1.4"
+tornado = "*"
+websocket-client = "*"
+whisper = "==1.1.2"
+
+[requires]
+python_version = "3.5"
