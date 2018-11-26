@@ -7,32 +7,12 @@ verify_ssl = true
 build_doc = "sh -c 'cd doc && make html'"
 lint = "flake8 circle_core tests"
 run_debug = "crcr --debug run"
-test = "sh -c 'coverage run --source circle_core -m pytest --strict tests && coverage report -m && coverage html'"
+test = "pytest -v --cov=circle_core --cov-report html:coverage_html --cov-report term-missing:skip-covered tests/"
 
 [dev-packages]
-circle_core = {path = ".",extras = ["doc", "test"],editable = true}
-coverage = "==4.5.1"
-flake8 = "==3.6.0"
-flake8-import-order = "==0.18"
-pytest = "*"
-pytest-timeout = "*"
-tcptest = "*"
-tox = "==3.5.3"
 
 [packages]
-alembic = "*"
-base58 = "*"
-click = "==6.7"
-flask = "*"
-Flask-OAuthlib = "*"
-mysql-connector-python-rf = "*"
-nnpy = "==1.4.2"
-python-dateutil = "*"
-six = "*"
-sqlalchemy = ">=1.1.4"
-tornado = "*"
-websocket-client = "*"
-whisper = "==1.1.2"
+circle_core = {path = ".",extras = ["doc", "test"],editable = true}
 
 [requires]
 python_version = "3.5"

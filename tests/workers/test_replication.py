@@ -25,7 +25,16 @@ def terminate_crcr():
     subprocess.run("""ps x | grep crcr | grep -v grep | awk '{ system("kill "$1) }'""", shell=True, check=True)
 
 
-def test_reproduce_missing_message(tmpdir_factory):
+@pytest.yield_fixture
+def save_cwd():
+    saved = os.getcwd()
+    try:
+        yield
+    finally:
+        os.chdir(saved)
+
+
+def test_reproduce_missing_message(tmpdir_factory, save_cwd):
     master_dir = str(tmpdir_factory.mktemp('master'))
     slave_dir = str(tmpdir_factory.mktemp('slave'))
 
