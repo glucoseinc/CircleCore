@@ -19,7 +19,6 @@ import sqlalchemy.exc
 from circle_core.exceptions import ConfigError
 from circle_core.helpers import Receiver
 from circle_core.models import CcInfo, generate_uuid, MetaDataBase, MetaDataSession, NoResultFound
-from circle_core.workers import make_worker, WORKER_DATARECEIVER, WORKER_SLAVE_DRIVER
 from .base import logger
 from .hub import CoreHub
 from .metadata_event_logger import MetaDataEventLogger
@@ -123,6 +122,8 @@ class CircleCore(object):
         )
 
         # add default workers
+        from circle_core.workers import WORKER_DATARECEIVER, WORKER_SLAVE_DRIVER
+
         core.add_worker(WORKER_DATARECEIVER, '', core_config)
         core.add_worker(WORKER_SLAVE_DRIVER, '', core_config)
 
@@ -191,6 +192,8 @@ class CircleCore(object):
         :param str worker_key: ワーカーのキー
         :param configparser.SectionProxy worker_config: ワーカーのコンフィグ
         """
+        from circle_core.workers import make_worker
+
         self.workers.append(make_worker(self, worker_type, worker_key, worker_config))
 
     def find_worker(self, worker_type, worker_key=None):
@@ -225,6 +228,16 @@ class CircleCore(object):
             for worker in self.workers:
                 worker.finalize()
 
+    def get_datareceiver(self):
+        """DataReceiverを返す
+
+        :return: Messageデータベース
+        :rtype: DataReceiver
+        """
+        from circle_core.workers import WORKER_DATARECEIVER
+
+        return self.find_worker(WORKER_DATARECEIVER)
+
     def get_database(self):
         """Messageデータベースを取得する.
 
@@ -233,7 +246,7 @@ class CircleCore(object):
         :return: Messageデータベース
         :rtype: Database
         """
-        return self.find_worker(WORKER_DATARECEIVER).db
+        return self.get_datareceiver().db
 
     def make_hub_receiver(self, topic=None):
         """Message Hubのレシーバを作成する.

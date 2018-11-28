@@ -27,7 +27,7 @@ WORKER_DATARECEIVER = 'datareceiver'
 
 
 @register_worker_factory(WORKER_DATARECEIVER)
-def create_http_worker(core, type, key, config):
+def create_datareceiver_worker(core, type, key, config):
     assert type == WORKER_DATARECEIVER
     defaults = {
         'cycle_time': '2.0',
@@ -82,6 +82,9 @@ class DataReceiverWorker(CircleWorker):
         box_id = request['box_id']
         payload = request['payload']
 
+        self.receive_new_message(box_id, payload)
+
+    def receive_new_message(self, box_id, payload):
         try:
             message_box = self.find_message_box(box_id)
         except MessageBoxNotFoundError:
