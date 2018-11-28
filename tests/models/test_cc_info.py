@@ -2,7 +2,7 @@
 import pytest
 
 from circle_core.models import CcInfo, MetaDataSession
-from .utils import setup_db
+from circle_core.testing import setup_db
 
 
 class TestCcInfo(object):
