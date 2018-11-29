@@ -47,6 +47,7 @@ setup(
             'flake8',
             'flake8-import-order',
             'pytest',
+            'pytest-cov',
             'pytest-timeout',
             'tcptest',
             'tox',

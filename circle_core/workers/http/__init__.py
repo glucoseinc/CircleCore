@@ -11,6 +11,7 @@ from tornado.wsgi import WSGIContainer
 from circle_core.constants import RequestType
 from circle_core.exceptions import ConfigError
 from circle_core.web import create_app
+from .module_event import ModuleEventHandler
 from .replication_master import ReplicationMasterHandler
 from ..base import CircleWorker, register_worker_factory
 
@@ -82,11 +83,16 @@ class HTTPWorker(CircleWorker):
 
         is_https = True if self.tls_crt_path else False
 
-        ws_handler = None
+        ws_handlers = []
         if self.ws_on:
-            ws_handler = (r'/replication/(?P<link_uuid>[0-9A-Fa-f-]+)', ReplicationMasterHandler)
+            ws_handlers = [
+                # モジュール用のWS
+                (r'/modules/(?P<module_uuid>[0-9A-Fa-f-]+)/(?P<mbox_uuid>[0-9A-Fa-f-]+)', ModuleEventHandler),
+                # Repliction用のWS
+                (r'/replication/(?P<link_uuid>[0-9A-Fa-f-]+)', ReplicationMasterHandler)
+            ]
 
-        admin_handler = None
+        admin_handlers = []
         if self.admin_on:
             if not self.skip_build:
                 self.flask_app.build_frontend()
@@ -97,7 +103,9 @@ class HTTPWorker(CircleWorker):
                 assert root_url.startswith('https://' if is_https else 'http://')
                 logger.info('Admin UI running on %s', root_url)
 
-            admin_handler = (r'.*', FallbackHandler, {'fallback': WSGIContainer(self.flask_app)})
+            admin_handlers = [
+                (r'.*', FallbackHandler, {'fallback': WSGIContainer(self.flask_app)})
+            ]
 
         ssl_ctx = None
         if is_https:
@@ -105,18 +113,17 @@ class HTTPWorker(CircleWorker):
             ssl_ctx.load_cert_chain(self.tls_crt_path, self.tls_key_path)
 
         if self.ws_on and self.admin_on and (self.ws_port == self.admin_port):
-            application = Application([
-                ws_handler,
-                admin_handler,  # must be last
-            ], _core=self.core)
+            application = Application(
+                ws_handlers + admin_handlers,  # admin_handlers must be last
+                _core=self.core)
             server = HTTPServer(application, ssl_options=ssl_ctx)
             server.listen(self.ws_port, self.listen)
         else:
             if self.ws_on:
-                ws_application = Application([ws_handler], _core=self.core)
+                ws_application = Application([ws_handlers], _core=self.core)
                 ws_server = HTTPServer(ws_application, ssl_options=ssl_ctx)
                 ws_server.listen(self.ws_port, self.listen)
             if self.admin_on:
-                admin_application = Application([admin_handler])
+                admin_application = Application([admin_handlers])
                 admin_server = HTTPServer(admin_application, ssl_options=ssl_ctx)
                 admin_server.listen(self.admin_port, self.listen)

@@ -84,7 +84,7 @@ class ReplicationMasterHandler(WebSocketHandler):
         self.replication_link = ReplicationLink.query.get(link_uuid)
 
         if not self.replication_link:
-            logger.warning('ReplicationLink {} was not found. Connection close.')
+            logger.warning('ReplicationLink %s/%s was not found. Connection close.', module_uuid, mbox_uuid)
             self.close(code=WebsocketStatusCode.NOT_FOUND.value,
                        reason='ReplicationLink {} was not found.'.format(link_uuid))
             return

@@ -4,7 +4,7 @@ import uuid
 import pytest
 
 from circle_core.models import generate_uuid, MessageBox, MetaDataSession, Module, Schema
-from .utils import setup_db
+from circle_core.testing import setup_db
 
 
 class TestMessageBox(object):
