@@ -1,30 +1,14 @@
 # -*- coding: utf-8 -*-
 """モジュールへのイベント受け口
 """
-# import enum
 import json
 import logging
-# import threading
-# import uuid
 
-# from click import get_current_context
 from tornado import gen
-# from tornado.ioloop import IOLoop
-# from tornado.web import HTTPError
 from tornado.websocket import WebSocketHandler
-# from werkzeug import ImmutableDict
 
 from circle_core.constants import WebsocketStatusCode
-# from circle_core.constants import MasterCommand, ReplicationState, SlaveCommand, WebsocketStatusCode
-# from circle_core.exceptions import ReplicationError
-# from circle_core.message import ModuleMessage, ModuleMessagePrimaryKey
 from circle_core.models import MessageBox, NoResultFound
-# from circle_core.models import CcInfo, MetaDataSession, NoResultFound, ReplicationLink, ReplicationSlave
-# from ...exceptions import ModuleNotFoundError
-# # from ...helpers.metadata import metadata
-# from ...helpers import make_message_topic
-# # from ...helpers.topics import ModuleMessageTopic
-# from ...models.message_box import MessageBox
 
 
 logger = logging.getLogger(__name__)
