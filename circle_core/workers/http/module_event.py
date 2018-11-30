@@ -20,27 +20,32 @@ class ModuleEventHandler(WebSocketHandler):
     :param UUID mbox_uuid:
     """
 
+    # override
+    def post(self, module_uuid, mbox_uuid):
+        logger.debug('Post to module %s/%s', module_uuid, mbox_uuid)
+        try:
+            self.setup(module_uuid, mbox_uuid)
+        except NoResultFound:
+            self.send_error(404)
+            # self.write('Messagebox {}/{} not found'.format(module_uuid, mbox_uuid))
+            return
+
+        payload = json.loads(self.request.body.decode('utf-8'))
+        datareceiver = self.get_core().get_datareceiver()
+        datareceiver.receive_new_message(str(self.mbox_uuid), payload)
+
     def open(self, module_uuid, mbox_uuid):
         """他のCircleCoreから接続された際に呼ばれる."""
         logger.debug('Connect to module %s/%s', module_uuid, mbox_uuid)
-        self.module_uuid = module_uuid
-        self.mbox_uuid = mbox_uuid
-
         try:
-            mbox = MessageBox.query.filter_by(uuid=mbox_uuid, module_uuid=module_uuid).one()
+            self.setup(module_uuid, mbox_uuid)
         except NoResultFound:
             logger.warning('Messagebox %s/%s was not found. Connection close.', module_uuid, mbox_uuid)
             self.close(code=WebsocketStatusCode.NOT_FOUND.value,
                        reason='Messagebox {}/{} was not found.'.format(module_uuid, mbox_uuid))
             return
-        else:
-            self.mbox_uuid = mbox.uuid
-            self.module_uuid = mbox.module_uuid
 
         self.datareceiver = self.get_core().get_datareceiver()
-
-    def get_core(self):
-        return self.application.settings['_core']
 
     @gen.coroutine
     def on_message(self, plain_msg):
@@ -53,7 +58,6 @@ class ModuleEventHandler(WebSocketHandler):
         logger.debug('message received: `%s`' % plain_msg)
         payload = json.loads(plain_msg)
 
-        print('!?', self.datareceiver.receive_new_message)
         self.datareceiver.receive_new_message(str(self.mbox_uuid), payload)
 
     def on_close(self):
@@ -64,3 +68,13 @@ class ModuleEventHandler(WebSocketHandler):
         """CORSチェック."""
         # wsta等テストツールから投げる場合はTrueにしておく
         return True
+
+    # internal
+    def get_core(self):
+        return self.application.settings['_core']
+
+    def setup(self, module_uuid, mbox_uuid):
+        """mboxの存在チェック"""
+        mbox = MessageBox.query.filter_by(uuid=mbox_uuid, module_uuid=module_uuid).one()
+        self.mbox_uuid = mbox.uuid
+        self.module_uuid = mbox.module_uuid
