@@ -8,12 +8,12 @@ import CCAPI from 'src/api'
 import DeleteButton from 'src/components/commons/DeleteButton'
 
 import DisplayNameEditablePaper from './DisplayNameEditablePaper'
-import DisplayNameEdittingPaper from './DisplayNameEdittingPaper'
+import DisplayNameEditingPaper from './DisplayNameEditingPaper'
 import MessageBoxEditablePaper from './MessageBoxEditablePaper'
-import MessageBoxEdittingPaper from './MessageBoxEdittingPaper'
+import MessageBoxEditingPaper from './MessageBoxEditingPaper'
 import MessageBoxAddActionPaper from './MessageBoxAddActionPaper'
 import MetadataEditablePaper from './MetadataEditablePaper'
-import MetadataEdittingPaper from './MetadataEdittingPaper'
+import MetadataEditingPaper from './MetadataEditingPaper'
 
 
 /**
@@ -196,7 +196,7 @@ class ModuleDetail extends React.Component {
     }
 
     const displayNamePaper = editingArea === ModuleDetail.editingArea.displayName ? (
-      <DisplayNameEdittingPaper
+      <DisplayNameEditingPaper
         module={editingModule}
         onUpdate={(editingModule) => this.setState({editingModule})}
         onOKButtonClick={() => this.onUpdateClick()}
@@ -211,7 +211,7 @@ class ModuleDetail extends React.Component {
     )
 
     const metadataPaper = editingArea === ModuleDetail.editingArea.metadata ? (
-      <MetadataEdittingPaper
+      <MetadataEditingPaper
         module={editingModule}
         tagSuggestions={tagSuggestions}
         attributeNameSuggestions={attributeNameSuggestions}
@@ -230,7 +230,7 @@ class ModuleDetail extends React.Component {
     const messageBoxAddPaper = editingArea === ModuleDetail.editingArea.messageBox
       && editingAreaIndex === module.messageBoxes.size ? (
         <div style={style.messageBoxAddingArea}>
-          <MessageBoxEdittingPaper
+          <MessageBoxEditingPaper
             module={editingModule}
             messageBoxIndex={editingAreaIndex}
             schemas={schemas}
@@ -267,7 +267,7 @@ class ModuleDetail extends React.Component {
               const fetchingData = messageBoxesFetchingData[messageBox.uuid]
               const disabledChangeSchema = fetchingData.loading === true || fetchingData.messages.length !== 0
               return editingArea === ModuleDetail.editingArea.messageBox && editingAreaIndex === index ? (
-                <MessageBoxEdittingPaper
+                <MessageBoxEditingPaper
                   key={messageBox.uuid}
                   module={editingModule}
                   messageBoxIndex={index}

@@ -10,7 +10,7 @@ import MessageBoxEditComponent from 'src/components/commons/MessageBoxEditCompon
 /**
  * MessageBoxエリア(編集状態)
  */
-class MessageBoxEdittingPaper extends React.Component {
+class MessageBoxEditingPaper extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     messageBoxIndex: PropTypes.number.isRequired,
@@ -75,4 +75,4 @@ class MessageBoxEdittingPaper extends React.Component {
   }
 }
 
-export default MessageBoxEdittingPaper
+export default MessageBoxEditingPaper
