@@ -45,7 +45,7 @@ def make_message_topic(module_id=None, box_id=None):
 
     t = ['message']
     if module_id:
-        t.append(b58encode(module_id.bytes))
+        t.append(b58encode(module_id.bytes).decode('latin1'))
         if box_id:
-            t.append(b58encode(box_id.bytes))
+            t.append(b58encode(box_id.bytes).decode('latin1'))
     return make_topic(':'.join(t))

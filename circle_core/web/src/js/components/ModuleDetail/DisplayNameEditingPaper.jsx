@@ -11,7 +11,7 @@ import DisplayNameTextField from 'src/components/commons/DisplayNameTextField'
 /**
  * 表示名エリア(編集状態)
  */
-class DisplayNameEdittingPaper extends React.Component {
+class DisplayNameEditingPaper extends React.Component {
   static propTypes = {
     module: PropTypes.object.isRequired,
     onUpdate: PropTypes.func,
@@ -66,4 +66,4 @@ class DisplayNameEdittingPaper extends React.Component {
   }
 }
 
-export default DisplayNameEdittingPaper
+export default DisplayNameEditingPaper

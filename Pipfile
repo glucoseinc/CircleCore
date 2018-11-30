@@ -6,7 +6,7 @@ verify_ssl = true
 [scripts]
 build_doc = "sh -c 'cd doc && make html'"
 lint = "flake8 circle_core tests"
-run_debug = "crcr --debug run"
+debug = "crcr --debug run"
 test = "pytest -v --cov=circle_core --cov-report html:coverage_html --cov-report term-missing:skip-covered tests/"
 
 [dev-packages]
