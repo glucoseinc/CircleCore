@@ -55,11 +55,13 @@ authorize.add_url_rule('/oauth/callback', endpoint='oauth_callback', build_only=
 def oauth_authorize(*args, **kwargs):
     """OAuth認証の確認を行う."""
     if not g.user:
+        logger.info('oauth_authorize: user is not authorized')
         return redirect(url_for('.oauth_login', redirect=request.full_path))
 
     if request.method == 'GET':
         nonce = time.time()
         session[SESSION_KEY_NONCE] = nonce
+        logger.info('oauth_authorize: show authorize page, nonce=%r', nonce)
         return render_template('oauth/authorize.html', nonce=nonce, **kwargs)
 
     assert request.method == 'POST'
@@ -94,9 +96,11 @@ def oauth_login():
     try:
         user = _find_user_by_password(request.form['account'], request.form['password'])
     except AuthorizationError:
+        logger.info('Login failed %s(%s)', user.account, user.uuid)
         return render_template('oauth/login.html', redirect_to=redirect_to, is_failed=True)
 
     # ログイン処理
+    logger.info('Logging in %s(%s), redirect to %s', user.account, user.uuid, redirect_to)
     _login(user)
     return redirect(redirect_to)
 
