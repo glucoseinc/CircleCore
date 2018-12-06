@@ -15,4 +15,4 @@ test = "pytest -v --cov=circle_core --cov-report html:coverage_html --cov-report
 circle_core = {path = ".",extras = ["doc", "test"],editable = true}
 
 [requires]
-python_version = "3.5"
+python_version = "3.6"
