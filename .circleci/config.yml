@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/python:3.5.4
+      - image: circleci/python:3.6.6
       - image: circleci/mysql:latest
 
     environment:
@@ -22,7 +22,7 @@ jobs:
 
       - restore_cache:
           keys:
-          - v4-python-dependencies-{{ arch }}-{{ checksum "Pipfile.lock" }}
+          - v5-python-dependencies-{{ arch }}-{{ checksum "Pipfile.lock" }}
           - v1-python-dependencies-
 
       - run:
@@ -56,13 +56,13 @@ jobs:
           name: Install python dependencies
           command: |
             sudo pip install -U pip pipenv
-            pipenv --python 3.5
+            pipenv --python 3.6.6
             pipenv install --dev --deploy
 
       - save_cache:
           paths:
             - ./.venv
-          key: v4-python-dependencies-{{ arch }}-{{ checksum "Pipfile.lock" }}
+          key: v5-python-dependencies-{{ arch }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           name: Install latest node

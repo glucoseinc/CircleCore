@@ -89,6 +89,7 @@ class OAuthLogin extends React.Component {
             floatingLabelText="アカウント"
             errorText={errors.account}
             style={{width: '100%'}}
+            autoComplete="username"
           /><br />
 
           <TextField
@@ -99,6 +100,7 @@ class OAuthLogin extends React.Component {
             type="password"
             errorText={errors.password}
             style={{width: '100%'}}
+            autoComplete="current-password"
           /><br />
 
           <div className="loginForm-actions" style={{textAlign: 'center'}}>
