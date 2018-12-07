@@ -57,3 +57,8 @@ class AuthorizationError(CircleCoreException):
 class ReplicationError(CircleCoreException):
     """同期失敗エラー"""
     pass
+
+
+class JournalCorrupted(CircleCoreException):
+    """journalファイルが壊れている場合のエラー"""
+    pass

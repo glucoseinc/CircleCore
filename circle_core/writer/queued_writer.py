@@ -56,6 +56,7 @@ class QueuedWriter(WriterBase):
         self.transaction = None
         self.timeout = None
 
+    # override
     def store(self, message_box, message):
         """store.
         TODO: Fill blank
@@ -93,6 +94,7 @@ class QueuedWriter(WriterBase):
             return
         self.commit_transaction(flush_all)
 
+    # private
     def begin_transaction(self):
         """Transactionを開始する."""
         assert self.transaction is None
