@@ -49,3 +49,6 @@ try:
             return self._style.format(record) + colorama.Style.RESET_ALL
 except ImportError:
     pass
+
+
+logger = logging.getLogger('circle_core')
