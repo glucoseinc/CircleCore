@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """CLI utility commands."""
 
 # system module
@@ -12,7 +11,6 @@ from base58 import b58decode
 import click
 from dateutil import parser
 from six import PY3
-
 
 if PY3:
     from typing import List, Tuple

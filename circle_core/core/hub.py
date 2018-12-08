@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """nanomsgのhub."""
 
 # system module
@@ -11,7 +10,6 @@ from tornado.ioloop import IOLoop
 # project module
 from .base import logger
 from ..helpers.nanomsg import Replier, Sender
-
 
 # type annotation
 try:
@@ -96,11 +94,7 @@ class CoreHub(object):
         except Exception as exc:
             import traceback
             traceback.print_exc()
-            response = {
-                'response': 'failed',
-                'message': str(exc),
-                'original': request
-            }
+            response = {'response': 'failed', 'message': str(exc), 'original': request}
 
         self.replier.send(response)
 

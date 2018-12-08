@@ -11,9 +11,9 @@ from circle_core.helpers.nanomsg import Sender
 # from circle_core.helpers.topics import ModuleMessageTopic
 # from circle_core.models import message
 from circle_core.models import MessageBox, Module, Schema
+
 # from circle_core.models.message import ModuleMessageFactory
 # from circle_core.models.metadata.base import MetadataReader
-
 
 # class DummyMetadata(MetadataReader):
 #     schemas = [Schema('95eef02e-36e5-446e-9fea-aedd10321f6f', 'json', [{'name': 'hoge', 'type': 'int'}])]
@@ -56,10 +56,12 @@ def test_specific_box(mysql):
     topic = ModuleMessageTopic()
     sender = Sender(topic)
     messages = [
-        ModuleMessageFactory.new('314a578a-6543-4331-90f7-ed80c81d29bf', {
-            'hoge': 3,
-            '_message_box': '402a7a37-691d-40ed-b0fe-4aeed9d0bba1'
-        }) for _ in range(10)
+        ModuleMessageFactory.new(
+            '314a578a-6543-4331-90f7-ed80c81d29bf', {
+                'hoge': 3,
+                '_message_box': '402a7a37-691d-40ed-b0fe-4aeed9d0bba1'
+            }
+        ) for _ in range(10)
     ]
     for msg in messages:
         sender.send([msg.encode()])

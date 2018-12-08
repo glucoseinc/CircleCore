@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """CircleCoreInfo関連APIの実装."""
 
 # community module
@@ -9,9 +8,7 @@ from flask import abort, request
 from circle_core.models import CcInfo, MetaDataSession
 from .api import api
 from .utils import respond_failure, respond_success
-from ..utils import (
-    oauth_require_read_schema_scope, oauth_require_write_schema_scope
-)
+from ..utils import (oauth_require_read_schema_scope, oauth_require_write_schema_scope)
 
 
 @api.route('/cores/', methods=['GET', 'POST'])

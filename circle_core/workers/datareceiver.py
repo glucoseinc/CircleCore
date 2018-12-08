@@ -22,7 +22,6 @@ from ..exceptions import MessageBoxNotFoundError, ModuleNotFoundError, SchemaNot
 from ..helpers.topics import make_message_topic
 from ..models import MessageBox, NoResultFound, Schema
 
-
 logger = logging.getLogger(__name__)
 WORKER_DATARECEIVER = typing.cast(WorkerType, 'datareceiver')
 
@@ -35,7 +34,8 @@ def create_datareceiver_worker(core, type, key, config):
         'cycle_count': '100',
     }
     return DataReceiverWorker(
-        core, key,
+        core,
+        key,
         db_url=config.get('db'),
         time_db_dir=config.get('time_db_dir'),
         cycle_time=config.getfloat('cycle_time', vars=defaults),
@@ -92,10 +92,12 @@ class DataReceiverWorker(CircleWorker):
             return {'response': 'failed', 'message': 'message box not found'}
 
         if not message_box.schema.check_match(payload):
-            logger.warning('box {box_id} : message not matching schema was received. '
-                           'expected {expected}, received {received}'.format(box_id=box_id,
-                                                                             expected=message_box.schema.properties,
-                                                                             received=payload))
+            logger.warning(
+                'box {box_id} : message not matching schema was received. '
+                'expected {expected}, received {received}'.format(
+                    box_id=box_id, expected=message_box.schema.properties, received=payload
+                )
+            )
             return {'response': 'failed', 'message': 'schema not match'}
 
         msg = self.store_message(message_box, payload)
@@ -104,10 +106,7 @@ class DataReceiverWorker(CircleWorker):
 
         # pusblish
         logger.debug('publish new message: %s', message)
-        self.core.hub.publish(
-            make_message_topic(message_box.module.uuid, message_box.uuid),
-            message
-        )
+        self.core.hub.publish(make_message_topic(message_box.module.uuid, message_box.uuid), message)
 
         return response
 

@@ -4,9 +4,7 @@
 from setuptools import find_packages, setup
 import sys
 
-
 PY2 = sys.version_info[0] == 2
-
 
 install_requires = [
     'alembic',
@@ -25,7 +23,6 @@ install_requires = [
 ]
 if PY2:
     install_requires.append('enum34')
-
 
 setup(
     name='circle_core',

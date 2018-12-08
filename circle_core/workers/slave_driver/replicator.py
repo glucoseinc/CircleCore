@@ -20,12 +20,12 @@ from circle_core.models import CcInfo, MessageBox, MetaDataSession, Module, NoRe
 if PY3:
     from typing import Dict, Optional
 
-
 logger = logging.getLogger(__name__)
 
 
 # exceptions for internal use
 class ConnectionClosed(Exception):
+
     def __init__(self, code, reason):
         self.code = WebsocketStatusCode(code) if code else None
         self.reason = reason
@@ -85,9 +85,7 @@ class Replicator(object):
                     logger.info('Replication connection was closed normally. will retry after 5secs...')
                 elif exc.code:
                     # エラーコードが通知されている場合は、エラーを記録して終了する。復活するには再起動させること
-                    logger.error(
-                        'Replication connection was closed by peer. code=%r, reason=%r',
-                        exc.code, exc.reason)
+                    logger.error('Replication connection was closed by peer. code=%r, reason=%r', exc.code, exc.reason)
                     return
                 elif not self.closed:
                     # エラーコードなし。おそらくMasterが終了した
@@ -95,22 +93,16 @@ class Replicator(object):
 
             except ConnectionRefusedError as exc:
                 # 恐らく接続に失敗している > まだ立ち上がってない、のでWaitしてRetry
-                logger.error(
-                    'Replication connection was refused. %r',
-                    exc)
+                logger.error('Replication connection was refused. %r', exc)
 
             except WebSocketError as exc:
                 # WebSocket上のエラーの場合は、エラーを記録して終了する。復活するには再起動させること
-                logger.error(
-                    'Replication connection was closed abnormally. %r',
-                    exc)
+                logger.error('Replication connection was closed abnormally. %r', exc)
                 return
 
             except Exception as exc:
                 # その他のエラーは、エラーを記録、TraceBackを表示して終了する。復活するには再起動させること
-                logger.error(
-                    'Replication connection was closed abnormally. %r',
-                    exc)
+                logger.error('Replication connection was closed abnormally. %r', exc)
                 import traceback
                 traceback.print_exc()
                 return
@@ -172,10 +164,7 @@ class Replicator(object):
         self.state = ReplicationState.MIGRATING
 
         myinfo = CcInfo.query.filter_by(myself=True).one()
-        self._send_command(
-            SlaveCommand.HELLO,
-            ccInfo=myinfo.to_json()
-        )
+        self._send_command(SlaveCommand.HELLO, ccInfo=myinfo.to_json())
 
     def send_migrated_command(self):
         """Migrationが終わったので、自分のもっているMessageBoxのUUIDを送る"""
@@ -269,7 +258,8 @@ class Replicator(object):
                     obj = MessageBox(
                         uuid=data['uuid'],
                         schema_uuid=data['schemaUuid'],
-                        module_uuid=data['moduleUuid'],)
+                        module_uuid=data['moduleUuid'],
+                    )
                 obj.update_from_json(data)
                 MetaDataSession.add(obj)
 

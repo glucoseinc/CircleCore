@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """CLI Main."""
 
 # system module
@@ -20,7 +19,6 @@ from click.core import Context
 from circle_core.core import CircleCore
 from .context import CLIContextObject
 from ..database import Database
-
 
 logger = logging.getLogger(__name__)
 
@@ -53,13 +51,9 @@ def _init_logging(debug=False):
         try:
             from ..logger import NiceColoredFormatter
             # 色指示子で9charsとる
-            fh.setFormatter(NiceColoredFormatter(
-                '%(nice_levelname)-14s %(nice_name)-33s: %(message)s',
-            ))
+            fh.setFormatter(NiceColoredFormatter('%(nice_levelname)-14s %(nice_name)-33s: %(message)s',))
         except ImportError:
-            fh.setFormatter(logging.Formatter(
-                '%(levelname)-5s %(name)-24s: %(message)s',
-            ))
+            fh.setFormatter(logging.Formatter('%(levelname)-5s %(name)-24s: %(message)s',))
 
         root_logger = logging.getLogger()
         root_logger.addHandler(fh)
@@ -77,8 +71,9 @@ def cli_main_env(ctx):
 
     click.echo(
         'Circle Core: {display_name}({uuid})'.format(
-            display_name=core.my_cc_info.display_name,
-            uuid=core.my_cc_info.uuid))
+            display_name=core.my_cc_info.display_name, uuid=core.my_cc_info.uuid
+        )
+    )
     click.echo('Metadata File path: {}'.format(core.metadata_file_path))
     click.echo('Log File path: {}'.format(core.log_file_path))
 

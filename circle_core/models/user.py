@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """User Model."""
 
 # system module
@@ -15,7 +14,6 @@ from sqlalchemy.ext.hybrid import hybrid_property
 # project module
 from circle_core.utils import format_date
 from .base import generate_uuid, GUID, UUIDMetaDataBase
-
 
 # type annotation
 try:
@@ -52,8 +50,9 @@ class User(UUIDMetaDataBase):
     telephone = sa.Column(sa.Text, nullable=False, default='')
     encrypted_password = sa.Column(sa.String(255), nullable=False)
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
-    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow,
-                           onupdate=datetime.datetime.utcnow)
+    updated_at = sa.Column(
+        sa.DateTime, nullable=False, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow
+    )
     last_access_at = sa.Column(sa.DateTime, nullable=True)
 
     @classmethod
@@ -64,10 +63,7 @@ class User(UUIDMetaDataBase):
         :return: Userオブジェクト
         :rtype: User
         """
-        return cls(
-            uuid=generate_uuid(model=cls),
-            **kwargs
-        )
+        return cls(uuid=generate_uuid(model=cls), **kwargs)
 
     def __init__(self, **kwargs):
         """init.
@@ -175,8 +171,9 @@ class User(UUIDMetaDataBase):
         :param Dict jsonobj: JSON表現のDict
         """
         for from_key, to_key in [
-                ('account', 'account'), ('mailAddress', 'mail_address'), ('work', 'work'), ('telephone', 'telephone'),
-                ('permissions', 'permissions')]:
+            ('account', 'account'), ('mailAddress', 'mail_address'), ('work', 'work'), ('telephone', 'telephone'),
+            ('permissions', 'permissions')
+        ]:
             if from_key in jsonobj:
                 setattr(self, to_key, jsonobj[from_key])
 

@@ -11,6 +11,7 @@ from tests import uuid_rex
 
 @pytest.mark.skip(reason='rewriting...')
 class TestCliUser(object):
+
     @pytest.mark.usefixtures('clear_metadata')
     def test_user(self):
         runner = CliRunner()
@@ -29,9 +30,7 @@ class TestCliUser(object):
         assert mo is None, result.output
 
         # can add user
-        result = _call(
-            'user', 'add', '--account', 'test_user', '--password', 'user'
-        )
+        result = _call('user', 'add', '--account', 'test_user', '--password', 'user')
         assert result.exit_code == 0
         mo = uuid_rex.search(result.output)
         assert mo is not None, result.output

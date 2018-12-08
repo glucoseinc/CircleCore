@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """モジュール関連APIの実装."""
 from uuid import UUID
 
@@ -10,10 +9,7 @@ from flask import abort, current_app, request, Response
 from circle_core.models import MessageBox, MetaDataSession, Module, NoResultFound
 from .api import api
 from .utils import respond_failure, respond_success
-from ..utils import (
-    oauth_require_read_schema_scope, oauth_require_write_schema_scope
-)
-
+from ..utils import (oauth_require_read_schema_scope, oauth_require_write_schema_scope)
 
 GRAPH_RANGE_TO_TIME_RANGE = {
     '30m': 60 * 30,
@@ -165,11 +161,7 @@ def _respond_rickshaw_graph_data(boxes, graph_range):
     timed_db_bundle = TimedDBBundle(current_app.core.prefix)
     # tz_offset = int(request.args.get('tzOffset', 0))
     tz_offset = 0
-    graph_data = fetch_rickshaw_graph_data(
-        boxes,
-        graph_range,
-        timed_db_bundle,
-        time.time() - tz_offset)
+    graph_data = fetch_rickshaw_graph_data(boxes, graph_range, timed_db_bundle, time.time() - tz_offset)
     return respond_success(graphData=graph_data)
 
 
@@ -197,20 +189,24 @@ def fetch_rickshaw_graph_data(boxes, graph_range, timed_db_bundle, end_time):
             if graph_steps != (start, end, step):
                 raise ValueError('graph range mismatch')
 
-        graph_data.append({
-            'messageBox': dict(uuid=str(box_uuid)) if isinstance(box, UUID) else box.to_json(),
-            'data': [dict(x=x, y=y) for x, y in zip(range(start, end, step), values)],
-        })
+        graph_data.append(
+            {
+                'messageBox': dict(uuid=str(box_uuid)) if isinstance(box, UUID) else box.to_json(),
+                'data': [dict(x=x, y=y) for x, y in zip(range(start, end, step), values)],
+            }
+        )
 
     if not graph_steps:
         graph_steps = int(start_time), int(end_time), int(end_time - start_time) - 1
 
     # グラフが無いやつはNullのグラフで埋める
     for box in missing_boxes:
-        graph_data.append({
-            'messageBox': dict(uuid=str(box_uuid)) if isinstance(box, UUID) else box.to_json(),
-            'data': [dict(x=x, y=None) for x in range(*graph_steps)],
-        })
+        graph_data.append(
+            {
+                'messageBox': dict(uuid=str(box_uuid)) if isinstance(box, UUID) else box.to_json(),
+                'data': [dict(x=x, y=None) for x in range(*graph_steps)],
+            }
+        )
     graph_data.sort(key=lambda x: x['messageBox']['uuid'])
 
     return graph_data

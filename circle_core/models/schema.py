@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """Schema Model."""
 
 # system module
@@ -14,7 +13,6 @@ from sqlalchemy.ext.hybrid import hybrid_property
 # project module
 from .base import generate_uuid, GUID, UUIDMetaDataBase
 from ..constants import CRDataType
-
 
 # type annotation
 try:
@@ -58,10 +56,7 @@ class SchemaProperty(collections.namedtuple('SchemaProperty', ['name', 'type']))
         :return: JSON表現のDict
         :rtype: Dict
         """
-        return {
-            'name': self.name,
-            'type': self.type
-        }
+        return {'name': self.name, 'type': self.type}
 
 
 class SchemaProperties(object):
@@ -140,8 +135,9 @@ class Schema(UUIDMetaDataBase):
     _properties = sa.Column('properties', sa.Text, nullable=False, default='')
     memo = sa.Column(sa.Text, nullable=False, default='')
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
-    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow,
-                           onupdate=datetime.datetime.utcnow)
+    updated_at = sa.Column(
+        sa.DateTime, nullable=False, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow
+    )
 
     message_boxes = orm.relationship('MessageBox', backref='schema')
 
@@ -157,10 +153,7 @@ class Schema(UUIDMetaDataBase):
             from .cc_info import CcInfo
             kwargs['cc_uuid'] = CcInfo.query.filter_by(myself=True).one().uuid
 
-        schema = cls(
-            uuid=generate_uuid(model=cls),
-            **kwargs
-        )
+        schema = cls(uuid=generate_uuid(model=cls), **kwargs)
         return schema
 
     def __init__(self, **kwargs):
@@ -191,9 +184,12 @@ class Schema(UUIDMetaDataBase):
         :return: equality
         :rtype: bool
         """
-        return all([self.uuid == other.uuid, self.display_name == other.display_name,
-                    self.properties == other.properties,
-                    self.memo == other.memo])
+        return all(
+            [
+                self.uuid == other.uuid, self.display_name == other.display_name, self.properties == other.properties,
+                self.memo == other.memo
+            ]
+        )
 
     @hybrid_property
     def properties(self):

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """Flask download Blueprint."""
 
 # system module
@@ -11,7 +10,6 @@ from flask import Blueprint, request, Response
 # project module
 from circle_core.models import NoResultFound, User
 from ..app import check_login
-
 
 download = Blueprint('download', __name__)
 logger = logging.getLogger(__name__)
@@ -52,6 +50,8 @@ def authenticate():
 
     :rtype: Response
     """
-    return Response(response='Authorization Required',
-                    status=401,
-                    headers={'WWW-Authenticate': 'Basic realm="Authorization Required"'})
+    return Response(
+        response='Authorization Required',
+        status=401,
+        headers={'WWW-Authenticate': 'Basic realm="Authorization Required"'}
+    )

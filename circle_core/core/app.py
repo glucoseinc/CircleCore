@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """CircleCoreのCore."""
 
 # system module
@@ -23,7 +22,6 @@ from .base import logger
 from .hub import CoreHub
 from .metadata_event_logger import MetaDataEventLogger
 
-
 # type annotation
 try:
     from typing import List, Optional, TYPE_CHECKING
@@ -32,7 +30,6 @@ try:
         from ..database import Database
 except ImportError:
     pass
-
 
 DEFAULT_CONFIG_FILE_NAME = 'circle_core.ini'
 
@@ -77,11 +74,13 @@ class CircleCore(object):
         :rtype: CircleCore
         """
         config = cls._make_config_parser()
-        okfiles = config.read([
-            './{}'.format(DEFAULT_CONFIG_FILE_NAME),
-            os.path.expanduser('~/{}'.format(DEFAULT_CONFIG_FILE_NAME)),
-            '/etc/circle_core/{}'.format(DEFAULT_CONFIG_FILE_NAME),
-        ])
+        okfiles = config.read(
+            [
+                './{}'.format(DEFAULT_CONFIG_FILE_NAME),
+                os.path.expanduser('~/{}'.format(DEFAULT_CONFIG_FILE_NAME)),
+                '/etc/circle_core/{}'.format(DEFAULT_CONFIG_FILE_NAME),
+            ]
+        )
         if not okfiles:
             raise ConfigError('no config file found')
 
@@ -180,9 +179,7 @@ class CircleCore(object):
         self.start_metadata_event_logger()
 
         self.my_cc_info = self.make_own_cc_info(config_uuid)
-        logger.info(
-            'This CiclelCore > UUID:%s Display Name:%s',
-            self.my_cc_info.uuid, self.my_cc_info.display_name)
+        logger.info('This CiclelCore > UUID:%s Display Name:%s', self.my_cc_info.uuid, self.my_cc_info.display_name)
 
     # public
     def add_worker(self, worker_type, worker_key, worker_config):
@@ -260,6 +257,7 @@ class CircleCore(object):
     # private
     def prepare_directories(self):
         """必要なディレクトリを作成する."""
+
         def _makedirs_safe(p):
             if not os.path.exists(p):
                 os.makedirs(p)
@@ -334,11 +332,7 @@ class CircleCore(object):
                 logger.info('My CCInfo found.')
             except NoResultFound:
                 logger.info('My CCInfo not found. Create new one')
-                my_cc_info = CcInfo(
-                    display_name='My CircleCore',
-                    myself=True,
-                    work=''
-                )
+                my_cc_info = CcInfo(display_name='My CircleCore', myself=True, work='')
                 if config_uuid == 'auto':
                     my_cc_info.uuid = generate_uuid(model=CcInfo)
                 else:

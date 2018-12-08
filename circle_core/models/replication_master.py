@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """Replication Master Model."""
 
 # community module
@@ -7,7 +6,6 @@ import sqlalchemy as sa
 from sqlalchemy import orm
 
 from .base import GUID, MetaDataBase
-
 
 # type annotation
 try:
@@ -38,7 +36,8 @@ class ReplicationMaster(MetaDataBase):
     master_uuid = sa.Column(GUID)
 
     info = orm.relationship(
-        'CcInfo', foreign_keys=[master_uuid], primaryjoin='CcInfo.uuid == ReplicationMaster.master_uuid', uselist=False)
+        'CcInfo', foreign_keys=[master_uuid], primaryjoin='CcInfo.uuid == ReplicationMaster.master_uuid', uselist=False
+    )
 
     modules = orm.relationship('Module', backref='replication_master', cascade='all, delete-orphan')
 

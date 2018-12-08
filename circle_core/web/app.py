@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """WebUI."""
 
 # system module
@@ -17,7 +16,6 @@ from werkzeug.routing import BaseConverter
 from circle_core.utils import portable_popen
 from .authorize.core import oauth
 
-
 # type annotation
 try:
     from typing import TYPE_CHECKING, Union
@@ -33,6 +31,7 @@ class CCWebApp(Flask):
     :param float uptime: 起動時刻
     :param int ws_port: Websocket Port Number
     """
+
     def __init__(self, core, base_url=None, ws_port=None, is_https=False):
         """init.
 
@@ -115,10 +114,7 @@ class CCWebApp(Flask):
     def build_frontend(self):
         """WebUI用のフロントエンドのjs, cssをビルドする."""
         import circle_core
-        basedir = os.path.abspath(
-            os.path.join(
-                os.path.dirname(circle_core.__file__),
-                os.pardir))
+        basedir = os.path.abspath(os.path.join(os.path.dirname(circle_core.__file__), os.pardir))
 
         portable_popen(['npm', 'install', '.'], cwd=basedir).wait()
         portable_popen(['npm', 'run', 'build'], cwd=basedir).wait()

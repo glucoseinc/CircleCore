@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """Replication Link Model."""
 
 # system module
@@ -13,7 +12,6 @@ from sqlalchemy import orm
 # project module
 from .base import GUID, MetaDataBase, UUIDMetaDataBase
 
-
 # type annotation
 try:
     from typing import Dict, List, Optional, Union, TYPE_CHECKING
@@ -23,9 +21,9 @@ try:
 except ImportError:
     pass
 
-
 replication_boxes_table = sa.Table(
-    'replication_boxes', MetaDataBase.metadata,
+    'replication_boxes',
+    MetaDataBase.metadata,
     sa.Column('link_uuid', GUID, sa.ForeignKey('replication_links.uuid')),
     sa.Column('box_uuid', GUID, sa.ForeignKey('message_boxes.uuid')),
 )
@@ -42,19 +40,16 @@ class ReplicationSlave(MetaDataBase):
     """
 
     __tablename__ = 'replication_slaves'
-    __table_args__ = (
-        sa.PrimaryKeyConstraint('link_uuid', 'slave_uuid', name='replication_slaves_pk'),
-    )
+    __table_args__ = (sa.PrimaryKeyConstraint('link_uuid', 'slave_uuid', name='replication_slaves_pk'),)
 
     link_uuid = sa.Column(GUID, sa.ForeignKey('replication_links.uuid'), nullable=False)
     slave_uuid = sa.Column(GUID, nullable=False)
     last_access_at = sa.Column(sa.DateTime)
 
-    link = orm.relationship(
-        'ReplicationLink',
-        backref=orm.backref('slaves', cascade='all, delete-orphan'))
+    link = orm.relationship('ReplicationLink', backref=orm.backref('slaves', cascade='all, delete-orphan'))
     info = orm.relationship(
-        'CcInfo', foreign_keys=[slave_uuid], primaryjoin='CcInfo.uuid == ReplicationSlave.slave_uuid', uselist=False)
+        'CcInfo', foreign_keys=[slave_uuid], primaryjoin='CcInfo.uuid == ReplicationSlave.slave_uuid', uselist=False
+    )
 
 
 class ReplicationLink(UUIDMetaDataBase):
@@ -75,13 +70,11 @@ class ReplicationLink(UUIDMetaDataBase):
     display_name = sa.Column(sa.String(255), nullable=False, default='')
     memo = sa.Column(sa.Text, nullable=False, default='')
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
-    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow,
-                           onupdate=datetime.datetime.utcnow)
+    updated_at = sa.Column(
+        sa.DateTime, nullable=False, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow
+    )
 
-    message_boxes = orm.relationship(
-        'MessageBox',
-        secondary=replication_boxes_table,
-        backref='links')
+    message_boxes = orm.relationship('MessageBox', secondary=replication_boxes_table, backref='links')
 
     ALL_MESSAGE_BOXES = object()
 
@@ -136,6 +129,7 @@ class ReplicationLink(UUIDMetaDataBase):
         :return: 共有リンクのEndpointのURL
         :rtype: Optional[str]
         """
+
         def build_link():
             schema = 'wss' if current_app.config['PREFERRED_URL_SCHEME'] == 'https' else 'ws'
             return '{schema}://{server_name}:{port}/replication/{_uuid}'.format(

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """CLI Schema."""
 
 # system module

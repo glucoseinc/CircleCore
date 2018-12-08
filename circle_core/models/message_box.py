@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """Message Box Model."""
 
 # system module
@@ -13,7 +12,6 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from .base import GUID, UUIDMetaDataBase
 from .replication_link import ReplicationLink
 from ..utils import prepare_uuid
-
 
 # type annotation
 try:
@@ -46,8 +44,9 @@ class MessageBox(UUIDMetaDataBase):
     display_name = sa.Column(sa.String(255), nullable=False, default='')
     memo = sa.Column(sa.Text, nullable=False, default='')
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
-    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow,
-                           onupdate=datetime.datetime.utcnow)
+    updated_at = sa.Column(
+        sa.DateTime, nullable=False, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow
+    )
 
     def __init__(self, **kwargs):
         """init.
@@ -75,8 +74,7 @@ class MessageBox(UUIDMetaDataBase):
         :return: equality
         :rtype: bool
         """
-        return all([self.uuid == other.uuid,
-                    self.display_name == other.display_name, self.memo == other.memo])
+        return all([self.uuid == other.uuid, self.display_name == other.display_name, self.memo == other.memo])
 
     @hybrid_property
     def cc_uuid(self):
@@ -94,8 +92,10 @@ class MessageBox(UUIDMetaDataBase):
         :return: ReplicationSlave CcInfo UUIDリスト
         :rtype: List[UUID]
         """
-        replication_links = [replication_link for replication_link in ReplicationLink.query.all()
-                             if self.uuid in [box.uuid for box in replication_link.message_boxes]]
+        replication_links = [
+            replication_link for replication_link in ReplicationLink.query.all()
+            if self.uuid in [box.uuid for box in replication_link.message_boxes]
+        ]
         slave_uuids = set()
         for replication_link in replication_links:
             slave_uuids = slave_uuids.union([slave.slave_uuid for slave in replication_link.slaves])
@@ -126,8 +126,9 @@ class MessageBox(UUIDMetaDataBase):
 
         if with_slave_cc_infos:
             from .cc_info import CcInfo
-            d['slaveCcInfos'] = [cc_info.to_json() for cc_info in
-                                 CcInfo.query.filter(CcInfo.uuid.in_(self.slave_uuids)).all()]
+            d['slaveCcInfos'] = [
+                cc_info.to_json() for cc_info in CcInfo.query.filter(CcInfo.uuid.in_(self.slave_uuids)).all()
+            ]
 
         return d
 

@@ -1,15 +1,12 @@
 # -*- coding:utf-8 -*-
-
 """WebUI Utilities."""
 
 # community module
 from flask import current_app, request
 from flask.json import _dump_arg_defaults, _json, JSONEncoder as BaseJSONEncoder, text_type
 
-
 # project module
 from circle_core.constants import CRScope
-
 
 # type annotation
 try:
@@ -40,9 +37,8 @@ def api_jsonify(*args, **kwargs):
        and not request.is_xhr:
         indent = 2
     return current_app.response_class(
-        dumps(dict(*args, **kwargs), indent=indent),
-        status=_status,
-        mimetype='application/json; charset=utf-8')
+        dumps(dict(*args, **kwargs), indent=indent), status=_status, mimetype='application/json; charset=utf-8'
+    )
 
 
 def oauth_require_read_users_scope(f):

@@ -28,14 +28,18 @@ def counter_bot(send_to, box_id, interval=1.0, silent=False):
     while True:
         i += 1
 
-        msg = json.dumps({
-            'request': 'new_message',
-            'box_id': str(box_id),
-            'payload': {
-                'count': i,
-                'body': "Greetings from a bot",
-            }
-        }, indent=2, ensure_ascii=False)
+        msg = json.dumps(
+            {
+                'request': 'new_message',
+                'box_id': str(box_id),
+                'payload': {
+                    'count': i,
+                    'body': "Greetings from a bot",
+                }
+            },
+            indent=2,
+            ensure_ascii=False
+        )
         socket.send(msg)
 
         if not silent:

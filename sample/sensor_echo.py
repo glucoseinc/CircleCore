@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """
 CircleCoreの九大人流センサーのbot
 """
@@ -12,7 +11,6 @@ import uuid
 import click
 import nnpy
 import websocket
-
 
 logger = logging.getLogger(__name__)
 

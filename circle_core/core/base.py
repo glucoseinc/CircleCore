@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """CircleCore Core Base."""
 
 import logging

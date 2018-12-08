@@ -17,14 +17,12 @@ from .exceptions import MessageBoxNotFoundError, SchemaNotFoundError, SchemaNotM
 from .models import Module, Schema
 from .utils import prepare_uuid
 
-
 message_timestamp_context = decimal.Context(16, decimal.ROUND_DOWN)
 logger = logging.getLogger(__name__)
 
 
-class ModuleMessagePrimaryKey(
-    namedtuple('ModuleMessagePrimaryKey', 'timestamp counter')
-):
+class ModuleMessagePrimaryKey(namedtuple('ModuleMessagePrimaryKey', 'timestamp counter')):
+
     def __new__(cls, t, c):
         assert isinstance(t, decimal.Decimal)
         assert isinstance(c, int)
@@ -43,10 +41,7 @@ class ModuleMessagePrimaryKey(
 
         assert isinstance(jsonobj, list)
 
-        return cls(
-            ModuleMessage.make_timestamp(jsonobj[0]),
-            jsonobj[1]
-        )
+        return cls(ModuleMessage.make_timestamp(jsonobj[0]), jsonobj[1])
 
     @classmethod
     def origin(cls):
@@ -82,12 +77,7 @@ class ModuleMessage(object):
 
     @classmethod
     def from_json(cls, data):
-        return cls(
-            prepare_uuid(data['boxId']),
-            data['timestamp'],
-            data['counter'],
-            data['payload']
-        )
+        return cls(prepare_uuid(data['boxId']), data['timestamp'], data['counter'], data['payload'])
 
     @classmethod
     def make_timestamp(cls, timestamp=None):
@@ -102,10 +92,7 @@ class ModuleMessage(object):
 
     @classmethod
     def is_equal_timestamp(cls, x, y):
-        return message_timestamp_context.compare(
-            cls.make_timestamp(x),
-            cls.make_timestamp(y)
-        ).is_zero()
+        return message_timestamp_context.compare(cls.make_timestamp(x), cls.make_timestamp(y)).is_zero()
 
     def __repr__(self):
         return '<ModuleMessage box={} timestamp={} counter={}>'.format(

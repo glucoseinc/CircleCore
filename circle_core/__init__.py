@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-
 """CircleCore."""
 
 # community module
 from six import PY2
 
 if PY2:
+
     class abstractclassmethod(classmethod):
 
         __isabstractmethod__ = True

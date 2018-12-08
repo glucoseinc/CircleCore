@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """一秒ごとに適当なメッセージを投げるセンサー."""
 
 # system module

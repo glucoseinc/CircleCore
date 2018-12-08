@@ -10,6 +10,7 @@ from tests import uuid_rex
 
 @pytest.mark.skip(reason='rewriting...')
 class TestCliModule(object):
+
     @pytest.mark.usefixtures('clear_metadata')
     def test_module(self):
         runner = CliRunner()
@@ -26,10 +27,7 @@ class TestCliModule(object):
         assert mo is None, result.output
 
         # can add invitation
-        result = _call(
-            'module', 'add',
-            '--name', '温度センサデバイス2',
-            '--tag', 'tag1,tag2')
+        result = _call('module', 'add', '--name', '温度センサデバイス2', '--tag', 'tag1,tag2')
         assert result.exit_code == 0
         mo = uuid_rex.search(result.output)
         assert mo is not None, result.output

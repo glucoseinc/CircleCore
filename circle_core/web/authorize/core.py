@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """Flask oauth implementation."""
 
 # system module
@@ -13,7 +12,6 @@ from flask_oauthlib.provider import OAuth2Provider
 # project module
 from circle_core.constants import CRScope
 from circle_core.models import MetaDataSession, NoResultFound, OAuthClient, OAuthGrant, OAuthToken
-
 
 authorize = Blueprint('authorize', __name__)
 logger = logging.getLogger(__name__)
@@ -34,18 +32,22 @@ def initialize_oauth():
             client.default_redirect_uri = redirect_uri
             logger.debug('Updating WebUI OAuth Client: redirect_uri to `%s`', redirect_uri)
         else:
-            client = OAuthClient(**{
-                'client_id': WEBUICLIENT_CLIENT_ID,
-                'client_secret': (
-                    '3f82ad86ff167cebc39bf735533efe080b596f4ce343e4f51fd6c760a9835ccb'
-                    '6ff76df5d2e72489b30d07ce81a273a6ea4128f98412f4b6027245c76cd0a098'
-                ),
-                'redirect_uris': [redirect_uri],
-                'default_redirect_uri': redirect_uri,
-                'default_scopes': ['schema+rw', 'user+rw'],
-                'allowed_grant_types': ['password', 'authorization_code', 'refresh_token'],
-                'allowed_response_types': ['code'],
-            })
+            client = OAuthClient(
+                **{
+                    'client_id':
+                    WEBUICLIENT_CLIENT_ID,
+                    'client_secret': (
+                        '3f82ad86ff167cebc39bf735533efe080b596f4ce343e4f51fd6c760a9835ccb'
+                        '6ff76df5d2e72489b30d07ce81a273a6ea4128f98412f4b6027245c76cd0a098'
+                    ),
+                    'redirect_uris': [redirect_uri],
+                    'default_redirect_uri':
+                    redirect_uri,
+                    'default_scopes': ['schema+rw', 'user+rw'],
+                    'allowed_grant_types': ['password', 'authorization_code', 'refresh_token'],
+                    'allowed_response_types': ['code'],
+                }
+            )
             logger.debug('Creating WebUI OAuth Client: redirect_uri to `%s`', redirect_uri)
         MetaDataSession.add(client)
 
@@ -59,12 +61,7 @@ def load_client(client_id):
 def load_grant(client_id, code):
     try:
         now = datetime.datetime.utcnow()
-        return (
-            OAuthGrant.query
-            .filter_by(client_id=client_id, code=code)
-            .filter(OAuthGrant.expires_at > now)
-            .one()
-        )
+        return (OAuthGrant.query.filter_by(client_id=client_id, code=code).filter(OAuthGrant.expires_at > now).one())
     except NoResultFound:
         return None
 
@@ -124,5 +121,6 @@ def save_token(token, request, *args, **kwargs):
             client_id=request.client.client_id,
             scopes=token['scope'].split(' '),
             expires_at=expires,
-            user_id=request.user.uuid)
+            user_id=request.user.uuid
+        )
         MetaDataSession.add(token_obj)

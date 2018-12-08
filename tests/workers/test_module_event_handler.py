@@ -15,10 +15,14 @@ from circle_core.workers.http import ModuleEventHandler
 
 
 class TestModuleEventHandlerBase(AsyncHTTPTestCase):
+
     def get_app(self):
-        return Application([
-            (r'/modules/(?P<module_uuid>[0-9A-Fa-f-]+)/(?P<mbox_uuid>[0-9A-Fa-f-]+)', ModuleEventHandler),
-        ], _core=self.app_mock)
+        return Application(
+            [
+                (r'/modules/(?P<module_uuid>[0-9A-Fa-f-]+)/(?P<mbox_uuid>[0-9A-Fa-f-]+)', ModuleEventHandler),
+            ],
+            _core=self.app_mock
+        )
 
     def setUp(self):
         self.app_mock = MagicMock()
@@ -37,7 +41,10 @@ class TestModuleEventHandlerViaREST(TestModuleEventHandlerBase):
         response = self.fetch(
             self.get_url('/modules/4ffab839-cf56-478a-8614-6003a5980855/00000000-0000-0000-0000-000000000000'),
             method='POST',
-            body=json.dumps({'x': 1, 'y': 2}),
+            body=json.dumps({
+                'x': 1,
+                'y': 2
+            }),
             headers={'Content-Type': 'application/json'}
         )
         self.assertEqual(response.code, 404)
@@ -49,7 +56,8 @@ class TestModuleEventHandlerViaREST(TestModuleEventHandlerBase):
             schema = Schema.create(display_name='Schema', properties='x:int,y:float')
             module = Module.create(display_name='Module')
             mbox = MessageBox(
-                uuid='4ffab839-cf56-478a-8614-6003a5980856', schema_uuid=schema.uuid, module_uuid=module.uuid)
+                uuid='4ffab839-cf56-478a-8614-6003a5980856', schema_uuid=schema.uuid, module_uuid=module.uuid
+            )
             MetaDataSession.add(schema)
             MetaDataSession.add(module)
             MetaDataSession.add(mbox)
@@ -58,7 +66,10 @@ class TestModuleEventHandlerViaREST(TestModuleEventHandlerBase):
         response = self.fetch(
             self.get_url('/modules/{}/{}'.format(module.uuid, mbox.uuid)),
             method='POST',
-            body=json.dumps({'x': 1, 'y': 2.5}),
+            body=json.dumps({
+                'x': 1,
+                'y': 2.5
+            }),
             headers={'Content-Type': 'application/json'}
         )
         self.assertEqual(response.code, 200)
@@ -66,6 +77,7 @@ class TestModuleEventHandlerViaREST(TestModuleEventHandlerBase):
 
 
 class TestModuleEventHandlerViaWebsocket(TestModuleEventHandlerBase):
+
     def get_protocol(self):
         return 'ws'
 
@@ -85,22 +97,21 @@ class TestModuleEventHandlerViaWebsocket(TestModuleEventHandlerBase):
         # make dummy environ
         schema = Schema.create(display_name='Schema', properties='x:int,y:float')
         module = Module.create(display_name='Module')
-        mbox = MessageBox(
-            uuid='4ffab839-cf56-478a-8614-6003a5980855', schema_uuid=schema.uuid, module_uuid=module.uuid)
+        mbox = MessageBox(uuid='4ffab839-cf56-478a-8614-6003a5980855', schema_uuid=schema.uuid, module_uuid=module.uuid)
 
         with MetaDataSession.begin():
             MetaDataSession.add(schema)
             MetaDataSession.add(module)
             MetaDataSession.add(mbox)
 
-        dummy_module = yield websocket_connect(
-            self.get_url('/modules/{}/{}'.format(module.uuid, mbox.uuid))
-        )
+        dummy_module = yield websocket_connect(self.get_url('/modules/{}/{}'.format(module.uuid, mbox.uuid)))
         dummy_module.write_message(json.dumps({'x': 1, 'y': 2}))
 
         # 素直にrecvするとIOLoopがブロックされてModuleHandlerが何も返せなくなるのでModuleHandlerをまず動かす
         yield sleep(1)
         self.datareceiver.receive_new_message.assert_called_once_with(
-            '4ffab839-cf56-478a-8614-6003a5980855',
-            {'x': 1, 'y': 2}
+            '4ffab839-cf56-478a-8614-6003a5980855', {
+                'x': 1,
+                'y': 2
+            }
         )

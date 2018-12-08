@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """CircleCoreInfo Model."""
 
 # system module
@@ -11,7 +10,6 @@ from sqlalchemy import orm
 
 # project module
 from .base import GUID, UUIDMetaDataBase
-
 
 # type annotation
 try:
@@ -43,14 +41,14 @@ class CcInfo(UUIDMetaDataBase):
     myself = sa.Column(sa.Boolean, nullable=False)
     work = sa.Column(sa.Text, nullable=False)
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
-    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow,
-                           onupdate=datetime.datetime.utcnow)
+    updated_at = sa.Column(
+        sa.DateTime, nullable=False, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow
+    )
 
     replication_master_id = sa.Column(
         sa.Integer,
-        sa.ForeignKey(
-            'replication_masters.replication_master_id',
-            name='fk_cc_informations_replication_masters'))
+        sa.ForeignKey('replication_masters.replication_master_id', name='fk_cc_informations_replication_masters')
+    )
 
     modules = orm.relationship('Module', backref='cc_info')
 

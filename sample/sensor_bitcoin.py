@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """
 Bitcoin相場bot
 """
@@ -12,7 +11,6 @@ import uuid
 import click
 import nnpy
 import websocket
-
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +40,7 @@ def bitcoin_bot(send_to, box_id):
                 'box_id': str(box_id),
                 'payload': {
                     'address': transaction['addr'],
-                    'btc': transaction['value'] / 10 ** 8,
+                    'btc': transaction['value'] / 10**8,
                 },
             }
             raw = json.dumps(req).encode('utf-8')

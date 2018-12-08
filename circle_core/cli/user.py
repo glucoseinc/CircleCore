@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """CLI User."""
 
 # system module
@@ -140,8 +139,7 @@ def user_remove(ctx, user_uuid):
 
 
 @cli_user.command('change_password')
-@click.option(
-    'new_password', '--new-password', prompt=True, hide_input=True, confirmation_prompt=True)
+@click.option('new_password', '--new-password', prompt=True, hide_input=True, confirmation_prompt=True)
 @click.argument('user_uuid', type=UUID)
 @click.pass_context
 def user_change_password(ctx, user_uuid, new_password):

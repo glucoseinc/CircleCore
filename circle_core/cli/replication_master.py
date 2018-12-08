@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """CLI Module."""
 
 # system module
@@ -68,9 +67,7 @@ def add_replication_master(ctx, endpoint):
 
     # TODO: check endpoint is valid url
     with MetaDataSession.begin():
-        obj = ReplicationMaster(
-            endpoint_url=endpoint
-        )
+        obj = ReplicationMaster(endpoint_url=endpoint)
         MetaDataSession.add(obj)
 
     click.echo('Replication Master "{}" is added.'.format(obj.endpoint_url))

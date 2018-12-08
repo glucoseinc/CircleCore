@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """circle_coreのDBとの接続を取り仕切る."""
 
 from __future__ import absolute_import
@@ -28,7 +27,6 @@ from .writer import QueuedWriter
 
 if PY3:
     from typing import Generator, List, Optional, Union
-
 
 TABLE_OPTIONS = {
     'mysql_engine': 'InnoDB',
@@ -72,9 +70,9 @@ class Database(object):
             table = self.find_table_for_message_box(box, create_if_not_exists=False)
             if table is not None:
                 query = (
-                    sa.sql.select([table.c._created_at, table.c._counter])
-                    .order_by(table.c._created_at.desc(), table.c._counter.desc())
-                    .limit(1)
+                    sa.sql.select([table.c._created_at,
+                                   table.c._counter]).order_by(table.c._created_at.desc(),
+                                                               table.c._counter.desc()).limit(1)
                 )
                 rows = connection.execute(query).fetchall()
 
@@ -112,9 +110,7 @@ class Database(object):
         ]
         for prop in message_box.schema.properties:
             columns.append(make_sqlcolumn_from_datatype(prop.name, prop.type))
-        columns.append(
-            sa.PrimaryKeyConstraint('_created_at', '_counter')
-        )
+        columns.append(sa.PrimaryKeyConstraint('_created_at', '_counter'))
         kwargs = TABLE_OPTIONS.copy()
         # kwargs['autoload_with'] = self._engine
         table = sa.Table(table_name, self._metadata, *columns, **kwargs)
@@ -174,11 +170,7 @@ class Database(object):
             raise ValueError('message is older than latest head')
 
         table = self.find_table_for_message_box(message_box)
-        query = table.insert().values(
-            _created_at=message.timestamp,
-            _counter=message.counter,
-            **message.payload
-        )
+        query = table.insert().values(_created_at=message.timestamp, _counter=message.counter, **message.payload)
         connection.execute(query)
         # update head
         self._message_heads[message_box.uuid] = message.primary_key

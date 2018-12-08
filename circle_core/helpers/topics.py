@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """nanomsgでPubSubする際のTopic(部屋名)を表すクラス群."""
 
 # system module
@@ -8,15 +7,14 @@ import uuid
 # community module
 from base58 import b58encode
 
-
 # type annotation
 try:
     from typing import Optional
 except ImportError:
     pass
 
-
 TOPIC_LENGTH = 64  # Topic name must be shorter than this value
+
 # UUIDをbase58encodeしたものの長さは22chars
 
 

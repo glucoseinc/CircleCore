@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """ユーザー関連APIの実装."""
 
 # community module
@@ -11,9 +10,7 @@ from circle_core.models import MetaDataSession, User
 from .api import api
 from .utils import respond_failure, respond_success
 from ..authorize.core import oauth
-from ..utils import (
-    oauth_require_read_users_scope, oauth_require_write_users_scope
-)
+from ..utils import (oauth_require_read_users_scope, oauth_require_write_users_scope)
 
 
 @api.route('/users/', methods=['GET', 'POST'])

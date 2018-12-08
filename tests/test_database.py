@@ -5,25 +5,30 @@ from circle_core.database import Database
 from circle_core.exceptions import MigrationError
 from circle_core.models import Module, Schema
 
-
 TEST_SCHEMA_UUID = 'BAF7FDBB-FEA5-4364-8EC5-37FA579E381A'
 TEST_MODULE_UUID_1 = 'C7641AA8-32A7-47B8-8CCE-81C433081F59'
 
 test_schemas = [
     Schema(
-        uuid=TEST_SCHEMA_UUID, display_name='test schema',
+        uuid=TEST_SCHEMA_UUID,
+        display_name='test schema',
         properties=[
-            {'name': 'test_int', 'type': 'int'},
-            {'name': 'test_float', 'type': 'float'},
-            {'name': 'test_text', 'type': 'text'},
+            {
+                'name': 'test_int',
+                'type': 'int'
+            },
+            {
+                'name': 'test_float',
+                'type': 'float'
+            },
+            {
+                'name': 'test_text',
+                'type': 'text'
+            },
         ],
     )
 ]
-test_modules = [
-    Module(
-        uuid=TEST_MODULE_UUID_1, display_name='Test Module 1'
-    )
-]
+test_modules = [Module(uuid=TEST_MODULE_UUID_1, display_name='Test Module 1')]
 
 
 @pytest.mark.skip

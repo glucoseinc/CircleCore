@@ -20,7 +20,8 @@ def create_slave_driver(core, type, key, config):
     assert type == WORKER_SLAVE_DRIVER
 
     return SlaveDriverWorker(
-        core, key,
+        core,
+        key,
         ssl_validate_cert=config.getboolean('ssl_validate_cert', fallback=True),
     )
 

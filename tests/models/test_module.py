@@ -7,22 +7,31 @@ from circle_core.testing import setup_db
 
 
 class TestModule(object):
+
     @classmethod
     def setup_class(cls):
         setup_db()
 
-    @pytest.mark.parametrize(('_input', 'expected'), [
-        (dict(displayName='Module', tags='tag1,tag2,tag3', attributes='attr1:val1,attr2:val2', memo='memo'),
-         dict(displayName='Module', tags=['tag1', 'tag2', 'tag3'],
-              attributes=[('attr1', 'val1'), ('attr2', 'val2')], memo='memo')),
-    ])
+    @pytest.mark.parametrize(
+        ('_input', 'expected'), [
+            (
+                dict(displayName='Module', tags='tag1,tag2,tag3', attributes='attr1:val1,attr2:val2', memo='memo'),
+                dict(
+                    displayName='Module',
+                    tags=['tag1', 'tag2', 'tag3'],
+                    attributes=[('attr1', 'val1'), ('attr2', 'val2')],
+                    memo='memo'
+                )
+            ),
+        ]
+    )
     def test_module(self, _input, expected):
         module = Module.create()
 
         schema = Schema.create(display_name='Schema', properties='x:int,y:float')
-        box = MessageBox(uuid=generate_uuid(model=MessageBox),
-                         schema_uuid=schema.uuid, module_uuid=module.uuid,
-                         display_name='Box')
+        box = MessageBox(
+            uuid=generate_uuid(model=MessageBox), schema_uuid=schema.uuid, module_uuid=module.uuid, display_name='Box'
+        )
 
         _input['messageBoxes'] = [dict(schema=schema.uuid, displayName='Box2', memo='memo')]
         module.update_from_json(_input, with_boxes=True)

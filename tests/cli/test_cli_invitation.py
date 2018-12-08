@@ -11,6 +11,7 @@ from tests import uuid_rex
 
 @pytest.mark.skip(reason='rewriting...')
 class TestCliInvitation(object):
+
     @pytest.mark.usefixtures('clear_metadata')
     def test_invitation(self):
         runner = CliRunner()

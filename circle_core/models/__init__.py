@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """CircleCore Models."""
 
 # community module

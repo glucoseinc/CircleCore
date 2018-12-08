@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """CLI Module."""
 
 # system module
@@ -50,11 +49,13 @@ def _format_for_columns(replication_links):
     header = ['UUID', 'DISPLAY_NAME', 'TARGET_CORES']
     data = []  # type: List[List[str]]
     for replication_link in replication_links:
-        data.append([
-            str(replication_link.uuid),
-            replication_link.display_name,
-            ','.join(str(x) for x in replication_link.target_cores),
-        ])
+        data.append(
+            [
+                str(replication_link.uuid),
+                replication_link.display_name,
+                ','.join(str(x) for x in replication_link.target_cores),
+            ]
+        )
     return data, header
 
 

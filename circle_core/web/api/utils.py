@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-
 """WebUI API Utilities."""
 
 # project module
 from ..utils import (
     api_jsonify,
 )
-
 
 # type annotation
 try:
@@ -16,10 +14,7 @@ try:
 except ImportError:
     pass
 
-
-__all__ = (
-    'respond_failure', 'respond_success'
-)
+__all__ = ('respond_failure', 'respond_success')
 
 
 def respond_failure(reason, _status=400, **kwargs):

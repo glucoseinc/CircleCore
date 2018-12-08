@@ -39,7 +39,14 @@ def test_journal_open(tmpdir):
     ln = open(os.path.join(tmpdir, 'journal.000')).read()
     assert ln.endswith('\n')
     assert ln and json.loads(ln) == {
-        'boxId': messagebox.uuid.hex, 'timestamp': '123456.7890000000', 'counter': 0, 'payload': {'x': '1', 'y': '2'}}
+        'boxId': messagebox.uuid.hex,
+        'timestamp': '123456.7890000000',
+        'counter': 0,
+        'payload': {
+            'x': '1',
+            'y': '2'
+        }
+    }
     assert open(os.path.join(tmpdir, 'journal.pos')).read() == '0\n0'
 
     # re-start journal

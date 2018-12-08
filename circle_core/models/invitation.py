@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """Invitation Model."""
 
 # system module
@@ -13,7 +12,6 @@ import sqlalchemy as sa
 # project module
 from circle_core.utils import format_date, prepare_date
 from .base import GUID, UUIDMetaDataBase
-
 
 # type annotation
 try:
@@ -40,8 +38,9 @@ class Invitation(UUIDMetaDataBase):
     max_invites = sa.Column(sa.Integer, nullable=False, default=1)
     current_invites = sa.Column(sa.Integer, nullable=False, default=0)
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
-    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow,
-                           onupdate=datetime.datetime.utcnow)
+    updated_at = sa.Column(
+        sa.DateTime, nullable=False, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow
+    )
 
     __mapper_args__ = {
         'order_by': updated_at.desc(),
@@ -63,8 +62,9 @@ class Invitation(UUIDMetaDataBase):
         if created_at and not isinstance(created_at, datetime.datetime):
             raise ValueError('created_at must be datetime.datetime or None, ({!r})'.format(created_at))
 
-        super(Invitation, self).__init__(uuid=uuid, max_invites=max_invites,
-                                         current_invites=current_invites, created_at=created_at)
+        super(Invitation, self).__init__(
+            uuid=uuid, max_invites=max_invites, current_invites=current_invites, created_at=created_at
+        )
 
     def can_invite(self):
         """この招待をつかって、さらにユーザを追加できるか.
@@ -85,6 +85,7 @@ class Invitation(UUIDMetaDataBase):
         :return: URL
         :rtype: str
         """
+
         def build_url():
             return url_for('public.invitation_endpoint', link_uuid=self.uuid, _external=True)
 
@@ -125,5 +126,6 @@ class Invitation(UUIDMetaDataBase):
         :return: User招待オブジェクト
         :rtype: Invitation
         """
-        return cls(jsonobj['uuid'], jsonobj['maxInvites'],
-                   jsonobj.get('currentInvites', 0), jsonobj.get('createdAt', None))
+        return cls(
+            jsonobj['uuid'], jsonobj['maxInvites'], jsonobj.get('currentInvites', 0), jsonobj.get('createdAt', None)
+        )

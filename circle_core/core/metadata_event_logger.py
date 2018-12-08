@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """Metadata操作ログ."""
 
 # system module
@@ -15,7 +14,6 @@ from circle_core.models import User
 from circle_core.models.base import UUIDMetaDataBase
 from .base import logger
 from .metadata_event_listener import MetaDataEventListener
-
 
 # type annotation
 try:

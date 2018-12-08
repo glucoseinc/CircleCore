@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """Metadata操作ログ."""
 
 # system module
@@ -11,7 +10,6 @@ from sqlalchemy import event
 # project module
 from ..models import CcInfo, Invitation, MessageBox, Module, ReplicationLink, ReplicationMaster, Schema, User
 
-
 # type annotation
 try:
     from typing import Callable, List, Tuple, TYPE_CHECKING
@@ -21,7 +19,6 @@ try:
 except ImportError:
     pass
 
-
 MODELS = (CcInfo, Invitation, MessageBox, Module, ReplicationLink, ReplicationMaster, Schema, User)
 
 
@@ -30,6 +27,7 @@ class MetaDataEventListener(object):
 
     :param List[Tuple] listeners: イベントリスナー
     """
+
     def __init__(self):
         """init."""
         self.listeners = []

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """CLI debug commands."""
 
 # system module
@@ -15,7 +14,6 @@ from dateutil import parser
 from six import PY3
 
 from circle_core.timed_db import TimedDBBundle
-
 
 if PY3:
     from typing import List, Tuple
@@ -48,7 +46,9 @@ def build_whisper(dir, dburl, table, end_date):
 
     query = '''\
 SELECT _created_at, _counter FROM `{table}` WHERE _created_at < {end} ORDER BY _created_at ASC, _counter ASC
-'''.format(table=table, end=end)
+'''.format(
+        table=table, end=end
+    )
 
     updates = []
     for _created_at, _counter in connection.execute(query):

@@ -7,22 +7,27 @@ from circle_core.testing import setup_db
 
 
 class TestSchema(object):
+
     @classmethod
     def setup_class(cls):
         setup_db()
 
-    @pytest.mark.parametrize(('_input', 'expected'), [
-        (dict(displayName='Schema', memo='memo', properties='x:int,y:float'),
-         dict(displayName='Schema', memo='memo', properties=[('x', 'int'), ('y', 'float')])),
-    ])
+    @pytest.mark.parametrize(
+        ('_input', 'expected'), [
+            (
+                dict(displayName='Schema', memo='memo', properties='x:int,y:float'),
+                dict(displayName='Schema', memo='memo', properties=[('x', 'int'), ('y', 'float')])
+            ),
+        ]
+    )
     def test_schema(self, _input, expected):
         schema = Schema.create()
         schema.update_from_json(_input)
 
         module = Module.create(display_name='Module')
-        box = MessageBox(uuid=generate_uuid(model=MessageBox),
-                         schema_uuid=schema.uuid, module_uuid=module.uuid,
-                         display_name='Box')
+        box = MessageBox(
+            uuid=generate_uuid(model=MessageBox), schema_uuid=schema.uuid, module_uuid=module.uuid, display_name='Box'
+        )
 
         with MetaDataSession.begin():
             MetaDataSession.add(schema)
@@ -55,18 +60,26 @@ class TestSchema(object):
         assert len(jsonobj['modules']) == 1
         assert module.display_name == jsonobj['modules'][0]['displayName']
 
-    @pytest.mark.parametrize(('_input', 'data', 'expected'), [
-        ('a:int,b:float,c:bool,d:string,e:bytes,f:date,g:datetime,h:time,i:timestamp',
-         dict(a=1, b=1.0, c=True, d='String', e='Bytes',
-              f='20170101', g='2017-01-01 00:00:00', h='00:00:00', i='1970-01-01 00:00:01'),
-         True),
-        ('a:int,b:float',
-         dict(a=1),
-         False),
-        ('a:int',
-         dict(x=1),
-         False),
-    ])
+    @pytest.mark.parametrize(
+        ('_input', 'data', 'expected'), [
+            (
+                'a:int,b:float,c:bool,d:string,e:bytes,f:date,g:datetime,h:time,i:timestamp',
+                dict(
+                    a=1,
+                    b=1.0,
+                    c=True,
+                    d='String',
+                    e='Bytes',
+                    f='20170101',
+                    g='2017-01-01 00:00:00',
+                    h='00:00:00',
+                    i='1970-01-01 00:00:01'
+                ), True
+            ),
+            ('a:int,b:float', dict(a=1), False),
+            ('a:int', dict(x=1), False),
+        ]
+    )
     def test_check_match(self, _input, data, expected):
         jsonobj = dict(displayName='Schema', memo='memo', properties=_input)
         schema = Schema.create()

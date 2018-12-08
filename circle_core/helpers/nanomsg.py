@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """nanomsgのラッパー."""
 
 # system module
@@ -13,7 +12,6 @@ from tornado.ioloop import IOLoop
 # project module
 from .topics import TOPIC_LENGTH
 
-
 # type annotation
 try:
     import typing
@@ -21,10 +19,12 @@ try:
 except ImportError:
     pass
 
-
-__all__ = ('Receiver', 'Sender', 'Replier',)
+__all__ = (
+    'Receiver',
+    'Sender',
+    'Replier',
+)
 logger = logging.getLogger(__name__)
-
 
 RawMessage = typing.TypeVar('RawMessage')
 ReplierCallback = Callable[[RawMessage, Exception], Awaitable[None]]
@@ -80,6 +80,7 @@ class Receiver(object):
 
         :param FunctionType callback:
         """
+
         def call_callback(*args):
             # TODO: topicを設定している場合、違うTopicのパケットがきてもpollが反応するのでdontwaitにしてチェックしないといけないかも
             try:
@@ -132,6 +133,7 @@ class Sender(object):
 
 
 class Replier(object):
+
     def __init__(self, socket_url):
         """init.
 
@@ -176,6 +178,7 @@ class Replier(object):
 
         :param Callable callback:
         """
+
         async def call_callback(*args):
             try:
                 msg = await self.recv()

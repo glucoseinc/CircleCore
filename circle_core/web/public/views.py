@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """WebUI Public Views."""
 
 # community module
@@ -9,7 +8,6 @@ import sqlalchemy.exc
 # project module
 from circle_core.models import Invitation, MetaDataSession, User
 from . import public
-
 
 # type annotation
 try:
@@ -57,5 +55,5 @@ def invitation_endpoint(link_uuid):
             is_completed = True
 
     return render_template(
-        'invitation.html',
-        error=error, user=user.to_json() if user else None, is_completed=is_completed)
+        'invitation.html', error=error, user=user.to_json() if user else None, is_completed=is_completed
+    )

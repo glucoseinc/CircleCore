@@ -9,7 +9,6 @@ from ..logger import logger
 from ..message import ModuleMessage
 from ..timed_db import TimedDBBundle
 
-
 if TYPE_CHECKING:
     from tornado.ioloop import _Timeout
 
@@ -73,9 +72,9 @@ class QueuedWriter(WriterBase):
         if self.updates:
             if message.timestamp < self.updates[-1][1]:
                 logger.error(
-                    'bad timestamp, time is rolling back. message:%s queued_latest:%s',
-                    message.timestamp,
-                    self.updates[-1][1])
+                    'bad timestamp, time is rolling back. message:%s queued_latest:%s', message.timestamp,
+                    self.updates[-1][1]
+                )
 
         self.database.store_message(message_box, message, connection=self.connection)
         self.updates.append((message.box_id, message.timestamp))

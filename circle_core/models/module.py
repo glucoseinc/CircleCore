@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """Module Model."""
 
 # system module
@@ -13,7 +12,6 @@ from sqlalchemy.ext.hybrid import hybrid_property
 # project module
 from .base import generate_uuid, GUID, UUIDMetaDataBase
 from .message_box import MessageBox
-
 
 # type annotation
 try:
@@ -58,10 +56,7 @@ class ModuleAttribute(object):
         :return: JSON表現のDict
         :rtype: Dict
         """
-        return {
-            'name': self.name,
-            'value': self.value
-        }
+        return {'name': self.name, 'value': self.value}
 
 
 class ModuleAttributes(object):
@@ -78,8 +73,7 @@ class ModuleAttributes(object):
 
         self._attributes = []
         if isinstance(name_and_values, str):
-            name_and_values = [name_and_value for name_and_value in name_and_values.split(',')
-                               if len(name_and_value)]
+            name_and_values = [name_and_value for name_and_value in name_and_values.split(',') if len(name_and_value)]
         if isinstance(name_and_values, (tuple, list)):
             self._attributes = [ModuleAttribute(name_and_value) for name_and_value in name_and_values]
 
@@ -130,14 +124,16 @@ class Module(UUIDMetaDataBase):
     uuid = sa.Column(GUID, primary_key=True)
     cc_uuid = sa.Column(GUID, sa.ForeignKey('cc_informations.uuid', name='fk_modules_cc_uuid'), nullable=False)
     replication_master_id = sa.Column(
-        sa.Integer, sa.ForeignKey('replication_masters.replication_master_id', name='fk_replication_master_id'))
+        sa.Integer, sa.ForeignKey('replication_masters.replication_master_id', name='fk_replication_master_id')
+    )
     display_name = sa.Column(sa.String(255), nullable=False, default='')
     _attributes = sa.Column('attributes', sa.Text, nullable=False, default='')
     _tags = sa.Column('_tags', sa.Text, nullable=False, default='')
     memo = sa.Column(sa.Text, nullable=False, default='')
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
-    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow,
-                           onupdate=datetime.datetime.utcnow)
+    updated_at = sa.Column(
+        sa.DateTime, nullable=False, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow
+    )
 
     message_boxes = orm.relationship('MessageBox', backref='module', cascade='all, delete-orphan')
 
@@ -186,10 +182,12 @@ class Module(UUIDMetaDataBase):
         :return: equality
         :rtype: bool
         """
-        return all([self.uuid == other.uuid,
-                    self.display_name == other.display_name,
-                    self.tags == other.tags,
-                    self.memo == other.memo])
+        return all(
+            [
+                self.uuid == other.uuid, self.display_name == other.display_name, self.tags == other.tags,
+                self.memo == other.memo
+            ]
+        )
 
     @hybrid_property
     def tags(self):
@@ -269,8 +267,9 @@ class Module(UUIDMetaDataBase):
         }
 
         if with_boxes:
-            d['messageBoxes'] = [box.to_json(with_schema=with_schema, with_slave_cc_infos=with_cc_info)
-                                 for box in self.message_boxes]
+            d['messageBoxes'] = [
+                box.to_json(with_schema=with_schema, with_slave_cc_infos=with_cc_info) for box in self.message_boxes
+            ]
 
         if with_cc_info:
             d['ccInfo'] = self.cc_info.to_json()

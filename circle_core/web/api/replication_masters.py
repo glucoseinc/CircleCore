@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """共有マスター関連APIの実装."""
 
 # community module
@@ -10,9 +9,7 @@ import sqlalchemy.exc
 from circle_core.models import MetaDataSession, ReplicationMaster
 from .api import api
 from .utils import respond_failure, respond_success
-from ..utils import (
-    oauth_require_read_schema_scope, oauth_require_write_schema_scope
-)
+from ..utils import (oauth_require_read_schema_scope, oauth_require_write_schema_scope)
 
 
 @api.route('/replication_masters/', methods=['GET', 'POST'])
@@ -33,8 +30,7 @@ def _get_replication_masters():
     :rtype: Response
     """
     # TODO: earger loading
-    replication_masters = [
-        obj.to_json() for obj in ReplicationMaster.query]
+    replication_masters = [obj.to_json() for obj in ReplicationMaster.query]
 
     return respond_success(replicationMasters=replication_masters)
 
@@ -49,9 +45,7 @@ def _post_replication_masters():
     data = request.json
     try:
         with MetaDataSession.begin():
-            replication_master = ReplicationMaster(
-                endpoint_url=data['endpointUrl'],
-            )
+            replication_master = ReplicationMaster(endpoint_url=data['endpointUrl'],)
 
             MetaDataSession.add(replication_master)
     except sqlalchemy.exc.IntegrityError:
@@ -82,9 +76,7 @@ def _get_replication_master(replication_master):
     :return: ReplicationMasterの情報
     :rtype: Response
     """
-    return respond_success(
-        replicationMaster=replication_master.to_json()
-    )
+    return respond_success(replicationMaster=replication_master.to_json())
 
 
 @oauth_require_write_schema_scope
@@ -98,6 +90,4 @@ def _delete_replication_master(replication_master):
     with MetaDataSession.begin():
         MetaDataSession.delete(replication_master)
 
-    return respond_success(
-        replicationMaster=replication_master.to_json()
-    )
+    return respond_success(replicationMaster=replication_master.to_json())

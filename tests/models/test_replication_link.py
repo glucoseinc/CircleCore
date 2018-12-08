@@ -6,21 +6,23 @@ from circle_core.testing import setup_db
 
 
 class TestReplicationLink(object):
+
     @classmethod
     def setup_class(cls):
         setup_db()
 
-    @pytest.mark.parametrize(('_input', 'expected'), [
-        (dict(display_name='Link', memo='memo'),
-         dict(display_name='Link', memo='memo')),
-    ])
+    @pytest.mark.parametrize(
+        ('_input', 'expected'), [
+            (dict(display_name='Link', memo='memo'), dict(display_name='Link', memo='memo')),
+        ]
+    )
     def test_replication_link(self, _input, expected):
         schema = Schema.create(display_name='Schema', properties='x:int,y:float')
         module = Module.create(display_name='Module')
 
-        box = MessageBox(uuid=generate_uuid(model=MessageBox),
-                         schema_uuid=schema.uuid, module_uuid=module.uuid,
-                         display_name='Box')
+        box = MessageBox(
+            uuid=generate_uuid(model=MessageBox), schema_uuid=schema.uuid, module_uuid=module.uuid, display_name='Box'
+        )
 
         with MetaDataSession.begin():
             MetaDataSession.add(schema)

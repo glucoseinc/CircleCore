@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """Model Base."""
 
 # system module
@@ -12,7 +11,6 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.types import CHAR, TypeDecorator
-
 
 MetaDataSession = scoped_session(sessionmaker(autocommit=True, autoflush=False))
 

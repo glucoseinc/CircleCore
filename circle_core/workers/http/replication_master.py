@@ -43,14 +43,13 @@ from ...helpers import make_message_topic
 # from ...helpers.topics import ModuleMessageTopic
 from ...models.message_box import MessageBox
 
-
 logger = logging.getLogger(__name__)
-
 
 NotInitialized = object()
 
 
 class SyncState(object):
+
     def __init__(self, box, master_head):
         self.box = box
         self.master_head = master_head
@@ -85,8 +84,9 @@ class ReplicationMasterHandler(WebSocketHandler):
 
         if not self.replication_link:
             logger.warning('ReplicationLink %s/%s was not found. Connection close.', module_uuid, mbox_uuid)
-            self.close(code=WebsocketStatusCode.NOT_FOUND.value,
-                       reason='ReplicationLink {} was not found.'.format(link_uuid))
+            self.close(
+                code=WebsocketStatusCode.NOT_FOUND.value, reason='ReplicationLink {} was not found.'.format(link_uuid)
+            )
             return
 
         database = self.get_core().get_database()
@@ -162,9 +162,9 @@ class ReplicationMasterHandler(WebSocketHandler):
         with MetaDataSession.begin():
             # store slave's information
             if slave_uuid not in [slave.slave_uuid for slave in self.replication_link.slaves]:
-                self.replication_link.slaves.append(ReplicationSlave(
-                    link_uuid=self.replication_link.uuid,
-                    slave_uuid=slave_uuid))
+                self.replication_link.slaves.append(
+                    ReplicationSlave(link_uuid=self.replication_link.uuid, slave_uuid=slave_uuid)
+                )
 
             cc_info = CcInfo.query.get(slave_uuid)
             if not cc_info:
@@ -233,10 +233,7 @@ class ReplicationMasterHandler(WebSocketHandler):
             #     sync_state.master_head)
             for message in database.enum_messages(box, head=self.sync_states[box.uuid].slave_head, connection=conn):
                 logger.debug('sync message %s', message)
-                yield self._send_command(
-                    MasterCommand.SYNC_MESSAGE,
-                    message=message.to_json()
-                )
+                yield self._send_command(MasterCommand.SYNC_MESSAGE, message=message.to_json())
                 sync_state.slave_head = message.primary_key
 
             # logger.debug('  sync to %s', sync_state.slave_head)
@@ -262,18 +259,15 @@ class ReplicationMasterHandler(WebSocketHandler):
             if not sync_state.is_synced():
                 logger.debug('skip message %s, because not synced', message)
                 logger.debug(
-                    '  master %s, slave %s',
-                    self.sync_states[message.box_id].master_head,
-                    self.sync_states[message.box_id].slave_head)
+                    '  master %s, slave %s', self.sync_states[message.box_id].master_head,
+                    self.sync_states[message.box_id].slave_head
+                )
             else:
                 assert not self.syncing
                 sync_state.slave_head = message.primary_key
 
                 # pass to slave
                 logger.debug('pass message %s', message)
-                self._send_command(
-                    MasterCommand.NEW_MESSAGE,
-                    message=message.to_json()
-                )
+                self._send_command(MasterCommand.NEW_MESSAGE, message=message.to_json())
         finally:
             sync_state.master_head = message.primary_key

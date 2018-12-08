@@ -39,10 +39,7 @@ def mysql(request):
     """test DBをきれいにする
     """
     # from pytest_dbfixtures.utils import get_config
-    database_url = os.getenv(
-        'CRCR_TEST_DATABASE_URL',
-        'mysql+mysqlconnector://root@localhost/crcr_test'
-    )
+    database_url = os.getenv('CRCR_TEST_DATABASE_URL', 'mysql+mysqlconnector://root@localhost/crcr_test')
 
     # database無しのをまず作る
     root_url = make_url(database_url)
@@ -70,10 +67,7 @@ def class_wide_mysql(request):
     """test DBをきれいにする
     """
     # from pytest_dbfixtures.utils import get_config
-    database_url = os.getenv(
-        'CRCR_TEST_DATABASE_URL',
-        'mysql+mysqlconnector://root@localhost/crcr_test'
-    )
+    database_url = os.getenv('CRCR_TEST_DATABASE_URL', 'mysql+mysqlconnector://root@localhost/crcr_test')
 
     # database無しのをまず作る
     root_url = make_url(database_url)

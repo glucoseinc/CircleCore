@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """共有リンク関連APIの実装."""
 
 # community module
@@ -9,9 +8,7 @@ from flask import abort, request
 from circle_core.models import MetaDataSession, ReplicationLink
 from .api import api
 from .utils import respond_failure, respond_success
-from ..utils import (
-    oauth_require_read_schema_scope, oauth_require_write_schema_scope
-)
+from ..utils import (oauth_require_read_schema_scope, oauth_require_write_schema_scope)
 
 
 @api.route('/replicas/', methods=['GET', 'POST'])
@@ -33,7 +30,8 @@ def _get_replicas():
     """
     # TODO: earger loading
     replication_links = [
-        replication_link.to_json(with_slaves=True, with_boxes=True) for replication_link in ReplicationLink.query]
+        replication_link.to_json(with_slaves=True, with_boxes=True) for replication_link in ReplicationLink.query
+    ]
 
     return respond_success(replicationLinks=replication_links)
 
@@ -79,9 +77,7 @@ def _get_replica(replication_link):
     :return: ReplicationLinkの情報
     :rtype: Response
     """
-    return respond_success(
-        replicationLink=replication_link.to_json()
-    )
+    return respond_success(replicationLink=replication_link.to_json())
 
 
 @oauth_require_write_schema_scope
@@ -95,6 +91,4 @@ def _delete_replica(replication_link):
     with MetaDataSession.begin():
         MetaDataSession.delete(replication_link)
 
-    return respond_success(
-        replicationLink=replication_link.to_json()
-    )
+    return respond_success(replicationLink=replication_link.to_json())

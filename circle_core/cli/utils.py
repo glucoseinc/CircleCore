@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """CLI Utilities."""
 
 # system module
@@ -60,6 +59,7 @@ def create_row_strings(rows):
     :return: row_strings: 表示用に整形したテーブルデータ, sizes: 各カラムの文字列長
     :rtype: Tuple[List[str], List[int]]
     """
+
     def _len(string):
         """文字列長を計算する.
 
@@ -71,8 +71,7 @@ def create_row_strings(rows):
         """
         if PY2:
             string = string.decode('utf-8')
-        return sum([1 if 'NaH'.count(east_asian_width(char)) > 0 else 2
-                    for char in string])
+        return sum([1 if 'NaH'.count(east_asian_width(char)) > 0 else 2 for char in string])
 
     def _ljust(size, string):
         """文字列の右にパディングを付与する.
@@ -97,8 +96,9 @@ def create_row_strings(rows):
     # Create row strings.
     row_strings = []
     for row in rows:
-        row_string = ' '.join([_ljust(size, string) if string is not None else ''
-                               for size, string in zip_longest(sizes, row)])
+        row_string = ' '.join(
+            [_ljust(size, string) if string is not None else '' for size, string in zip_longest(sizes, row)]
+        )
         row_strings.append(row_string)
 
     return row_strings, sizes

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """Flask api Blueprint."""
 
 # system module
@@ -10,7 +9,6 @@ from flask import Blueprint
 
 # project module
 from ..app import check_login
-
 
 api = Blueprint('api', __name__)
 logger = logging.getLogger(__name__)

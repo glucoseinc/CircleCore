@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """CLI invitation."""
 
 # system module
@@ -97,10 +96,7 @@ def invitation_add(ctx, max_invites):
     """
 
     with MetaDataSession.begin():
-        invitation = Invitation(
-            uuid=generate_uuid(model=Invitation),
-            max_invites=max_invites
-        )
+        invitation = Invitation(uuid=generate_uuid(model=Invitation), max_invites=max_invites)
         MetaDataSession.add(invitation)
 
     click.echo('Invitation "{}" is added.'.format(invitation.uuid))
