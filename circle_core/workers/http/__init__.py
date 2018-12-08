@@ -2,6 +2,7 @@
 """Master側のWebsocketの口とか、AdminのUIとか"""
 import logging
 import ssl
+import typing
 
 from tornado.httpserver import HTTPServer
 from tornado.web import Application, FallbackHandler
@@ -13,10 +14,10 @@ from circle_core.exceptions import ConfigError
 from circle_core.web import create_app
 from .module_event import ModuleEventHandler
 from .replication_master import ReplicationMasterHandler
-from ..base import CircleWorker, register_worker_factory
+from ..base import CircleWorker, register_worker_factory, WorkerType
 
 logger = logging.getLogger(__name__)
-WORKER_HTTP = 'http'
+WORKER_HTTP = typing.cast(WorkerType, 'http')
 
 
 @register_worker_factory(WORKER_HTTP)

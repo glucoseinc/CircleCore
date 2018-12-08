@@ -16,13 +16,18 @@ from .topics import TOPIC_LENGTH
 
 # type annotation
 try:
-    from typing import Callable, Dict
+    import typing
+    from typing import Any, Awaitable, Callable, Dict, cast
 except ImportError:
     pass
 
 
 __all__ = ('Receiver', 'Sender', 'Replier',)
 logger = logging.getLogger(__name__)
+
+
+RawMessage = typing.TypeVar('RawMessage')
+ReplierCallback = Callable[[RawMessage, Exception], Awaitable[None]]
 
 
 class Receiver(object):
@@ -145,12 +150,12 @@ class Replier(object):
         """
         self._socket.close()
 
-    def recv(self):
+    async def recv(self) -> RawMessage:
         """受信."""
         raw = self._socket.recv()
-        return json.loads(raw.decode('utf-8'))
+        return cast(RawMessage, json.loads(raw.decode('utf-8')))
 
-    def send(self, payload):
+    def send(self, payload: RawMessage):
         """送信.
 
         :param Dict payload: payload
@@ -162,21 +167,21 @@ class Replier(object):
         """Tornadoに叩かれる."""
         return self._socket.getsockopt(nnpy.SOL_SOCKET, nnpy.RCVFD)
 
-    def close(self):
+    def close(self) -> None:
         """Tornadoに叩かれる."""
         self._socket.close()
 
-    def register_ioloop(self, callback):
+    def register_ioloop(self, callback: ReplierCallback):
         """TornadoのIOLoopにメッセージ受信時のコールバックを登録.
 
         :param Callable callback:
         """
-        def call_callback(*args):
+        async def call_callback(*args):
             try:
-                msg = self.recv()
+                msg = await self.recv()
             except Exception as exc:
-                callback(None, exc)
+                await callback(None, exc)
             else:
-                callback(msg, None)
+                await callback(msg, None)
 
         IOLoop.current().add_handler(self, call_callback, IOLoop.READ)

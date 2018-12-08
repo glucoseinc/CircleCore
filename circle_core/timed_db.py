@@ -5,6 +5,7 @@ from collections import defaultdict
 import logging
 import os
 import threading
+from typing import Dict
 
 import whisper
 
@@ -16,7 +17,7 @@ WHISPER_ARCHIVES = [whisper.parseRetentionDef(d) for d in WHISPER_ARCHIVES_STRIN
 
 
 WHISPER_GLOBAL_LOCK = threading.Lock()
-WHISPER_GLOBAL_LOCKS = {}
+WHISPER_GLOBAL_LOCKS: Dict[str, threading.Lock] = {}
 
 
 def get_lock(filepath):

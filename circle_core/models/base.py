@@ -17,7 +17,7 @@ from sqlalchemy.types import CHAR, TypeDecorator
 MetaDataSession = scoped_session(sessionmaker(autocommit=True, autoflush=False))
 
 
-class MetaDataBase(declarative_base()):
+class MetaDataBase(declarative_base()):  # type: ignore
     """MetaData Base Model."""
 
     __abstract__ = True

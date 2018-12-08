@@ -105,7 +105,7 @@ class User(UUIDMetaDataBase):
         """
         return self._permissions.split(',') if self._permissions else []
 
-    @permissions.setter
+    @permissions.setter  # type: ignore
     def permissions(self, permissions):
         """権限リストを更新する.
 

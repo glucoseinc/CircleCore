@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Master側のWebsocketの口とか、AdminのUIとか"""
 import logging
+import typing
 
 import six
 
@@ -8,9 +9,9 @@ import six
 from circle_core.core.metadata_event_listener import MetaDataEventListener
 from circle_core.models import ReplicationMaster
 from .replicator import Replicator
-from ..base import CircleWorker, register_worker_factory
+from ..base import CircleWorker, register_worker_factory, WorkerType
 
-WORKER_SLAVE_DRIVER = 'slave_driver'
+WORKER_SLAVE_DRIVER = typing.cast(WorkerType, 'slave_driver')
 logger = logging.getLogger(__name__)
 
 

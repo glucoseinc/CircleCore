@@ -204,7 +204,7 @@ class Schema(UUIDMetaDataBase):
         """
         return SchemaProperties(self._properties)
 
-    @properties.setter
+    @properties.setter  # type: ignore
     def properties(self, properties):
         """プロパティリストを更新する.
 

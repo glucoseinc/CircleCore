@@ -7,6 +7,7 @@ from datetime import datetime
 import logging
 import threading
 import time
+import typing
 from uuid import UUID
 
 from six import PY3
@@ -14,7 +15,7 @@ from six import PY3
 # project module
 from circle_core.constants import RequestType
 from circle_core.message import ModuleMessage
-from .base import CircleWorker, register_worker_factory
+from .base import CircleWorker, register_worker_factory, WorkerType
 from ..core.metadata_event_listener import MetaDataEventListener
 from ..database import Database
 from ..exceptions import MessageBoxNotFoundError, ModuleNotFoundError, SchemaNotFoundError
@@ -23,7 +24,7 @@ from ..models import MessageBox, NoResultFound, Schema
 
 
 logger = logging.getLogger(__name__)
-WORKER_DATARECEIVER = 'datareceiver'
+WORKER_DATARECEIVER = typing.cast(WorkerType, 'datareceiver')
 
 
 @register_worker_factory(WORKER_DATARECEIVER)

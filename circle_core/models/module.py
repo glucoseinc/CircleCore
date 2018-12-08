@@ -202,7 +202,7 @@ class Module(UUIDMetaDataBase):
             return []
         return self._tags.split(',')
 
-    @tags.setter
+    @tags.setter  # type: ignore
     def tags(self, tags):
         """タグリストを更新する.
 
@@ -239,7 +239,7 @@ class Module(UUIDMetaDataBase):
         """
         return ModuleAttributes(self._attributes)
 
-    @attributes.setter
+    @attributes.setter  # type: ignore
     def attributes(self, attributes):
         """属性リストを更新する.
 

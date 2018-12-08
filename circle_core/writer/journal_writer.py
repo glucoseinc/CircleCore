@@ -43,7 +43,6 @@ class JournalWriter(WriterBase):
         if log_file_size >= self.max_log_file_size:
             self.rotate_logs()
 
-
     def commit(self, flush_all=False):
         pass
 
