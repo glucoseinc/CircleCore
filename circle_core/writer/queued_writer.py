@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import tornado.ioloop
 
-from .base import WriterBase
+from .base import DBWriter
 from ..logger import logger
 from ..message import ModuleMessage
 from ..timed_db import TimedDBBundle
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from tornado.ioloop import _Timeout
 
 
-class QueuedWriter(WriterBase):
+class QueuedWriter(DBWriter):
     """QueuedWriter.
     TODO: Fill blank
 

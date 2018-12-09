@@ -36,10 +36,8 @@ class CircleWorker(metaclass=abc.ABCMeta):
         self.core = weakref.proxy(core)
         self.worker_key = worker_key
 
-    @abc.abstractmethod
     def initialize(self):
         pass
 
-    @abc.abstractmethod
     def finalize(self):
         pass

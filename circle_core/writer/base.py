@@ -1,7 +1,7 @@
 import abc
 
 
-class WriterBase(metaclass=abc.ABCMeta):
+class DBWriter(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def store(self, message_box, message) -> None:

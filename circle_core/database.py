@@ -23,7 +23,7 @@ from .constants import CRDataType
 from .logger import logger
 from .message import ModuleMessage, ModuleMessagePrimaryKey
 from .models import MessageBox
-from .writer import QueuedWriter
+from .writer import JournalWriter, QueuedWriter
 
 if PY3:
     from typing import Generator, List, Optional, Union
@@ -44,7 +44,7 @@ class Database(object):
     :param Optional[int] _thread_id: Thread ID
     """
 
-    def __init__(self, database_url, time_db_dir):
+    def __init__(self, database_url, time_db_dir, log_dir):
         """init.
 
         :param str database_url: DBのURL(RFC-1738準拠)
@@ -57,6 +57,7 @@ class Database(object):
         self._metadata.reflect(self._engine)
         self._time_db_dir = time_db_dir
         self._thread_id = None
+        self._log_dir = log_dir
 
         # 現在把握している最新のメッセージキーを保存する(つまり、未コミットのものも含む)
         self._message_heads = self._get_current_message_heads()
@@ -285,7 +286,8 @@ class Database(object):
         :return:
         :rtype: QueuedWriter
         """
-        return QueuedWriter(self, self._time_db_dir, cycle_time, cycle_count)
+        writer = QueuedWriter(self, self._time_db_dir, cycle_time, cycle_count)
+        return JournalWriter(writer, self._log_dir)
 
 
 def make_sqlcolumn_from_datatype(name, datatype):

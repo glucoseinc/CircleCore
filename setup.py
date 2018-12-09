@@ -8,6 +8,7 @@ PY2 = sys.version_info[0] == 2
 
 install_requires = [
     'alembic',
+    'asyncio_extras',
     'base58',
     'click>=6',
     'Flask>=0.11',
@@ -29,10 +30,7 @@ setup(
     version='0.1',
     packages=find_packages(exclude=['tests']),
     install_requires=install_requires,
-    dependency_links=[
-        # 'git+https://github.com/nanomsg/nnpy.git#egg=nnpy',
-        # 'git+https://github.com/graphite-project/whisper.git@b783ab3f577f3f60db607adda241e29b7242bcf4#egg=whisper-0.10.0rc1',
-    ],
+    dependency_links=[],
     entry_points={
         'console_scripts': [
             'crcr=circle_core.cli:cli_entry',
@@ -40,14 +38,18 @@ setup(
     },
     extras_require={
         'test': [
+            'autopep8',
             'coverage',
             'flake8',
             'flake8-import-order',
+            'mypy',
             'pytest',
+            'pytest-asyncio',
             'pytest-cov',
             'pytest-timeout',
             'tcptest',
             'tox',
+            'yapf',
         ],
         'doc': [
             'Sphinx',

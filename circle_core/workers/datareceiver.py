@@ -38,6 +38,7 @@ def create_datareceiver_worker(core, type, key, config):
         key,
         db_url=config.get('db'),
         time_db_dir=config.get('time_db_dir'),
+        log_dir=config.get('log_dir'),
         cycle_time=config.getfloat('cycle_time', vars=defaults),
         cycle_count=config.getint('cycle_count', vars=defaults),
     )
@@ -50,14 +51,14 @@ class DataReceiverWorker(CircleWorker):
     """
     worker_type = WORKER_DATARECEIVER
 
-    def __init__(self, core, key, db_url, time_db_dir, cycle_time=1.0, cycle_count=10):
+    def __init__(self, core, key, db_url, time_db_dir, log_dir, cycle_time=1.0, cycle_count=10):
         super(DataReceiverWorker, self).__init__(core, key)
 
         # commitする、メッセージ数と時間
         self.cycle_count = cycle_count
         self.cycle_time = cycle_time
 
-        self.db = Database(db_url, time_db_dir)
+        self.db = Database(db_url, time_db_dir, log_dir)
         self.writer = self.db.make_writer(cycle_time=cycle_time, cycle_count=cycle_count)
 
         self.counter_lock = threading.Lock()

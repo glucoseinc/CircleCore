@@ -1,104 +1,242 @@
+import asyncio
 import glob
 import json
 import os
+import typing
+from typing import Optional, Tuple
 
-from .base import WriterBase
+from asyncio_extras import async_contextmanager
+
+from .base import DBWriter
 from ..exceptions import JournalCorrupted
 from ..logger import logger
 
 
-class JournalWriter(WriterBase):
+class JournalDBWriter(DBWriter):
     """
     ジャーナルファイルに書き込んでから、子Writerに書き込むWriter
     """
+    child_writer: DBWriter
+    closed: bool
+    journal_reader: 'JournalReader'
+    journal_writer: 'JournalWriter'
 
-    def __init__(self, child_writer, dirpath, *, prefix='journal', max_log_file_size=1024 * 1024):
+    def __init__(self, child_writer, dirpath, *, file_prefix='journal', max_log_file_size=1024 * 1024):
         self.child_writer = child_writer
-        self.dirpath = dirpath
-        self.prefix = prefix
-
-        # どこまでchild_writerに書き込んだかが入るファイル
-        self.pos_file = None
-        # メッセージが追記されていくファイル
-        self.log_file = None
-        # どこまで書いたか。常にpos_fileと同じ値になるはず (index, position)
-        self.write_position = None
-        self.prepare()
-
-        self.max_log_file_size = max_log_file_size
+        self.journal_reader, self.jounal_writer = open_journal_reader_writer(
+            os.path.join(dirpath, file_prefix), max_log_file_size=max_log_file_size
+        )
+        self.closed = False
+        self.writer_loop = asyncio.ensure_future(self.run())
 
     def __del__(self):
-        if self.pos_file:
-            self.pos_file.close()
-        if self.journal_file:
-            self.journal_file.close()
+        asyncio.get_event_loop.run_until_complete(self.close())
 
     # override
     def store(self, message_box, message):
-        self.log_file.write(json.dumps(message.to_json(with_boxid=True)))
-        self.log_file.write('\n')
-        self.log_file.flush()
-        log_file_size = self.log_file.tell()
-
-        if log_file_size >= self.max_log_file_size:
-            self.rotate_logs()
+        self.jounal_writer.write(message.to_json(with_boxid=True))
 
     def commit(self, flush_all=False):
         pass
 
     # private
-    def make_log_file_path(self, index):
-        return os.path.join(self.dirpath, '{}.{:03d}'.format(self.prefix, index))
+    async def close(self):
+        logger.info('close JournalDBWriter')
+        self.closed = True
+        await self.writer_loop
 
-    def prepare(self):
-        # find last journal file
-        log_files = []
-        for fn in glob.iglob(os.path.join(self.dirpath, '{}.*'.format(self.prefix))):
-            try:
-                index = int(os.path.splitext(fn)[1][1:], 10)
-            except ValueError:
-                continue
-            else:
-                log_files.append((index, log_files))
-        log_files.sort()
-        last_log_index, last_log_filepath = journal_files[-1] if log_files else (None, None)
+        self.journal_reader.close()
+        self.jounal_writer.close()
 
-        # load pos file
-        pos_file_path = os.path.join(self.dirpath, '{}.pos'.format(self.prefix))
-        pos_file_exists = os.path.exists(pos_file_path)
-        self.pos_file = open(pos_file_path, 'wt')
+    async def run(self):
+        """logファイルに新しいデータが書き込まれたら、child_writerに書込、posを進める"""
+        assert not self.closed
 
-        if pos_file_exists:
-            if last_journal_index is None:
-                raise JournalCorrupted('journal file not found')
+        while self.closed:
+            print('hello!!')
+            await asyncio.sleep(1)
 
-            # load previous position
-            data = open(pos_file_path, 'rt').read()
-            self.write_position = [int(x, 10) for x in data.split('\n', 1)]
-            logger.info('Open existing journal %d:%d', index, position)
 
-            # write_positionから最新までのJournalがあるかチェック
-            index = self.write_position[0]
-            log_files_map = dict(log_files)
-            while index <= last_log_index:
-                if index not in log_files_map:
-                    if last_log_index is None:
-                        raise JournalCorrupted('journal file {} not found'.format(index))
+def open_journal_reader_writer(prefix: str, *,
+                               max_log_file_size: int = 1024 * 1024) -> Tuple['JournalReader', 'JournalWriter']:
+    """Journal Reader / Writerを作る"""
+    log_files = []
+    for fn in glob.iglob('{}.*'.format(prefix)):
+        try:
+            index = int(os.path.splitext(fn)[1][1:], 10)
+        except ValueError:
+            continue
         else:
-            # create new position file
-            logger.info('Create new journal position file')
-            self.write_position = 0, 0
-            self.store_position()
+            log_files.append((index, log_files))
+    log_files.sort()
+    # log fileがそろっているか確認する
+    if log_files:
+        check = log_files[0][0]
+        for idx, fn in log_files:
+            if idx != check:
+                raise JournalCorrupted('bad log file index')
+            check += 1
 
-        # open last journal file
-        if last_log_index is None:
-            last_log_index = 0
-        self.log_file = open(self.make_log_file_path(last_log_index), 'at')
+    #
+    last_log_index, last_log_filepath = log_files[-1] if log_files else (None, None)
 
-    def store_position(self):
+    reader = JournalReader(prefix)
+    writer = JournalWriter(prefix, last_log_index or 0, max_log_file_size=max_log_file_size)
+
+    return reader, writer
+    # # load pos file
+    # pos_file_path = os.path.join(self.dirpath, '{}.pos'.format(self.prefix))
+    # pos_file_exists = os.path.exists(pos_file_path)
+    # self.pos_file = open(pos_file_path, 'wt')
+
+    # if pos_file_exists:
+    #     if last_log_index is None:
+    #         raise JournalCorrupted('log file not found')
+
+    #     # load previous position
+    #     try:
+    #         data = open(pos_file_path, 'rt').read()
+    #         self.write_position = [int(x, 10) for x in data.split('\n', 1)]
+    #         logger.info('Open existing position %d:%d', index, position)
+    #     except ValueError:
+    #         pos_file_exists = False
+    #     else:
+    #         # write_positionから最新までのJournalがあるかチェック
+    #         index = self.write_position[0]
+    #         log_files_map = dict(log_files)
+    #         while index <= last_log_index:
+    #             if index not in log_files_map:
+    #                 if last_log_index is None:
+    #                     raise JournalCorrupted('log file {} not found'.format(index))
+
+
+class JournalWriter:
+    prefix: str
+    index: int
+    log_file: Optional[typing.TextIO]
+    max_log_file_size: int
+
+    def __init__(self, prefix: str, index: int, *, max_log_file_size):
+        self.prefix = prefix
+        self.index = index
+        self.log_file = None
+        self.max_log_file_size = max_log_file_size
+
+        self.prepare()
+
+    def write(self, message):
+        # TODO: この部分をasyncにする???
+        self.log_file.write(json.dumps(message))
+        self.log_file.write('\n')
+        self.log_file.flush()
+
+        self.rotate_log_file_if_needed()
+
+    # private
+    def prepare(self):
+        assert self.log_file is None
+        self.log_file = open(make_log_file_path(self.prefix, self.index), 'at')
+        self.log_file.seek(0, os.SEEK_END)
+        self.rotate_log_file_if_needed()
+
+    def rotate_log_file_if_needed(self):
+        assert self.log_file is not None
+
+        log_file_size = self.log_file.tell()
+        if log_file_size < self.max_log_file_size:
+            return
+
+        self.log_file.close()
+        self.log_file = None
+        self.index += 1
+
+        path = make_log_file_path(self.prefix, self.index)
+        if os.path.exists(path):
+            raise JournalCorrupted('new log files is already exists: %s', path)
+        self.log_file = open(path, 'xt')
+
+
+def make_log_file_path(prefix: str, index: int):
+    return '{}.{:03d}'.format(prefix, index)
+
+
+class JournalReader:
+    prefix: str
+    log_file: Optional[typing.TextIO]
+    log_file_index: Optional[int]
+    pos_file: typing.TextIO
+
+    def __init__(self, prefix: str):
+        self.prefix = prefix
+        self.pos_file = open('{}.pos'.format(self.prefix), 'w+t')
+        self.position = self.read_position()
+
+        self.log_file = None
+        self.log_file_index = None
+
+    @async_contextmanager
+    async def read(self) -> None:
+        if not self.log_file:
+            if not self.log_file_index:
+                self.log_file_index = self.position[0]
+
+            log_file_path = make_log_file_path(self.prefix, self.log_file_index)
+            if not os.path.exists(log_file_path):
+                # ファイルがない -> まだログが無い
+                print('2')
+                logger.info('no log file opened, and log file not found')
+                yield None
+                return
+
+            logger.info('open log file %s', log_file_path)
+            self.log_file = open(log_file_path)
+            self.log_file.seek(self.position[1], os.SEEK_SET)
+            if self.log_file.tell() != self.position[1]:
+                # ファイルサイズが足りない
+                raise JournalCorrupted('bad position or log file size')
+
+        # 1行読み取る のだが、ページめくる処理も.
+        while True:
+            saved_position = self.log_file.tell()
+            ln = self.log_file.readline()
+            if ln:
+                break
+
+            # 読み取れなかった場合、次のlogがあるか確認
+            next_log_file_path = make_log_file_path(self.prefix, self.log_file_index + 1)
+            if not os.path.exists(next_log_file_path):
+                # 次のファイルもないので、単純にログがない
+                logger.info('log tail reached, and no following log file')
+                yield None
+                return
+
+            self.log_file = open(next_log_file_path)
+            self.log_file_index += 1
+
+        # yield
+        try:
+            yield ln
+        except Exception:
+            # 再度同じものが読めるように巻き戻す
+            self.log_file.seek(saved_position, os.SEEK_SET)
+            raise
+        else:
+            # write position
+            self.position = self.log_file_index, self.log_file.tell()
+            await self.write_position()
+
+    # private
+    def read_position(self):
         self.pos_file.seek(0, os.SEEK_SET)
-        self.pos_file.write('{}\n{}'.format(*self.write_position))
-        self.pos_file.flush()
+        data = self.pos_file.read()
+        if not data:
+            # initial
+            return 0, 0
 
-    def rotate_logs(self):
-        assert 0
+        index, position = [int(x, 10) for x in data.split('\n', 1)]
+        return index, position
+
+    async def write_position(self):
+        self.pos_file.seek(0, os.SEEK_SET)
+        self.pos_file.write('{}\n{}'.format(*self.position))
+        self.pos_file.flush()

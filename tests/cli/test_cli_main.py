@@ -23,8 +23,7 @@ class TestCliMain(object):
             (
                 [],  # main_params
                 {
-                    'exit_code':
-                    -1,
+                    'exit_code': -1,
                     'output': [
                         'Metadata is not set.', 'Please set metadata to argument `crcr --metadata URL_SCHEME ...`',
                         'or set to environment variable `export CRCR_METADATA=URL_SCHEME`.'
@@ -35,9 +34,10 @@ class TestCliMain(object):
                 ['--metadata', 'redis://localhost:65535/16'],  # main_params
                 {
                     'exit_code': -1,
-                    'output':
-                    ['Invalid metadata url / '
-                     'Cannot connect to Redis server. : redis://localhost:65535/16']
+                    'output': [
+                        'Invalid metadata url / '
+                        'Cannot connect to Redis server. : redis://localhost:65535/16'
+                    ]
                 },  # expected
             ),
         ]

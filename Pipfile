@@ -12,12 +12,9 @@ test = "pytest -v --cov=circle_core --cov-report html:coverage_html --cov-report
 typing = "mypy --warn-unused-configs circle_core"
 
 [dev-packages]
-mypy = "*"
-autopep8 = "*"
-yapf = "*"
 
 [packages]
-circle_core = {path = ".",extras = ["doc", "test"],editable = true}
+circle_core = {extras = ["doc", "test"],path = ".",editable = true}
 
 [requires]
 python_version = "3.6"
