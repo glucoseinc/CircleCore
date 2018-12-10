@@ -195,3 +195,4 @@ circle_core/web/static/*
 circle_core.ini
 
 .mypy_cache/
+coverage_html/
