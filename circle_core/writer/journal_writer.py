@@ -1,4 +1,5 @@
 import asyncio
+import functools
 import glob
 import json
 import os
@@ -8,8 +9,15 @@ from typing import Optional, Tuple
 from asyncio_extras import async_contextmanager
 
 from .base import DBWriter
-from ..exceptions import JournalCorrupted
+from ..exceptions import JournalCorrupted, MessageBoxNotFoundError
 from ..logger import logger
+from ..message import ModuleMessage
+from ..models import MessageBox, NoResultFound
+
+
+class ChildWriteFailed(Exception):
+    """child_writeにstoreできなかったときに呼ばれる. 内部用"""
+    pass
 
 
 class JournalDBWriter(DBWriter):
@@ -20,41 +28,91 @@ class JournalDBWriter(DBWriter):
     closed: bool
     journal_reader: 'JournalReader'
     journal_writer: 'JournalWriter'
+    # storeになにか書き込まれたときに発火する。というかrunのloopを回したいときに発火する
+    store_event: asyncio.Event
 
     def __init__(self, child_writer, dirpath, *, file_prefix='journal', max_log_file_size=1024 * 1024):
         self.child_writer = child_writer
-        self.journal_reader, self.jounal_writer = open_journal_reader_writer(
+        self.journal_reader, self.journal_writer = open_journal_reader_writer(
             os.path.join(dirpath, file_prefix), max_log_file_size=max_log_file_size
         )
         self.closed = False
+        self.store_event = asyncio.Event()
         self.writer_loop = asyncio.ensure_future(self.run())
 
     def __del__(self):
-        asyncio.get_event_loop.run_until_complete(self.close())
+        if not self.closed:
+            asyncio.get_event_loop().run_until_complete(self.close())
 
     # override
-    def store(self, message_box, message):
-        self.jounal_writer.write(message.to_json(with_boxid=True))
+    async def store(self, message_box, message) -> bool:
+        self.journal_writer.write(message.to_json(with_boxid=True))
+        self.store_event.set()
 
-    def commit(self, flush_all=False):
+        return True
+
+    async def commit(self, flush_all=False):
         pass
 
     # private
     async def close(self):
+        if self.closed:
+            logger.warning('Journal is already closed')
+            return
+
         logger.info('close JournalDBWriter')
         self.closed = True
+        self.store_event.set()
         await self.writer_loop
 
         self.journal_reader.close()
-        self.jounal_writer.close()
+        self.journal_writer.close()
 
     async def run(self):
         """logファイルに新しいデータが書き込まれたら、child_writerに書込、posを進める"""
         assert not self.closed
 
-        while self.closed:
-            print('hello!!')
-            await asyncio.sleep(1)
+        logger.debug('run started %r', self.closed)
+
+        while not self.closed:
+            try:
+                async with self.journal_reader.read() as data:
+                    logger.debug('Read message from log : %r', data)
+                    if data:
+                        rv = await self.store_message_to_child(data)
+                        logger.debug('Store to child writer %r', rv)
+                        if not rv:
+                            raise ChildWriteFailed()
+
+            except ChildWriteFailed:
+                logger.debug('failed to write child writer. sleep 1 sec.')
+                await asyncio.sleep(1)
+
+            if data is None:
+                # dataがなければ待つ
+                logger.debug('Wait message...')
+                self.store_event.clear()
+                await self.store_event.wait()
+                logger.debug('wakeup.')
+
+        logger.debug('run finished')
+
+    async def store_message_to_child(self, data: str) -> bool:
+        parsed = json.loads(data)
+        message_box = await self.find_message_box(parsed['boxId'])
+        message = ModuleMessage.from_json(parsed)
+
+        return await self.child_writer.store(message_box, message)
+
+    @functools.lru_cache()
+    async def find_message_box(self, box_id: str) -> MessageBox:
+        # DBに直接触っちゃう
+        try:
+            box = MessageBox.query.filter_by(uuid=box_id).one()
+        except NoResultFound:
+            raise MessageBoxNotFoundError(box_id)
+
+        return box
 
 
 def open_journal_reader_writer(prefix: str, *,
@@ -124,9 +182,14 @@ class JournalWriter:
 
         self.prepare()
 
+    def close(self):
+        if self.log_file:
+            self.log_file.close()
+        self.log_file = None
+
     def write(self, message):
         # TODO: この部分をasyncにする???
-        self.log_file.write(json.dumps(message))
+        self.log_file.write(json.dumps(message, sort_keys=True))
         self.log_file.write('\n')
         self.log_file.flush()
 
@@ -168,11 +231,23 @@ class JournalReader:
 
     def __init__(self, prefix: str):
         self.prefix = prefix
-        self.pos_file = open('{}.pos'.format(self.prefix), 'w+t')
+
+        pos_file_path = '{}.pos'.format(self.prefix)
+        self.pos_file = open(pos_file_path, 'r+t' if os.path.exists(pos_file_path) else 'w+t')
         self.position = self.read_position()
+        logger.debug('load position %r', self.position)
 
         self.log_file = None
         self.log_file_index = None
+
+    def close(self):
+        if self.log_file:
+            self.log_file.close()
+        self.log_file = None
+
+        if self.pos_file:
+            self.pos_file.close()
+        self.pos_file = None
 
     @async_contextmanager
     async def read(self) -> None:
@@ -183,7 +258,6 @@ class JournalReader:
             log_file_path = make_log_file_path(self.prefix, self.log_file_index)
             if not os.path.exists(log_file_path):
                 # ファイルがない -> まだログが無い
-                print('2')
                 logger.info('no log file opened, and log file not found')
                 yield None
                 return
@@ -198,6 +272,7 @@ class JournalReader:
         # 1行読み取る のだが、ページめくる処理も.
         while True:
             saved_position = self.log_file.tell()
+            logger.debug('read from %r / pos %r', saved_position, self.position)
             ln = self.log_file.readline()
             if ln:
                 break
@@ -223,12 +298,14 @@ class JournalReader:
         else:
             # write position
             self.position = self.log_file_index, self.log_file.tell()
+            logger.debug('new pos %r', self.position)
             await self.write_position()
 
     # private
     def read_position(self):
         self.pos_file.seek(0, os.SEEK_SET)
         data = self.pos_file.read()
+        logger.debug('read_position %r', data)
         if not data:
             # initial
             return 0, 0
@@ -240,3 +317,4 @@ class JournalReader:
         self.pos_file.seek(0, os.SEEK_SET)
         self.pos_file.write('{}\n{}'.format(*self.position))
         self.pos_file.flush()
+        logger.debug('write pos %r', self.position)

@@ -56,7 +56,7 @@ class QueuedWriter(DBWriter):
         self.timeout = None
 
     # override
-    def store(self, message_box, message):
+    async def store(self, message_box, message) -> bool:
         """store.
         TODO: Fill blank
 
@@ -83,7 +83,9 @@ class QueuedWriter(DBWriter):
         if self.write_count >= self.cycle_count:
             self.commit_transaction()
 
-    def commit(self, flush_all=False):
+        return True
+
+    async def commit(self, flush_all=False):
         """commit.
         TODO: Fill blank
 

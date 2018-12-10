@@ -4,9 +4,9 @@ import abc
 class DBWriter(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
-    def store(self, message_box, message) -> None:
+    async def store(self, message_box, message) -> bool:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def commit(self, flush_all=False) -> None:
+    async def commit(self, flush_all=False) -> None:
         raise NotImplementedError
