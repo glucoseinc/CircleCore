@@ -6,7 +6,7 @@ verify_ssl = true
 [scripts]
 build_doc = "sh -c 'cd doc && make html'"
 lint = "flake8 circle_core tests"
-lint_fix = "sh -c 'autopep8 -ir . && yapf -ir . -e .venv'"
+format = "sh -c 'autopep8 -ir . && yapf -ir . -e .venv'"
 debug = "crcr --debug run"
 test = "pytest -v --cov=circle_core --cov-report html:coverage_html --cov-report term-missing:skip-covered tests/"
 typing = "mypy --warn-unused-configs circle_core"

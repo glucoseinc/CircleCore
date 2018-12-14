@@ -8,6 +8,8 @@ from typing import Optional, Tuple
 
 from asyncio_extras import async_contextmanager
 
+from typing_extensions import Protocol
+
 from .base import DBWriter
 from ..exceptions import JournalCorrupted, MessageBoxNotFoundError
 from ..logger import logger
@@ -20,7 +22,17 @@ class ChildWriteFailed(Exception):
     pass
 
 
-class JournalDBWriter(DBWriter):
+class JournalReaderDelegate(Protocol):
+
+    def on_advance_log_file(self, new_log_file_index: int) -> None:
+        """新しいログファイルを開いた。
+
+        (new_log_file_index - 1)まではいらなくなった"""
+
+    pass
+
+
+class JournalDBWriter(DBWriter, JournalReaderDelegate):
     """
     ジャーナルファイルに書き込んでから、子Writerに書き込むWriter
     """
@@ -30,11 +42,13 @@ class JournalDBWriter(DBWriter):
     journal_writer: 'JournalWriter'
     # storeになにか書き込まれたときに発火する。というかrunのloopを回したいときに発火する
     store_event: asyncio.Event
+    prefix: str
 
     def __init__(self, child_writer, dirpath, *, file_prefix='journal', max_log_file_size=1024 * 1024):
         self.child_writer = child_writer
+        self.prefix = os.path.join(dirpath, file_prefix)
         self.journal_reader, self.journal_writer = open_journal_reader_writer(
-            os.path.join(dirpath, file_prefix), max_log_file_size=max_log_file_size
+            self.prefix, max_log_file_size=max_log_file_size, delegate=self
         )
         self.closed = False
         self.store_event = asyncio.Event()
@@ -53,6 +67,20 @@ class JournalDBWriter(DBWriter):
 
     async def commit(self, flush_all=False):
         pass
+
+    # delegate
+    def on_advance_log_file(self, new_log_file_index: int) -> None:
+        """new_log_file_index - 1までのファイルを消す"""
+        log_files = list_log_files(self.prefix)
+
+        logger.info('Log files is advanced to %d, rotating log files...', new_log_file_index)
+        for index, filepath in log_files:
+            if index < new_log_file_index:
+                try:
+                    os.unlink(filepath)
+                    logger.info('remove old log file %s', filepath)
+                except Exception:
+                    logger.exception('Failed to remove old log file %s', filepath)
 
     # private
     async def close(self):
@@ -115,30 +143,16 @@ class JournalDBWriter(DBWriter):
         return box
 
 
-def open_journal_reader_writer(prefix: str, *,
-                               max_log_file_size: int = 1024 * 1024) -> Tuple['JournalReader', 'JournalWriter']:
+def open_journal_reader_writer(
+    prefix: str, *, max_log_file_size: int = 1024 * 1024, delegate: Optional[JournalReaderDelegate] = None
+) -> Tuple['JournalReader', 'JournalWriter']:
     """Journal Reader / Writerを作る"""
-    log_files = []
-    for fn in glob.iglob('{}.*'.format(prefix)):
-        try:
-            index = int(os.path.splitext(fn)[1][1:], 10)
-        except ValueError:
-            continue
-        else:
-            log_files.append((index, log_files))
-    log_files.sort()
-    # log fileがそろっているか確認する
-    if log_files:
-        check = log_files[0][0]
-        for idx, fn in log_files:
-            if idx != check:
-                raise JournalCorrupted('bad log file index')
-            check += 1
+    log_files = list_log_files(prefix)
 
     #
     last_log_index, last_log_filepath = log_files[-1] if log_files else (None, None)
 
-    reader = JournalReader(prefix)
+    reader = JournalReader(prefix, delegate=delegate)
     writer = JournalWriter(prefix, last_log_index or 0, max_log_file_size=max_log_file_size)
 
     return reader, writer
@@ -168,6 +182,27 @@ def open_journal_reader_writer(prefix: str, *,
     #                     raise JournalCorrupted('log file {} not found'.format(index))
 
 
+def list_log_files(prefix: str):
+    log_files = []
+    for fn in glob.iglob('{}.*'.format(prefix)):
+        try:
+            index = int(os.path.splitext(fn)[1][1:], 10)
+        except ValueError:
+            continue
+        else:
+            log_files.append((index, fn))
+    log_files.sort()
+    # log fileがそろっているか確認する
+    if log_files:
+        check = log_files[0][0]
+        for idx, fn in log_files:
+            if idx != check:
+                raise JournalCorrupted('bad log file index')
+            check += 1
+
+    return log_files
+
+
 class JournalWriter:
     prefix: str
     index: int
@@ -193,16 +228,16 @@ class JournalWriter:
         self.log_file.write('\n')
         self.log_file.flush()
 
-        self.rotate_log_file_if_needed()
+        self.advance_log_file_if_needed()
 
     # private
     def prepare(self):
         assert self.log_file is None
         self.log_file = open(make_log_file_path(self.prefix, self.index), 'at')
         self.log_file.seek(0, os.SEEK_END)
-        self.rotate_log_file_if_needed()
+        self.advance_log_file_if_needed()
 
-    def rotate_log_file_if_needed(self):
+    def advance_log_file_if_needed(self):
         assert self.log_file is not None
 
         log_file_size = self.log_file.tell()
@@ -224,12 +259,13 @@ def make_log_file_path(prefix: str, index: int):
 
 
 class JournalReader:
-    prefix: str
+    delegate: Optional[JournalReaderDelegate]
     log_file: Optional[typing.TextIO]
     log_file_index: Optional[int]
     pos_file: typing.TextIO
+    prefix: str
 
-    def __init__(self, prefix: str):
+    def __init__(self, prefix: str, *, delegate: Optional[JournalReaderDelegate] = None):
         self.prefix = prefix
 
         pos_file_path = '{}.pos'.format(self.prefix)
@@ -239,6 +275,8 @@ class JournalReader:
 
         self.log_file = None
         self.log_file_index = None
+
+        self.delegate = delegate
 
     def close(self):
         if self.log_file:
@@ -263,11 +301,18 @@ class JournalReader:
                 return
 
             logger.info('open log file %s', log_file_path)
+
             self.log_file = open(log_file_path)
             self.log_file.seek(self.position[1], os.SEEK_SET)
-            if self.log_file.tell() != self.position[1]:
+
+            # check file size
+            stat = os.stat(log_file_path)
+            if stat.st_size < self.position[1]:
                 # ファイルサイズが足りない
                 raise JournalCorrupted('bad position or log file size')
+
+            # tellでファイルサイズを調べてはいけない
+            # if self.log_file.tell() != self.position[1]:
 
         # 1行読み取る のだが、ページめくる処理も.
         while True:
@@ -287,6 +332,9 @@ class JournalReader:
 
             self.log_file = open(next_log_file_path)
             self.log_file_index += 1
+
+            if self.delegate:
+                self.delegate.on_advance_log_file(self.log_file_index)
 
         # yield
         try:

@@ -2,9 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import find_packages, setup
-import sys
-
-PY2 = sys.version_info[0] == 2
 
 install_requires = [
     'alembic',
@@ -16,14 +13,12 @@ install_requires = [
     'mysql-connector-python-rf',
     'nnpy==1.4.2',
     'python-dateutil',
-    'six',
     'sqlalchemy>=1.1.4',
+    'typing_extension'
     'tornado',
     'websocket-client',
     'whisper==1.1.2',
 ]
-if PY2:
-    install_requires.append('enum34')
 
 setup(
     name='circle_core',
