@@ -50,10 +50,9 @@ async def test_journal_db_writer(tmpdir, dummy_mbox, caplog):
     assert open(os.path.join(tmpdir, 'journal.pos'), 'rt').read() == ''
 
     # store message
-    messagebox = MessageBox(uuid=mbox.uuid)
     message = ModuleMessage(mbox.uuid, 123456.789, 0, {'x': 1, 'y': 2})
     child_writer_mock.store.side_effect = asyncio.coroutine(lambda *args, **kwargs: True)
-    await writer.store(messagebox, message)
+    await writer.store(mbox, message)
     await asyncio.sleep(0.1)
     await writer.close()
     del writer
@@ -82,9 +81,8 @@ async def test_journal_db_writer(tmpdir, dummy_mbox, caplog):
 
     writer = JournalDBWriter(child_writer_mock, tmpdir)
 
-    messagebox = MessageBox(uuid=mbox.uuid)
     message = ModuleMessage(mbox.uuid, 123500.789, 1, {'x': 3, 'y': 4})
-    await writer.store(messagebox, message)
+    await writer.store(mbox, message)
     await asyncio.sleep(0.1)
     await writer.close()
     del writer

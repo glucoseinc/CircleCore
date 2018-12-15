@@ -15,15 +15,16 @@ import uuid
 from base58 import b58encode
 from six import PY3
 import sqlalchemy as sa
+import sqlalchemy.exc
 from sqlalchemy.engine import Connection, Engine, Transaction
 from sqlalchemy.orm import sessionmaker
 
 # project module
 from .constants import CRDataType
+from .exceptions import DatabaseWriteFailed
 from .logger import logger
 from .message import ModuleMessage, ModuleMessagePrimaryKey
 from .models import MessageBox
-from .writer import JournalWriter, QueuedWriter
 
 if PY3:
     from typing import Generator, List, Optional, Union
@@ -91,7 +92,11 @@ class Database(object):
         :return: Connection
         :rtype: Connection
         """
-        return self._engine.connect()
+        try:
+            return self._engine.connect()
+        except sqlalchemy.exc.InterfaceError as exc:
+            logger.exception('Failed to connect to database')
+            raise DatabaseWriteFailed(exc)
 
     def make_table_for_message_box(self, message_box):
         """MessageBox Tableを生成する.
@@ -172,9 +177,17 @@ class Database(object):
 
         table = self.find_table_for_message_box(message_box)
         query = table.insert().values(_created_at=message.timestamp, _counter=message.counter, **message.payload)
-        connection.execute(query)
-        # update head
-        self._message_heads[message_box.uuid] = message.primary_key
+
+        try:
+            connection.execute(query)
+        except sqlalchemy.exc.DatabaseError as exc:
+            # 接続エラーとかの場合 OperationalErrorがくる
+            logger.exception('Failed to write message, %r', exc)
+            logger.info('------')
+            raise DatabaseWriteFailed
+        else:
+            # update head
+            self._message_heads[message_box.uuid] = message.primary_key
 
     def drop_message_box(self, message_box, connection=None):
         """MessageBox Tableを削除する.
@@ -192,9 +205,10 @@ class Database(object):
 
     def _check_thread(self):
         """Threadの整合性をチェックする."""
+        # TODO: ThreadPoolExecutorで動かすので、どのThreadで動くかわからないはず
         if self._thread_id is None:
             self._thread_id = threading.get_ident()
-        assert self._thread_id == threading.get_ident()
+        # assert self._thread_id == threading.get_ident()
 
     def get_latest_primary_key(self, message_box):
         """get latest primary key.
@@ -286,8 +300,10 @@ class Database(object):
         :return:
         :rtype: QueuedWriter
         """
-        writer = QueuedWriter(self, self._time_db_dir, cycle_time, cycle_count)
-        return JournalWriter(writer, self._log_dir)
+        from .writer import JournalDBWriter, QueuedDBWriter
+
+        writer = QueuedDBWriter(self, self._time_db_dir, cycle_time, cycle_count)
+        return JournalDBWriter(writer, self._log_dir)
 
 
 def make_sqlcolumn_from_datatype(name, datatype):

@@ -62,3 +62,7 @@ class ReplicationError(CircleCoreException):
 class JournalCorrupted(CircleCoreException):
     """journalファイルが壊れている場合のエラー"""
     pass
+
+
+class DatabaseWriteFailed(CircleCoreException):
+    pass
