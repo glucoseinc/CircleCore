@@ -1,45 +1,21 @@
-import os
-import re
 import subprocess
 import sys
-from time import sleep
-from uuid import UUID
-
-from base58 import b58encode
-
-import pytest
-
 from sqlalchemy import create_engine
+import os
+from time import sleep
+import re
+from uuid import UUID
+from base58 import b58encode
+import tempfile
 
 import circle_core
 
 
-def setup_module(module):
-    terminate_crcr()
-
-
-def teardown_module(module):
-    terminate_crcr()
-
-
-def terminate_crcr():
-    subprocess.run("""ps x | grep crcr | grep -v grep | awk '{ system("kill "$1) }'""", shell=True, check=True)
-
-
-@pytest.yield_fixture
-def save_cwd():
-    saved = os.getcwd()
-    try:
-        yield
-    finally:
-        os.chdir(saved)
-
-
-def test_reproduce_missing_message(tmpdir_factory, save_cwd):
-    master_dir = str(tmpdir_factory.mktemp('master'))
-    slave_dir = str(tmpdir_factory.mktemp('slave'))
-    # master_dir = os.path.abspath('tmp/master')
-    # slave_dir = os.path.abspath('tmp/slave')
+def main(master_dir, slave_dir):
+    # master_dir = str(tmpdir_factory.mktemp('master'))
+    # slave_dir = str(tmpdir_factory.mktemp('slave'))
+    master_dir = os.path.abspath('tmp/master')
+    slave_dir = os.path.abspath('tmp/slave')
 
     # prepare database
     engine = create_engine('mysql+pymysql://root@localhost')
@@ -128,7 +104,7 @@ skip_build = on
             '--to',
             request_socket_url,
             '--interval',
-            '0.1',
+            '0.2',
             '--silent',
         ],
     )
@@ -184,7 +160,7 @@ skip_build = on
     running_slave = subprocess.Popen(['crcr', '--debug', 'run'])
 
     try:
-        bot.wait(timeout=3)
+        bot.wait(timeout=10)
     except subprocess.TimeoutExpired:
         pass
     else:
@@ -206,3 +182,7 @@ skip_build = on
     )
 
     assert master_messages == slave_messages, 'missing messages : {}'.format(sorted(master_messages - slave_messages))
+
+
+with tempfile.TemporaryDirectory() as master_dir, tempfile.TemporaryDirectory() as slave_dir:
+    main(master_dir, slave_dir)

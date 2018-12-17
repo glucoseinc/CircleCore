@@ -10,7 +10,6 @@ import uuid
 # community module
 import dateutil.parser
 import dateutil.tz
-import six
 
 
 def prepare_uuid(v):

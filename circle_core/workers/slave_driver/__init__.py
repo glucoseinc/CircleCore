@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Master側のWebsocketの口とか、AdminのUIとか"""
+import asyncio
 import logging
 import typing
 
@@ -62,7 +63,7 @@ class SlaveDriverWorker(CircleWorker):
         replicator.run()
 
     def stop_replicator(self, master):
-        replicator = self.replicators.pop(master.id)
+        replicator, future = self.replicators.pop(master.id)
         if replicator:
             logger.info('close replicator %r for %s', replicator, master.endpoint_url)
             replicator.close()

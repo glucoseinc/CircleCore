@@ -10,10 +10,10 @@ import math
 import threading
 import time
 import uuid
+from typing import Any, Mapping, Optional, Generator, List, Optional, Union
 
 # community module
 from base58 import b58encode
-from six import PY3
 import sqlalchemy as sa
 import sqlalchemy.exc
 from sqlalchemy.engine import Connection, Engine, Transaction
@@ -25,9 +25,7 @@ from .exceptions import DatabaseWriteFailed
 from .logger import logger
 from .message import ModuleMessage, ModuleMessagePrimaryKey
 from .models import MessageBox
-
-if PY3:
-    from typing import Generator, List, Optional, Union
+from .types import Path
 
 TABLE_OPTIONS = {
     'mysql_engine': 'InnoDB',
@@ -45,13 +43,15 @@ class Database(object):
     :param Optional[int] _thread_id: Thread ID
     """
 
-    def __init__(self, database_url, time_db_dir, log_dir):
+    def __init__(self, database_url, time_db_dir, log_dir: Path, *, connect_args: Optional[Mapping[str, Any]] = None):
         """init.
 
         :param str database_url: DBのURL(RFC-1738準拠)
         :param str time_db_dir: 時系列DBのPath
         """
-        self._engine = sa.create_engine(database_url)
+        if not log_dir:
+            raise ValueError('log_dir required')
+        self._engine = sa.create_engine(database_url, connect_args=connect_args or {})
         self._session = sessionmaker(bind=self._engine, autocommit=True)
 
         self._metadata = sa.MetaData()
@@ -183,7 +183,6 @@ class Database(object):
         except sqlalchemy.exc.DatabaseError as exc:
             # 接続エラーとかの場合 OperationalErrorがくる
             logger.exception('Failed to write message, %r', exc)
-            logger.info('------')
             raise DatabaseWriteFailed
         else:
             # update head
@@ -202,6 +201,7 @@ class Database(object):
         if table is not None:
             table.drop(self._engine)
             self._metadata.remove(table)
+            del self._message_heads[message_box.uuid]
 
     def _check_thread(self):
         """Threadの整合性をチェックする."""
@@ -219,7 +219,8 @@ class Database(object):
         :return:
         :rtype:
         """
-        return self._message_heads.get(message_box.uuid)
+        pkey = self._message_heads.get(message_box.uuid)
+        return pkey if pkey is not None else ModuleMessagePrimaryKey.origin()
 
     def count_messages(self, message_box, head=None, limit=None, connection=None):
         """メッセージ数を返す.
@@ -300,10 +301,20 @@ class Database(object):
         :return:
         :rtype: QueuedWriter
         """
-        from .writer import JournalDBWriter, QueuedDBWriter
+        from .writer import JournalDBWriter, QueuedDBWriter, QueuedDBWriterDelegate
 
-        writer = QueuedDBWriter(self, self._time_db_dir, cycle_time, cycle_count)
-        return JournalDBWriter(writer, self._log_dir)
+        # なぜここに書く必要があるのか?
+        class Delegate(QueuedDBWriterDelegate):
+
+            async def on_reconnect(self) -> None:
+                await jounal_writer.touch()  # type: ignore
+
+        queued_writer = QueuedDBWriter(
+            self, self._time_db_dir, cycle_time=cycle_time, cycle_count=cycle_count, delegate=Delegate()
+        )
+        jounal_writer = JournalDBWriter(queued_writer, self._log_dir)
+
+        return jounal_writer
 
 
 def make_sqlcolumn_from_datatype(name, datatype):

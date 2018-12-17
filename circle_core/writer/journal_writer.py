@@ -1,12 +1,17 @@
 import asyncio
+import datetime
 import functools
 import glob
 import json
 import os
 import typing
-from typing import Optional, Tuple
+from typing import Optional, Tuple, cast
 
 from asyncio_extras import async_contextmanager
+
+import tornado.ioloop
+import tornado.util
+from tornado.locks import Event
 
 from typing_extensions import Protocol
 
@@ -15,6 +20,8 @@ from ..exceptions import JournalCorrupted, MessageBoxNotFoundError
 from ..logger import logger
 from ..message import ModuleMessage
 from ..models import MessageBox, NoResultFound
+
+EVENT_WAIT_TIMEOUT = datetime.timedelta(seconds=60)
 
 
 class ChildWriteFailed(Exception):
@@ -29,8 +36,6 @@ class JournalReaderDelegate(Protocol):
 
         (new_log_file_index - 1)まではいらなくなった"""
 
-    pass
-
 
 class JournalDBWriter(DBWriter, JournalReaderDelegate):
     """
@@ -41,22 +46,28 @@ class JournalDBWriter(DBWriter, JournalReaderDelegate):
     journal_reader: 'JournalReader'
     journal_writer: 'JournalWriter'
     # storeになにか書き込まれたときに発火する。というかrunのloopを回したいときに発火する
-    store_event: asyncio.Event
+    store_event: Event
     prefix: str
 
     def __init__(self, child_writer, dirpath, *, file_prefix='journal', max_log_file_size=1024 * 1024):
+        # loop = tornado.ioloop.IOLoop.current()
+
         self.child_writer = child_writer
         self.prefix = os.path.join(dirpath, file_prefix)
         self.journal_reader, self.journal_writer = open_journal_reader_writer(
             self.prefix, max_log_file_size=max_log_file_size, delegate=self
         )
         self.closed = False
-        self.store_event = asyncio.Event()
+        self.store_event = Event()
         self.writer_loop = asyncio.ensure_future(self.run())
 
     def __del__(self):
         if not self.closed:
-            asyncio.get_event_loop().run_until_complete(self.close())
+            # asyncio.get_event_loop().run_until_complete(self.close())
+            tornado.ioloop.current().run_sync(self.close)
+
+    def touch(self):
+        self.store_event.set()
 
     # override
     async def store(self, message_box, message) -> bool:
@@ -65,8 +76,8 @@ class JournalDBWriter(DBWriter, JournalReaderDelegate):
 
         return True
 
-    async def commit(self, flush_all=False):
-        pass
+    async def flush(self, flush_all=False):
+        await self.child_writer.flush(flush_all=flush_all)
 
     # delegate
     def on_advance_log_file(self, new_log_file_index: int) -> None:
@@ -100,43 +111,55 @@ class JournalDBWriter(DBWriter, JournalReaderDelegate):
         """logファイルに新しいデータが書き込まれたら、child_writerに書込、posを進める"""
         assert not self.closed
 
-        logger.debug('run started %r', self.closed)
+        logger.debug('run started')
 
         while not self.closed:
+            store_result = None
             try:
                 async with self.journal_reader.read() as data:
                     logger.debug('Read message from log : %r', data)
                     if data:
-                        rv = await self.store_message_to_child(data)
-                        logger.debug('Store to child writer %r', rv)
-                        if not rv:
+                        logger.debug('Try storing to child writer')
+                        store_result = await self.store_message_to_child(data)
+                        logger.debug('Store to child writer: %r', store_result)
+                        if not store_result:
                             raise ChildWriteFailed()
-
             except ChildWriteFailed:
-                logger.debug('failed to write child writer. sleep 1 sec.')
-                await asyncio.sleep(1)
+                # 書き込み失敗した場合、例外でwithから抜ける。
+                # そうするとJournalReaderはposを更新しない
+                pass
 
             if data is None:
                 # dataがなければ待つ
                 logger.debug('Wait message...')
+            elif not store_result:
+                logger.debug('Store failed, wait reconnection')
+
+            if not store_result or data is None:
                 self.store_event.clear()
-                await self.store_event.wait()
-                logger.debug('wakeup.')
+                try:
+                    await self.store_event.wait(timeout=EVENT_WAIT_TIMEOUT)
+                except tornado.util.TimeoutError:
+                    # timeout
+                    pass
+                else:
+                    self.store_event.clear()
+                    logger.debug('wakeup.')
 
         logger.debug('run finished')
 
     async def store_message_to_child(self, data: str) -> bool:
         parsed = json.loads(data)
-        message_box = await self.find_message_box(parsed['boxId'])
+        message_box = self.find_message_box(parsed['boxId'])
         message = ModuleMessage.from_json(parsed)
 
         return await self.child_writer.store(message_box, message)
 
     @functools.lru_cache()
-    async def find_message_box(self, box_id: str) -> MessageBox:
+    def find_message_box(self, box_id: str) -> MessageBox:
         # DBに直接触っちゃう
         try:
-            box = MessageBox.query.filter_by(uuid=box_id).one()
+            box = cast(MessageBox, MessageBox.query.filter_by(uuid=box_id).one())
         except NoResultFound:
             raise MessageBoxNotFoundError(box_id)
 
@@ -262,7 +285,7 @@ class JournalReader:
     delegate: Optional[JournalReaderDelegate]
     log_file: Optional[typing.TextIO]
     log_file_index: Optional[int]
-    pos_file: typing.TextIO
+    pos_file: typing.IO[str]
     prefix: str
 
     def __init__(self, prefix: str, *, delegate: Optional[JournalReaderDelegate] = None):
@@ -288,12 +311,14 @@ class JournalReader:
         self.pos_file = None
 
     @async_contextmanager
-    async def read(self) -> None:
+    async def read(self) -> typing.AsyncGenerator[Optional[str], None]:
         if not self.log_file:
             if not self.log_file_index:
-                self.log_file_index = self.position[0]
+                log_file_index = self.log_file_index = self.position[0]
+            else:
+                log_file_index = self.log_file_index
 
-            log_file_path = make_log_file_path(self.prefix, self.log_file_index)
+            log_file_path = make_log_file_path(self.prefix, log_file_index)
             if not os.path.exists(log_file_path):
                 # ファイルがない -> まだログが無い
                 logger.info('no log file opened, and log file not found')
@@ -313,6 +338,9 @@ class JournalReader:
 
             # tellでファイルサイズを調べてはいけない
             # if self.log_file.tell() != self.position[1]:
+        else:
+            assert self.log_file_index is not None
+            log_file_index = self.log_file_index
 
         # 1行読み取る のだが、ページめくる処理も.
         while True:
@@ -323,18 +351,19 @@ class JournalReader:
                 break
 
             # 読み取れなかった場合、次のlogがあるか確認
-            next_log_file_path = make_log_file_path(self.prefix, self.log_file_index + 1)
+            next_log_file_path = make_log_file_path(self.prefix, log_file_index + 1)
             if not os.path.exists(next_log_file_path):
                 # 次のファイルもないので、単純にログがない
                 logger.info('log tail reached, and no following log file')
                 yield None
                 return
 
+            log_file_index += 1
             self.log_file = open(next_log_file_path)
-            self.log_file_index += 1
+            self.log_file_index = log_file_index
 
             if self.delegate:
-                self.delegate.on_advance_log_file(self.log_file_index)
+                self.delegate.on_advance_log_file(log_file_index)
 
         # yield
         try:

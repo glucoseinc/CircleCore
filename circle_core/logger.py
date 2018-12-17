@@ -3,7 +3,6 @@
 
 # system module
 import logging
-import os
 
 try:
     import colorama

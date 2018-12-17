@@ -8,5 +8,5 @@ class DBWriter(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def commit(self, flush_all=False) -> None:
+    async def flush(self, flush_all=False) -> None:
         raise NotImplementedError

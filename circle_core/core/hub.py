@@ -2,6 +2,7 @@
 """nanomsgのhub."""
 
 # system module
+import asyncio
 import os
 
 # community module
@@ -79,7 +80,7 @@ class CoreHub(object):
         self.sender.send(topic, message)
 
     # private
-    def handle_replier(self, request, exception):
+    async def handle_replier(self, request, exception):
         """リプライアのハンドリング.
 
         :param Dict request: リクエスト
@@ -90,7 +91,7 @@ class CoreHub(object):
             return
 
         try:
-            response = self.handle_request(request)
+            response = await self.handle_request(request)
         except Exception as exc:
             import traceback
             traceback.print_exc()
@@ -98,7 +99,7 @@ class CoreHub(object):
 
         self.replier.send(response)
 
-    def handle_request(self, request):
+    async def handle_request(self, request):
         """リクエストのハンドリング.
 
         :param Dict request: リクエスト
@@ -111,5 +112,8 @@ class CoreHub(object):
             raise InvalidRequestError('Invalid request `{}`'.format(reqtype))
 
         handler = self.message_handlers[reqtype]
-        response = handler(request)
+        if asyncio.iscoroutinefunction(handler):
+            response = await handler(request)
+        else:
+            response = handler(request)
         return response

@@ -78,7 +78,7 @@ class TestCliMain(object):
 
     @pytest.mark.skip
     def test_main_migrate(self, monkeypatch):
-        test_db_url = 'mysql+mysqlconnector://localhsot/testtest'
+        test_db_url = 'mysql+pymysql://localhsot/testtest'
         # DatabaseクラスにPatchを当てる
         call_result = {
             'db_init_params': [],

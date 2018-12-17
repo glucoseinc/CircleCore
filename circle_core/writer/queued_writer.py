@@ -1,13 +1,15 @@
 import datetime
 import math
-import time
+import threading
 from concurrent.futures import ThreadPoolExecutor
-from typing import TYPE_CHECKING
+from typing import List, Tuple, Optional, TYPE_CHECKING
 
 import sqlalchemy.exc
+
 import tornado.ioloop
 from tornado.concurrent import run_on_executor
-# from tornado.locks import Lock
+
+from typing_extensions import Protocol
 
 from .base import DBWriter
 from ..exceptions import DatabaseWriteFailed
@@ -17,8 +19,19 @@ from ..timed_db import TimedDBBundle
 
 if TYPE_CHECKING:
     from tornado.ioloop import _Timeout
+    import uuid
 
     from ..models import MessageBox
+    from ..types import Timestamp
+
+# 接続不良時の再接続への間隔
+RETRY_TIMEOUT = datetime.timedelta(seconds=2)
+
+
+class QueuedDBWriterDelegate(Protocol):
+
+    async def on_reconnect(self) -> None:
+        """再接続できた"""
 
 
 class QueuedDBWriter(DBWriter):
@@ -31,12 +44,26 @@ class QueuedDBWriter(DBWriter):
     :param float cycle_count:
     :param int cycle_time:
     :param Connection connection:
-    :param Optional[_Timeout] timeout:
     """
-    # database周りのexecution
-    executor = ThreadPoolExecutor(2)
+    delegate: Optional[QueuedDBWriterDelegate]
+    retry_connect_timeout: 'Optional[_Timeout]'
+    timeout: 'Optional[_Timeout]'
+    tls_connection: threading.local
+    updates: 'List[Tuple[uuid.UUID, Timestamp]]'
+    write_count: int
 
-    def __init__(self, database, time_db_dir, cycle_time=10.0, cycle_count=100):
+    # database周りのexecution, 常に直列でやる
+    executor = ThreadPoolExecutor(1, thread_name_prefix='queued_writer_thread_')
+
+    def __init__(
+        self,
+        database,
+        time_db_dir,
+        *,
+        cycle_time=10.0,
+        cycle_count=100,
+        delegate: Optional[QueuedDBWriterDelegate] = None
+    ):
         """init.
         TODO: Fill blank
 
@@ -63,11 +90,14 @@ class QueuedDBWriter(DBWriter):
         self.cycle_count = cycle_count
         self.cycle_time = datetime.timedelta(seconds=cycle_time)
 
-        self.connection = None
+        self.tls_connection = threading.local()
         self.timeout = None
 
         # 接続再試行
-        self.retry_connect = None
+        self.retry_connect_timeout = None
+
+        self.delegate = delegate
+        self.write_count = 0
 
     # override
     async def store(self, message_box: 'MessageBox', message: ModuleMessage) -> bool:
@@ -76,36 +106,31 @@ class QueuedDBWriter(DBWriter):
 
         storeはシリアライズされているんだっけ???
         """
-
         if not self.timeout:
-            self.write_count = 0
             self.timeout = self.loop.add_timeout(self.cycle_time, self.on_timeout)
-
         try:
-            if not self.connection:
-                await self.connect_to_database()
-
+            # if not self.connection:
+            #     await self.connect_to_database()
             await self.store_message(message_box, message)
         except DatabaseWriteFailed:
-            logger.exception('store failed. while connection')
+            # logger.exception('store failed. while connection')
+            logger.error('store failed. while connection')
+
+            # 失敗したので
+            if not self.retry_connect_timeout:
+                self.retry_connect_timeout = self.loop.add_timeout(RETRY_TIMEOUT, self.reconncet)
 
             # 失敗したので後始末
-            print('1')
-            try:
-                print('2')
-                await self.cleanup_database()
-                print('3')
-            except:
-                import traceback
+            await self.cleanup_database()
 
-                print('-=-=-=-=-=-=-=')
-                traceback.print_exc()
-                print('3')
             return False
+        except:  # noqa
+            logger.exception('Uncatched exception')
+            raise
 
         return True
 
-    async def commit(self, flush_all=False):
+    async def flush(self, flush_all=False):
         """commit.
         TODO: Fill blank
 
@@ -117,16 +142,25 @@ class QueuedDBWriter(DBWriter):
     @run_on_executor
     def connect_to_database(self):
         """DBにつなぐ"""
-        assert self.connection is None
-        self.connection = self.database.connect()
+        connection = getattr(self.tls_connection, 'connection', None)
+        if connection:
+            connection.close()
+        connection = self.database.connect()
+        self.tls_connection.connection = connection
 
     @run_on_executor
-    def cleanup_database_sync(self, rollback):
-        self.write_count = None
+    def cleanup_database_sync(self):
+        if self.timeout:
+            self.loop.remove_timeout(self.timeout)
+            self.timeout = None
 
-        if self.connection:
-            self.connection.close()
-            self.connection = None
+        connection = getattr(self.tls_connection, 'connection', None)
+        if connection:
+            try:
+                connection.close()
+            except sqlalchemy.exc.DatabaseError:
+                pass
+        self.tls_connection = threading.local()
 
     @run_on_executor
     def flush_timed_db(self, flush_all=False):
@@ -153,11 +187,21 @@ class QueuedDBWriter(DBWriter):
         if self.timeout:
             self.loop.remove_timeout(self.timeout)
             self.timeout = None
-        self.write_count = None
+        self.write_count = 0
 
     @run_on_executor
     def store_message(self, message_box, message):
-        assert self.connection is not None
+        connection = getattr(self.tls_connection, 'connection', None)
+        if not connection:
+            try:
+                connection = self.database.connect()
+            except sqlalchemy.exc.DatabaseError as exc:
+                logger.error('Failed to connect database')
+                raise DatabaseWriteFailed(exc)
+            except Exception as exc:  # noqa
+                logger.error('Uncatched exception, whie connecting to database')
+                raise DatabaseWriteFailed(exc)
+            self.tls_connection.connection = connection
 
         if self.updates:
             if message.timestamp < self.updates[-1][1]:
@@ -166,19 +210,35 @@ class QueuedDBWriter(DBWriter):
                     self.updates[-1][1]
                 )
 
-        self.database.store_message(message_box, message, connection=self.connection)
+        self.database.store_message(message_box, message, connection=connection)
         self.updates.append((message.box_id, message.timestamp))
         self.write_count += 1
 
     # private
-    async def cleanup_database(self, rollback=True):
+    async def cleanup_database(self):
         if self.timeout:
             self.loop.remove_timeout(self.timeout)
             self.timeout = None
 
-        await self.cleanup_database_sync(rollback)
+        await self.cleanup_database_sync()
 
     async def on_timeout(self):
         """タイムアウト."""
         self.timeout = None
         await self.flush_timed_db()
+
+    async def reconncet(self):
+        self.retry_connect_timeout = None
+
+        try:
+            await self.connect_to_database()
+        except (DatabaseWriteFailed, sqlalchemy.exc.DatabaseError):
+            logger.info('Reconnect failed, retry after %r secs', RETRY_TIMEOUT)
+            self.retry_connect_timeout = self.loop.add_timeout(RETRY_TIMEOUT, self.reconncet)
+            return
+        except:  # noqa
+            logger.exception('Uncatched error while reconnect')
+        else:
+            logger.info('Database reconnected')
+            if self.delegate:
+                await self.delegate.on_reconnect()

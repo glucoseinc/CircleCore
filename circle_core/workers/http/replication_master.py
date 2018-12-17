@@ -20,14 +20,15 @@ S->M: "circle_core_updated" cmd
 ```
 
 """
+import asyncio
 import enum
 import json
 import logging
 import threading
+from typing import NewType, Optional, Union
 import uuid
 
 from click import get_current_context
-from tornado import gen
 from tornado.ioloop import IOLoop
 from tornado.web import HTTPError
 from tornado.websocket import WebSocketHandler
@@ -45,21 +46,20 @@ from ...models.message_box import MessageBox
 
 logger = logging.getLogger(__name__)
 
-NotInitialized = object()
-
 
 class SyncState(object):
+    box: MessageBox
+    master_head: ModuleMessagePrimaryKey
+    slave_head: Optional[ModuleMessagePrimaryKey]
 
-    def __init__(self, box, master_head):
+    def __init__(self, box: MessageBox, master_head: ModuleMessagePrimaryKey):
         self.box = box
         self.master_head = master_head
-        self.slave_head = NotInitialized
+        self.slave_head = None
 
     def is_synced(self):
-        if self.slave_head is NotInitialized:
+        if self.slave_head is None:
             raise RuntimeError('sync state\'s slave status is not initialized.')
-        if self.master_head is NotInitialized:
-            raise RuntimeError('sync state\'s master status is not initialized.')
         return self.slave_head == self.master_head
 
     def __repr__(self):
@@ -83,7 +83,7 @@ class ReplicationMasterHandler(WebSocketHandler):
         self.replication_link = ReplicationLink.query.get(link_uuid)
 
         if not self.replication_link:
-            logger.warning('ReplicationLink %s/%s was not found. Connection close.', module_uuid, mbox_uuid)
+            logger.warning('ReplicationLink %s was not found. Connection close.', link_uuid)
             self.close(
                 code=WebsocketStatusCode.NOT_FOUND.value, reason='ReplicationLink {} was not found.'.format(link_uuid)
             )
@@ -105,8 +105,7 @@ class ReplicationMasterHandler(WebSocketHandler):
     def get_core(self):
         return self.application.settings['_core']
 
-    @gen.coroutine
-    def on_message(self, plain_msg):
+    async def on_message(self, plain_msg):
         """センサーからメッセージが送られてきた際に呼ばれる.
 
         {command: command from slave, ...payload}
@@ -124,7 +123,7 @@ class ReplicationMasterHandler(WebSocketHandler):
         handler = getattr(self, 'on_slave_' + command.value)
 
         try:
-            yield handler(json_msg)
+            await handler(json_msg)
         except ReplicationError as exc:
             self.close(code=WebsocketStatusCode.VIOLATE_POLICY.value, reason=str(exc))
 
@@ -149,8 +148,7 @@ class ReplicationMasterHandler(WebSocketHandler):
         raw = json.dumps(msg)
         return self.write_message(raw)
 
-    @gen.coroutine
-    def on_slave_hello(self, json_msg):
+    async def on_slave_hello(self, json_msg):
         """hello コマンドが送られてきた"""
         assert self.state == ReplicationState.HANDSHAKING
         self.state = ReplicationState.MIGRATING
@@ -172,7 +170,7 @@ class ReplicationMasterHandler(WebSocketHandler):
             cc_info.update_from_json(slave_info)
             MetaDataSession.add(cc_info)
 
-        yield self.send_migrate()
+        await self.send_migrate()
 
     def send_migrate(self):
         """共有対象のMessageBox関連データを配る"""
@@ -189,8 +187,7 @@ class ReplicationMasterHandler(WebSocketHandler):
             schemas=dict((str(obj.uuid), obj.to_json()) for obj in schemas),
         )
 
-    @gen.coroutine
-    def on_slave_migrated(self, json_msg):
+    async def on_slave_migrated(self, json_msg):
         """Slave側の受け入れ準備が整ったら送られてくる
 
         headsがslaveの最新データなのでそれ以降のデータを送る"""
@@ -203,7 +200,7 @@ class ReplicationMasterHandler(WebSocketHandler):
         # save slave head
         heads = json_msg.get('heads', {})
         for box in self.replication_link.message_boxes:
-            sync_state = self.sync_states[box.uuid]
+            sync_state = self.sync_states.get(box.uuid)
             sync_state.slave_head = ModuleMessagePrimaryKey.from_json(heads.get(str(box.uuid)))
             logger.debug('box: %s, slave head: %r', box.uuid, self.sync_states[box.uuid].slave_head)
 
@@ -211,15 +208,16 @@ class ReplicationMasterHandler(WebSocketHandler):
 
         self.syncing = True
         while True:
-            all_synced = yield self.sync()
+            logger.debug('syncing...')
+            all_synced = await self.sync()
             if all_synced:
                 break
-            yield gen.moment
-        # logger.debug('all sync completed')
+            await asyncio.sleep(0.1)
+        logger.debug('all synced')
         self.syncing = False
 
-    @gen.coroutine
-    def sync(self):
+    async def sync(self):
+        """master<>slave間で全boxを同期させようと試みる"""
         all_synced = True
         database = self.get_core().get_database()
         conn = database.connect()
@@ -231,18 +229,23 @@ class ReplicationMasterHandler(WebSocketHandler):
             #     'sync message box %s: from %s to %s', box.uuid,
             #     sync_state.slave_head,
             #     sync_state.master_head)
+            count_messages = 0
             for message in database.enum_messages(box, head=self.sync_states[box.uuid].slave_head, connection=conn):
                 logger.debug('sync message %s', message)
-                yield self._send_command(MasterCommand.SYNC_MESSAGE, message=message.to_json())
+                await self._send_command(MasterCommand.SYNC_MESSAGE, message=message.to_json())
                 sync_state.slave_head = message.primary_key
+                count_messages += 1
+            if count_messages == 0:
+                # messageが0個の場合...
+                logger.debug('%r has no messages!!', box.uuid)
 
             # logger.debug('  sync to %s', sync_state.slave_head)
-
+            logger.debug('%r -> is_sycned %r', box.uuid, sync_state.is_synced())
             if not sync_state.is_synced():
                 all_synced = False
 
         conn.close()
-        raise gen.Return(all_synced)
+        return all_synced
 
     # Hub
     def on_new_message(self, topic, jsonobj):
@@ -257,13 +260,13 @@ class ReplicationMasterHandler(WebSocketHandler):
 
         try:
             if not sync_state.is_synced():
+                # boxがまだsync中であればnew_messageは無視する。syncの方で同期されるはずなので
                 logger.debug('skip message %s, because not synced', message)
                 logger.debug(
                     '  master %s, slave %s', self.sync_states[message.box_id].master_head,
                     self.sync_states[message.box_id].slave_head
                 )
             else:
-                assert not self.syncing
                 sync_state.slave_head = message.primary_key
 
                 # pass to slave

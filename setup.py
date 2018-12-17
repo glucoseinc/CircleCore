@@ -15,7 +15,7 @@ install_requires = [
     'nnpy==1.4.2',
     'python-dateutil',
     'sqlalchemy>=1.1.4',
-    'typing_extension'
+    'typing-extensions',
     'tornado',
     'websocket-client',
     'whisper==1.1.2',

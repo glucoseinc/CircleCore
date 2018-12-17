@@ -1,8 +1,10 @@
 from .base import DBWriter
 from .journal_writer import JournalDBWriter
-from .queued_writer import QueuedDBWriter
-
+from .queued_writer import QueuedDBWriter, QueuedDBWriterDelegate
 
 __all__ = (
-    'DBWriter', 'JournalDBWriter', 'QueuedDBWriter'
+    'DBWriter',
+    'JournalDBWriter',
+    'QueuedDBWriter',
+    'QueuedDBWriterDelegate',
 )

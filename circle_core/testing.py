@@ -14,8 +14,8 @@ def setup_db():
             with MetaDataSession.begin():
                 MetaDataSession.add(own_cc_info)
 
-    # engine = sqlalchemy.create_engine('sqlite:///:memory:')
-    engine = sqlalchemy.create_engine('sqlite:///test.sqlite3')
+    engine = sqlalchemy.create_engine('sqlite:///:memory:')
+    # engine = sqlalchemy.create_engine('sqlite:///test.sqlite3')
     MetaDataBase.metadata.create_all(engine)
     MetaDataSession.configure(bind=engine)
     create_own_cc_info()

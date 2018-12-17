@@ -2,6 +2,7 @@
 """センサデータを受け取って保存するCircleModule"""
 
 # system module
+import asyncio
 from collections import defaultdict
 from datetime import datetime
 import logging
@@ -9,8 +10,6 @@ import threading
 import time
 import typing
 from uuid import UUID
-
-from six import PY3
 
 # project module
 from circle_core.constants import RequestType
@@ -77,16 +76,16 @@ class DataReceiverWorker(CircleWorker):
 
     def finalize(self):
         """override"""
-        self.writer.commit(flush_all=True)
+        asyncio.get_event_loop().run_until_complete(self.writer.flush(flush_all=True))
 
-    def on_new_message(self, request):
+    async def on_new_message(self, request):
         """新しいメッセージを受けとった"""
         box_id = request['box_id']
         payload = request['payload']
 
-        self.receive_new_message(box_id, payload)
+        await self.receive_new_message(box_id, payload)
 
-    def receive_new_message(self, box_id, payload):
+    async def receive_new_message(self, box_id, payload):
         try:
             message_box = self.find_message_box(box_id)
         except MessageBoxNotFoundError:
@@ -101,7 +100,7 @@ class DataReceiverWorker(CircleWorker):
             )
             return {'response': 'failed', 'message': 'schema not match'}
 
-        msg = self.store_message(message_box, payload)
+        msg = await self.store_message(message_box, payload)
         message = msg.to_json()
         response = {'response': 'message_accepted', 'message': message}
 
@@ -114,7 +113,7 @@ class DataReceiverWorker(CircleWorker):
     def on_change_messagebox(self, what, target):
         """metadataのmessageboxが更新されたら呼ばれる"""
         if what == 'after_delete':
-            self.writer.commit()
+            tornado.ioloop.IOLoop.current().run_sync(self.writer.flush)
 
     def find_message_box(self, box_id):
         # DBに直接触っちゃう
@@ -125,10 +124,10 @@ class DataReceiverWorker(CircleWorker):
 
         return box
 
-    def store_message(self, message_box, payload):
+    async def store_message(self, message_box, payload):
         # make primary key
         msg = self.make_primary_key(message_box, payload)
-        self.writer.store(message_box, msg)
+        await self.writer.store(message_box, msg)
 
         return msg
 

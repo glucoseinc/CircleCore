@@ -2,6 +2,7 @@
 """nanomsgのラッパー."""
 
 # system module
+import asyncio
 import json
 import logging
 
@@ -81,19 +82,24 @@ class Receiver(object):
         :param FunctionType callback:
         """
 
-        def call_callback(*args):
+        def call_callback_receiver(*args):
             # TODO: topicを設定している場合、違うTopicのパケットがきてもpollが反応するのでdontwaitにしてチェックしないといけないかも
             try:
                 raw = self._socket.recv()
                 plain_msg = raw.decode('utf-8')
                 topic, message = plain_msg[:TOPIC_LENGTH], plain_msg[TOPIC_LENGTH:]
                 message = json.loads(message)
-                callback(topic, message)
+                rv = callback(topic, message)
+
+                if asyncio.iscoroutine(rv):
+                    # fire and forget
+                    asyncio.ensure_future(rv)
+
             except Exception:
                 import traceback
                 traceback.print_exc()
 
-        IOLoop.current().add_handler(self, call_callback, IOLoop.READ)
+        IOLoop.current().add_handler(self, call_callback_receiver, IOLoop.READ)
 
 
 class Sender(object):
@@ -152,7 +158,7 @@ class Replier(object):
         """
         self._socket.close()
 
-    async def recv(self) -> RawMessage:
+    def recv(self) -> RawMessage:
         """受信."""
         raw = self._socket.recv()
         return cast(RawMessage, json.loads(raw.decode('utf-8')))
@@ -179,12 +185,18 @@ class Replier(object):
         :param Callable callback:
         """
 
-        async def call_callback(*args):
+        def call_callback_replier(*args):
             try:
-                msg = await self.recv()
+                msg = self.recv()
             except Exception as exc:
-                await callback(None, exc)
+                # await callback(None, exc)
+                rv = callback(None, exc)
             else:
-                await callback(msg, None)
+                # await callback(msg, None)
+                rv = callback(msg, None)
 
-        IOLoop.current().add_handler(self, call_callback, IOLoop.READ)
+            if asyncio.iscoroutine(rv):
+                # fire and forget
+                asyncio.ensure_future(rv)
+
+        IOLoop.current().add_handler(self, call_callback_replier, IOLoop.READ)
