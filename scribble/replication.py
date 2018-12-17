@@ -28,9 +28,7 @@ def main(master_dir, slave_dir):
     master_db_url = 'mysql+pymysql://root@localhost/crcr_test_master'
     slave_db_url = 'mysql+pymysql://root@localhost/crcr_test_slave'
 
-    counter_py = os.path.abspath(
-        os.path.join(circle_core.__package__, os.pardir, 'sample', 'sensor_counter.py')
-    )
+    counter_py = os.path.abspath(os.path.join(circle_core.__package__, os.pardir, 'sample', 'sensor_counter.py'))
     assert os.path.exists(counter_py)
 
     # MetaDataSessionがシングルトンなのでCliRunnerを使うとslaveもmasterも同じmetadata.sqliteを読んでしまう
@@ -69,25 +67,23 @@ skip_build = on
     result = subprocess.run(['crcr', 'module', 'add', '--name', 'counterbot'], check=True, stdout=subprocess.PIPE)
     module_uuid = re.search(r'^Module "([0-9A-Fa-f-]+)" is added\.$', result.stdout.decode(), re.MULTILINE).group(1)
 
-    result = subprocess.run(
-        ['crcr', 'schema', 'add', '--name', 'counterbot', 'count:int', 'body:string'],
-        check=True,
-        stdout=subprocess.PIPE
-    )
+    result = subprocess.run(['crcr', 'schema', 'add', '--name', 'counterbot', 'count:int', 'body:string'],
+                            check=True,
+                            stdout=subprocess.PIPE)
     schema_uuid = re.search(r'^Schema "([0-9A-Fa-f-]+)" is added\.$', result.stdout.decode(), re.MULTILINE).group(1)
 
     # run master
-    result = subprocess.run(
-        ['crcr', 'box', 'add', '--name', 'counterbot', '--schema', schema_uuid, '--module', module_uuid],
-        check=True,
-        stdout=subprocess.PIPE
-    )
+    result = subprocess.run([
+        'crcr', 'box', 'add', '--name', 'counterbot', '--schema', schema_uuid, '--module', module_uuid
+    ],
+                            check=True,
+                            stdout=subprocess.PIPE)
     box_uuid = re.search(r'^MessageBox "([0-9A-Fa-f-]+)" is added\.$', result.stdout.decode(), re.MULTILINE).group(1)
     table_name = 'message_box_{}'.format(b58encode(UUID(box_uuid).bytes).decode('latin1'))
 
-    result = subprocess.run(
-        ['crcr', 'replication_link', 'add', '--name', 'slave1', '--all-boxes'], check=True, stdout=subprocess.PIPE
-    )
+    result = subprocess.run(['crcr', 'replication_link', 'add', '--name', 'slave1', '--all-boxes'],
+                            check=True,
+                            stdout=subprocess.PIPE)
     link_uuid = re.search(r'^Replication Link "([0-9A-Fa-f-]+)" is added\.$', result.stdout.decode(),
                           re.MULTILINE).group(1)
 
@@ -95,19 +91,17 @@ skip_build = on
     running_master = subprocess.Popen(['crcr', '--debug', 'run'])
     sleep(1)
 
-    bot = subprocess.Popen(
-        [
-            sys.executable,
-            counter_py,
-            '--box-id',
-            box_uuid,
-            '--to',
-            request_socket_url,
-            '--interval',
-            '0.2',
-            '--silent',
-        ],
-    )
+    bot = subprocess.Popen([
+        sys.executable,
+        counter_py,
+        '--box-id',
+        box_uuid,
+        '--to',
+        request_socket_url,
+        '--interval',
+        '0.2',
+        '--silent',
+    ],)
 
     # masterにデータを注入
     # masterのメッセージボックスが空の状態でレプリケーションを始めると以降受信したメッセージがslaveに転送されない
@@ -118,9 +112,8 @@ skip_build = on
 
     # データが投入されているかチェック
     assert (
-        create_engine(master_db_url).connect().execute(
-            'SELECT _created_at, _counter FROM {}'.format(table_name)
-        ).fetchall()
+        create_engine(master_db_url).connect().execute('SELECT _created_at, _counter FROM {}'.format(table_name)
+                                                      ).fetchall()
     )
 
     # slave
@@ -152,10 +145,10 @@ skip_build = on
 """.format(db_url=slave_db_url, slave_dir=slave_dir)
         )
 
-    subprocess.run(
-        ['crcr', 'replication_master', 'add', '--endpoint', 'ws://localhost:5001/replication/{}'.format(link_uuid)],
-        check=True
-    )
+    subprocess.run([
+        'crcr', 'replication_master', 'add', '--endpoint', 'ws://localhost:5001/replication/{}'.format(link_uuid)
+    ],
+                   check=True)
 
     running_slave = subprocess.Popen(['crcr', '--debug', 'run'])
 

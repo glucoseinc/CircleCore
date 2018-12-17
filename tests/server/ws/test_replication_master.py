@@ -64,31 +64,26 @@ class DummyReplicationMaster(WebSocketHandler):
     def on_message(self, plain_msg):
         json_msg = json.loads(plain_msg)
         if json_msg['command'] == 'MIGRATE':
-            res = json.dumps(
-                {
-                    'crcr_uuid':
-                    '61b55e35-d769-429f-a464-9efe14a2d573',
-                    'schemas': [
-                        Schema(
-                            '3038b66a-9ebd-4f1b-8ca6-6281e004bb76', 'DummySchema', [{
-                                'name': 'hoge',
-                                'type': 'text'
-                            }]
-                        ).to_json()
-                    ],
-                    'message_boxes': [
-                        MessageBox(
-                            '9168d87f-72cc-4dff-90d5-ad30e3e28958', '3038b66a-9ebd-4f1b-8ca6-6281e004bb76', 'DummyBox'
-                        ).to_json()
-                    ],
-                    'modules': [
-                        Module(
-                            'f0c5da15-d1f3-43b9-bbc0-423a6d5bcd8f', ['9168d87f-72cc-4dff-90d5-ad30e3e28958'],
-                            'DummyModule'
-                        ).to_json()
-                    ]
-                }
-            )
+            res = json.dumps({
+                'crcr_uuid':
+                '61b55e35-d769-429f-a464-9efe14a2d573',
+                'schemas': [
+                    Schema('3038b66a-9ebd-4f1b-8ca6-6281e004bb76', 'DummySchema', [{
+                        'name': 'hoge',
+                        'type': 'text'
+                    }]).to_json()
+                ],
+                'message_boxes': [
+                    MessageBox(
+                        '9168d87f-72cc-4dff-90d5-ad30e3e28958', '3038b66a-9ebd-4f1b-8ca6-6281e004bb76', 'DummyBox'
+                    ).to_json()
+                ],
+                'modules': [
+                    Module(
+                        'f0c5da15-d1f3-43b9-bbc0-423a6d5bcd8f', ['9168d87f-72cc-4dff-90d5-ad30e3e28958'], 'DummyModule'
+                    ).to_json()
+                ]
+            })
             self.write_message(res)
 
 
@@ -97,13 +92,9 @@ class DummyReplicationMaster(WebSocketHandler):
 class TestReplicationMaster(AsyncHTTPTestCase):
 
     def get_app(self):
-        return Application(
-            [
-                ('/replication/', DummyReplicationMaster),
-                ('/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', ReplicationMaster),
-                ('/module/(?P<module_uuid>[0-9A-Fa-f-]+)', ModuleHandler)
-            ]
-        )
+        return Application([('/replication/', DummyReplicationMaster),
+                            ('/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', ReplicationMaster),
+                            ('/module/(?P<module_uuid>[0-9A-Fa-f-]+)', ModuleHandler)])
 
     def get_protocol(self):
         return 'ws'
@@ -219,17 +210,15 @@ class TestReplicationMaster(AsyncHTTPTestCase):
         db._engine.execute(table.insert(), _created_at=now, _counter=0, hoge=123)
         db._engine.execute(table.insert(), _created_at=now, _counter=1, hoge=678)
 
-        req = json.dumps(
-            {
-                'command': 'RECEIVE',
-                'payload': {
-                    '316720eb-84fe-43b3-88b7-9aad49a93220': {
-                        'timestamp': str(now),
-                        'count': 0
-                    }
+        req = json.dumps({
+            'command': 'RECEIVE',
+            'payload': {
+                '316720eb-84fe-43b3-88b7-9aad49a93220': {
+                    'timestamp': str(now),
+                    'count': 0
                 }
             }
-        )
+        })
         yield self.dummy_crcr.write_message(req)
         resp = yield self.dummy_crcr.read_message()
         resp = json.loads(resp)
@@ -245,17 +234,15 @@ class TestReplicationMaster(AsyncHTTPTestCase):
         db._engine.execute(table.insert(), _created_at=past, _counter=0, hoge=234)
         db._engine.execute(table.insert(), _created_at=now, _counter=0, hoge=789)
 
-        req = json.dumps(
-            {
-                'command': 'RECEIVE',
-                'payload': {
-                    '316720eb-84fe-43b3-88b7-9aad49a93220': {
-                        'timestamp': str(past),
-                        'count': 0
-                    }
+        req = json.dumps({
+            'command': 'RECEIVE',
+            'payload': {
+                '316720eb-84fe-43b3-88b7-9aad49a93220': {
+                    'timestamp': str(past),
+                    'count': 0
                 }
             }
-        )
+        })
         yield self.dummy_crcr.write_message(req)
         resp = yield self.dummy_crcr.read_message()
         resp = json.loads(resp)
@@ -271,17 +258,15 @@ class TestReplicationMaster(AsyncHTTPTestCase):
         db._engine.execute(table.insert(), _created_at=past, _counter=1, hoge=345)
         db._engine.execute(table.insert(), _created_at=now, _counter=0, hoge=543)
 
-        req = json.dumps(
-            {
-                'command': 'RECEIVE',
-                'payload': {
-                    '316720eb-84fe-43b3-88b7-9aad49a93220': {
-                        'timestamp': str(past),
-                        'count': 1
-                    }
+        req = json.dumps({
+            'command': 'RECEIVE',
+            'payload': {
+                '316720eb-84fe-43b3-88b7-9aad49a93220': {
+                    'timestamp': str(past),
+                    'count': 1
                 }
             }
-        )
+        })
         yield self.dummy_crcr.write_message(req)
         resp = yield self.dummy_crcr.read_message()
         resp = json.loads(resp)
@@ -311,12 +296,11 @@ class TestReplicationMaster(AsyncHTTPTestCase):
         Thread(target=start_dummy_slave).start()
         yield sleep(1)
 
-        req = json.dumps(
-            {
-                'command': 'MIGRATE',
-                'module_uuids': ['8e654793-5c46-4721-911e-b9d19f0779f9', 'f0c5da15-d1f3-43b9-bbc0-423a6d5bcd8f']
-            }
-        )
+        req = json.dumps({
+            'command':
+            'MIGRATE',
+            'module_uuids': ['8e654793-5c46-4721-911e-b9d19f0779f9', 'f0c5da15-d1f3-43b9-bbc0-423a6d5bcd8f']
+        })
         yield self.dummy_crcr.write_message(req)
         res = yield self.dummy_crcr.read_message()
         res = json.loads(res)

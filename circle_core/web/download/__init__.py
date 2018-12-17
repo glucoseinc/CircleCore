@@ -3,3 +3,5 @@
 
 from . import views
 from .download import download
+
+__all__ = ('views', 'download')

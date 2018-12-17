@@ -2,31 +2,33 @@
 """CLI Box."""
 
 # system module
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 # community module
 import click
-from click.core import Context
-from six import PY3
 
 # project module
-from .context import CLIContextObject
 from .utils import output_listing_columns, output_properties
-from ..models import generate_uuid, MessageBox, MetaDataSession, Module, NoResultFound, Schema
+from ..models import MessageBox, MetaDataSession, Module, NoResultFound, Schema, generate_uuid
 
-if PY3:
-    from typing import List, Optional, Tuple
+if TYPE_CHECKING:
+    from typing import List, Tuple
+
+    from click.core import Context
+
+    from .utils import TableData, TableHeader
 
 
 @click.group('box')
-def cli_box():
+def cli_box() -> None:
     """`crcr box`の起点."""
     pass
 
 
 @cli_box.command('list')
 @click.pass_context
-def box_list(ctx):
+def box_list(ctx: 'Context') -> None:
     """登録中のメッセージボックス一覧を表示する.
 
     :param Context ctx: Context
@@ -39,28 +41,29 @@ def box_list(ctx):
         click.echo('No message boxes are registered.')
 
 
-def _format_for_columns(message_boxes):
+def _format_for_columns(message_boxes: 'List[MessageBox]') -> 'Tuple[TableData, TableHeader]':
     """メッセージボックスリストを表示用に加工する.
 
-    :param List[MessageBox] message_boxes: メッセージボックスリスト
-    :return: data: 加工後のメッセージボックスリスト, header: 見出し
-    :rtype: Tuple[List[List[str]], List[str]]
+    Args:
+        message_boxes: メッセージボックスリスト
+    Return:
+        data: 加工後のメッセージボックスリスト, header: 見出し
     """
     header = ['UUID', 'DISPLAY_NAME']
-    data = []  # type: List[List[str]]
+    data: 'TableData' = []
     for message_box in message_boxes:
         display_name = message_box.display_name
-        data.append([
+        data.append((
             str(message_box.uuid),
             display_name,
-        ])
+        ))
     return data, header
 
 
 @cli_box.command('detail')
 @click.argument('message_box_uuid', type=UUID)
 @click.pass_context
-def box_detail(ctx, message_box_uuid):
+def box_detail(ctx: 'Context', message_box_uuid):
     """モジュールの詳細を表示する.
 
     :param Context ctx: Context
@@ -89,7 +92,7 @@ def box_detail(ctx, message_box_uuid):
 @click.option('module_uuid', '--module', type=UUID, required=True)
 @click.option('--memo')
 @click.pass_context
-def box_add(ctx, display_name, schema_uuid, module_uuid, memo):
+def box_add(ctx: 'Context', display_name, schema_uuid, module_uuid, memo):
     """メッセージボックスを登録する.
 
     :param Context ctx: Context
@@ -127,7 +130,7 @@ def box_add(ctx, display_name, schema_uuid, module_uuid, memo):
 @cli_box.command('remove')
 @click.argument('message_box_uuid', type=UUID)
 @click.pass_context
-def box_remove(ctx, message_box_uuid):
+def box_remove(ctx: 'Context', message_box_uuid):
     """モジュールを削除する.
 
     :param Context ctx: Context

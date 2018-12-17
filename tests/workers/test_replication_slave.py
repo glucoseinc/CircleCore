@@ -100,37 +100,29 @@ class TestReplicationSlave:
             def on_message(self, message):
                 msg = json.loads(message)
                 if msg == {'command': 'MIGRATE'}:
-                    res = json.dumps(
-                        {
-                            'crcr_uuid':
-                            '1f479ba2-5642-41bf-8661-f52abb09e5b5',
-                            'modules': [
-                                {
-                                    'uuid': '8e654793-5c46-4721-911e-b9d19f0779f9',
-                                    'message_box_uuids': ['316720eb-84fe-43b3-88b7-9aad49a93220'],
-                                    'display_name': 'DummyModule',
-                                    'tags': 'foo,bar'
-                                }
-                            ],
-                            'message_boxes': [
-                                {
-                                    'uuid': '316720eb-84fe-43b3-88b7-9aad49a93220',
-                                    'display_name': 'DummyMessageBox',
-                                    'schema_uuid': '44ae2fd8-52d0-484d-9a48-128b07937a0a'
-                                }
-                            ],
-                            'schemas': [
-                                {
-                                    'uuid': '44ae2fd8-52d0-484d-9a48-128b07937a0a',
-                                    'display_name': 'DummySchema',
-                                    'properties': [{
-                                        'name': 'hoge',
-                                        'type': 'int'
-                                    }]
-                                }
-                            ]
-                        }
-                    )
+                    res = json.dumps({
+                        'crcr_uuid':
+                        '1f479ba2-5642-41bf-8661-f52abb09e5b5',
+                        'modules': [{
+                            'uuid': '8e654793-5c46-4721-911e-b9d19f0779f9',
+                            'message_box_uuids': ['316720eb-84fe-43b3-88b7-9aad49a93220'],
+                            'display_name': 'DummyModule',
+                            'tags': 'foo,bar'
+                        }],
+                        'message_boxes': [{
+                            'uuid': '316720eb-84fe-43b3-88b7-9aad49a93220',
+                            'display_name': 'DummyMessageBox',
+                            'schema_uuid': '44ae2fd8-52d0-484d-9a48-128b07937a0a'
+                        }],
+                        'schemas': [{
+                            'uuid': '44ae2fd8-52d0-484d-9a48-128b07937a0a',
+                            'display_name': 'DummySchema',
+                            'properties': [{
+                                'name': 'hoge',
+                                'type': 'int'
+                            }]
+                        }]
+                    })
                     self.write_message(res)
 
         self.run_dummy_server(DummyReplicationMaster)
@@ -169,17 +161,15 @@ class TestReplicationSlave:
                 req = json.loads(req)
                 if req['command'] == 'RECEIVE':
                     for count in range(10):
-                        resp = json.dumps(
-                            {
-                                'module_uuid': '8e654793-5c46-4721-911e-b9d19f0779f9',
-                                'box_id': '316720eb-84fe-43b3-88b7-9aad49a93220',
-                                'timestamp': now,
-                                'count': count,
-                                'payload': {
-                                    'hoge': 123
-                                }
+                        resp = json.dumps({
+                            'module_uuid': '8e654793-5c46-4721-911e-b9d19f0779f9',
+                            'box_id': '316720eb-84fe-43b3-88b7-9aad49a93220',
+                            'timestamp': now,
+                            'count': count,
+                            'payload': {
+                                'hoge': 123
                             }
-                        )
+                        })
                         self.write_message(resp)
 
                     raise RuntimeError('This exception is used to stop DummyReplicationMaster.')

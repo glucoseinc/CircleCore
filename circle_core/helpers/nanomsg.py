@@ -5,19 +5,19 @@
 import asyncio
 import json
 import logging
+import typing
+from typing import Awaitable, Callable, cast
 
 # community module
 import nnpy
+
 from tornado.ioloop import IOLoop
 
 # project module
 from .topics import TOPIC_LENGTH
 
 # type annotation
-try:
-    import typing
-    from typing import Any, Awaitable, Callable, Dict, cast
-except ImportError:
+if typing.TYPE_CHECKING:
     pass
 
 __all__ = (

@@ -4,18 +4,18 @@
 import asyncio
 import json
 import logging
-import uuid
 import typing
+import uuid
 
 # community module
 from tornado import httpclient
-from tornado.websocket import websocket_connect, WebSocketClientConnection, WebSocketError
+from tornado.websocket import WebSocketError, websocket_connect
 
 # project module
 from circle_core.constants import MasterCommand, ReplicationState, SlaveCommand, WebsocketStatusCode
 from circle_core.exceptions import ReplicationError
 from circle_core.message import ModuleMessage, ModuleMessagePrimaryKey
-from circle_core.models import CcInfo, MessageBox, MetaDataSession, Module, NoResultFound, ReplicationMaster, Schema
+from circle_core.models import CcInfo, MessageBox, MetaDataSession, Module, NoResultFound, Schema
 
 if typing.TYPE_CHECKING:
     from typing import Dict, Optional
@@ -47,10 +47,10 @@ class Replicator(object):
     :param SlaveDriverWorker driver:
     :param ReplicationMaster master:
     :param Optional[WebSocketClientConnection] ws:
-    :param Optional[Dict[uuid.UUID, MessageBox]] target_boxes:
     :param bool closed:
     :param str endpoint_url:
     """
+    target_boxes: 'Optional[Dict[uuid.UUID, MessageBox]]'
     writer: 'Optional[QueuedDBWriter]'
 
     def __init__(self, driver, master, request_options=None):

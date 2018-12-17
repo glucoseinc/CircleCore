@@ -1,18 +1,18 @@
 # -*- coding:utf-8 -*-
 """WebUI Utilities."""
 
+from typing import TYPE_CHECKING
+
 # community module
 from flask import current_app, request
-from flask.json import _dump_arg_defaults, _json, JSONEncoder as BaseJSONEncoder, text_type
+from flask.json import JSONEncoder as BaseJSONEncoder, _dump_arg_defaults, _json, text_type
 
 # project module
 from circle_core.constants import CRScope
 
 # type annotation
-try:
-    from typing import Callable
-except ImportError:
-    pass
+if TYPE_CHECKING:
+    from typing import Any, Callable
 
 
 class JSONEncoder(BaseJSONEncoder):
@@ -41,7 +41,7 @@ def api_jsonify(*args, **kwargs):
     )
 
 
-def oauth_require_read_users_scope(f):
+def oauth_require_read_users_scope(f: 'Callable[..., Any]'):
     """user情報の読み込みが行えるScopeデコレータ.
 
     :param Callable f: Function
@@ -50,7 +50,7 @@ def oauth_require_read_users_scope(f):
     return oauth.require_oauth(CRScope.USER_R.value, CRScope.USER_RW.value)(f)
 
 
-def oauth_require_write_users_scope(f):
+def oauth_require_write_users_scope(f: 'Callable[..., Any]'):
     """user情報の変更が行えるScopeデコレータ.
 
     :param Callable f: Function
@@ -59,7 +59,7 @@ def oauth_require_write_users_scope(f):
     return oauth.require_oauth(CRScope.USER_RW.value)(f)
 
 
-def oauth_require_read_schema_scope(f):
+def oauth_require_read_schema_scope(f: 'Callable[..., Any]'):
     """(User以外の）メタデータを読むだけのScopeデコレータ.
 
     :param Callable f: Function
@@ -68,7 +68,7 @@ def oauth_require_read_schema_scope(f):
     return oauth.require_oauth(CRScope.SCHEMA_R.value, CRScope.SCHEMA_RW.value)(f)
 
 
-def oauth_require_write_schema_scope(f):
+def oauth_require_write_schema_scope(f: 'Callable[..., Any]'):
     """(User以外の）メタデータを読み書きするためのScopeデコレータ.
 
     :param Callable f: Function

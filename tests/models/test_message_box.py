@@ -13,11 +13,9 @@ class TestMessageBox(object):
     def setup_class(cls):
         setup_db()
 
-    @pytest.mark.parametrize(
-        ('_input', 'expected'), [
-            (dict(display_name='MessageBox', memo='memo'), dict(display_name='MessageBox', memo='memo')),
-        ]
-    )
+    @pytest.mark.parametrize(('_input', 'expected'), [
+        (dict(display_name='MessageBox', memo='memo'), dict(display_name='MessageBox', memo='memo')),
+    ])
     def test_message_box(self, _input, expected):
         schema = Schema.create(display_name='Schema', properties='x:int,y:float')
         module = Module.create(display_name='Module')
@@ -48,14 +46,12 @@ class TestMessageBox(object):
         assert schema.display_name == jsonobj['schema']['displayName']
         assert module.display_name == jsonobj['module']['displayName']
 
-    @pytest.mark.parametrize(
-        ('_input', 'expected'), [
-            (
-                dict(displayName='MessageBoxUpdate', memo='memoUpdate'),
-                dict(display_name='MessageBoxUpdate', memo='memoUpdate')
-            ),
-        ]
-    )
+    @pytest.mark.parametrize(('_input', 'expected'), [
+        (
+            dict(displayName='MessageBoxUpdate', memo='memoUpdate'),
+            dict(display_name='MessageBoxUpdate', memo='memoUpdate')
+        ),
+    ])
     def test_update_from_json(self, _input, expected):
         schema = Schema.create(display_name='Schema', properties='x:int,y:float')
         module = Module.create(display_name='Module')

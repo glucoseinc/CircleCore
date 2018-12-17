@@ -5,10 +5,11 @@
 import logging
 
 # community module
-from flask import Blueprint, request, Response
+from flask import Blueprint, Response, request
 
 # project module
 from circle_core.models import NoResultFound, User
+
 from ..app import check_login
 
 download = Blueprint('download', __name__)

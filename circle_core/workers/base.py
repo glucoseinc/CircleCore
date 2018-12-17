@@ -3,16 +3,17 @@
 import abc
 import typing
 import weakref
+from typing import Any, Callable, Mapping, NewType, TYPE_CHECKING
 
-if typing.TYPE_CHECKING:
-    from cirlce_core.app import CircleCore
+if TYPE_CHECKING:
+    from cirlce_core.app import CircleCore  # noqa
 
-WorkerType = typing.NewType('WorkerType', str)
-WorkerKey = typing.NewType('WorkerKey', str)
-WorkerConfig = typing.Mapping[str, typing.Any]
-WorkerFactory = typing.Callable[['CircleCore', WorkerType, WorkerKey, WorkerConfig], 'CircleWorker']
+WorkerType = NewType('WorkerType', str)
+WorkerKey = NewType('WorkerKey', str)
+WorkerConfig = Mapping[str, Any]
+WorkerFactory = Callable[['CircleCore', WorkerType, WorkerKey, WorkerConfig], 'CircleWorker']
 
-worker_factories: typing.Dict[WorkerKey, WorkerFactory] = {}
+worker_factories: typing.Dict[WorkerType, WorkerFactory] = {}
 
 
 def register_worker_factory(type):
@@ -25,7 +26,7 @@ def register_worker_factory(type):
     return _f
 
 
-def make_worker(core, type, key, config):
+def make_worker(core: 'CircleCore', type: WorkerType, key: WorkerKey, config: WorkerConfig) -> 'CircleWorker':
     return worker_factories[type](core, type, key, config)
 
 

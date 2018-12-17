@@ -2,34 +2,35 @@
 """CLI Module."""
 
 # system module
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 # community module
 import click
 from click.core import Context
-from six import PY3
 
 # project module
-from .context import CLIContextObject
-from .utils import output_listing_columns, output_properties
-from ..models import generate_uuid, MetaDataSession, NoResultFound, ReplicationMaster
+from .utils import output_listing_columns
+from ..models import MetaDataSession, ReplicationMaster
 
-if PY3:
-    from typing import List, Optional, Tuple
+if TYPE_CHECKING:
+    from typing import List, Tuple
+
+    from .utils import TableData, TableHeader
 
 
 @click.group('replication_master')
-def cli_replication_master():
+def cli_replication_master() -> None:
     """`crcr master`の起点."""
     pass
 
 
 @cli_replication_master.command('list')
 @click.pass_context
-def list_replication_masters(ctx):
+def list_replication_masters(ctx: 'Context') -> None:
     """登録中のモジュール一覧を表示する.
 
-    :param Context ctx: Context
+    Args:
+        ctx: Context
     """
     objects = ReplicationMaster.query.all()
     if len(objects):
@@ -39,26 +40,26 @@ def list_replication_masters(ctx):
         click.echo('No replication masters are registered.')
 
 
-def _format_for_columns(objects):
-    """モジュールリストを表示用に加工する.
+def _format_for_columns(objects: 'List[ReplicationMaster]') -> 'Tuple[TableData, TableHeader]':
+    """ReplicationMasterリストを表示用に加工する.
 
-    :param List[Module] modules: モジュールリスト
-    :return: data: 加工後のモジュールリスト, header: 見出し
-    :rtype: Tuple[List[List[str]], List[str]]
+    Args:
+        objects: ReplicationMaster list
+
+    Return:
+        data: 加工後のモジュールリスト, header: 見出し
     """
     header = ['ENDPOINT']
-    data = []  # type: List[List[str]]
+    data: 'TableData' = []
     for obj in objects:
-        data.append([
-            obj.endpoint_url,
-        ])
+        data.append((obj.endpoint_url,))
     return data, header
 
 
 @cli_replication_master.command('add')
 @click.option('endpoint', '--endpoint', required=True)
 @click.pass_context
-def add_replication_master(ctx, endpoint):
+def add_replication_master(ctx: 'Context', endpoint: str) -> None:
     """共有マスターを登録する.
 
     :param Context ctx: Context

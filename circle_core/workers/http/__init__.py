@@ -9,12 +9,12 @@ from tornado.web import Application, FallbackHandler
 from tornado.wsgi import WSGIContainer
 
 # project module
-from circle_core.constants import RequestType
 from circle_core.exceptions import ConfigError
 from circle_core.web import create_app
+
 from .module_event import ModuleEventHandler
 from .replication_master import ReplicationMasterHandler
-from ..base import CircleWorker, register_worker_factory, WorkerType
+from ..base import CircleWorker, WorkerType, register_worker_factory
 
 logger = logging.getLogger(__name__)
 WORKER_HTTP = typing.cast(WorkerType, 'http')

@@ -4,19 +4,15 @@
 from __future__ import absolute_import
 
 # system module
-import datetime
-import logging
-import math
 import threading
-import time
 import uuid
-from typing import Any, Mapping, Optional, Generator, List, Optional, Union
+from typing import Any, Mapping, Optional
 
 # community module
 from base58 import b58encode
+
 import sqlalchemy as sa
 import sqlalchemy.exc
-from sqlalchemy.engine import Connection, Engine, Transaction
 from sqlalchemy.orm import sessionmaker
 
 # project module
@@ -43,7 +39,9 @@ class Database(object):
     :param Optional[int] _thread_id: Thread ID
     """
 
-    def __init__(self, database_url, time_db_dir, log_dir: Path, *, connect_args: Optional[Mapping[str, Any]] = None):
+    def __init__(
+        self, database_url: str, time_db_dir: Path, log_dir: Path, *, connect_args: Optional[Mapping[str, Any]] = None
+    ):
         """init.
 
         :param str database_url: DBのURL(RFC-1738準拠)

@@ -5,7 +5,6 @@
 import uuid
 
 # community module
-from six import string_types
 from sqlalchemy import String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
@@ -90,7 +89,7 @@ class StrListBase(TypeDecorator):
     def process_bind_param(self, value, dialect):
         if value is None:
             return value
-        elif isinstance(value, string_types):
+        elif isinstance(value, str):
             if self.delimiter in value:
                 raise ValueError('value includs delimiter {!r}'.format(self.delimiter))
             return value
@@ -127,7 +126,7 @@ class UUIDList(TypeDecorator):
     def process_bind_param(self, value, dialect):
         if value is None:
             return value
-        elif isinstance(value, string_types):
+        elif isinstance(value, str):
             if self.delimiter in value:
                 raise ValueError('value includs delimiter {!r}'.format(self.delimiter))
             return value
@@ -135,7 +134,7 @@ class UUIDList(TypeDecorator):
         elif hasattr(value, '__iter__'):
             x = []
             for v in value:
-                if isinstance(v, string_types):
+                if isinstance(v, str):
                     if self.delimiter in v:
                         raise ValueError('value includs delimiter {!r}'.format(self.delimiter))
                     v = uuid.UUID(v)

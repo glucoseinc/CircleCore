@@ -17,12 +17,10 @@ from circle_core.workers.http import ModuleEventHandler
 class TestModuleEventHandlerBase(AsyncHTTPTestCase):
 
     def get_app(self):
-        return Application(
-            [
-                (r'/modules/(?P<module_uuid>[0-9A-Fa-f-]+)/(?P<mbox_uuid>[0-9A-Fa-f-]+)', ModuleEventHandler),
-            ],
-            _core=self.app_mock
-        )
+        return Application([
+            (r'/modules/(?P<module_uuid>[0-9A-Fa-f-]+)/(?P<mbox_uuid>[0-9A-Fa-f-]+)', ModuleEventHandler),
+        ],
+                           _core=self.app_mock)
 
     def setUp(self):
         self.app_mock = MagicMock()

@@ -2,7 +2,7 @@ import datetime
 import math
 import threading
 from concurrent.futures import ThreadPoolExecutor
-from typing import List, Tuple, Optional, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING, Tuple
 
 import sqlalchemy.exc
 

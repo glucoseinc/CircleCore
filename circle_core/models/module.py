@@ -3,6 +3,7 @@
 
 # system module
 import datetime
+from typing import Any, Dict, Iterator, List, Optional, TYPE_CHECKING, Tuple, Union, cast
 
 # community module
 import sqlalchemy as sa
@@ -10,29 +11,55 @@ from sqlalchemy import orm
 from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
-from .base import generate_uuid, GUID, UUIDMetaDataBase
+from .base import GUID, UUIDMetaDataBase, generate_uuid
 from .message_box import MessageBox
 
 # type annotation
-try:
-    from typing import Dict, Iterator, List, Optional, Tuple, Union, TYPE_CHECKING
-    if TYPE_CHECKING:
-        from uuid import UUID
-except ImportError:
-    pass
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from mypy_extensions import TypedDict
+
+    class ModuleAttributeJson(TypedDict, total=True):
+        name: str
+        value: str
+
+    class ModuleJson(TypedDict, total=False):
+        uuid: str
+        ccUuid: str
+        messageBoxUuids: List[str]
+        displayName: str
+        tags: List[str]
+        attributes: List[ModuleAttributeJson]
+        memo: str
+        #
+        # messageBoxes: Optional[List[MessageBoxJson]]
+        messageBoxes: Optional[List[Dict[str, Any]]]
+        #
+        # ccInfo: CcInfoJson
+        ccInfo: Dict[str, Any]
+        isReplication: Optional[bool]
+
+    # recursive
+    # from .cc_info import CcInfoJson
+    from .message_box import MessageBoxJson  # noqa
 
 
 class ModuleAttribute(object):
     """ModuleAttribute.
 
-    :param str name: 属性名
-    :param str value: 属性値
+    Args:
+        name: 属性名
+        value: 属性値
     """
+    name: str
+    value: str
 
-    def __init__(self, name_and_value):
+    def __init__(self, name_and_value: Union[str, 'ModuleAttributeJson']):
         """init.
 
-        :param Union[Dict, str] name_and_value: 属性名と属性値
+        Args:
+            name_and_value: 属性名と属性値
         """
         if isinstance(name_and_value, str):
             if ':' not in name_and_value:
@@ -42,7 +69,7 @@ class ModuleAttribute(object):
             self.name = name_and_value['name']
             self.value = name_and_value['value']
 
-    def __str__(self):
+    def __str__(self) -> str:
         """str.
 
         :return: 文字列表現
@@ -50,11 +77,11 @@ class ModuleAttribute(object):
         """
         return '{}:{}'.format(self.name, self.value)
 
-    def to_json(self):
+    def to_json(self) -> 'ModuleAttributeJson':
         """このモデルのJSON表現を返す.
 
-        :return: JSON表現のDict
-        :rtype: Dict
+        Return:
+            JSON表現のDict
         """
         return {'name': self.name, 'value': self.value}
 
@@ -64,8 +91,12 @@ class ModuleAttributes(object):
 
     :param List[ModuleAttribute] _attributes: ModuleAttributeリスト
     """
+    _attributes: List[ModuleAttribute]
 
-    def __init__(self, name_and_values):
+    def __init__(
+        self, name_and_values:
+        'Union[str, Tuple[str, ...], Tuple[ModuleAttributeJson, ...], List[str], List[ModuleAttributeJson]]'
+    ):
         """init.
 
         :param Union[str, Tuple, List] name_and_values: 属性名と属性値
@@ -77,27 +108,27 @@ class ModuleAttributes(object):
         if isinstance(name_and_values, (tuple, list)):
             self._attributes = [ModuleAttribute(name_and_value) for name_and_value in name_and_values]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[ModuleAttribute]:
         """iter.
 
-        :return: イテレータ
-        :rtype: Iterator
+        Return:
+            イテレータ
         """
         return iter(self._attributes)
 
-    def __len__(self):
+    def __len__(self) -> int:
         """len.
 
-        :return: 長さ
-        :rtype: int
+        Return:
+            長さ
         """
         return len(self._attributes)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """str.
 
-        :return: 文字列表現
-        :rtype: str
+        Return:
+            文字列表現
         """
         return ','.join(str(attribute) for attribute in self._attributes)
 
@@ -105,19 +136,26 @@ class ModuleAttributes(object):
 class Module(UUIDMetaDataBase):
     """Moduleオブジェクト.
 
-    :param UUID uuid: Module UUID
-    :param UUID cc_uuid: owner CircleCore UUID
-    :param Optional[int] replication_master_id: ReplicationMaster ID
+    Attributes:
+        _tags: タグ
+        cc_uuid: owner CircleCore UUID
+        replication_master_id: ReplicationMaster ID
+        tags: タグ
+        uuid: Module UUID
     :param str display_name: 表示名
     :param str _attributes: 属性
     :param List[ModuleAttributes] attributes: 属性
-    :param str _tags: タグ
-    :param List[str] tags: タグ
     :param str memo: メモ
     :param datetime.datetime created_at: 作成日時
     :param datetime.datetime updated_at: 更新日時
     :param List[MessageBox] message_boxes: MessageBox
     """
+    _tags: str
+    cc_uuid: 'UUID'
+    message_boxes: List[MessageBox]
+    replication_master_id: Optional[int]
+    tags: List[str]
+    uuid: 'UUID'
 
     __tablename__ = 'modules'
 
@@ -138,12 +176,11 @@ class Module(UUIDMetaDataBase):
     message_boxes = orm.relationship('MessageBox', backref='module', cascade='all, delete-orphan')
 
     @classmethod
-    def create(cls, **kwargs):
+    def create(cls, **kwargs: Any) -> 'Module':
         """このモデルを作成する.
 
-        :param Dict kwargs: キーワード引数
-        :return: Moduleオブジェクト
-        :rtype: Module
+        Return:
+            Moduleオブジェクト
         """
         if 'uuid' not in kwargs:
             kwargs['uuid'] = generate_uuid(model=cls)
@@ -153,10 +190,8 @@ class Module(UUIDMetaDataBase):
 
         return cls(**kwargs)
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         """init.
-
-        :param Dict kwargs: キーワード引数
         """
         if 'attributes' in kwargs:
             attributes = kwargs['attributes']
@@ -167,7 +202,7 @@ class Module(UUIDMetaDataBase):
 
         super(Module, self).__init__(**kwargs)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """hash.
 
         :return: ハッシュ値
@@ -175,19 +210,19 @@ class Module(UUIDMetaDataBase):
         """
         return hash('{}:{!r}'.format(self.__class__.__name__, hash(self.uuid)))
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         """eq.
 
         :param Module other: other Module
         :return: equality
         :rtype: bool
         """
-        return all(
-            [
-                self.uuid == other.uuid, self.display_name == other.display_name, self.tags == other.tags,
-                self.memo == other.memo
-            ]
-        )
+        if not isinstance(other, Module):
+            return False
+        return all([
+            self.uuid == other.uuid, self.display_name == other.display_name, self.tags == other.tags,
+            self.memo == other.memo
+        ])
 
     @hybrid_property
     def tags(self):
@@ -247,16 +282,16 @@ class Module(UUIDMetaDataBase):
             attributes = ModuleAttributes(attributes)
         self._attributes = str(attributes)
 
-    def to_json(self, with_boxes=False, with_schema=False, with_cc_info=False):
+    def to_json(self, with_boxes: bool = False, with_schema: bool = False, with_cc_info: bool = False) -> 'ModuleJson':
         """このモデルのJSON表現を返す.
 
         :param bool with_boxes: 返り値にMessageBoxの情報を含めるか
         :param bool with_schema: 返り値にSchemaの情報を含めるか
         :param bool with_cc_info: 返り値にowner CircleCoreの情報を含めるか
-        :return: JSON表現のDict
-        :rtype: Dict
+        Return:
+            JSON表現のDict
         """
-        d = {
+        d: 'ModuleJson' = {
             'uuid': str(self.uuid),
             'ccUuid': str(self.cc_uuid),
             'messageBoxUuids': [str(box.uuid) for box in self.message_boxes],
@@ -267,9 +302,10 @@ class Module(UUIDMetaDataBase):
         }
 
         if with_boxes:
-            d['messageBoxes'] = [
-                box.to_json(with_schema=with_schema, with_slave_cc_infos=with_cc_info) for box in self.message_boxes
-            ]
+            d['messageBoxes'] = cast(
+                List[Dict[str, Any]],
+                [box.to_json(with_schema=with_schema, with_slave_cc_infos=with_cc_info) for box in self.message_boxes]
+            )
 
         if with_cc_info:
             d['ccInfo'] = self.cc_info.to_json()
@@ -277,11 +313,12 @@ class Module(UUIDMetaDataBase):
 
         return d
 
-    def update_from_json(self, jsonobj, with_boxes=False):
+    def update_from_json(self, jsonobj: 'ModuleJson', with_boxes: bool = False):
         """JSON表現からモデルを更新する.
 
-        :param Dict jsonobj: JSON表現のDict
-        :param bool with_boxes: MessageBoxも更新するか.
+        Args:
+            jsonobj: JSON表現のDict
+            with_boxes: MessageBoxも更新するか.
         """
         self.display_name = jsonobj.get('displayName', self.display_name)
         self.tags = jsonobj.get('tags', self.tags)
@@ -295,7 +332,7 @@ class Module(UUIDMetaDataBase):
 
             boxes = []
             # TODO: in queryとか使う
-            for box_data in jsonobj['messageBoxes']:
+            for box_data in cast('List[MessageBoxJson]', jsonobj['messageBoxes']):
                 box_uuid = box_data.get('uuid')
                 if not box_uuid:
                     box = MessageBox(

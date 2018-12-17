@@ -5,6 +5,7 @@
 import datetime
 import json
 import logging
+from typing import TYPE_CHECKING
 
 # community module
 import sqlalchemy as sa
@@ -14,10 +15,8 @@ from sqlalchemy import orm
 from ..base import GUID, MetaDataBase, MetaDataSession, StringList, TextList
 
 # type annotation
-try:
+if TYPE_CHECKING:
     from ..user import User
-except ImportError:
-    pass
 
 logger = logging.getLogger(__name__)
 REDIS_GRANT_KEY_PREFIX = '_oauth:grant:'
@@ -88,15 +87,13 @@ class OAuthGrant(MetaDataBase):
         :return: JSON表現
         :rtype: str
         """
-        return json.dumps(
-            {
-                'client_id': self.client_id,
-                'code': self.code,
-                'redirect_uri': self.redirect_uri,
-                'scopes': self.scopes,
-                'user': self.user,
-            }
-        )
+        return json.dumps({
+            'client_id': self.client_id,
+            'code': self.code,
+            'redirect_uri': self.redirect_uri,
+            'scopes': self.scopes,
+            'user': self.user,
+        })
 
     @classmethod
     def from_json(cls, data):
@@ -132,6 +129,7 @@ class OAuthToken(MetaDataBase):
     :param str user_id: The user object
     :param User user:
     """
+    user: 'User'
 
     __tablename__ = 'oauth_tokens'
 
@@ -166,16 +164,14 @@ class OAuthToken(MetaDataBase):
         :return: JSON表現
         :rtype: str
         """
-        return json.dumps(
-            {
-                'access_token': self.access_token,
-                'refresh_token': self.refresh_token,
-                'client_id': self.client_id,
-                'scopes': self.scopes,
-                'expires': self.expires.isoformat('T'),
-                'user': self.user,
-            }
-        )
+        return json.dumps({
+            'access_token': self.access_token,
+            'refresh_token': self.refresh_token,
+            'client_id': self.client_id,
+            'scopes': self.scopes,
+            'expires': self.expires.isoformat('T'),
+            'user': self.user,
+        })
 
     @classmethod
     def from_json(cls, data):

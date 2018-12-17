@@ -6,6 +6,7 @@ Create Date: 2017-02-13 22:06:15.685142
 
 """
 from alembic import op
+
 import sqlalchemy as sa
 from sqlalchemy.types import CHAR
 

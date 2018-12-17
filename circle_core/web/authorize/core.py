@@ -6,7 +6,8 @@ import datetime
 import logging
 
 # community module
-from flask import Blueprint, current_app, g, url_for
+from flask import Blueprint, g, url_for
+
 from flask_oauthlib.provider import OAuth2Provider
 
 # project module

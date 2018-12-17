@@ -3,18 +3,12 @@
 
 このModelだけMetadata関連ではないので、ディレクトリが適切ではない...
 """
-from collections import namedtuple
 import decimal
 import logging
-import re
 import time
 import uuid
+from collections import namedtuple
 
-from base58 import b58decode
-from click import get_current_context
-
-from .exceptions import MessageBoxNotFoundError, SchemaNotFoundError, SchemaNotMatchError
-from .models import Module, Schema
 from .utils import prepare_uuid
 
 message_timestamp_context = decimal.Context(16, decimal.ROUND_DOWN)

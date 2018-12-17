@@ -3,6 +3,7 @@
 
 # system module
 import datetime
+from typing import List, TYPE_CHECKING
 
 # community module
 import sqlalchemy as sa
@@ -12,19 +13,26 @@ from sqlalchemy import orm
 from .base import GUID, UUIDMetaDataBase
 
 # type annotation
-try:
-    from typing import Dict, List, TYPE_CHECKING
-    if TYPE_CHECKING:
-        from uuid import UUID
-        from .module import Module
-except ImportError:
-    pass
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from .module import Module
+
+    from mypy_extensions import TypedDict
+
+    class CcInfoJson(TypedDict, total=True):
+        uuid: str
+        displayName: str
+        work: str
+        myself: str
+        lastAccessedAt: str
 
 
 class CcInfo(UUIDMetaDataBase):
     """CircleCoreInfoオブジェクト.
 
-    :param UUID uuid: CcInfo UUID
+    Attributes:
+        uuid: CcInfo UUID
     :param str display_name: 表示名
     :param bool myself: 自分自身か
     :param str work: 所属
@@ -33,6 +41,8 @@ class CcInfo(UUIDMetaDataBase):
     :param int replication_master_id: ReplicationMasterオブジェクトのID
     :param List[Module] modules: Moduleリスト
     """
+    uuid: 'UUID'
+    modules: 'List[Module]'
 
     __tablename__ = 'cc_informations'
 
@@ -52,7 +62,7 @@ class CcInfo(UUIDMetaDataBase):
 
     modules = orm.relationship('Module', backref='cc_info')
 
-    def to_json(self):
+    def to_json(self) -> 'CcInfoJson':
         """このモデルのJSON表現を返す.
 
         :return: JSON表現のDict
@@ -67,7 +77,7 @@ class CcInfo(UUIDMetaDataBase):
             'lastAccessedAt': datetime.datetime.utcnow().isoformat('T') + 'Z',
         }
 
-    def update_from_json(self, jsonobj):
+    def update_from_json(self, jsonobj: 'CcInfoJson') -> None:
         """JSON表現からモデルを更新する.
 
         :param Dict jsonobj: JSON表現のDict

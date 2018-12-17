@@ -3,26 +3,26 @@
 
 # system module
 import collections
+from typing import TYPE_CHECKING
 
 # community module
 import click
+
 from sqlalchemy import inspect
 
 # project module
 from circle_core import models
 from circle_core.models import User
 from circle_core.models.base import UUIDMetaDataBase
+
 from .base import logger
 from .metadata_event_listener import MetaDataEventListener
 
 # type annotation
-try:
-    from typing import TYPE_CHECKING
-    if TYPE_CHECKING:
-        import io
-        from .app import CircleCore
-except ImportError:
-    pass
+if TYPE_CHECKING:
+    from typing import TextIO
+
+    from .app import CircleCore
 
 
 def get_current_user():
@@ -57,11 +57,14 @@ def get_current_user():
 class MetaDataEventLogger(object):
     """MetaDataEventLogger.
 
-    :param MetaDataEventListener listener: イベントリスナ
-    :param io.TextIOWrapper log_file: ログファイル
+    Attributes:
+        listener: イベントリスナ
+        log_file: ログファイル
     """
+    listener: MetaDataEventListener
+    log_file: 'TextIO'
 
-    def __init__(self, core, log_file_path):
+    def __init__(self, core: 'CircleCore', log_file_path: str):
         """init.
 
         :param CircleCore core: CircleCore Core

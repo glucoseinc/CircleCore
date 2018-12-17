@@ -21,27 +21,22 @@ S->M: "circle_core_updated" cmd
 
 """
 import asyncio
-import enum
 import json
 import logging
-import threading
-from typing import NewType, Optional, Union
 import uuid
+from typing import Optional
 
-from click import get_current_context
 from tornado.ioloop import IOLoop
-from tornado.web import HTTPError
 from tornado.websocket import WebSocketHandler
+
 from werkzeug import ImmutableDict
 
 from circle_core.constants import MasterCommand, ReplicationState, SlaveCommand, WebsocketStatusCode
 from circle_core.exceptions import ReplicationError
 from circle_core.message import ModuleMessage, ModuleMessagePrimaryKey
-from circle_core.models import CcInfo, MetaDataSession, NoResultFound, ReplicationLink, ReplicationSlave
-from ...exceptions import ModuleNotFoundError
-# from ...helpers.metadata import metadata
+from circle_core.models import CcInfo, MetaDataSession, ReplicationLink, ReplicationSlave
+
 from ...helpers import make_message_topic
-# from ...helpers.topics import ModuleMessageTopic
 from ...models.message_box import MessageBox
 
 logger = logging.getLogger(__name__)
@@ -91,10 +86,8 @@ class ReplicationMasterHandler(WebSocketHandler):
 
         database = self.get_core().get_database()
         self.state = ReplicationState.HANDSHAKING
-        self.sync_states = ImmutableDict(
-            (box.uuid, SyncState(box, database.get_latest_primary_key(box)))
-            for box in self.replication_link.message_boxes
-        )
+        self.sync_states = ImmutableDict((box.uuid, SyncState(box, database.get_latest_primary_key(box)))
+                                         for box in self.replication_link.message_boxes)
         self.syncing = False
         logger.debug('initial sync status: %s', self.sync_states)
 

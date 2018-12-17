@@ -12,6 +12,7 @@ from flask import abort, g, redirect, render_template, request, session, url_for
 from circle_core.constants import CRScope
 from circle_core.exceptions import AuthorizationError
 from circle_core.models import NoResultFound, User
+
 from .core import authorize, oauth
 from ..utils import api_jsonify
 

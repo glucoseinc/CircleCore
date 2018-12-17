@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 import uuid
+from typing import Optional
 
 # community module
 import dateutil.parser
@@ -35,7 +36,7 @@ def prepare_date(v):
     return v
 
 
-def format_date(v):
+def format_date(v: Optional[datetime.datetime]) -> Optional[str]:
     assert v is None or isinstance(v, datetime.datetime)
 
     if not v:
@@ -55,7 +56,7 @@ def portable_popen(cmd, *args, **kwargs):
     if exe is None:
         raise RuntimeError('Could not locate executable "%s"' % cmd[0])
 
-    if isinstance(exe, six.text_type):
+    if isinstance(exe, str):
         exe = exe.encode(sys.getfilesystemencoding())
     cmd[0] = exe
 

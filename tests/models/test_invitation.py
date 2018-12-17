@@ -11,11 +11,9 @@ class TestInvitation(object):
     def setup_class(cls):
         setup_db()
 
-    @pytest.mark.parametrize(
-        ('_input', 'expected'), [
-            (dict(max_invites=10), dict(max_invites=10, current_invites=0)),
-        ]
-    )
+    @pytest.mark.parametrize(('_input', 'expected'), [
+        (dict(max_invites=10), dict(max_invites=10, current_invites=0)),
+    ])
     def test_invitation(self, _input, expected):
         invitation = Invitation(uuid=generate_uuid(model=Invitation), **_input)
 

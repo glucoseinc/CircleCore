@@ -3,36 +3,52 @@
 
 # system module
 import datetime
+from typing import Optional, TYPE_CHECKING, Union, cast
 
 # community module
 import click
+
 from flask import url_for
+
 import sqlalchemy as sa
 
 # project module
 from circle_core.utils import format_date, prepare_date
+
 from .base import GUID, UUIDMetaDataBase
 
 # type annotation
-try:
-    from typing import Dict, Optional, Union, TYPE_CHECKING
-    if TYPE_CHECKING:
-        from uuid import UUID
-except ImportError:
-    pass
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from mypy_extensions import TypedDict
+
+    class InvitationJson(TypedDict, total=True):
+        uuid: str
+        url: str
+        maxInvites: int
+        currentInvites: int
+        createdAt: Optional[str]
 
 
 class Invitation(UUIDMetaDataBase):
     """User招待オブジェクト.
 
-    :param UUID uuid: Invitation UUID
-    :param int max_invites: 最大招待可能人数 0は無制限
-    :param int current_invites: 招待済人数
-    :param datetime.datetime created_at: 作成日時
-    :param datetime.datetime updated_at: 更新日時
+    Args:
+        uuid: Invitation UUID
+        max_invites: 最大招待可能人数 0は無制限
+        current_invites: 招待済人数
+        created_at: 作成日時
+        updated_at: 更新日時
     """
-
     __tablename__ = 'invitations'
+
+    uuid: 'UUID'
+    url: str
+    max_invites: int
+    current_invites: int
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
 
     uuid = sa.Column(GUID, primary_key=True)
     max_invites = sa.Column(sa.Integer, nullable=False, default=1)
@@ -43,16 +59,23 @@ class Invitation(UUIDMetaDataBase):
     )
 
     __mapper_args__ = {
-        'order_by': updated_at.desc(),
+        'order_by': updated_at.desc(),  # type: ignore
     }
 
-    def __init__(self, uuid, max_invites, current_invites=0, created_at=None):
+    def __init__(
+        self,
+        uuid: 'Union[str, UUID]',
+        max_invites: int,
+        current_invites: int = 0,
+        created_at: Optional[Union[str, datetime.datetime]] = None
+    ):
         """init.
 
-        :param Union[str, UUID] uuid: Invitation UUID
-        :param int max_invites: 招待可能人数. 0は無制限
-        :param int current_invites: 招待済人数
-        :param Optional[datetime.datetime] created_at: 作成日時
+        Args:
+            uuid: Invitation UUID
+            max_invites: 招待可能人数. 0は無制限
+            current_invites: 招待済人数
+            created_at: 作成日時
         """
         if isinstance(max_invites, str):
             max_invites = int(max_invites, 10)
@@ -66,7 +89,7 @@ class Invitation(UUIDMetaDataBase):
             uuid=uuid, max_invites=max_invites, current_invites=current_invites, created_at=created_at
         )
 
-    def can_invite(self):
+    def can_invite(self) -> bool:
         """この招待をつかって、さらにユーザを追加できるか.
 
         :return: 招待可否
@@ -74,20 +97,20 @@ class Invitation(UUIDMetaDataBase):
         """
         return self.current_invites < self.max_invites
 
-    def inc_invites(self):
+    def inc_invites(self) -> None:
         """招待完了数を増加させる."""
         self.current_invites += 1
 
     @property
-    def url(self):
+    def url(self) -> Optional[str]:
         """このCircleCoreでのInvitationのEndpointのURLを返す.
 
         :return: URL
         :rtype: str
         """
 
-        def build_url():
-            return url_for('public.invitation_endpoint', link_uuid=self.uuid, _external=True)
+        def build_url() -> str:
+            return cast(str, url_for('public.invitation_endpoint', link_uuid=self.uuid, _external=True))
 
         try:
             return build_url()
@@ -104,7 +127,7 @@ class Invitation(UUIDMetaDataBase):
                     return build_url()
         return None
 
-    def to_json(self):
+    def to_json(self) -> 'InvitationJson':
         """このモデルのJSON表現を返す.
 
         :return: JSON表現のDict
@@ -112,19 +135,21 @@ class Invitation(UUIDMetaDataBase):
         """
         return {
             'uuid': str(self.uuid),
-            'url': self.url,
+            'url': cast(str, self.url),
             'maxInvites': self.max_invites,
             'currentInvites': self.current_invites,
             'createdAt': format_date(self.created_at),
         }
 
     @classmethod
-    def from_json(cls, jsonobj):
+    def from_json(cls, jsonobj: 'InvitationJson') -> 'Invitation':
         """JSON表現からモデルを生成する.
 
-        :param Dict jsonobj: JSON表現のDict
-        :return: User招待オブジェクト
-        :rtype: Invitation
+        Args:
+            jsonobj: JSON表現のDict
+
+        Return:
+            User招待オブジェクト
         """
         return cls(
             jsonobj['uuid'], jsonobj['maxInvites'], jsonobj.get('currentInvites', 0), jsonobj.get('createdAt', None)

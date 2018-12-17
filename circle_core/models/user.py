@@ -3,9 +3,10 @@
 
 # system module
 import datetime
-from hashlib import sha512
 import random
 import string
+from hashlib import sha512
+from typing import Any, Dict, List, Optional, TYPE_CHECKING, cast
 
 # community module
 import sqlalchemy as sa
@@ -13,32 +14,49 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
 from circle_core.utils import format_date
-from .base import generate_uuid, GUID, UUIDMetaDataBase
+
+from .base import GUID, UUIDMetaDataBase, generate_uuid
 
 # type annotation
-try:
-    from typing import Dict, List, Optional, TYPE_CHECKING
-    if TYPE_CHECKING:
-        from uuid import UUID
-except ImportError:
-    pass
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from mypy_extensions import TypedDict
+
+    class UserJson(TypedDict, total=False):
+        uuid: str
+        account: str
+        work: str
+        mailAddress: str
+        telephone: str
+        permissions: List[str]
+        createdAt: str
+        updatedAt: str
+        lastAccessAt: Optional[str]
+        #
+        encryptedPassword: str
 
 
 class User(UUIDMetaDataBase):
     """Userオブジェクト.
 
-    :param UUID uuid: User UUID
+    Attributes:
+        last_access_at: 最終アクセス日時
+        permissions: 権限
+        uuid: User UUID
+        _permissions: 権限
     :param str account: アカウント名
-    :param str _permissions: 権限
-    :param List[str] permissions: 権限
     :param str work: 所属
     :param str mail_address: メールアドレス
     :param str telephone: 電話番号
     :param str encrypted_password: 暗号化パスワード
     :param datetime.datetime created_at: 作成日時
     :param datetime.datetime updated_at: 更新日時
-    :param Optional[datetime.datetime] last_access_at: 最終アクセス日時
     """
+    last_access_at: Optional[datetime.datetime]
+    uuid: 'UUID'
+    permissions: List[str]
+    _permissions: str
 
     __tablename__ = 'users'
 
@@ -56,7 +74,7 @@ class User(UUIDMetaDataBase):
     last_access_at = sa.Column(sa.DateTime, nullable=True)
 
     @classmethod
-    def create(cls, **kwargs):
+    def create(cls, **kwargs: Dict[str, Any]):
         """このモデルを作成する.
 
         :param Dict kwargs: キーワード引数
@@ -142,22 +160,22 @@ class User(UUIDMetaDataBase):
         self.check_password(new_password)
         self.encrypted_password = encrypt_password(new_password)
 
-    def to_json(self, full=False):
+    def to_json(self, full: bool = False) -> 'UserJson':
         """このモデルのJSON表現を返す.
 
         :param bool full: 全ての情報を含めるか
         :return: JSON表現のDict
         :rtype: Dict
         """
-        d = {
+        d: 'UserJson' = {
             'uuid': str(self.uuid),
             'account': self.account,
             'work': self.work,
             'mailAddress': self.mail_address,
             'telephone': self.telephone,
             'permissions': self.permissions,
-            'createdAt': format_date(self.created_at),
-            'updatedAt': format_date(self.updated_at),
+            'createdAt': cast(str, format_date(self.created_at)),
+            'updatedAt': cast(str, format_date(self.updated_at)),
             'lastAccessAt': format_date(self.last_access_at),
         }
         if full:
@@ -165,15 +183,14 @@ class User(UUIDMetaDataBase):
 
         return d
 
-    def update_from_json(self, jsonobj):
+    def update_from_json(self, jsonobj: Dict[str, Any]) -> None:
         """JSON表現からモデルを更新する.
 
-        :param Dict jsonobj: JSON表現のDict
+        Args:
+            jsonobj: JSON表現のDict
         """
-        for from_key, to_key in [
-            ('account', 'account'), ('mailAddress', 'mail_address'), ('work', 'work'), ('telephone', 'telephone'),
-            ('permissions', 'permissions')
-        ]:
+        for from_key, to_key in [('account', 'account'), ('mailAddress', 'mail_address'), ('work', 'work'),
+                                 ('telephone', 'telephone'), ('permissions', 'permissions')]:
             if from_key in jsonobj:
                 setattr(self, to_key, jsonobj[from_key])
 
@@ -181,7 +198,7 @@ class User(UUIDMetaDataBase):
             self.set_password(jsonobj['newPassword'])
 
 
-def encrypt_password(password, salt=None):
+def encrypt_password(password: str, salt: Optional[str] = None) -> str:
     """パスワードを暗号化する.
 
     :param str password:パスワード
@@ -198,7 +215,7 @@ def encrypt_password(password, salt=None):
     return '$6${}${}'.format(salt, hashed)
 
 
-def is_password_matched(test, encrypted):
+def is_password_matched(test: str, encrypted: str) -> bool:
     """平文パスワードが暗号化パスワードにマッチしているか.
 
     :param str test:平文パスワード

@@ -12,19 +12,17 @@ class TestModule(object):
     def setup_class(cls):
         setup_db()
 
-    @pytest.mark.parametrize(
-        ('_input', 'expected'), [
-            (
-                dict(displayName='Module', tags='tag1,tag2,tag3', attributes='attr1:val1,attr2:val2', memo='memo'),
-                dict(
-                    displayName='Module',
-                    tags=['tag1', 'tag2', 'tag3'],
-                    attributes=[('attr1', 'val1'), ('attr2', 'val2')],
-                    memo='memo'
-                )
-            ),
-        ]
-    )
+    @pytest.mark.parametrize(('_input', 'expected'), [
+        (
+            dict(displayName='Module', tags='tag1,tag2,tag3', attributes='attr1:val1,attr2:val2', memo='memo'),
+            dict(
+                displayName='Module',
+                tags=['tag1', 'tag2', 'tag3'],
+                attributes=[('attr1', 'val1'), ('attr2', 'val2')],
+                memo='memo'
+            )
+        ),
+    ])
     def test_module(self, _input, expected):
         module = Module.create()
 

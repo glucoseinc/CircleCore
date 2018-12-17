@@ -1,22 +1,29 @@
 # -*- coding: utf-8 -*-
 """WebUI."""
 
+from typing import TYPE_CHECKING
+
 # type annotation
-try:
-    from typing import TYPE_CHECKING
-    if TYPE_CHECKING:
-        from circle_core.core import CircleCore
-except ImportError:
-    pass
+if TYPE_CHECKING:
+    from typing import Optional
+
+    from circle_core.core import CircleCore
+
+    from .app import CCWebApp
 
 
-def create_app(core, base_url=None, ws_port=None, is_https=False):
+def create_app(
+    core: 'CircleCore', base_url: 'Optional[str]' = None, ws_port: 'Optional[int]' = None, is_https: 'bool' = False
+) -> 'CCWebApp':
     """App factory.
 
-    :param CircleCore core: CircleCore Core
-    :param str base_url: ベースURL
-    :param int ws_port: Websocket Port Number
-    :return: WebUI App
+    Args:
+        core: CircleCore Core
+        base_url: ベースURL
+        ws_port: Websocket Port Number
+
+    Return:
+        WebApp
     :rtype: CCWebApp
     """
     from .app import CCWebApp

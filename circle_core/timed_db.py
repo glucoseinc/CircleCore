@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """メッセージ数などを記録する時間別DBを管理する."""
-from collections import defaultdict
 import logging
 import os
 import threading
+from collections import defaultdict
 from typing import Dict
 
 import whisper

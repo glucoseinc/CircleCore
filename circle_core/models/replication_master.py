@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Replication Master Model."""
 
+from typing import List, TYPE_CHECKING
+
 # community module
 import sqlalchemy as sa
 from sqlalchemy import orm
@@ -8,26 +10,35 @@ from sqlalchemy import orm
 from .base import GUID, MetaDataBase
 
 # type annotation
-try:
-    from typing import Dict, List, TYPE_CHECKING
-    if TYPE_CHECKING:
-        from uuid import UUID
-        from .cc_info import CcInfo
-        from .module import Module
-except ImportError:
-    pass
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from mypy_extensions import TypedDict
+
+    from .cc_info import CcInfo
+    from .module import Module
+
+    class ReplicationMasterJson(TypedDict, total=True):
+        id: int
+        endpointUrl: str
 
 
 class ReplicationMaster(MetaDataBase):
     """ReplicationMasterオブジェクト.
     Slaveに公開するリンクを表現
 
-    :param int id: このオブジェクトの id
-    :param str endpoint_url: EndpointのURL
-    :param UUID master_uuid: ReplicationMaster UUID
-    :param CcInfo info: ReplicationMaster CcInfo
-    :param List[Module] modules: Moduleリスト
+    Args:
+        endpoint_url: EndpointのURL
+        id: このオブジェクトの id
+        info: ReplicationMaster CcInfo
+        master_uuid: ReplicationMaster UUID
+        modules: Moduleリスト
     """
+    endpoint_url: str
+    id: int
+    info: 'CcInfo'
+    master_uuid: 'UUID'
+    module: 'List[Module]'
 
     __tablename__ = 'replication_masters'
 
@@ -41,7 +52,7 @@ class ReplicationMaster(MetaDataBase):
 
     modules = orm.relationship('Module', backref='replication_master', cascade='all, delete-orphan')
 
-    def to_json(self):
+    def to_json(self) -> 'ReplicationMasterJson':
         """このモデルのJSON表現を返す.
 
         :return: JSON表現のDict

@@ -3,23 +3,21 @@
 
 # system module
 import asyncio
-from collections import defaultdict
-from datetime import datetime
 import logging
 import threading
-import time
 import typing
-from uuid import UUID
+from collections import defaultdict
 
 # project module
 from circle_core.constants import RequestType
 from circle_core.message import ModuleMessage
-from .base import CircleWorker, register_worker_factory, WorkerType
+
+from .base import CircleWorker, WorkerType, register_worker_factory
 from ..core.metadata_event_listener import MetaDataEventListener
 from ..database import Database
-from ..exceptions import MessageBoxNotFoundError, ModuleNotFoundError, SchemaNotFoundError
+from ..exceptions import MessageBoxNotFoundError
 from ..helpers.topics import make_message_topic
-from ..models import MessageBox, NoResultFound, Schema
+from ..models import MessageBox, NoResultFound
 
 logger = logging.getLogger(__name__)
 WORKER_DATARECEIVER = typing.cast(WorkerType, 'datareceiver')
@@ -113,7 +111,11 @@ class DataReceiverWorker(CircleWorker):
     def on_change_messagebox(self, what, target):
         """metadataのmessageboxが更新されたら呼ばれる"""
         if what == 'after_delete':
-            tornado.ioloop.IOLoop.current().run_sync(self.writer.flush)
+            if asyncio.get_event_loop().is_running():
+                logger.error('current loop is running')
+                asyncio.ensure_future(self.writer.flush())
+            else:
+                asyncio.get_event_loop().run_until_complete(self.writer.flush)
 
     def find_message_box(self, box_id):
         # DBに直接触っちゃう

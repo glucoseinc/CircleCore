@@ -2,25 +2,24 @@
 """CLI debug commands."""
 
 # system module
-import datetime
 import math
 import time
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 # community module
-from base58 import b58decode
 import click
+
 from dateutil import parser
-from six import PY3
 
 from circle_core.timed_db import TimedDBBundle
 
-if PY3:
+if TYPE_CHECKING:
     from typing import List, Tuple
 
 
 @click.group('debug')
-def cli_debug():
+def cli_debug() -> None:
     """`crcr debug`の起点."""
     pass
 
@@ -30,7 +29,7 @@ def cli_debug():
 @click.argument('dburl')
 @click.argument('table')
 @click.argument('end_date')
-def build_whisper(dir, dburl, table, end_date):
+def build_whisper(dir: str, dburl: str, table: str, end_date: str):
     import sqlalchemy as sa
 
     engine = sa.create_engine(dburl)
@@ -40,7 +39,7 @@ def build_whisper(dir, dburl, table, end_date):
     box_id = UUID(int=0)
 
     try:
-        end = int(end_date)
+        end = float(end_date)
     except ValueError:
         end = time.mktime(parser.parse(end_date).timetuple())
 
@@ -50,7 +49,7 @@ SELECT _created_at, _counter FROM `{table}` WHERE _created_at < {end} ORDER BY _
         table=table, end=end
     )
 
-    updates = []
+    updates: List[Tuple[UUID, float]] = []
     for _created_at, _counter in connection.execute(query):
         t = math.floor(_created_at)
 
@@ -71,7 +70,7 @@ SELECT _created_at, _counter FROM `{table}` WHERE _created_at < {end} ORDER BY _
 @click.argument('box_id')
 @click.argument('end_time', type=float)
 @click.argument('graph_range')
-def dump_whisper(dir, box_id, end_time, graph_range):
+def dump_whisper(dir, box_id: str, end_time: float, graph_range: str):
     from circle_core.web.api.modules import fetch_rickshaw_graph_data
 
     time_db_bundle = TimedDBBundle(dir)

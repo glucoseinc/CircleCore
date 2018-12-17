@@ -2,3 +2,5 @@
 """CircleCore Core."""
 
 from .app import CircleCore
+
+__all__ = ('CircleCore',)

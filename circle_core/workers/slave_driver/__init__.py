@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 """Master側のWebsocketの口とか、AdminのUIとか"""
-import asyncio
 import logging
 import typing
-
-import six
 
 # project module
 from circle_core.core.metadata_event_listener import MetaDataEventListener
 from circle_core.models import ReplicationMaster
+
 from .replicator import Replicator
-from ..base import CircleWorker, register_worker_factory, WorkerType
+from ..base import CircleWorker, WorkerType, register_worker_factory
 
 WORKER_SLAVE_DRIVER = typing.cast(WorkerType, 'slave_driver')
 logger = logging.getLogger(__name__)
@@ -50,7 +48,7 @@ class SlaveDriverWorker(CircleWorker):
         pass
 
     def finalize(self):
-        for replicator in six.itervalues(self.replicators):
+        for replicator in self.replicators.values():
             replicator.close()
 
     def start_replicator(self, master):

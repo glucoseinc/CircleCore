@@ -3,10 +3,12 @@
 
 # community module
 from flask import abort, request
+
 import sqlalchemy.exc
 
 # project module
 from circle_core.models import MetaDataSession, ReplicationMaster
+
 from .api import api
 from .utils import respond_failure, respond_success
 from ..utils import (oauth_require_read_schema_scope, oauth_require_write_schema_scope)

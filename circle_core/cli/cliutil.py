@@ -2,18 +2,15 @@
 """CLI utility commands."""
 
 # system module
-import datetime
 import time
 from uuid import UUID
 
 # community module
 from base58 import b58decode
-import click
-from dateutil import parser
-from six import PY3
 
-if PY3:
-    from typing import List, Tuple
+import click
+
+from dateutil import parser
 
 
 @click.group('util')
@@ -25,10 +22,11 @@ def cli_util():
 @cli_util.command('hex2uuid')
 @click.argument('hex')
 @click.pass_context
-def hex2uuid(ctx, hex):
+def hex2uuid(ctx: 'click.Context', hex: str) -> None:
     """base58表現をUUIDに変換する
 
-    :param Context ctx: Context
+    Args:
+        ctx: click's Context
     """
     uuid = UUID(bytes=b58decode(hex))
     click.echo('{}'.format(uuid))
@@ -37,10 +35,11 @@ def hex2uuid(ctx, hex):
 @cli_util.command('date2ts')
 @click.argument('date')
 @click.pass_context
-def date2ts(ctx, date):
+def date2ts(ctx: 'click.Context', date: str) -> None:
     """日付をunix timestampにする
 
-    :param Context ctx: Context
+    Args:
+        ctx: click's Context
     """
     ts = time.mktime(parser.parse(date).timetuple())
     click.echo('{}'.format(ts))
@@ -49,10 +48,11 @@ def date2ts(ctx, date):
 @cli_util.command()
 @click.argument('ts', type=int)
 @click.pass_context
-def ts2date(ctx, ts):
+def ts2date(ctx: 'click.Context', ts: int) -> None:
     """unix timestampを日付する
 
-    :param Context ctx: Context
+    Args:
+        ctx: click's Context
     """
     click.echo('UTC:   {}'.format(time.gmtime(ts)))
     click.echo('Local: {}'.format(time.localtime(ts)))

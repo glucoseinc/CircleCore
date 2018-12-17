@@ -3,9 +3,11 @@
 
 # system module
 import datetime
+from typing import Any, Dict, List, Optional, TYPE_CHECKING, Union
 
 # community module
 from flask import current_app, request
+
 import sqlalchemy as sa
 from sqlalchemy import orm
 
@@ -13,13 +15,26 @@ from sqlalchemy import orm
 from .base import GUID, MetaDataBase, UUIDMetaDataBase
 
 # type annotation
-try:
-    from typing import Dict, List, Optional, Union, TYPE_CHECKING
-    if TYPE_CHECKING:
-        from uuid import UUID
-        from .cc_info import CcInfo
-except ImportError:
-    pass
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from mypy_extensions import TypedDict
+
+    from .cc_info import CcInfo, CcInfoJson
+
+    class IdDict(TypedDict, total=True):
+        uuid: str
+
+    class ReplicationLinkJson(TypedDict, total=True):
+        uuid: str
+        displayName: str
+        memo: str
+        link: str
+        slaves: 'List[Union[IdDict, CcInfoJson]]'
+        # recursive
+        # messageBoxes: 'List[Union[IdDict, MessageBoxJson]]'
+        messageBoxes: List[Dict[str, Any]]
+
 
 replication_boxes_table = sa.Table(
     'replication_boxes',
@@ -32,12 +47,18 @@ replication_boxes_table = sa.Table(
 class ReplicationSlave(MetaDataBase):
     """ReplicationSlaveオブジェクト.
 
-    :param UUID link_uuid: ReplicationLink UUID
-    :param UUID slave_uuid: ReplicationSlave UUID
-    :param Optional[datetime.datetime] last_access_at: 最終アクセス日時
-    :param ReplicationLink link: ReplicationSlave UUID
-    :param CcInfo info: ReplicationSlave UUID
+    Args:
+        info: ReplicationSlave UUID
+        last_access_at: 最終アクセス日時
+        link: ReplicationSlave UUID
+        link_uuid: ReplicationLink UUID
+        slave_uuid: ReplicationSlave UUID
     """
+    info: 'CcInfo'
+    last_access_at: Optional[datetime.datetime]
+    link: 'ReplicationLink'
+    link_uuid: 'UUID'
+    slave_uuid: 'UUID'
 
     __tablename__ = 'replication_slaves'
     __table_args__ = (sa.PrimaryKeyConstraint('link_uuid', 'slave_uuid', name='replication_slaves_pk'),)
@@ -106,10 +127,8 @@ class ReplicationLink(UUIDMetaDataBase):
 
         return obj
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         """init.
-
-        :param Dict kwargs: キーワード引数
         """
         super(ReplicationLink, self).__init__(**kwargs)
 
@@ -156,15 +175,18 @@ class ReplicationLink(UUIDMetaDataBase):
                     return build_link()
         return None
 
-    def to_json(self, with_slaves=False, with_boxes=False, with_module=True, with_schema=True):
+    def to_json(
+        self, with_slaves: bool = False, with_boxes: bool = False, with_module: bool = True, with_schema: bool = True
+    ) -> 'ReplicationLinkJson':
         """このモデルのJSON表現を返す.
 
         :param bool with_slaves: 返り値にReplicationSlavesの情報を含めるか
         :param bool with_boxes: 返り値にMessageBoxの情報を含めるか
         :param bool with_module: 返り値にModuleの情報を含めるか
         :param bool with_schema: 返り値にSchemaの情報を含めるか
-        :return: JSON表現のDict
-        :rtype: Dict
+
+        Return:
+            JSON表現のDict
         """
         slaves = []
         for slave in self.slaves:
@@ -181,7 +203,7 @@ class ReplicationLink(UUIDMetaDataBase):
             else:
                 message_boxes.append(dict(uuid=box.uuid))
 
-        d = {
+        d: ReplicationLinkJson = {
             'uuid': str(self.uuid),
             # 'ccInfoUuids': [str(_uuid) for _uuid in self.cc_info_uuids],
             # 'messageBoxUuids': [str(_uuid) for _uuid in self.message_box_uuids],
