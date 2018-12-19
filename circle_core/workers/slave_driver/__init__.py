@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 """Master側のWebsocketの口とか、AdminのUIとか"""
 import logging
-
-import six
+import typing
 
 # project module
 from circle_core.core.metadata_event_listener import MetaDataEventListener
 from circle_core.models import ReplicationMaster
-from .replicator import Replicator
-from ..base import CircleWorker, register_worker_factory
 
-WORKER_SLAVE_DRIVER = 'slave_driver'
+from .replicator import Replicator
+from ..base import CircleWorker, WorkerType, register_worker_factory
+
+WORKER_SLAVE_DRIVER = typing.cast(WorkerType, 'slave_driver')
 logger = logging.getLogger(__name__)
 
 
@@ -19,7 +19,8 @@ def create_slave_driver(core, type, key, config):
     assert type == WORKER_SLAVE_DRIVER
 
     return SlaveDriverWorker(
-        core, key,
+        core,
+        key,
         ssl_validate_cert=config.getboolean('ssl_validate_cert', fallback=True),
     )
 
@@ -47,7 +48,7 @@ class SlaveDriverWorker(CircleWorker):
         pass
 
     def finalize(self):
-        for replicator in six.itervalues(self.replicators):
+        for replicator in self.replicators.values():
             replicator.close()
 
     def start_replicator(self, master):
@@ -60,7 +61,7 @@ class SlaveDriverWorker(CircleWorker):
         replicator.run()
 
     def stop_replicator(self, master):
-        replicator = self.replicators.pop(master.id)
+        replicator, future = self.replicators.pop(master.id)
         if replicator:
             logger.info('close replicator %r for %s', replicator, master.endpoint_url)
             replicator.close()

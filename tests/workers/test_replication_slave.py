@@ -33,7 +33,6 @@ from circle_core.models import Module, Schema
 # from circle_core.workers import replication_slave
 # from circle_core.workers.replication_slave import ReplicationSlave
 
-
 # class DummyMetadata(object):
 #     schemas = [Schema('95eef02e-36e5-446e-9fea-aedd10321f6f', 'json', [{'name': 'hoge', 'type': 'int'}])]
 #     message_boxes = [
@@ -65,6 +64,7 @@ from circle_core.models import Module, Schema
 @pytest.mark.skip(reason='rewriting...')
 @pytest.mark.usefixtures('class_wide_mysql')
 class TestReplicationSlave:
+
     @classmethod
     def setup_class(cls):
         replication_slave.get_uuid = lambda: '5c8fe778-1cb8-4a92-8f5d-588990a19def'
@@ -79,10 +79,9 @@ class TestReplicationSlave:
         self.thread.join()
 
     def run_dummy_server(self, replication_master):
+
         def run():
-            app = Application([
-                (r'/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', replication_master)
-            ])
+            app = Application([(r'/replication/(?P<slave_uuid>[0-9A-Fa-f-]+)', replication_master)])
             self.server = HTTPServer(app)
             self.server.listen(5001)
             IOLoop.current().start()
@@ -97,11 +96,13 @@ class TestReplicationSlave:
         DummyMetadata.database_url = self.mysql.url
 
         class DummyReplicationMaster(WebSocketHandler):
+
             def on_message(self, message):
                 msg = json.loads(message)
                 if msg == {'command': 'MIGRATE'}:
                     res = json.dumps({
-                        'crcr_uuid': '1f479ba2-5642-41bf-8661-f52abb09e5b5',
+                        'crcr_uuid':
+                        '1f479ba2-5642-41bf-8661-f52abb09e5b5',
                         'modules': [{
                             'uuid': '8e654793-5c46-4721-911e-b9d19f0779f9',
                             'message_box_uuids': ['316720eb-84fe-43b3-88b7-9aad49a93220'],
@@ -116,7 +117,10 @@ class TestReplicationSlave:
                         'schemas': [{
                             'uuid': '44ae2fd8-52d0-484d-9a48-128b07937a0a',
                             'display_name': 'DummySchema',
-                            'properties': [{'name': 'hoge', 'type': 'int'}]
+                            'properties': [{
+                                'name': 'hoge',
+                                'type': 'int'
+                            }]
                         }]
                     })
                     self.write_message(res)
@@ -124,9 +128,7 @@ class TestReplicationSlave:
         self.run_dummy_server(DummyReplicationMaster)
 
         slave = ReplicationSlave(DummyMetadata, 'localhost:5001', [])
-        req = json.dumps({
-            'command': 'MIGRATE'
-        })
+        req = json.dumps({'command': 'MIGRATE'})
         slave.ws.send(req)
         slave.migrate()
 
@@ -138,15 +140,12 @@ class TestReplicationSlave:
         db = Database(self.mysql.url)
         engine = create_engine(self.mysql.url)
         inspector = Inspector.from_engine(engine)
-        box = MessageBox('316720eb-84fe-43b3-88b7-9aad49a93220', '44ae2fd8-52d0-484d-9a48-128b07937a0a',
-                         'DummyMessageBox')
+        box = MessageBox(
+            '316720eb-84fe-43b3-88b7-9aad49a93220', '44ae2fd8-52d0-484d-9a48-128b07937a0a', 'DummyMessageBox'
+        )
         table_name = db.make_table_name_for_message_box(box)
         columns = inspector.get_columns(table_name)
-        types = {
-            '_created_at': DECIMAL,
-            '_counter': INTEGER,
-            'hoge': INTEGER
-        }
+        types = {'_created_at': DECIMAL, '_counter': INTEGER, 'hoge': INTEGER}
 
         # DBのテーブルが同期されているか
         for column in columns:
@@ -157,6 +156,7 @@ class TestReplicationSlave:
         now = time()
 
         class DummyReplicationMaster(WebSocketHandler):
+
             def on_message(self, req):
                 req = json.loads(req)
                 if req['command'] == 'RECEIVE':
@@ -177,9 +177,7 @@ class TestReplicationSlave:
         self.run_dummy_server(DummyReplicationMaster)
 
         slave = ReplicationSlave(DummyMetadata, 'localhost:5001', [])
-        req = json.dumps({
-            'command': 'RECEIVE'
-        })
+        req = json.dumps({'command': 'RECEIVE'})
         slave.ws.send(req)
         with pytest.raises(WebSocketConnectionClosedException):
             slave.receive()

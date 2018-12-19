@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """
 ダウンロードAPIサンプル.
 
@@ -27,28 +26,28 @@ def setup_basic_auth(uri, user, password):
 
 
 @click.command()
-@click.option('base_uri', '--url', type=click.STRING, required=True, default='http://127.0.0.1:8080/',
-              help='Base URL. (default: http://127.0.0.1:8080/)')
-@click.option('--user', type=click.STRING, required=True,
-              help='User name.')
-@click.option('--password', type=click.STRING, required=True,
-              help='User password.')
-@click.option('module_id', '--module-id', type=UUID, required=True,
-              help='Module UUID.')
-@click.option('box_id', '--box-id', type=UUID, required=True,
-              help='MessageBox UUID.')
-@click.option('--start', type=click.STRING,
-              help='Start date. (format: YYYYMMDD)')
-@click.option('--end', type=click.STRING,
-              help='End date. (format: YYYYMMDD)')
-@click.option('filename', '-o', '--output', type=click.STRING,
-              help='Output file name.')
+@click.option(
+    'base_uri',
+    '--url',
+    type=click.STRING,
+    required=True,
+    default='http://127.0.0.1:8080/',
+    help='Base URL. (default: http://127.0.0.1:8080/)'
+)
+@click.option('--user', type=click.STRING, required=True, help='User name.')
+@click.option('--password', type=click.STRING, required=True, help='User password.')
+@click.option('module_id', '--module-id', type=UUID, required=True, help='Module UUID.')
+@click.option('box_id', '--box-id', type=UUID, required=True, help='MessageBox UUID.')
+@click.option('--start', type=click.STRING, help='Start date. (format: YYYYMMDD)')
+@click.option('--end', type=click.STRING, help='End date. (format: YYYYMMDD)')
+@click.option('filename', '-o', '--output', type=click.STRING, help='Output file name.')
 def download(base_uri, user, password, module_id, box_id, start, end, filename):
     setup_basic_auth(base_uri, user, password)
 
     url = '{uri}/download/{module_id}/{box_id}/'.format(
         uri=base_uri,
-        module_id=module_id, box_id=box_id,
+        module_id=module_id,
+        box_id=box_id,
     )
     query = []
     if start:

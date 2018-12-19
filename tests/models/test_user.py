@@ -6,16 +6,31 @@ from circle_core.testing import setup_db
 
 
 class TestUser(object):
+
     @classmethod
     def setup_class(cls):
         setup_db()
 
     @pytest.mark.parametrize(('_input', 'expected'), [
-        (dict(account='admin', password='password_admin', _permissions='admin', work='work_admin',
-              mail_address='admin@test.test', telephone='1234567890'),
-         dict(account='admin', password='password_admin', password_no_match='password_no_match',
-              permissions=['admin'], work='work_admin',
-              mail_address='admin@test.test', telephone='1234567890')),
+        (
+            dict(
+                account='admin',
+                password='password_admin',
+                _permissions='admin',
+                work='work_admin',
+                mail_address='admin@test.test',
+                telephone='1234567890'
+            ),
+            dict(
+                account='admin',
+                password='password_admin',
+                password_no_match='password_no_match',
+                permissions=['admin'],
+                work='work_admin',
+                mail_address='admin@test.test',
+                telephone='1234567890'
+            )
+        ),
     ])
     def test_user(self, _input, expected):
         user = User.create(**_input)
@@ -50,12 +65,29 @@ class TestUser(object):
         assert user.encrypted_password == jsonobj['encryptedPassword']
 
     @pytest.mark.parametrize(('old', 'new', 'expected'), [
-        (dict(account='oldAccount', password='old_password', work='old_work',
-              mail_address='old@test.test', telephone='00000000000'),
-         dict(account='newAccount', newPassword='new_password', work='new_work',
-              mailAddress='new@test.test', telephone='99999999999'),
-         dict(account='newAccount', password='new_password', work='new_work',
-              mail_address='new@test.test', telephone='99999999999')),
+        (
+            dict(
+                account='oldAccount',
+                password='old_password',
+                work='old_work',
+                mail_address='old@test.test',
+                telephone='00000000000'
+            ),
+            dict(
+                account='newAccount',
+                newPassword='new_password',
+                work='new_work',
+                mailAddress='new@test.test',
+                telephone='99999999999'
+            ),
+            dict(
+                account='newAccount',
+                password='new_password',
+                work='new_work',
+                mail_address='new@test.test',
+                telephone='99999999999'
+            )
+        ),
     ])
     def test_update_from_json(self, old, new, expected):
         user = User.create(**old)

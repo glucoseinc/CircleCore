@@ -1,24 +1,37 @@
 # -*- coding: utf-8 -*-
 """workers. invoked by `crcr worker run <module_name>`."""
+import abc
+import typing
 import weakref
+from typing import Any, Callable, Mapping, NewType, TYPE_CHECKING
 
-worker_factories = {}
+if TYPE_CHECKING:
+    from cirlce_core.app import CircleCore  # noqa
+
+WorkerType = NewType('WorkerType', str)
+WorkerKey = NewType('WorkerKey', str)
+WorkerConfig = Mapping[str, Any]
+WorkerFactory = Callable[['CircleCore', WorkerType, WorkerKey, WorkerConfig], 'CircleWorker']
+
+worker_factories: typing.Dict[WorkerType, WorkerFactory] = {}
 
 
 def register_worker_factory(type):
+
     def _f(f):
         if type in worker_factories:
             raise ValueError('type {} is already registered')
         worker_factories[type] = f
+
     return _f
 
 
-def make_worker(core, type, key, config):
+def make_worker(core: 'CircleCore', type: WorkerType, key: WorkerKey, config: WorkerConfig) -> 'CircleWorker':
     return worker_factories[type](core, type, key, config)
 
 
-class CircleWorker(object):
-    worker_type = None
+class CircleWorker(metaclass=abc.ABCMeta):
+    worker_type: WorkerType
 
     def __init__(self, core, worker_key):
         self.core = weakref.proxy(core)

@@ -9,12 +9,10 @@ from circle_core.helpers.nanomsg import Receiver, Sender  # TODO: flake8-import-
 # from circle_core.models.message import ModuleMessageFactory
 from circle_core.models import MessageBox, Module, Schema
 
-
 # class DummyTopic(BaseTopic):
 #     def decode(self, plain_msg):
 #         payload = json.loads(plain_msg[TOPIC_LENGTH:])
 #         return [ModuleMessageFactory.new('8e654793-5c46-4721-911e-b9d19f0779f9', payload)]
-
 
 # class DummyMetadata(MetadataReader):
 #     schemas = [
@@ -47,6 +45,7 @@ from circle_core.models import MessageBox, Module, Schema
 
 @pytest.mark.skip(reason='rewriting...')
 class TestReceiver(object):
+
     @classmethod
     def setup_class(cls):
         message.metadata = DummyMetadata
@@ -63,16 +62,16 @@ class TestReceiver(object):
     @pytest.mark.skip()
     @pytest.mark.timeout(3)
     def test_json(self):
-        self.socket.send(DummyTopic().encode(
-            u'{"body": "I\'m in body", "_box": "316720eb-84fe-43b3-88b7-9aad49a93220"}')
+        self.socket.send(
+            DummyTopic().encode(u'{"body": "I\'m in body", "_box": "316720eb-84fe-43b3-88b7-9aad49a93220"}')
         )
         assert next(self.messages).payload == {u'body': u"I'm in body"}
 
     @pytest.mark.timeout(3)
     def test_multibyte_json(self):
-        self.socket.send(DummyTopic().encode(
-            u'{"鍵": "値", "_box": "e2ca248d-5300-4641-830f-97a4dae0d245"}'
-        ).encode('utf-8'))
+        self.socket.send(
+            DummyTopic().encode(u'{"鍵": "値", "_box": "e2ca248d-5300-4641-830f-97a4dae0d245"}').encode('utf-8')
+        )
         assert next(self.messages).payload == {u'鍵': u'値'}
 
     @pytest.mark.timeout(3)
@@ -92,6 +91,7 @@ class TestReceiver(object):
 
 @pytest.mark.skip(reason='rewriting...')
 class TestSender(object):
+
     @classmethod
     def setup_class(cls):
         cls.sender = Sender(DummyTopic())

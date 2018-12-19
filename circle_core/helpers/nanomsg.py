@@ -1,28 +1,34 @@
 # -*- coding: utf-8 -*-
-
 """nanomsgのラッパー."""
 
 # system module
+import asyncio
 import json
 import logging
+import typing
+from typing import Awaitable, Callable, cast
 
 # community module
 import nnpy
+
 from tornado.ioloop import IOLoop
 
 # project module
 from .topics import TOPIC_LENGTH
 
-
 # type annotation
-try:
-    from typing import Callable, Dict
-except ImportError:
+if typing.TYPE_CHECKING:
     pass
 
-
-__all__ = ('Receiver', 'Sender', 'Replier',)
+__all__ = (
+    'Receiver',
+    'Sender',
+    'Replier',
+)
 logger = logging.getLogger(__name__)
+
+RawMessage = typing.TypeVar('RawMessage')
+ReplierCallback = Callable[[RawMessage, Exception], Awaitable[None]]
 
 
 class Receiver(object):
@@ -75,19 +81,25 @@ class Receiver(object):
 
         :param FunctionType callback:
         """
-        def call_callback(*args):
+
+        def call_callback_receiver(*args):
             # TODO: topicを設定している場合、違うTopicのパケットがきてもpollが反応するのでdontwaitにしてチェックしないといけないかも
             try:
                 raw = self._socket.recv()
                 plain_msg = raw.decode('utf-8')
                 topic, message = plain_msg[:TOPIC_LENGTH], plain_msg[TOPIC_LENGTH:]
                 message = json.loads(message)
-                callback(topic, message)
+                rv = callback(topic, message)
+
+                if asyncio.iscoroutine(rv):
+                    # fire and forget
+                    asyncio.ensure_future(rv)
+
             except Exception:
                 import traceback
                 traceback.print_exc()
 
-        IOLoop.current().add_handler(self, call_callback, IOLoop.READ)
+        IOLoop.current().add_handler(self, call_callback_receiver, IOLoop.READ)
 
 
 class Sender(object):
@@ -127,6 +139,7 @@ class Sender(object):
 
 
 class Replier(object):
+
     def __init__(self, socket_url):
         """init.
 
@@ -145,12 +158,12 @@ class Replier(object):
         """
         self._socket.close()
 
-    def recv(self):
+    def recv(self) -> RawMessage:
         """受信."""
         raw = self._socket.recv()
-        return json.loads(raw.decode('utf-8'))
+        return cast(RawMessage, json.loads(raw.decode('utf-8')))
 
-    def send(self, payload):
+    def send(self, payload: RawMessage):
         """送信.
 
         :param Dict payload: payload
@@ -162,21 +175,28 @@ class Replier(object):
         """Tornadoに叩かれる."""
         return self._socket.getsockopt(nnpy.SOL_SOCKET, nnpy.RCVFD)
 
-    def close(self):
+    def close(self) -> None:
         """Tornadoに叩かれる."""
         self._socket.close()
 
-    def register_ioloop(self, callback):
+    def register_ioloop(self, callback: ReplierCallback):
         """TornadoのIOLoopにメッセージ受信時のコールバックを登録.
 
         :param Callable callback:
         """
-        def call_callback(*args):
+
+        def call_callback_replier(*args):
             try:
                 msg = self.recv()
             except Exception as exc:
-                callback(None, exc)
+                # await callback(None, exc)
+                rv = callback(None, exc)
             else:
-                callback(msg, None)
+                # await callback(msg, None)
+                rv = callback(msg, None)
 
-        IOLoop.current().add_handler(self, call_callback, IOLoop.READ)
+            if asyncio.iscoroutine(rv):
+                # fire and forget
+                asyncio.ensure_future(rv)
+
+        IOLoop.current().add_handler(self, call_callback_replier, IOLoop.READ)

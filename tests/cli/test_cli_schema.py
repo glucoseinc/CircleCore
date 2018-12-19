@@ -11,6 +11,7 @@ from tests import uuid_rex
 
 @pytest.mark.skip(reason='rewriting...')
 class TestCliSchema(object):
+
     @pytest.mark.usefixtures('clear_metadata')
     def test_schema(self):
         runner = CliRunner()
@@ -27,9 +28,7 @@ class TestCliSchema(object):
         assert mo is None, result.output
 
         # can add invitation
-        result = _call(
-            'schema', 'add',
-            '--name', 'schema_name', 'key:int')
+        result = _call('schema', 'add', '--name', 'schema_name', 'key:int')
         assert result.exit_code == 0
         mo = uuid_rex.search(result.output)
         assert mo is not None, result.output

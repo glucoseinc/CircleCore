@@ -10,7 +10,6 @@ from tornado.websocket import WebSocketHandler
 from circle_core.constants import WebsocketStatusCode
 from circle_core.models import MessageBox, NoResultFound
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -41,8 +40,10 @@ class ModuleEventHandler(WebSocketHandler):
             self.setup(module_uuid, mbox_uuid)
         except NoResultFound:
             logger.warning('Messagebox %s/%s was not found. Connection close.', module_uuid, mbox_uuid)
-            self.close(code=WebsocketStatusCode.NOT_FOUND.value,
-                       reason='Messagebox {}/{} was not found.'.format(module_uuid, mbox_uuid))
+            self.close(
+                code=WebsocketStatusCode.NOT_FOUND.value,
+                reason='Messagebox {}/{} was not found.'.format(module_uuid, mbox_uuid)
+            )
             return
 
         self.datareceiver = self.get_core().get_datareceiver()

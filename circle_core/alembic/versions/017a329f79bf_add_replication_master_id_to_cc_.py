@@ -6,8 +6,8 @@ Create Date: 2017-02-13 21:36:56.994225
 
 """
 from alembic import op
-import sqlalchemy as sa
 
+import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '017a329f79bf'
@@ -21,8 +21,9 @@ def upgrade():
     with op.batch_alter_table('cc_informations', schema=None) as batch_op:
         batch_op.add_column(sa.Column('replication_master_id', sa.Integer(), nullable=True))
         batch_op.create_foreign_key(
-            'fk_cc_informations_replication_masters',
-            'replication_masters', ['replication_master_id'], ['replication_master_id'])
+            'fk_cc_informations_replication_masters', 'replication_masters', ['replication_master_id'],
+            ['replication_master_id']
+        )
 
     # ### end Alembic commands ###
 

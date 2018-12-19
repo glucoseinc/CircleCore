@@ -1,35 +1,32 @@
 # -*- coding: utf-8 -*-
-
 """WebUI API Utilities."""
+
+from typing import TYPE_CHECKING
 
 # project module
 from ..utils import (
     api_jsonify,
 )
 
-
 # type annotation
-try:
-    from typing import Dict, TYPE_CHECKING
-    if TYPE_CHECKING:
-        from flask import Response
-except ImportError:
-    pass
+if TYPE_CHECKING:
+    from typing import Any
+
+    from flask import Response
+
+__all__ = ('respond_failure', 'respond_success')
 
 
-__all__ = (
-    'respond_failure', 'respond_success'
-)
-
-
-def respond_failure(reason, _status=400, **kwargs):
+def respond_failure(reason: str, _status: int = 400, **kwargs: 'Any') -> 'Response':
     """失敗時のレスポンス.
 
-    :param str reason: 失敗事由
-    :param int _status: ステータスコード
-    :param Dict kwargs: その他引数
-    :return: レスポンス
-    :rtype: Response
+    Args:
+        reason: 失敗事由
+        _status: ステータスコード
+        kwargs: その他引数
+
+    Return:
+        レスポンス
     """
     response = kwargs.copy()
     response['result'] = 'failure'
@@ -39,12 +36,13 @@ def respond_failure(reason, _status=400, **kwargs):
     return api_jsonify(_status=_status, **response)
 
 
-def respond_success(**kwargs):
+def respond_success(**kwargs: 'Any') -> 'Response':
     """成功時のレスポンス.
 
-    :param Dict kwargs: その他引数
-    :return: レスポンス
-    :rtype: Response
+    Args:
+        kwargs: その他引数
+    Return:
+        レスポンス
     """
     response = kwargs.copy()
     response['result'] = 'success'

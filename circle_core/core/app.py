@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """CircleCoreのCore."""
 
 # system module
@@ -8,31 +7,31 @@ import contextlib
 import logging
 import os
 import uuid
+from typing import Any, Mapping, Optional, TYPE_CHECKING, cast
 
 # community module
 import alembic
 import alembic.config
+
 import sqlalchemy
 import sqlalchemy.exc
 
 # project module
 from circle_core.exceptions import ConfigError
 from circle_core.helpers import Receiver
-from circle_core.models import CcInfo, generate_uuid, MetaDataBase, MetaDataSession, NoResultFound
+from circle_core.models import CcInfo, MetaDataBase, MetaDataSession, NoResultFound, generate_uuid
+
 from .base import logger
 from .hub import CoreHub
 from .metadata_event_logger import MetaDataEventLogger
 
-
 # type annotation
-try:
-    from typing import List, Optional, TYPE_CHECKING
-    if TYPE_CHECKING:
-        from sqlalchemy.engine import Engine
-        from ..database import Database
-except ImportError:
-    pass
+if TYPE_CHECKING:
+    from typing import List
 
+    from sqlalchemy.engine import Engine
+    from ..database import Database
+    from ..workers import CircleWorker, WorkerKey, WorkerType
 
 DEFAULT_CONFIG_FILE_NAME = 'circle_core.ini'
 
@@ -40,19 +39,22 @@ DEFAULT_CONFIG_FILE_NAME = 'circle_core.ini'
 class CircleCore(object):
     """CircleCore Core Object.
 
+    Args:
     :param bool debug: Debugフラグ
     :param str prefix: crcrのデータを保存するディレクトリ
     :param str metadata_file_path: metadataを保存するファイルのパス
     :param str log_file_path: metadata変更ログを保存するファイルのパス
-    :param List workers: ワーカーリスト
     :param str hub_socket: nanomsgのメッセージが流通するHubのSocket
     :param str request_socket: nanomsgへのリクエストを受け付けるSocket
     :param CoreHub hub: nanomsgのpubsubなどを管理するHub
     :param CcInfo my_cc_info: 自身のCircleCore情報
     :param logging.Logger audit_logger: ユーザー操作等を記録するためのロガー
-    :param Engine metadata_db_engine: metadataデータベースエンジン
     :param MetaDataEventLogger metadata_event_logger: metadataイベントのロガー
+        metadata_db_engine: metadataデータベースエンジン
+        workers: ワーカーリスト
     """
+    metadata_db_engine: 'Engine'
+    workers: 'List[CircleWorker]'
 
     @classmethod
     def load_from_config_file(cls, config_filepath, debug=False):
@@ -180,12 +182,10 @@ class CircleCore(object):
         self.start_metadata_event_logger()
 
         self.my_cc_info = self.make_own_cc_info(config_uuid)
-        logger.info(
-            'This CiclelCore > UUID:%s Display Name:%s',
-            self.my_cc_info.uuid, self.my_cc_info.display_name)
+        logger.info('This CiclelCore > UUID:%s Display Name:%s', self.my_cc_info.uuid, self.my_cc_info.display_name)
 
     # public
-    def add_worker(self, worker_type, worker_key, worker_config):
+    def add_worker(self, worker_type: 'WorkerType', worker_key: 'WorkerKey', worker_config: Mapping[str, Any]) -> None:
         """ワーカーを追加する.
 
         :param str worker_type: ワーカーのタイプ
@@ -196,13 +196,17 @@ class CircleCore(object):
 
         self.workers.append(make_worker(self, worker_type, worker_key, worker_config))
 
-    def find_worker(self, worker_type, worker_key=None):
+    def find_worker(
+        self, worker_type: 'WorkerType', worker_key: 'Optional[WorkerKey]' = None
+    ) -> 'Optional[CircleWorker]':
         """合致するワーカーを取得する.
 
-        :param worker_type: ワーカーのタイプ
-        :param worker_key: ワーカーのキー
-        :return: 合致するワーカー
-        :rtype: Optional[Any]
+        Args:
+            worker_type: ワーカーのタイプ
+            worker_key: ワーカーのキー
+
+        Returns:
+            合致するワーカー
         """
         for worker in self.workers:
             if worker.worker_type != worker_type:
@@ -212,6 +216,7 @@ class CircleCore(object):
                 continue
 
             return worker
+        return None
 
     def run(self):
         """CircleCoreを起動する."""
@@ -238,15 +243,15 @@ class CircleCore(object):
 
         return self.find_worker(WORKER_DATARECEIVER)
 
-    def get_database(self):
+    def get_database(self) -> 'Database':
         """Messageデータベースを取得する.
 
         今のところDatareceiverが握っているのでそれを返す
 
-        :return: Messageデータベース
-        :rtype: Database
+        Returns:
+            Messageデータベース
         """
-        return self.get_datareceiver().db
+        return cast('Database', self.get_datareceiver().db)
 
     def make_hub_receiver(self, topic=None):
         """Message Hubのレシーバを作成する.
@@ -260,6 +265,7 @@ class CircleCore(object):
     # private
     def prepare_directories(self):
         """必要なディレクトリを作成する."""
+
         def _makedirs_safe(p):
             if not os.path.exists(p):
                 os.makedirs(p)
@@ -334,11 +340,7 @@ class CircleCore(object):
                 logger.info('My CCInfo found.')
             except NoResultFound:
                 logger.info('My CCInfo not found. Create new one')
-                my_cc_info = CcInfo(
-                    display_name='My CircleCore',
-                    myself=True,
-                    work=''
-                )
+                my_cc_info = CcInfo(display_name='My CircleCore', myself=True, work='')
                 if config_uuid == 'auto':
                     my_cc_info.uuid = generate_uuid(model=CcInfo)
                 else:

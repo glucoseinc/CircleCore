@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-
 """nanomsgのhub."""
 
 # system module
+import asyncio
 import os
+import typing
 
 # community module
 from tornado.ioloop import IOLoop
@@ -12,12 +13,13 @@ from tornado.ioloop import IOLoop
 from .base import logger
 from ..helpers.nanomsg import Replier, Sender
 
-
 # type annotation
-try:
-    from typing import Callable, Dict, Optional
-except ImportError:
-    pass
+if typing.TYPE_CHECKING:
+    from typing import Any, Awaitable, Callable, Dict, Optional, Union
+
+    Request = Dict[str, Any]
+    Response = Dict[str, Any]
+    HandlerType = Callable[[Request], Union[Response, Awaitable[Response]]]
 
 
 class HubError(Exception):
@@ -40,9 +42,13 @@ class CoreHub(object):
     :param Dict[str, Callable] message_handlers: メッセージハンドラ
     :param str hub_socket: nanomsgのメッセージが流通するHubのSocket
     :param str request_socket: nanomsgへのリクエストを受け付けるSocket
-    :param Sender sender: パブリッシャ
-    :param Replier replier: リプライア
+    Attributes:
+        replier: リプライア
+        sender: パブリッシャ
     """
+    message_handlers: 'Dict[str, HandlerType]'
+    replier: Replier
+    sender: Sender
 
     def __init__(self, hub_socket, request_socket):
         """init.
@@ -63,7 +69,7 @@ class CoreHub(object):
         logger.info('Hub running at PID:%s', os.getpid())
         IOLoop.current().start()
 
-    def register_handler(self, name, handler):
+    def register_handler(self, name: str, handler: 'HandlerType'):
         """メッセージハンドラを登録する.
 
         :param str name: ハンドラ名
@@ -81,41 +87,42 @@ class CoreHub(object):
         self.sender.send(topic, message)
 
     # private
-    def handle_replier(self, request, exception):
+    async def handle_replier(self, request: 'Request', exception: 'Optional[Any]') -> None:
         """リプライアのハンドリング.
 
-        :param Dict request: リクエスト
-        :param Optional[Any] exception: 例外発生時に格納されている
+        Args:
+            request: リクエスト
+            exception: 例外発生時に格納されている
         """
         if exception:
             self.replier.send({'response': 'failed', 'message': str(exception)})
             return
 
         try:
-            response = self.handle_request(request)
+            response = await self.handle_request(request)
         except Exception as exc:
             import traceback
             traceback.print_exc()
-            response = {
-                'response': 'failed',
-                'message': str(exc),
-                'original': request
-            }
+            response = {'response': 'failed', 'message': str(exc), 'original': request}
 
         self.replier.send(response)
 
-    def handle_request(self, request):
+    async def handle_request(self, request: 'Request') -> 'Response':
         """リクエストのハンドリング.
 
         :param Dict request: リクエスト
         :return: レスポンス
         :rtype: Dict
         """
-        reqtype = request['request']
+        reqtype: str = request['request']
 
         if reqtype not in self.message_handlers:
             raise InvalidRequestError('Invalid request `{}`'.format(reqtype))
 
         handler = self.message_handlers[reqtype]
-        response = handler(request)
+        # TODO: 全部coroutineにする
+        if asyncio.iscoroutinefunction(handler):
+            response = await typing.cast('Awaitable[Response]', handler(request))
+        else:
+            response = typing.cast('Response', handler(request))
         return response

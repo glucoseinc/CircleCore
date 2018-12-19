@@ -2,28 +2,25 @@
 """センサデータを受け取って保存するCircleModule"""
 
 # system module
-from collections import defaultdict
-from datetime import datetime
+import asyncio
 import logging
 import threading
-import time
-from uuid import UUID
-
-from six import PY3
+import typing
+from collections import defaultdict
 
 # project module
 from circle_core.constants import RequestType
 from circle_core.message import ModuleMessage
-from .base import CircleWorker, register_worker_factory
+
+from .base import CircleWorker, WorkerType, register_worker_factory
 from ..core.metadata_event_listener import MetaDataEventListener
 from ..database import Database
-from ..exceptions import MessageBoxNotFoundError, ModuleNotFoundError, SchemaNotFoundError
+from ..exceptions import MessageBoxNotFoundError
 from ..helpers.topics import make_message_topic
-from ..models import MessageBox, NoResultFound, Schema
-
+from ..models import MessageBox, NoResultFound
 
 logger = logging.getLogger(__name__)
-WORKER_DATARECEIVER = 'datareceiver'
+WORKER_DATARECEIVER = typing.cast(WorkerType, 'datareceiver')
 
 
 @register_worker_factory(WORKER_DATARECEIVER)
@@ -34,9 +31,11 @@ def create_datareceiver_worker(core, type, key, config):
         'cycle_count': '100',
     }
     return DataReceiverWorker(
-        core, key,
+        core,
+        key,
         db_url=config.get('db'),
         time_db_dir=config.get('time_db_dir'),
+        log_dir=config.get('log_dir'),
         cycle_time=config.getfloat('cycle_time', vars=defaults),
         cycle_count=config.getint('cycle_count', vars=defaults),
     )
@@ -49,14 +48,14 @@ class DataReceiverWorker(CircleWorker):
     """
     worker_type = WORKER_DATARECEIVER
 
-    def __init__(self, core, key, db_url, time_db_dir, cycle_time=1.0, cycle_count=10):
+    def __init__(self, core, key, db_url, time_db_dir, log_dir, cycle_time=1.0, cycle_count=10):
         super(DataReceiverWorker, self).__init__(core, key)
 
         # commitする、メッセージ数と時間
         self.cycle_count = cycle_count
         self.cycle_time = cycle_time
 
-        self.db = Database(db_url, time_db_dir)
+        self.db = Database(db_url, time_db_dir, log_dir)
         self.writer = self.db.make_writer(cycle_time=cycle_time, cycle_count=cycle_count)
 
         self.counter_lock = threading.Lock()
@@ -75,45 +74,48 @@ class DataReceiverWorker(CircleWorker):
 
     def finalize(self):
         """override"""
-        self.writer.commit(flush_all=True)
+        asyncio.get_event_loop().run_until_complete(self.writer.flush(flush_all=True))
 
-    def on_new_message(self, request):
+    async def on_new_message(self, request):
         """新しいメッセージを受けとった"""
         box_id = request['box_id']
         payload = request['payload']
 
-        self.receive_new_message(box_id, payload)
+        await self.receive_new_message(box_id, payload)
 
-    def receive_new_message(self, box_id, payload):
+    async def receive_new_message(self, box_id, payload):
         try:
             message_box = self.find_message_box(box_id)
         except MessageBoxNotFoundError:
             return {'response': 'failed', 'message': 'message box not found'}
 
         if not message_box.schema.check_match(payload):
-            logger.warning('box {box_id} : message not matching schema was received. '
-                           'expected {expected}, received {received}'.format(box_id=box_id,
-                                                                             expected=message_box.schema.properties,
-                                                                             received=payload))
+            logger.warning(
+                'box {box_id} : message not matching schema was received. '
+                'expected {expected}, received {received}'.format(
+                    box_id=box_id, expected=message_box.schema.properties, received=payload
+                )
+            )
             return {'response': 'failed', 'message': 'schema not match'}
 
-        msg = self.store_message(message_box, payload)
+        msg = await self.store_message(message_box, payload)
         message = msg.to_json()
         response = {'response': 'message_accepted', 'message': message}
 
         # pusblish
         logger.debug('publish new message: %s', message)
-        self.core.hub.publish(
-            make_message_topic(message_box.module.uuid, message_box.uuid),
-            message
-        )
+        self.core.hub.publish(make_message_topic(message_box.module.uuid, message_box.uuid), message)
 
         return response
 
     def on_change_messagebox(self, what, target):
         """metadataのmessageboxが更新されたら呼ばれる"""
         if what == 'after_delete':
-            self.writer.commit()
+            if asyncio.get_event_loop().is_running():
+                logger.error('current loop is running')
+                asyncio.ensure_future(self.writer.flush())
+            else:
+                asyncio.get_event_loop().run_until_complete(self.writer.flush)
 
     def find_message_box(self, box_id):
         # DBに直接触っちゃう
@@ -124,10 +126,10 @@ class DataReceiverWorker(CircleWorker):
 
         return box
 
-    def store_message(self, message_box, payload):
+    async def store_message(self, message_box, payload):
         # make primary key
         msg = self.make_primary_key(message_box, payload)
-        self.writer.store(message_box, msg)
+        await self.writer.store(message_box, msg)
 
         return msg
 

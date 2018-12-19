@@ -35,7 +35,9 @@ def counter_bot(send_to, box_id, interval=1.0, silent=False):
                 'count': i,
                 'body': "Greetings from a bot",
             }
-        }, indent=2, ensure_ascii=False)
+        },
+                         indent=2,
+                         ensure_ascii=False)
         socket.send(msg)
 
         if not silent:

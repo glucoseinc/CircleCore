@@ -1,22 +1,23 @@
 # -*- coding: utf-8 -*-
-
 """CLI Module."""
 
 # system module
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 # community module
 import click
-from click.core import Context
-from six import PY3
 
 # project module
-from .context import CLIContextObject
 from .utils import convert_stringified_uuid_list, output_listing_columns, output_properties
-from ..models import MetaDataSession, NoResultFound, ReplicationLink
+from ..models import MetaDataSession, ReplicationLink
 
-if PY3:
-    from typing import List, Optional, Tuple
+if TYPE_CHECKING:
+    from typing import List, Optional, Tuple, Union
+
+    from click.core import Context
+
+    from .utils import TableData, TableHeader
 
 
 @click.group('replication_link')
@@ -27,10 +28,11 @@ def cli_replication_link():
 
 @cli_replication_link.command('list')
 @click.pass_context
-def list_replication_link(ctx):
+def list_replication_link(ctx: 'Context'):
     """登録中の共有リンク一覧を表示する.
 
-    :param Context ctx: Context
+    Args:
+        ctx: Context
     """
     replication_links = ReplicationLink.query.all()
     if len(replication_links):
@@ -40,31 +42,33 @@ def list_replication_link(ctx):
         click.echo('No reolication links are registered.')
 
 
-def _format_for_columns(replication_links):
+def _format_for_columns(replication_links: 'List[ReplicationLink]') -> 'Tuple[TableData, TableHeader]':
     """共有リンクを表示用に加工する.
 
-    :param List[Module] replication_links: モジュールリスト
+    Args:
+        replication_links: モジュールリスト
     :return: data: 加工後のリスト, header: 見出し
-    :rtype: Tuple[List[List[str]], List[str]]
+    :rtype:
     """
     header = ['UUID', 'DISPLAY_NAME', 'TARGET_CORES']
-    data = []  # type: List[List[str]]
+    data: 'TableData' = []
     for replication_link in replication_links:
-        data.append([
+        data.append((
             str(replication_link.uuid),
             replication_link.display_name,
             ','.join(str(x) for x in replication_link.target_cores),
-        ])
+        ))
     return data, header
 
 
 @cli_replication_link.command('detail')
 @click.argument('link_uuid', type=UUID)
 @click.pass_context
-def show_replication_link_detail(ctx, link_uuid):
+def show_replication_link_detail(ctx: 'Context', link_uuid: UUID):
     """共有リンクの詳細を表示する.
 
-    :param Context ctx: Context
+    Args:
+        ctx: Context
     :param UUID link_uuid: 共有リンクUUID
     """
     replication_link = ReplicationLink.query.get(link_uuid)
@@ -104,29 +108,34 @@ def show_replication_link_detail(ctx, link_uuid):
 @click.option('message_box_uuids', '--box')
 @click.option('all_boxes', '--all-boxes', is_flag=True, default=False)
 @click.pass_context
-def add_replication_link(ctx, display_name, memo, message_box_uuids, all_boxes):
+def add_replication_link(
+    ctx: 'Context', display_name: str, memo: 'Optional[str]', message_box_uuids: 'List[UUID]', all_boxes: bool
+):
     """共有リンクを登録する.
 
-    :param Context ctx: Context
-    :param str display_name: モジュール表示名
-    :param Optional[str] memo: メモ
-    :param list[uuid.UUID] message_box_uuids: 共有対象のMessageBoxのID
-    :param bool all_boxes: 全Boxを共有する場合はTrue
+    Args:
+        ctx: Context
+        display_name: モジュール表示名
+        memo: メモ
+        message_box_uuids: 共有対象のMessageBoxのID
+        all_boxes: 全Boxを共有する場合はTrue
     """
-    if not all_boxes and not message_box_uuids:
+    box_uuids: 'Union[List[UUID], object]' = message_box_uuids
+
+    if not all_boxes and not box_uuids:
         raise click.BadParameter('Please specify box uuids or all flag')
-    if all_boxes and message_box_uuids:
+    if all_boxes and box_uuids:
         raise click.BadParameter('Both box flag has specified')
     if all_boxes:
-        message_box_uuids = ReplicationLink.ALL_MESSAGE_BOXES
+        box_uuids = ReplicationLink.ALL_MESSAGE_BOXES
     else:
-        message_box_uuids = convert_stringified_uuid_list(ctx, None, message_box_uuids)
+        box_uuids = convert_stringified_uuid_list(ctx, None, box_uuids)
 
     with MetaDataSession.begin():
         replication_link = ReplicationLink.create(
             display_name=display_name,
             memo=memo,
-            message_box_uuids=message_box_uuids,
+            message_box_uuids=box_uuids,
         )
         print('replication_link', replication_link)
         print(replication_link.message_boxes)
@@ -138,15 +147,16 @@ def add_replication_link(ctx, display_name, memo, message_box_uuids, all_boxes):
 @cli_replication_link.command('remove')
 @click.argument('link_uuid', type=UUID)
 @click.pass_context
-def remove_replication_link(ctx, link_uuid):
+def remove_replication_link(ctx: 'Context', link_uuid: UUID):
     """共有リンクを削除する.
 
-    :param Context ctx: Context
-    :param UUID module_uuid: モジュールUUID
+    Args:
+        ctx: Context
+        module_uuid: モジュールUUID
     """
     replication_link = ReplicationLink.query.get(link_uuid)
     if not replication_link:
-        click.echo('Module "{}" is not registered. Do nothing.'.format(module_uuid))
+        click.echo('Module "{}" is not registered. Do nothing.'.format(link_uuid))
         ctx.exit(code=-1)
 
     with MetaDataSession.begin():

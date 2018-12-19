@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """認証関連APIの実装."""
 
 # system module
@@ -13,9 +12,9 @@ from flask import abort, g, redirect, render_template, request, session, url_for
 from circle_core.constants import CRScope
 from circle_core.exceptions import AuthorizationError
 from circle_core.models import NoResultFound, User
+
 from .core import authorize, oauth
 from ..utils import api_jsonify
-
 
 SESSION_KEY_USER = 'user'
 SESSION_KEY_NONCE = 'nonce'
@@ -154,6 +153,7 @@ def invalid_require_oauth(req):
 
 # Scopeテスト用関数群
 for _scope in [s.value for s in CRScope] + ['bad-scope']:
+
     @authorize.route('/api/oauth/scope_test/' + _scope, endpoint='test_scope_{}'.format(_scope))
     @oauth.require_oauth(_scope)
     def test_scope_view():

@@ -1,33 +1,34 @@
 # -*- coding: utf-8 -*-
-
 """CLI Module."""
 
 # system module
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 # community module
 import click
-from click.core import Context
-from six import PY3
 
 # project module
-from .context import CLIContextObject
 from .utils import output_listing_columns, output_properties
 from ..models import MetaDataSession, Module, NoResultFound
 
-if PY3:
+if TYPE_CHECKING:
     from typing import List, Optional, Tuple
+
+    from click.core import Context
+
+    from .utils import TableData, TableHeader
 
 
 @click.group('module')
-def cli_module():
+def cli_module() -> None:
     """`crcr module`の起点."""
     pass
 
 
 @cli_module.command('list')
 @click.pass_context
-def module_list(ctx):
+def module_list(ctx: 'Context'):
     """登録中のモジュール一覧を表示する.
 
     :param Context ctx: Context
@@ -40,30 +41,31 @@ def module_list(ctx):
         click.echo('No modules are registered.')
 
 
-def _format_for_columns(modules):
+def _format_for_columns(modules: 'List[Module]') -> 'Tuple[TableData, TableHeader]':
     """モジュールリストを表示用に加工する.
 
-    :param List[Module] modules: モジュールリスト
-    :return: data: 加工後のモジュールリスト, header: 見出し
-    :rtype: Tuple[List[List[str]], List[str]]
+    Args:
+        modules: モジュールリスト
+    Return:
+        data: 加工後のモジュールリスト, header: 見出し
     """
     header = ['UUID', 'DISPLAY_NAME', 'TAGS', 'ATTRIBUTES']
-    data = []  # type: List[List[str]]
+    data: 'TableData' = []
     for module in modules:
         display_name = module.display_name
-        data.append([
+        data.append((
             str(module.uuid),
             display_name,
             ','.join(module.tags),
             module.attributes,
-        ])
+        ))
     return data, header
 
 
 @cli_module.command('detail')
 @click.argument('module_uuid', type=UUID)
 @click.pass_context
-def module_detail(ctx, module_uuid):
+def module_detail(ctx: 'Context', module_uuid: UUID) -> None:
     """モジュールの詳細を表示する.
 
     :param Context ctx: Context
@@ -106,7 +108,9 @@ def module_detail(ctx, module_uuid):
 @click.option('tags', '--tag')
 @click.option('--memo')
 @click.pass_context
-def module_add(ctx, display_name, attributes, tags, memo):
+def module_add(
+    ctx: 'Context', display_name: str, attributes: 'Optional[str]', tags: 'Optional[str]', memo: 'Optional[str]'
+):
     """モジュールを登録する.
 
     :param Context ctx: Context
@@ -131,7 +135,7 @@ def module_add(ctx, display_name, attributes, tags, memo):
 @cli_module.command('remove')
 @click.argument('module_uuid', type=UUID)
 @click.pass_context
-def module_remove(ctx, module_uuid):
+def module_remove(ctx: 'Context', module_uuid):
     """モジュールを削除する.
 
     :param Context ctx: Context

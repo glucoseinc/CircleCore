@@ -1,30 +1,29 @@
 # -*- coding: utf-8 -*-
-
 """WebUI."""
 
 # system module
-from datetime import datetime
 import os
 import time
 import urllib.parse
 import uuid
+from datetime import datetime
+from typing import TYPE_CHECKING
 
 # community module
-from flask import abort, Flask, redirect, render_template, request, url_for
+from flask import Flask, abort, redirect, render_template, request, url_for
+
 from werkzeug.routing import BaseConverter
 
 # project module
 from circle_core.utils import portable_popen
+
 from .authorize.core import oauth
 
-
 # type annotation
-try:
-    from typing import TYPE_CHECKING, Union
-    if TYPE_CHECKING:
-        from circle_core.core import CircleCore
-except ImportError:
-    pass
+if TYPE_CHECKING:
+    from typing import Optional, Union
+
+    from circle_core.core import CircleCore
 
 
 class CCWebApp(Flask):
@@ -33,7 +32,14 @@ class CCWebApp(Flask):
     :param float uptime: 起動時刻
     :param int ws_port: Websocket Port Number
     """
-    def __init__(self, core, base_url=None, ws_port=None, is_https=False):
+
+    def __init__(
+        self,
+        core: 'CircleCore',
+        base_url: 'Optional[str]' = None,
+        ws_port: 'Optional[int]' = None,
+        is_https: bool = False
+    ):
         """init.
 
         :param CircleCore core: CircleCore Core
@@ -115,10 +121,7 @@ class CCWebApp(Flask):
     def build_frontend(self):
         """WebUI用のフロントエンドのjs, cssをビルドする."""
         import circle_core
-        basedir = os.path.abspath(
-            os.path.join(
-                os.path.dirname(circle_core.__file__),
-                os.pardir))
+        basedir = os.path.abspath(os.path.join(os.path.dirname(circle_core.__file__), os.pardir))
 
         portable_popen(['npm', 'install', '.'], cwd=basedir).wait()
         portable_popen(['npm', 'run', 'build'], cwd=basedir).wait()
@@ -127,24 +130,27 @@ class CCWebApp(Flask):
 class UUIDConverter(BaseConverter):
     """UUID値をURLに使うためのコンバータ."""
 
-    def to_python(self, value):
+    def to_python(self, value: str) -> uuid.UUID:
         """Pythonで使用できる型に変換する.
 
-        :param str value: UUID
-        :return: UUID
-        :rtype: uuid.UUID
+        Args:
+            value: string of UUID
+        Return:
+            UUID
         """
         try:
             return uuid.UUID(value)
         except ValueError:
             raise abort(404)
 
-    def to_url(self, value):
+    def to_url(self, value: 'Union[str, uuid.UUID]') -> str:
         """URLで使用できる型に変換する.
 
-        :param Union[str, uuid.UUID] value: UUID
-        :return: UUID
-        :rtype: str
+        Args:
+            value: UUID
+
+        Return:
+            UUID
         """
         return str(value)
 

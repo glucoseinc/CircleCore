@@ -1,22 +1,23 @@
 # -*- coding: utf-8 -*-
-
 """CLI User."""
 
 # system module
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 # community module
 import click
-from click.core import Context
-from six import PY3
 
 # project module
-from .context import CLIContextObject
 from .utils import output_listing_columns, output_properties
-from ..models import generate_uuid, MetaDataSession, NoResultFound, User
+from ..models import MetaDataSession, NoResultFound, User, generate_uuid
 
-if PY3:
+if TYPE_CHECKING:
     from typing import List, Tuple
+
+    from click.core import Context
+
+    from .utils import TableData, TableHeader
 
 
 @click.group('user')
@@ -27,7 +28,7 @@ def cli_user():
 
 @cli_user.command('list')
 @click.pass_context
-def user_list(ctx):
+def user_list(ctx: 'Context'):
     """登録中のユーザ一覧を表示する.
 
     :param Context ctx: Context
@@ -41,24 +42,25 @@ def user_list(ctx):
         click.echo('No users are registered.')
 
 
-def _format_for_columns(users):
+def _format_for_columns(users: 'List[User]') -> 'Tuple[TableData, TableHeader]':
     """ユーザリストを表示用に加工する.
 
-    :param List[User] users: スキーマリスト
-    :return: data: 加工後のスキーマリスト, header: 見出し
-    :rtype: Tuple[List[List[str]], List[str]]
+    Args:
+        users: スキーマリスト
+    Return:
+        data: 加工後のスキーマリスト, header: 見出し
     """
     header = ['UUID', 'ACCOUNT', 'PERMISSIONS']
-    data = []  # type: List[List[str]]
+    data: 'TableData' = []
     for user in users:
-        data.append([str(user.uuid), user.account, ','.join(user.permissions)])
+        data.append((str(user.uuid), user.account, ','.join(user.permissions)))
     return data, header
 
 
 @cli_user.command('detail')
 @click.argument('user_uuid', type=UUID)
 @click.pass_context
-def user_detail(ctx, user_uuid):
+def user_detail(ctx: 'Context', user_uuid):
     """ユーザの詳細を表示する.
 
     :param Context ctx: Context
@@ -91,7 +93,7 @@ def user_detail(ctx, user_uuid):
 @click.option('telephone', '--telephone', default='')
 @click.option('admin_flag', '--admin', is_flag=True, default=False)
 @click.pass_context
-def user_add(ctx, account, password, work, mail_address, telephone, admin_flag):
+def user_add(ctx: 'Context', account, password, work, mail_address, telephone, admin_flag):
     """ユーザを登録する.
 
     :param Context ctx: Context
@@ -121,7 +123,7 @@ def user_add(ctx, account, password, work, mail_address, telephone, admin_flag):
 @cli_user.command('remove')
 @click.argument('user_uuid', type=UUID)
 @click.pass_context
-def user_remove(ctx, user_uuid):
+def user_remove(ctx: 'Context', user_uuid):
     """ユーザを削除する.
 
     :param Context ctx: Context
@@ -140,11 +142,10 @@ def user_remove(ctx, user_uuid):
 
 
 @cli_user.command('change_password')
-@click.option(
-    'new_password', '--new-password', prompt=True, hide_input=True, confirmation_prompt=True)
+@click.option('new_password', '--new-password', prompt=True, hide_input=True, confirmation_prompt=True)
 @click.argument('user_uuid', type=UUID)
 @click.pass_context
-def user_change_password(ctx, user_uuid, new_password):
+def user_change_password(ctx: 'Context', user_uuid, new_password):
     """ユーザのパスワードを変更する
 
     :param Context ctx: Context

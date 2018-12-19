@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
-
 """CLI invitation."""
 
 # system module
-import datetime
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 # community module
 import click
-from click.core import Context
-from six import PY3
 
 # project module
-from .context import CLIContextObject
 from .utils import output_listing_columns, output_properties
-from ..models import generate_uuid, Invitation, MetaDataSession, Module, NoResultFound
+from ..models import Invitation, MetaDataSession, NoResultFound, generate_uuid
 
-if PY3:
+if TYPE_CHECKING:
     from typing import List, Tuple
+
+    from click.core import Context
+
+    from .utils import TableData, TableHeader
 
 
 @click.group('invitation')
@@ -28,7 +28,7 @@ def cli_invitation():
 
 @cli_invitation.command('list')
 @click.pass_context
-def invitation_list(ctx):
+def invitation_list(ctx: 'Context'):
     """登録中のユーザ一覧を表示する.
 
     :param Context ctx: Context
@@ -41,24 +41,24 @@ def invitation_list(ctx):
         click.echo('No invitations are registered.')
 
 
-def _format_for_columns(invitations):
+def _format_for_columns(invitations: 'List[Invitation]') -> 'Tuple[TableData, TableHeader]':
     """招待リストを表示用に加工する.
 
     :param List[invitation] invitations: スキーマリスト
     :return: data: 加工後のスキーマリスト, header: 見出し
-    :rtype: Tuple[List[List[str]], List[str]]
+    :rtype:
     """
     header = ['UUID', 'MAX INVITES', 'CURRENT INVITES', 'DATE CREATED']
-    data = []  # type: List[List[str]]
+    data: 'TableData' = []
     for invitation in invitations:
-        data.append([str(invitation.uuid), invitation.max_invites, invitation.current_invites, invitation.created_at])
+        data.append((str(invitation.uuid), invitation.max_invites, invitation.current_invites, invitation.created_at))
     return data, header
 
 
 @cli_invitation.command('detail')
 @click.argument('invitation_uuid', type=UUID)
 @click.pass_context
-def invitation_detail(ctx, invitation_uuid):
+def invitation_detail(ctx: 'Context', invitation_uuid):
     """招待の詳細を表示する.
 
     :param Context ctx: Context
@@ -80,7 +80,7 @@ def invitation_detail(ctx, invitation_uuid):
     output_properties(data)
 
 
-def _validate_max_invites(ctx, param, value):
+def _validate_max_invites(ctx: 'Context', param, value):
     if value < 0:
         raise click.BadParameter('max_invites nees to be larger than 0')
     return value
@@ -89,7 +89,7 @@ def _validate_max_invites(ctx, param, value):
 @cli_invitation.command('add')
 @click.option('max_invites', '--max', default=0, type=int, callback=_validate_max_invites)
 @click.pass_context
-def invitation_add(ctx, max_invites):
+def invitation_add(ctx: 'Context', max_invites):
     """招待を登録する.
 
     :param Context ctx: Context
@@ -97,10 +97,7 @@ def invitation_add(ctx, max_invites):
     """
 
     with MetaDataSession.begin():
-        invitation = Invitation(
-            uuid=generate_uuid(model=Invitation),
-            max_invites=max_invites
-        )
+        invitation = Invitation(uuid=generate_uuid(model=Invitation), max_invites=max_invites)
         MetaDataSession.add(invitation)
 
     click.echo('Invitation "{}" is added.'.format(invitation.uuid))
@@ -109,7 +106,7 @@ def invitation_add(ctx, max_invites):
 @cli_invitation.command('remove')
 @click.argument('invitation_uuid', type=UUID)
 @click.pass_context
-def invitation_remove(ctx, invitation_uuid):
+def invitation_remove(ctx: 'Context', invitation_uuid: UUID):
     """ユーザを削除する.
 
     :param Context ctx: Context

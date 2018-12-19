@@ -1,31 +1,33 @@
 # -*- coding: utf-8 -*-
 
 # system module
+import asyncio
 import json
 import logging
+import typing
 import uuid
 
 # community module
-from six import PY3
-from tornado import gen, httpclient
-from tornado.websocket import websocket_connect, WebSocketClientConnection, WebSocketError
+from tornado import httpclient
+from tornado.websocket import WebSocketError, websocket_connect
 
 # project module
 from circle_core.constants import MasterCommand, ReplicationState, SlaveCommand, WebsocketStatusCode
-from circle_core.database import QueuedWriter
 from circle_core.exceptions import ReplicationError
 from circle_core.message import ModuleMessage, ModuleMessagePrimaryKey
-from circle_core.models import CcInfo, MessageBox, MetaDataSession, Module, NoResultFound, ReplicationMaster, Schema
+from circle_core.models import CcInfo, MessageBox, MetaDataSession, Module, NoResultFound, Schema
 
-if PY3:
+if typing.TYPE_CHECKING:
     from typing import Dict, Optional
 
+    from circle_core.writer import QueuedDBWriter
 
 logger = logging.getLogger(__name__)
 
 
 # exceptions for internal use
 class ConnectionClosed(Exception):
+
     def __init__(self, code, reason):
         self.code = WebsocketStatusCode(code) if code else None
         self.reason = reason
@@ -45,11 +47,11 @@ class Replicator(object):
     :param SlaveDriverWorker driver:
     :param ReplicationMaster master:
     :param Optional[WebSocketClientConnection] ws:
-    :param Optional[Dict[uuid.UUID, MessageBox]] target_boxes:
-    :param Optional[QueuedWriter] writer:
     :param bool closed:
     :param str endpoint_url:
     """
+    target_boxes: 'Optional[Dict[uuid.UUID, MessageBox]]'
+    writer: 'Optional[QueuedDBWriter]'
 
     def __init__(self, driver, master, request_options=None):
         self.driver = driver
@@ -59,6 +61,7 @@ class Replicator(object):
         self.writer = None
         self.closed = False
         self.request_options = request_options or {}
+        self.runner = None
 
         # fix url
         endpoint_url = master.endpoint_url
@@ -68,15 +71,24 @@ class Replicator(object):
             endpoint_url = 'wss://' + endpoint_url[8:]
         self.endpoint_url = endpoint_url
 
-    @gen.coroutine
     def run(self):
+        self.runner = asyncio.ensure_future(self.run_async())
+
+    def close(self):
+        assert self.runner
+        self.closed = True
+        asyncio.get_event_loop().run_until_complete(asyncio.wait_for(self.runner, None))
+        self.clear()
+
+    # private
+    async def run_async(self):
         if not (self.endpoint_url.startswith('ws://') or self.endpoint_url.startswith('wss://')):
             logger.info('Invalid replication link: `%s`, replicator closed', self.endpoint_url)
             return
 
         while not self.closed:
             try:
-                yield self._run_one_loop()
+                await self._run_one_loop()
             except ConnectionClosed as exc:
                 logger.info('Replication connection was closed. code=%r, reason=%r', exc.code, exc.reason)
 
@@ -85,9 +97,7 @@ class Replicator(object):
                     logger.info('Replication connection was closed normally. will retry after 5secs...')
                 elif exc.code:
                     # エラーコードが通知されている場合は、エラーを記録して終了する。復活するには再起動させること
-                    logger.error(
-                        'Replication connection was closed by peer. code=%r, reason=%r',
-                        exc.code, exc.reason)
+                    logger.error('Replication connection was closed by peer. code=%r, reason=%r', exc.code, exc.reason)
                     return
                 elif not self.closed:
                     # エラーコードなし。おそらくMasterが終了した
@@ -95,22 +105,16 @@ class Replicator(object):
 
             except ConnectionRefusedError as exc:
                 # 恐らく接続に失敗している > まだ立ち上がってない、のでWaitしてRetry
-                logger.error(
-                    'Replication connection was refused. %r',
-                    exc)
+                logger.error('Replication connection was refused. %r', exc)
 
             except WebSocketError as exc:
                 # WebSocket上のエラーの場合は、エラーを記録して終了する。復活するには再起動させること
-                logger.error(
-                    'Replication connection was closed abnormally. %r',
-                    exc)
+                logger.error('Replication connection was closed abnormally. %r', exc)
                 return
 
             except Exception as exc:
                 # その他のエラーは、エラーを記録、TraceBackを表示して終了する。復活するには再起動させること
-                logger.error(
-                    'Replication connection was closed abnormally. %r',
-                    exc)
+                logger.error('Replication connection was closed abnormally. %r', exc)
                 import traceback
                 traceback.print_exc()
                 return
@@ -119,30 +123,26 @@ class Replicator(object):
 
             # wait...
             if not self.closed:
-                yield gen.sleep(5.)
+                await asyncio.sleep(5.)
 
         logger.info('Replicator closed (%s)', self.endpoint_url)
-
-    def close(self):
-        self.closed = True
-        self.clear()
 
     def clear(self):
         if self.ws:
             self.ws.close()
         if self.writer:
-            self.writer.commit(flush_all=True)
+            self.writer.flush(flush_all=True)
 
         self.target_boxes = None
         self.writer = None
+        self.runner = None
 
-    @gen.coroutine
-    def _run_one_loop(self):
+    async def _run_one_loop(self):
         # make request
         request = httpclient.HTTPRequest(self.endpoint_url, **self.request_options)
 
         # make connection
-        self.ws = yield websocket_connect(request)
+        self.ws = await websocket_connect(request)
         self.state = ReplicationState.HANDSHAKING
 
         logger.info('Replication connection to %s: established', self.endpoint_url)
@@ -150,7 +150,7 @@ class Replicator(object):
         # HANDSHAKING
         self.send_hello_command()
         assert self.state == ReplicationState.MIGRATING
-        yield self.wait_command(MasterCommand.MIGRATE)
+        await self.wait_command(MasterCommand.MIGRATE)
 
         # MIGRATING
         self.send_migrated_command()
@@ -159,7 +159,7 @@ class Replicator(object):
         logger.info('Replication connection to %s: migrated, start syncing', self.endpoint_url)
 
         while not self.closed:
-            yield self.wait_command([MasterCommand.SYNC_MESSAGE, MasterCommand.NEW_MESSAGE])
+            await self.wait_command([MasterCommand.SYNC_MESSAGE, MasterCommand.NEW_MESSAGE])
 
     def _send_command(self, command, **payload):
         msg = {'command': command.value}
@@ -172,10 +172,7 @@ class Replicator(object):
         self.state = ReplicationState.MIGRATING
 
         myinfo = CcInfo.query.filter_by(myself=True).one()
-        self._send_command(
-            SlaveCommand.HELLO,
-            ccInfo=myinfo.to_json()
-        )
+        self._send_command(SlaveCommand.HELLO, ccInfo=myinfo.to_json())
 
     def send_migrated_command(self):
         """Migrationが終わったので、自分のもっているMessageBoxのUUIDを送る"""
@@ -200,12 +197,11 @@ class Replicator(object):
             heads=heads,
         )
 
-    @gen.coroutine
-    def wait_command(self, commands):
+    async def wait_command(self, commands):
         if not isinstance(commands, (list, tuple)):
             commands = (commands,)
 
-        raw = yield self.ws.read_message()
+        raw = await self.ws.read_message()
         if raw is None:
             raise ConnectionClosed(self.ws.close_code, self.ws.close_reason)
 
@@ -215,9 +211,9 @@ class Replicator(object):
             raise ReplicationError('invalid command. want {}, but get {}'.format(commands, message['command']))
 
         handler = getattr(self, 'on_master_{}'.format(message['command']))
-        handler(message)
+        await handler(message)
 
-    def on_master_migrate(self, message):
+    async def on_master_migrate(self, message):
         assert self.state == ReplicationState.MIGRATING
 
         with MetaDataSession.begin():
@@ -269,24 +265,25 @@ class Replicator(object):
                     obj = MessageBox(
                         uuid=data['uuid'],
                         schema_uuid=data['schemaUuid'],
-                        module_uuid=data['moduleUuid'],)
+                        module_uuid=data['moduleUuid'],
+                    )
                 obj.update_from_json(data)
                 MetaDataSession.add(obj)
 
                 self.target_boxes[obj.uuid] = obj
 
-    def on_master_sync_message(self, message):
+    async def on_master_sync_message(self, message):
         assert self.state == ReplicationState.SYNCING
-        self._store_message(message['message'])
+        await self._store_message(message['message'])
 
-    def on_master_new_message(self, message):
+    async def on_master_new_message(self, message):
         assert self.state == ReplicationState.SYNCING
-        self._store_message(message['message'])
+        await self._store_message(message['message'])
 
-    def _store_message(self, data):
+    async def _store_message(self, data):
         message = ModuleMessage.from_json(data)
         if message.box_id not in self.target_boxes:
             raise DataConfilictedError('invalid box id')
 
         message_box = MessageBox.query.filter_by(uuid=message.box_id).one()
-        self.writer.store(message_box, message)
+        await self.writer.store(message_box, message)

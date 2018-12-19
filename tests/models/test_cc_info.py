@@ -6,13 +6,20 @@ from circle_core.testing import setup_db
 
 
 class TestCcInfo(object):
+
     @classmethod
     def setup_class(cls):
         setup_db()
 
     @pytest.mark.parametrize(('_input', 'expected'), [
-        (dict(display_name='OtherCircleCore', uuid='EEEEEEEE-EEEE-4EEE-EEEE-EEEEEEEEEEEE', myself=False, work='Other'),
-         dict(display_name='OtherCircleCore', uuid='EEEEEEEE-EEEE-4EEE-EEEE-EEEEEEEEEEEE', myself=False, work='Other')),
+        (
+            dict(
+                display_name='OtherCircleCore', uuid='EEEEEEEE-EEEE-4EEE-EEEE-EEEEEEEEEEEE', myself=False, work='Other'
+            ),
+            dict(
+                display_name='OtherCircleCore', uuid='EEEEEEEE-EEEE-4EEE-EEEE-EEEEEEEEEEEE', myself=False, work='Other'
+            )
+        ),
     ])
     def test_cc_info(self, _input, expected):
         other_cc_info = CcInfo(**_input)

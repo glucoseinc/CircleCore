@@ -2,15 +2,17 @@
 """ダウンロード."""
 
 # system module
-from datetime import timedelta
 import time
+from datetime import timedelta
 
 # community module
 from dateutil import parser
-from flask import abort, current_app, request, Response
+
+from flask import Response, abort, current_app, request
 
 # project module
 from circle_core.models import MessageBox, NoResultFound
+
 from .download import download
 
 
@@ -35,13 +37,12 @@ def download_message_box_data(module_uuid, message_box_uuid):
     message_generator = database.enum_messages(box, start=start, end=end)
 
     def generate():
+
         def to_line(row):
             return ','.join([str(c) for c in row]) + '\n'
 
         def to_data_line(m):
-            return to_line(
-                [m.timestamp, m.counter] + [m.payload.get(key, '') for key in payload_keys]
-            )
+            return to_line([m.timestamp, m.counter] + [m.payload.get(key, '') for key in payload_keys])
 
         message = next(message_generator)
         payload_keys = sorted(list(message.payload.keys()))

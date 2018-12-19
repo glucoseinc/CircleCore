@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-
 """Schema Model."""
 
 # system module
 import collections
 import datetime
+from typing import Any, Dict, List, Optional, TYPE_CHECKING, Tuple, Union, cast
 
 # community module
 import sqlalchemy as sa
@@ -12,33 +12,47 @@ from sqlalchemy import orm
 from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
-from .base import generate_uuid, GUID, UUIDMetaDataBase
+from .base import GUID, UUIDMetaDataBase, generate_uuid
 from ..constants import CRDataType
 
-
 # type annotation
-try:
-    from typing import Dict, List, Optional, Union, Tuple, TYPE_CHECKING
-    if TYPE_CHECKING:
-        from uuid import UUID
-        from .message_box import MessageBox
-except ImportError:
-    pass
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from mypy_extensions import TypedDict
+
+    class SchemaPropertyJson(TypedDict, total=True):
+        name: str
+        type: str
+
+    class SchemaJson(TypedDict, total=False):
+        uuid: str
+        ccUuid: str
+        displayName: str
+        properties: List[SchemaPropertyJson]
+        memo: str
+        # modules: List[ModuleJson]
+        modules: List[Dict[str, Any]]
+
+    from .message_box import MessageBox
 
 
 class SchemaProperty(collections.namedtuple('SchemaProperty', ['name', 'type'])):
     """SchemaProperty."""
+    name: str
+    type: str
 
-    def __new__(cls, name, type=None):
+    def __new__(cls, name: 'Union[SchemaPropertyJson, str]', type: Optional[str] = None):
         """new.
 
-        :param Union[Dict, str] name: プロパティ名またはプロパティ名とプロパティタイプ
-        :param Optional[str] type: プロパティタイプ
+        Args:
+            name: プロパティ名またはプロパティ名とプロパティタイプ
+            type: プロパティタイプ
         """
         if isinstance(name, dict):
             name, type = name['name'], name['type']
         if type is None and ':' in name:
-            name, type = name.split(':', 2)
+            name, type = cast(str, name).split(':', 2)
         if type is None or ':' in type or ':' in name:
             raise ValueError('invalid property')
 
@@ -52,28 +66,28 @@ class SchemaProperty(collections.namedtuple('SchemaProperty', ['name', 'type']))
         """
         return '{}:{}'.format(self.name, self.type)
 
-    def to_json(self):
+    def to_json(self) -> 'SchemaPropertyJson':
         """このモデルのJSON表現を返す.
 
         :return: JSON表現のDict
         :rtype: Dict
         """
-        return {
-            'name': self.name,
-            'type': self.type
-        }
+        return {'name': self.name, 'type': self.type}
 
 
 class SchemaProperties(object):
     """SchemaProperties.
 
-    :param List[SchemaProperty] _properties: SchemaPropertyリスト
+    Args:
+        _properties: SchemaPropertyリスト
     """
+    _properties: List[SchemaProperty]
 
-    def __init__(self, props):
+    def __init__(self, props: Union[str, Tuple[str, ...], List[str]]):
         """init.
 
-        :param Union[str, Tuple, List] props: プロパティ名とプロパティタイプ
+        Args:
+            props: プロパティ名とプロパティタイプ
         """
         self._properties = []
 
@@ -122,15 +136,18 @@ class SchemaProperties(object):
 class Schema(UUIDMetaDataBase):
     """Schemaオブジェクト.
 
-    :param UUID uuid: Schema UUID
+    Args:
+        message_boxes: MessageBox
+        uuid: Schema UUID
     :param str display_name: 表示名
     :param str _properties: プロパティ
     :param List[SchemaProperty] properties: プロパティ
     :param str memo: メモ
     :param datetime.datetime created_at: 作成日時
     :param datetime.datetime updated_at: 更新日時
-    :param List[MessageBox] message_boxes: MessageBox
     """
+    message_boxes: 'List[MessageBox]'
+    uuid: 'UUID'
 
     __tablename__ = 'schemas'
 
@@ -140,8 +157,9 @@ class Schema(UUIDMetaDataBase):
     _properties = sa.Column('properties', sa.Text, nullable=False, default='')
     memo = sa.Column(sa.Text, nullable=False, default='')
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
-    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow,
-                           onupdate=datetime.datetime.utcnow)
+    updated_at = sa.Column(
+        sa.DateTime, nullable=False, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow
+    )
 
     message_boxes = orm.relationship('MessageBox', backref='schema')
 
@@ -157,10 +175,7 @@ class Schema(UUIDMetaDataBase):
             from .cc_info import CcInfo
             kwargs['cc_uuid'] = CcInfo.query.filter_by(myself=True).one().uuid
 
-        schema = cls(
-            uuid=generate_uuid(model=cls),
-            **kwargs
-        )
+        schema = cls(uuid=generate_uuid(model=cls), **kwargs)
         return schema
 
     def __init__(self, **kwargs):
@@ -191,9 +206,10 @@ class Schema(UUIDMetaDataBase):
         :return: equality
         :rtype: bool
         """
-        return all([self.uuid == other.uuid, self.display_name == other.display_name,
-                    self.properties == other.properties,
-                    self.memo == other.memo])
+        return all([
+            self.uuid == other.uuid, self.display_name == other.display_name, self.properties == other.properties,
+            self.memo == other.memo
+        ])
 
     @hybrid_property
     def properties(self):
@@ -204,7 +220,7 @@ class Schema(UUIDMetaDataBase):
         """
         return SchemaProperties(self._properties)
 
-    @properties.setter
+    @properties.setter  # type: ignore
     def properties(self, properties):
         """プロパティリストを更新する.
 
@@ -214,14 +230,14 @@ class Schema(UUIDMetaDataBase):
             properties = SchemaProperties(properties)
         self._properties = str(properties)
 
-    def to_json(self, with_modules=False):
+    def to_json(self, with_modules=False) -> 'SchemaJson':
         """このモデルのJSON表現を返す.
 
         :param bool with_modules: 返り値にModuleの情報を含めるか
         :return: JSON表現のDict
         :rtype: Dict
         """
-        d = {
+        d: 'SchemaJson' = {
             'uuid': str(self.uuid),
             'ccUuid': str(self.cc_uuid),
             'displayName': self.display_name,
@@ -233,7 +249,7 @@ class Schema(UUIDMetaDataBase):
             modules = {}
             for box in self.message_boxes:
                 modules[box.module.uuid] = box.module
-            d['modules'] = [module.to_json() for module in modules.values()]
+            d['modules'] = [module.to_json() for module in modules.values()]  # type: ignore
 
         return d
 

@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-
 """メッセージ数などを記録する時間別DBを管理する."""
-from collections import defaultdict
 import logging
 import os
 import threading
+from collections import defaultdict
+from typing import Dict
 
 import whisper
-
 
 logger = logging.getLogger(__name__)
 
 WHISPER_ARCHIVES_STRING = '1s:24h 10s:7d 10m:150d 1h:3y'.split(' ')
 WHISPER_ARCHIVES = [whisper.parseRetentionDef(d) for d in WHISPER_ARCHIVES_STRING]
 
-
 WHISPER_GLOBAL_LOCK = threading.Lock()
-WHISPER_GLOBAL_LOCKS = {}
+WHISPER_GLOBAL_LOCKS: Dict[str, threading.Lock] = {}
 
 
 def get_lock(filepath):
@@ -30,6 +28,7 @@ class TimedDBBundle(object):
     """
     TimedDBをとりまとめるクラス
     """
+
     def __init__(self, dir_prefix):
         self.dir_prefix = dir_prefix
 
@@ -55,15 +54,17 @@ class TimedDBBundle(object):
             if not os.path.exists(db_path):
                 logger.debug('create whsiper db for box %s at path %s', box_id, db_path)
                 whisper.create(
-                    db_path, WHISPER_ARCHIVES,
+                    db_path,
+                    WHISPER_ARCHIVES,
                     xFilesFactor=0.5,
-                    aggregationMethod='sum', sparse=False, useFallocate=True)
+                    aggregationMethod='sum',
+                    sparse=False,
+                    useFallocate=True
+                )
 
             logger.debug('update timed db (%s): %r', box_id, timestamps)
             with get_lock(db_path):
-                whisper.update_many(
-                    db_path, timestamps
-                )
+                whisper.update_many(db_path, timestamps)
 
     def find_db(self, box_id):
         return TimedDB(os.path.join(self.dir_prefix, TimedDB.make_db_name(box_id)))
@@ -88,6 +89,7 @@ class TimedDB(object):
     Estimated storage requirement for 100k metrics: 217.819GB
     Estimated storage requirement for 500k metrics: 1089.096GB
     """
+
     @classmethod
     def make_db_name(cls, box_id):
         return 'box_{}.wsp'.format(box_id)

@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
-
 """モジュール関連APIの実装."""
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 # community module
-from flask import abort, current_app, request, Response
+from flask import abort, current_app, request
 
 # project module
 from circle_core.models import MessageBox, MetaDataSession, Module, NoResultFound
+
 from .api import api
 from .utils import respond_failure, respond_success
-from ..utils import (
-    oauth_require_read_schema_scope, oauth_require_write_schema_scope
-)
+from ..utils import (oauth_require_read_schema_scope, oauth_require_write_schema_scope)
 
+if TYPE_CHECKING:
+    from flask import Response
 
 GRAPH_RANGE_TO_TIME_RANGE = {
     '30m': 60 * 30,
@@ -35,7 +36,7 @@ def api_modules():
 
 
 @oauth_require_read_schema_scope
-def _get_modules():
+def _get_modules() -> 'Response':
     """全てのModuleの情報を取得する.
 
     :return: 全てのModuleの情報
@@ -45,7 +46,7 @@ def _get_modules():
 
 
 @oauth_require_write_schema_scope
-def _post_modules():
+def _post_modules() -> 'Response':
     """Moduleを作成する.
 
     :return: 作成したModuleの情報
@@ -165,11 +166,7 @@ def _respond_rickshaw_graph_data(boxes, graph_range):
     timed_db_bundle = TimedDBBundle(current_app.core.prefix)
     # tz_offset = int(request.args.get('tzOffset', 0))
     tz_offset = 0
-    graph_data = fetch_rickshaw_graph_data(
-        boxes,
-        graph_range,
-        timed_db_bundle,
-        time.time() - tz_offset)
+    graph_data = fetch_rickshaw_graph_data(boxes, graph_range, timed_db_bundle, time.time() - tz_offset)
     return respond_success(graphData=graph_data)
 
 

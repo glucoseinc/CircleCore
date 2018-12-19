@@ -2,21 +2,22 @@
 """Master側のWebsocketの口とか、AdminのUIとか"""
 import logging
 import ssl
+import typing
 
 from tornado.httpserver import HTTPServer
 from tornado.web import Application, FallbackHandler
 from tornado.wsgi import WSGIContainer
 
 # project module
-from circle_core.constants import RequestType
 from circle_core.exceptions import ConfigError
 from circle_core.web import create_app
+
 from .module_event import ModuleEventHandler
 from .replication_master import ReplicationMasterHandler
-from ..base import CircleWorker, register_worker_factory
+from ..base import CircleWorker, WorkerType, register_worker_factory
 
 logger = logging.getLogger(__name__)
-WORKER_HTTP = 'http'
+WORKER_HTTP = typing.cast(WorkerType, 'http')
 
 
 @register_worker_factory(WORKER_HTTP)
@@ -27,7 +28,8 @@ def create_http_worker(core, type, key, config):
         return config.get(*key, **kwargs).lower() in ('on', 'true')
 
     return HTTPWorker(
-        core, key,
+        core,
+        key,
         listen=config.get('listen'),
         ws_on=_config_get_bool('websocket'),
         ws_port=config.getint('websocket_port', fallback=config.getint('port')),
@@ -45,10 +47,10 @@ class HTTPWorker(CircleWorker):
     """
     worker_type = WORKER_HTTP
 
-    def __init__(self, core, worker_key, listen,
-                 ws_on, ws_port,
-                 admin_on, admin_port, admin_base_url, skip_build,
-                 tls_key_path, tls_crt_path):
+    def __init__(
+        self, core, worker_key, listen, ws_on, ws_port, admin_on, admin_port, admin_base_url, skip_build, tls_key_path,
+        tls_crt_path
+    ):
         super(HTTPWorker, self).__init__(core, worker_key)
 
         self.listen = listen
@@ -74,8 +76,8 @@ class HTTPWorker(CircleWorker):
                 logger.warning('admin_base_url setting (%s) startswith http, not https', self.admin_base_url)
 
             self.flask_app = create_app(
-                self.core, self.admin_base_url, ws_port=self.ws_port,
-                is_https=True if self.tls_crt_path else False)
+                self.core, self.admin_base_url, ws_port=self.ws_port, is_https=True if self.tls_crt_path else False
+            )
 
     def initialize(self):
         if not (self.ws_on or self.admin_on):
@@ -103,9 +105,7 @@ class HTTPWorker(CircleWorker):
                 assert root_url.startswith('https://' if is_https else 'http://')
                 logger.info('Admin UI running on %s', root_url)
 
-            admin_handlers = [
-                (r'.*', FallbackHandler, {'fallback': WSGIContainer(self.flask_app)})
-            ]
+            admin_handlers = [(r'.*', FallbackHandler, {'fallback': WSGIContainer(self.flask_app)})]
 
         ssl_ctx = None
         if is_https:
@@ -115,7 +115,8 @@ class HTTPWorker(CircleWorker):
         if self.ws_on and self.admin_on and (self.ws_port == self.admin_port):
             application = Application(
                 ws_handlers + admin_handlers,  # admin_handlers must be last
-                _core=self.core)
+                _core=self.core
+            )
             server = HTTPServer(application, ssl_options=ssl_ctx)
             server.listen(self.ws_port, self.listen)
         else:

@@ -1,31 +1,44 @@
 # -*- coding: utf-8 -*-
-
 """Replication Link Model."""
 
 # system module
 import datetime
+from typing import Any, Dict, List, Optional, TYPE_CHECKING, Union
 
 # community module
 from flask import current_app, request
+
 import sqlalchemy as sa
 from sqlalchemy import orm
 
 # project module
 from .base import GUID, MetaDataBase, UUIDMetaDataBase
 
-
 # type annotation
-try:
-    from typing import Dict, List, Optional, Union, TYPE_CHECKING
-    if TYPE_CHECKING:
-        from uuid import UUID
-        from .cc_info import CcInfo
-except ImportError:
-    pass
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from mypy_extensions import TypedDict
+
+    from .cc_info import CcInfo, CcInfoJson
+
+    class IdDict(TypedDict, total=True):
+        uuid: str
+
+    class ReplicationLinkJson(TypedDict, total=True):
+        uuid: str
+        displayName: str
+        memo: str
+        link: str
+        slaves: 'List[Union[IdDict, CcInfoJson]]'
+        # recursive
+        # messageBoxes: 'List[Union[IdDict, MessageBoxJson]]'
+        messageBoxes: List[Dict[str, Any]]
 
 
 replication_boxes_table = sa.Table(
-    'replication_boxes', MetaDataBase.metadata,
+    'replication_boxes',
+    MetaDataBase.metadata,
     sa.Column('link_uuid', GUID, sa.ForeignKey('replication_links.uuid')),
     sa.Column('box_uuid', GUID, sa.ForeignKey('message_boxes.uuid')),
 )
@@ -34,27 +47,30 @@ replication_boxes_table = sa.Table(
 class ReplicationSlave(MetaDataBase):
     """ReplicationSlaveオブジェクト.
 
-    :param UUID link_uuid: ReplicationLink UUID
-    :param UUID slave_uuid: ReplicationSlave UUID
-    :param Optional[datetime.datetime] last_access_at: 最終アクセス日時
-    :param ReplicationLink link: ReplicationSlave UUID
-    :param CcInfo info: ReplicationSlave UUID
+    Args:
+        info: ReplicationSlave UUID
+        last_access_at: 最終アクセス日時
+        link: ReplicationSlave UUID
+        link_uuid: ReplicationLink UUID
+        slave_uuid: ReplicationSlave UUID
     """
+    info: 'CcInfo'
+    last_access_at: Optional[datetime.datetime]
+    link: 'ReplicationLink'
+    link_uuid: 'UUID'
+    slave_uuid: 'UUID'
 
     __tablename__ = 'replication_slaves'
-    __table_args__ = (
-        sa.PrimaryKeyConstraint('link_uuid', 'slave_uuid', name='replication_slaves_pk'),
-    )
+    __table_args__ = (sa.PrimaryKeyConstraint('link_uuid', 'slave_uuid', name='replication_slaves_pk'),)
 
     link_uuid = sa.Column(GUID, sa.ForeignKey('replication_links.uuid'), nullable=False)
     slave_uuid = sa.Column(GUID, nullable=False)
     last_access_at = sa.Column(sa.DateTime)
 
-    link = orm.relationship(
-        'ReplicationLink',
-        backref=orm.backref('slaves', cascade='all, delete-orphan'))
+    link = orm.relationship('ReplicationLink', backref=orm.backref('slaves', cascade='all, delete-orphan'))
     info = orm.relationship(
-        'CcInfo', foreign_keys=[slave_uuid], primaryjoin='CcInfo.uuid == ReplicationSlave.slave_uuid', uselist=False)
+        'CcInfo', foreign_keys=[slave_uuid], primaryjoin='CcInfo.uuid == ReplicationSlave.slave_uuid', uselist=False
+    )
 
 
 class ReplicationLink(UUIDMetaDataBase):
@@ -75,13 +91,11 @@ class ReplicationLink(UUIDMetaDataBase):
     display_name = sa.Column(sa.String(255), nullable=False, default='')
     memo = sa.Column(sa.Text, nullable=False, default='')
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
-    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow,
-                           onupdate=datetime.datetime.utcnow)
+    updated_at = sa.Column(
+        sa.DateTime, nullable=False, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow
+    )
 
-    message_boxes = orm.relationship(
-        'MessageBox',
-        secondary=replication_boxes_table,
-        backref='links')
+    message_boxes = orm.relationship('MessageBox', secondary=replication_boxes_table, backref='links')
 
     ALL_MESSAGE_BOXES = object()
 
@@ -113,10 +127,8 @@ class ReplicationLink(UUIDMetaDataBase):
 
         return obj
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         """init.
-
-        :param Dict kwargs: キーワード引数
         """
         super(ReplicationLink, self).__init__(**kwargs)
 
@@ -136,6 +148,7 @@ class ReplicationLink(UUIDMetaDataBase):
         :return: 共有リンクのEndpointのURL
         :rtype: Optional[str]
         """
+
         def build_link():
             schema = 'wss' if current_app.config['PREFERRED_URL_SCHEME'] == 'https' else 'ws'
             return '{schema}://{server_name}:{port}/replication/{_uuid}'.format(
@@ -162,15 +175,18 @@ class ReplicationLink(UUIDMetaDataBase):
                     return build_link()
         return None
 
-    def to_json(self, with_slaves=False, with_boxes=False, with_module=True, with_schema=True):
+    def to_json(
+        self, with_slaves: bool = False, with_boxes: bool = False, with_module: bool = True, with_schema: bool = True
+    ) -> 'ReplicationLinkJson':
         """このモデルのJSON表現を返す.
 
         :param bool with_slaves: 返り値にReplicationSlavesの情報を含めるか
         :param bool with_boxes: 返り値にMessageBoxの情報を含めるか
         :param bool with_module: 返り値にModuleの情報を含めるか
         :param bool with_schema: 返り値にSchemaの情報を含めるか
-        :return: JSON表現のDict
-        :rtype: Dict
+
+        Return:
+            JSON表現のDict
         """
         slaves = []
         for slave in self.slaves:
@@ -187,7 +203,7 @@ class ReplicationLink(UUIDMetaDataBase):
             else:
                 message_boxes.append(dict(uuid=box.uuid))
 
-        d = {
+        d: ReplicationLinkJson = {
             'uuid': str(self.uuid),
             # 'ccInfoUuids': [str(_uuid) for _uuid in self.cc_info_uuids],
             # 'messageBoxUuids': [str(_uuid) for _uuid in self.message_box_uuids],

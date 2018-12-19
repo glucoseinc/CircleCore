@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-
 """OAuth."""
 
 # system module
 import datetime
 import json
 import logging
+from typing import TYPE_CHECKING
 
 # community module
 import sqlalchemy as sa
@@ -14,13 +14,9 @@ from sqlalchemy import orm
 # project module
 from ..base import GUID, MetaDataBase, MetaDataSession, StringList, TextList
 
-
 # type annotation
-try:
+if TYPE_CHECKING:
     from ..user import User
-except ImportError:
-    pass
-
 
 logger = logging.getLogger(__name__)
 REDIS_GRANT_KEY_PREFIX = '_oauth:grant:'
@@ -133,6 +129,7 @@ class OAuthToken(MetaDataBase):
     :param str user_id: The user object
     :param User user:
     """
+    user: 'User'
 
     __tablename__ = 'oauth_tokens'
 

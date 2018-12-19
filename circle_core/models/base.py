@@ -1,23 +1,20 @@
 # -*- coding: utf-8 -*-
-
 """Model Base."""
 
 # system module
 import uuid
 
 # community module
-from six import string_types
 from sqlalchemy import String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.types import CHAR, TypeDecorator
 
-
 MetaDataSession = scoped_session(sessionmaker(autocommit=True, autoflush=False))
 
 
-class MetaDataBase(declarative_base()):
+class MetaDataBase(declarative_base()):  # type: ignore
     """MetaData Base Model."""
 
     __abstract__ = True
@@ -92,7 +89,7 @@ class StrListBase(TypeDecorator):
     def process_bind_param(self, value, dialect):
         if value is None:
             return value
-        elif isinstance(value, string_types):
+        elif isinstance(value, str):
             if self.delimiter in value:
                 raise ValueError('value includs delimiter {!r}'.format(self.delimiter))
             return value
@@ -129,7 +126,7 @@ class UUIDList(TypeDecorator):
     def process_bind_param(self, value, dialect):
         if value is None:
             return value
-        elif isinstance(value, string_types):
+        elif isinstance(value, str):
             if self.delimiter in value:
                 raise ValueError('value includs delimiter {!r}'.format(self.delimiter))
             return value
@@ -137,7 +134,7 @@ class UUIDList(TypeDecorator):
         elif hasattr(value, '__iter__'):
             x = []
             for v in value:
-                if isinstance(v, string_types):
+                if isinstance(v, str):
                     if self.delimiter in v:
                         raise ValueError('value includs delimiter {!r}'.format(self.delimiter))
                     v = uuid.UUID(v)
