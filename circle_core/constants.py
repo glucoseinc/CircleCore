@@ -18,6 +18,7 @@ class CRDataType(enum.Enum):
     DATETIME = 'DATETIME'
     TIME = 'TIME'
     TIMESTAMP = 'TIMESTAMP'
+    BLOB = 'BLOB'
 
 
 @enum.unique

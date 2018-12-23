@@ -77,7 +77,7 @@ class DataReceiverWorker(CircleWorker):
         asyncio.get_event_loop().run_until_complete(self.writer.flush(flush_all=True))
 
     async def on_new_message(self, request):
-        """新しいメッセージを受けとった"""
+        """nanomsgから新しいメッセージを受けとった"""
         box_id = request['box_id']
         payload = request['payload']
 

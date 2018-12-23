@@ -37,10 +37,10 @@ if TYPE_CHECKING:
     from .message_box import MessageBox
 
 
-class SchemaProperty(collections.namedtuple('SchemaProperty', ['name', 'type'])):
+class SchemaProperty(collections.namedtuple('SchemaProperty', ['name', 'raw_type'])):
     """SchemaProperty."""
     name: str
-    type: str
+    raw_type: str
 
     def __new__(cls, name: 'Union[SchemaPropertyJson, str]', type: Optional[str] = None):
         """new.
@@ -64,7 +64,7 @@ class SchemaProperty(collections.namedtuple('SchemaProperty', ['name', 'type']))
         :return: 文字列表現
         :rtype: str
         """
-        return '{}:{}'.format(self.name, self.type)
+        return '{}:{}'.format(self.name, self.raw_type)
 
     def to_json(self) -> 'SchemaPropertyJson':
         """このモデルのJSON表現を返す.
@@ -72,7 +72,16 @@ class SchemaProperty(collections.namedtuple('SchemaProperty', ['name', 'type']))
         :return: JSON表現のDict
         :rtype: Dict
         """
-        return {'name': self.name, 'type': self.type}
+        return {'name': self.name, 'type': self.raw_type}
+
+    @property
+    def type(self) -> Optional[str]:
+        # Deprecatedにしたい
+        return self.raw_type
+
+    @property
+    def type_val(self) -> Optional[CRDataType]:
+        return CRDataType[self.raw_type.upper()] if self.raw_type else None
 
 
 class SchemaProperties(object):
@@ -304,20 +313,20 @@ class Schema(UUIDMetaDataBase):
             return isinstance(value, str)
 
         validator = {
-            CRDataType.INT.value: validate_int,
-            CRDataType.FLOAT.value: validate_float,
-            CRDataType.BOOL.value: validate_bool,
-            CRDataType.STRING.value: validate_string,
-            CRDataType.BYTES.value: validate_bytes,
-            CRDataType.DATE.value: validate_date,
-            CRDataType.DATETIME.value: validate_datetime,
-            CRDataType.TIME.value: validate_time,
-            CRDataType.TIMESTAMP.value: validate_timestamp,
+            CRDataType.INT: validate_int,
+            CRDataType.FLOAT: validate_float,
+            CRDataType.BOOL: validate_bool,
+            CRDataType.STRING: validate_string,
+            CRDataType.BYTES: validate_bytes,
+            CRDataType.DATE: validate_date,
+            CRDataType.DATETIME: validate_datetime,
+            CRDataType.TIME: validate_time,
+            CRDataType.TIMESTAMP: validate_timestamp,
         }
 
         for msg_key, msg_value in data.items():
             for prop in self.properties:
-                if msg_key == prop.name and validator[prop.type.upper()](msg_value):
+                if msg_key == prop.name and validator[prop.type_val](msg_value):
                     break
             else:
                 return False
