@@ -102,7 +102,7 @@ class DataReceiverWorker(CircleWorker):
         message = msg.to_json()
         response = {'response': 'message_accepted', 'message': message}
 
-        # pusblish
+        # publish
         logger.debug('publish new message: %s', message)
         self.core.hub.publish(make_message_topic(message_box.module.uuid, message_box.uuid), message)
 

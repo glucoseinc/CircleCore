@@ -2,6 +2,7 @@
 
 # system module
 import asyncio
+import functools
 import json
 import logging
 import typing
@@ -131,7 +132,7 @@ class Replicator(object):
         if self.ws:
             self.ws.close()
         if self.writer:
-            self.writer.flush(flush_all=True)
+            asyncio.get_event_loop().run_until_complete(functools.partial(self.writer.flush, flush_all=True))
 
         self.target_boxes = None
         self.writer = None

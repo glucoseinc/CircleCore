@@ -1,21 +1,26 @@
+import os
+import re
 import subprocess
 import sys
-from sqlalchemy import create_engine
-import os
-from time import sleep
-import re
-from uuid import UUID
-from base58 import b58encode
 import tempfile
+from time import sleep
+from uuid import UUID
+
+from base58 import b58encode
+
+from sqlalchemy import create_engine
 
 import circle_core
 
 
 def main(master_dir, slave_dir):
+    master_dir = tempfile.mkdtemp('master')
+    slave_dir = tempfile.mkdtemp('slave')
     # master_dir = str(tmpdir_factory.mktemp('master'))
     # slave_dir = str(tmpdir_factory.mktemp('slave'))
-    master_dir = os.path.abspath('tmp/master')
-    slave_dir = os.path.abspath('tmp/slave')
+    # master_dir = os.path.abspath('tmp/master')
+    # slave_dir = os.path.abspath('tmp/slave')
+    ipc_prefix = 'ipc://{}/'.format(tempfile.gettempdir())
 
     # prepare database
     engine = create_engine('mysql+pymysql://root@localhost')
@@ -44,8 +49,8 @@ uuid = auto
 prefix = {master_dir}
 metadata_file_path = ${{prefix}}/metadata.sqlite
 log_file_path = ${{prefix}}/core.log
-hub_socket = ipc://${{prefix}}/crcr_hub_master.ipc
-request_socket = ipc://${{prefix}}/crcr_request_master.ipc
+hub_socket = {ipc_prefix}test_crcr_hub_master.ipc
+request_socket = {ipc_prefix}test_crcr_req_master.ipc
 db = {db_url}
 log_dir = ${{prefix}}
 time_db_dir = ${{prefix}}
@@ -59,10 +64,8 @@ websocket = on
 admin = on
 admin_base_url = http://${{listen}}:${{port}}
 skip_build = on
-""".format(db_url=master_db_url, master_dir=master_dir)
+""".format(db_url=master_db_url, master_dir=master_dir, ipc_prefix=ipc_prefix)
         )
-    request_socket_url = 'ipc://{master_dir}/crcr_request_master.ipc'.format(master_dir=master_dir)
-    print(request_socket_url)
 
     result = subprocess.run(['crcr', 'module', 'add', '--name', 'counterbot'], check=True, stdout=subprocess.PIPE)
     module_uuid = re.search(r'^Module "([0-9A-Fa-f-]+)" is added\.$', result.stdout.decode(), re.MULTILINE).group(1)
@@ -97,7 +100,7 @@ skip_build = on
         '--box-id',
         box_uuid,
         '--to',
-        request_socket_url,
+        '{ipc_prefix}/test_crcr_req_master.ipc'.format(ipc_prefix=ipc_prefix),
         '--interval',
         '0.2',
         '--silent',
@@ -127,8 +130,8 @@ uuid = auto
 prefix = {slave_dir}
 metadata_file_path = ${{prefix}}/metadata.sqlite
 log_file_path = ${{prefix}}/core.log
-hub_socket = ipc://${{prefix}}/crcr_hub_slave.ipc
-request_socket = ipc://${{prefix}}/crcr_request_slave.ipc
+hub_socket = {ipc_prefix}/test_crcr_hub_slave.ipc
+request_socket = {ipc_prefix}/test_crcr_hub_slave.ipc
 db = {db_url}
 log_dir = ${{prefix}}
 time_db_dir = ${{prefix}}
@@ -142,7 +145,7 @@ websocket = on
 admin = on
 admin_base_url = http://${{listen}}:${{port}}
 skip_build = on
-""".format(db_url=slave_db_url, slave_dir=slave_dir)
+""".format(db_url=slave_db_url, slave_dir=slave_dir, ipc_prefix=ipc_prefix)
         )
 
     subprocess.run([
