@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-
-import re
-
 from click.testing import CliRunner
+
 import pytest
 
 from circle_core.cli import cli_entry
-from tests import uuid_rex
+from circle_core.testing import uuid_rex
 
 
 @pytest.mark.skip(reason='rewriting...')

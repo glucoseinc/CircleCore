@@ -86,8 +86,10 @@ class ReplicationMasterHandler(WebSocketHandler):
 
         database = self.get_core().get_database()
         self.state = ReplicationState.HANDSHAKING
-        self.sync_states = ImmutableDict((box.uuid, SyncState(box, database.get_latest_primary_key(box)))
-                                         for box in self.replication_link.message_boxes)
+        self.sync_states = ImmutableDict(
+            (box.uuid, SyncState(box, database.get_latest_primary_key(box)))
+            for box in self.replication_link.message_boxes
+        )
         self.syncing = False
         logger.debug('initial sync status: %s', self.sync_states)
 

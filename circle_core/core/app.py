@@ -79,11 +79,13 @@ class CircleCore(object):
         :rtype: CircleCore
         """
         config = cls._make_config_parser()
-        okfiles = config.read([
-            './{}'.format(DEFAULT_CONFIG_FILE_NAME),
-            os.path.expanduser('~/{}'.format(DEFAULT_CONFIG_FILE_NAME)),
-            '/etc/circle_core/{}'.format(DEFAULT_CONFIG_FILE_NAME),
-        ])
+        okfiles = config.read(
+            [
+                './{}'.format(DEFAULT_CONFIG_FILE_NAME),
+                os.path.expanduser('~/{}'.format(DEFAULT_CONFIG_FILE_NAME)),
+                '/etc/circle_core/{}'.format(DEFAULT_CONFIG_FILE_NAME),
+            ]
+        )
         if not okfiles:
             raise ConfigError('no config file found')
 

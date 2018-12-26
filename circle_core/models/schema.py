@@ -215,10 +215,12 @@ class Schema(UUIDMetaDataBase):
         :return: equality
         :rtype: bool
         """
-        return all([
-            self.uuid == other.uuid, self.display_name == other.display_name, self.properties == other.properties,
-            self.memo == other.memo
-        ])
+        return all(
+            [
+                self.uuid == other.uuid, self.display_name == other.display_name, self.properties == other.properties,
+                self.memo == other.memo
+            ]
+        )
 
     @hybrid_property
     def properties(self):

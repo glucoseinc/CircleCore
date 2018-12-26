@@ -219,10 +219,12 @@ class Module(UUIDMetaDataBase):
         """
         if not isinstance(other, Module):
             return False
-        return all([
-            self.uuid == other.uuid, self.display_name == other.display_name, self.tags == other.tags,
-            self.memo == other.memo
-        ])
+        return all(
+            [
+                self.uuid == other.uuid, self.display_name == other.display_name, self.tags == other.tags,
+                self.memo == other.memo
+            ]
+        )
 
     @hybrid_property
     def tags(self):

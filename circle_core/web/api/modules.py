@@ -194,20 +194,24 @@ def fetch_rickshaw_graph_data(boxes, graph_range, timed_db_bundle, end_time):
             if graph_steps != (start, end, step):
                 raise ValueError('graph range mismatch')
 
-        graph_data.append({
-            'messageBox': dict(uuid=str(box_uuid)) if isinstance(box, UUID) else box.to_json(),
-            'data': [dict(x=x, y=y) for x, y in zip(range(start, end, step), values)],
-        })
+        graph_data.append(
+            {
+                'messageBox': dict(uuid=str(box_uuid)) if isinstance(box, UUID) else box.to_json(),
+                'data': [dict(x=x, y=y) for x, y in zip(range(start, end, step), values)],
+            }
+        )
 
     if not graph_steps:
         graph_steps = int(start_time), int(end_time), int(end_time - start_time) - 1
 
     # グラフが無いやつはNullのグラフで埋める
     for box in missing_boxes:
-        graph_data.append({
-            'messageBox': dict(uuid=str(box_uuid)) if isinstance(box, UUID) else box.to_json(),
-            'data': [dict(x=x, y=None) for x in range(*graph_steps)],
-        })
+        graph_data.append(
+            {
+                'messageBox': dict(uuid=str(box_uuid)) if isinstance(box, UUID) else box.to_json(),
+                'data': [dict(x=x, y=None) for x in range(*graph_steps)],
+            }
+        )
     graph_data.sort(key=lambda x: x['messageBox']['uuid'])
 
     return graph_data

@@ -87,13 +87,15 @@ class OAuthGrant(MetaDataBase):
         :return: JSON表現
         :rtype: str
         """
-        return json.dumps({
-            'client_id': self.client_id,
-            'code': self.code,
-            'redirect_uri': self.redirect_uri,
-            'scopes': self.scopes,
-            'user': self.user,
-        })
+        return json.dumps(
+            {
+                'client_id': self.client_id,
+                'code': self.code,
+                'redirect_uri': self.redirect_uri,
+                'scopes': self.scopes,
+                'user': self.user,
+            }
+        )
 
     @classmethod
     def from_json(cls, data):
@@ -164,14 +166,16 @@ class OAuthToken(MetaDataBase):
         :return: JSON表現
         :rtype: str
         """
-        return json.dumps({
-            'access_token': self.access_token,
-            'refresh_token': self.refresh_token,
-            'client_id': self.client_id,
-            'scopes': self.scopes,
-            'expires': self.expires.isoformat('T'),
-            'user': self.user,
-        })
+        return json.dumps(
+            {
+                'access_token': self.access_token,
+                'refresh_token': self.refresh_token,
+                'client_id': self.client_id,
+                'scopes': self.scopes,
+                'expires': self.expires.isoformat('T'),
+                'user': self.user,
+            }
+        )
 
     @classmethod
     def from_json(cls, data):

@@ -7,6 +7,7 @@ import logging
 import threading
 import typing
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 # project module
 from circle_core.constants import RequestType
@@ -18,6 +19,10 @@ from ..database import Database
 from ..exceptions import MessageBoxNotFoundError
 from ..helpers.topics import make_message_topic
 from ..models import MessageBox, NoResultFound
+
+if TYPE_CHECKING:
+    import uuid
+    from typing import DefaultDict
 
 logger = logging.getLogger(__name__)
 WORKER_DATARECEIVER = typing.cast(WorkerType, 'datareceiver')
@@ -47,6 +52,7 @@ class DataReceiverWorker(CircleWorker):
     また、同時にhubにも流す。
     """
     worker_type = WORKER_DATARECEIVER
+    counters: 'DefaultDict[uuid.UUID, int]'
 
     def __init__(self, core, key, db_url, time_db_dir, log_dir, cycle_time=1.0, cycle_count=10):
         super(DataReceiverWorker, self).__init__(core, key)
@@ -66,11 +72,12 @@ class DataReceiverWorker(CircleWorker):
 
         # messageに関するイベントを監視する
         self.core.hub.register_handler(RequestType.NEW_MESSAGE.value, self.on_new_message)
+        self.counters = defaultdict(int)
 
     def initialize(self):
         """override"""
         # start
-        self.counters = defaultdict(int)
+        self.counters.clear()
 
     def finalize(self):
         """override"""

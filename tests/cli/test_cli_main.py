@@ -1,21 +1,23 @@
 # -*- coding: utf-8 -*-
 
 # system module
-from collections import defaultdict
 import os
+from collections import defaultdict
 
 # community module
 from click.testing import CliRunner
+
 import pytest
 
 # project module
 from circle_core.cli import cli_entry
-from tests import crcr_uuid
+from circle_core.testing import crcr_uuid
 
 
 @pytest.mark.skip
 class TestCliMain(object):
 
+    # yapf: disable
     @pytest.mark.usefixtures('remove_environ')
     @pytest.mark.parametrize(
         ('main_params', 'expected'),
@@ -23,8 +25,7 @@ class TestCliMain(object):
             (
                 [],  # main_params
                 {
-                    'exit_code':
-                    -1,
+                    'exit_code': -1,
                     'output': [
                         'Metadata is not set.', 'Please set metadata to argument `crcr --metadata URL_SCHEME ...`',
                         'or set to environment variable `export CRCR_METADATA=URL_SCHEME`.'
@@ -42,6 +43,7 @@ class TestCliMain(object):
             ),
         ]
     )
+    # yapf: enable
     def test_main_env_failure(self, main_params, expected):
         runner = CliRunner()
         result = runner.invoke(cli_entry, main_params + ['env'])

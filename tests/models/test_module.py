@@ -1,16 +1,11 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from circle_core.models import generate_uuid, MessageBox, MetaDataSession, Module, Schema
+from circle_core.models import MessageBox, MetaDataSession, Module, Schema, generate_uuid
 from circle_core.models.module import ModuleAttribute, ModuleAttributes
-from circle_core.testing import setup_db
 
 
 class TestModule(object):
-
-    @classmethod
-    def setup_class(cls):
-        setup_db()
 
     @pytest.mark.parametrize(('_input', 'expected'), [
         (
@@ -23,7 +18,8 @@ class TestModule(object):
             )
         ),
     ])
-    def test_module(self, _input, expected):
+    @pytest.mark.usefixtures('mock_circlecore')
+    def test_module(self, _input, expected, mock_circlecore):
         module = Module.create()
 
         schema = Schema.create(display_name='Schema', properties='x:int,y:float')

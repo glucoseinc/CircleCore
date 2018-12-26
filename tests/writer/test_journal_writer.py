@@ -6,30 +6,30 @@ import os
 import uuid
 from unittest.mock import MagicMock
 
+import pytest
+
 from circle_core.message import ModuleMessage
 from circle_core.models import MessageBox, MetaDataSession, Module, Schema
-from circle_core.testing import setup_db
-from circle_core.writer.journal_writer import JournalDBWriter, JournalReader, JournalWriter
-
-import pytest
+from circle_core.testing import mock_circlecore_context
+from circle_core.writer.journal_writer import JournalDBWriter, JournalReader
 
 
 @pytest.fixture()
 def dummy_mbox():
     print("            setup before function")
 
-    setup_db()
+    with mock_circlecore_context():
 
-    mbox_id = uuid.uuid4()
-    with MetaDataSession.begin():
-        schema = Schema.create(display_name='Schema', properties='x:int,y:float')
-        module = Module.create(display_name='Module')
-        mbox = MessageBox(uuid=mbox_id, schema_uuid=schema.uuid, module_uuid=module.uuid)
-        MetaDataSession.add(schema)
-        MetaDataSession.add(module)
-        MetaDataSession.add(mbox)
+        mbox_id = uuid.uuid4()
+        with MetaDataSession.begin():
+            schema = Schema.create(display_name='Schema', properties='x:int,y:float')
+            module = Module.create(display_name='Module')
+            mbox = MessageBox(uuid=mbox_id, schema_uuid=schema.uuid, module_uuid=module.uuid)
+            MetaDataSession.add(schema)
+            MetaDataSession.add(module)
+            MetaDataSession.add(mbox)
 
-    yield (schema, module, mbox)
+        yield (schema, module, mbox)
 
 
 @pytest.mark.asyncio

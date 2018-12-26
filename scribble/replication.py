@@ -70,23 +70,25 @@ skip_build = on
     result = subprocess.run(['crcr', 'module', 'add', '--name', 'counterbot'], check=True, stdout=subprocess.PIPE)
     module_uuid = re.search(r'^Module "([0-9A-Fa-f-]+)" is added\.$', result.stdout.decode(), re.MULTILINE).group(1)
 
-    result = subprocess.run(['crcr', 'schema', 'add', '--name', 'counterbot', 'count:int', 'body:string'],
-                            check=True,
-                            stdout=subprocess.PIPE)
+    result = subprocess.run(
+        ['crcr', 'schema', 'add', '--name', 'counterbot', 'count:int', 'body:string'],
+        check=True,
+        stdout=subprocess.PIPE
+    )
     schema_uuid = re.search(r'^Schema "([0-9A-Fa-f-]+)" is added\.$', result.stdout.decode(), re.MULTILINE).group(1)
 
     # run master
-    result = subprocess.run([
-        'crcr', 'box', 'add', '--name', 'counterbot', '--schema', schema_uuid, '--module', module_uuid
-    ],
-                            check=True,
-                            stdout=subprocess.PIPE)
+    result = subprocess.run(
+        ['crcr', 'box', 'add', '--name', 'counterbot', '--schema', schema_uuid, '--module', module_uuid],
+        check=True,
+        stdout=subprocess.PIPE
+    )
     box_uuid = re.search(r'^MessageBox "([0-9A-Fa-f-]+)" is added\.$', result.stdout.decode(), re.MULTILINE).group(1)
     table_name = 'message_box_{}'.format(b58encode(UUID(box_uuid).bytes).decode('latin1'))
 
-    result = subprocess.run(['crcr', 'replication_link', 'add', '--name', 'slave1', '--all-boxes'],
-                            check=True,
-                            stdout=subprocess.PIPE)
+    result = subprocess.run(
+        ['crcr', 'replication_link', 'add', '--name', 'slave1', '--all-boxes'], check=True, stdout=subprocess.PIPE
+    )
     link_uuid = re.search(r'^Replication Link "([0-9A-Fa-f-]+)" is added\.$', result.stdout.decode(),
                           re.MULTILINE).group(1)
 
@@ -94,17 +96,19 @@ skip_build = on
     running_master = subprocess.Popen(['crcr', '--debug', 'run'])
     sleep(1)
 
-    bot = subprocess.Popen([
-        sys.executable,
-        counter_py,
-        '--box-id',
-        box_uuid,
-        '--to',
-        '{ipc_prefix}/test_crcr_req_master.ipc'.format(ipc_prefix=ipc_prefix),
-        '--interval',
-        '0.2',
-        '--silent',
-    ],)
+    bot = subprocess.Popen(
+        [
+            sys.executable,
+            counter_py,
+            '--box-id',
+            box_uuid,
+            '--to',
+            '{ipc_prefix}/test_crcr_req_master.ipc'.format(ipc_prefix=ipc_prefix),
+            '--interval',
+            '0.2',
+            '--silent',
+        ],
+    )
 
     # masterにデータを注入
     # masterのメッセージボックスが空の状態でレプリケーションを始めると以降受信したメッセージがslaveに転送されない
@@ -148,10 +152,10 @@ skip_build = on
 """.format(db_url=slave_db_url, slave_dir=slave_dir, ipc_prefix=ipc_prefix)
         )
 
-    subprocess.run([
-        'crcr', 'replication_master', 'add', '--endpoint', 'ws://localhost:5001/replication/{}'.format(link_uuid)
-    ],
-                   check=True)
+    subprocess.run(
+        ['crcr', 'replication_master', 'add', '--endpoint', 'ws://localhost:5001/replication/{}'.format(link_uuid)],
+        check=True
+    )
 
     running_slave = subprocess.Popen(['crcr', '--debug', 'run'])
 

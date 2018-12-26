@@ -189,8 +189,10 @@ class User(UUIDMetaDataBase):
         Args:
             jsonobj: JSON表現のDict
         """
-        for from_key, to_key in [('account', 'account'), ('mailAddress', 'mail_address'), ('work', 'work'),
-                                 ('telephone', 'telephone'), ('permissions', 'permissions')]:
+        for from_key, to_key in [
+            ('account', 'account'), ('mailAddress', 'mail_address'), ('work', 'work'), ('telephone', 'telephone'),
+            ('permissions', 'permissions')
+        ]:
             if from_key in jsonobj:
                 setattr(self, to_key, jsonobj[from_key])
 

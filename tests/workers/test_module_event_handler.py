@@ -12,17 +12,17 @@ from tornado.web import Application
 from tornado.websocket import websocket_connect
 
 from circle_core.models import MessageBox, MetaDataSession, Module, Schema
-from circle_core.testing import setup_db
+from circle_core.testing import mock_circlecore_context
 from circle_core.workers.http import ModuleEventHandler
 
 
 class TestModuleEventHandlerBase(AsyncHTTPTestCase):
 
     def get_app(self):
-        return Application([
-            (r'/modules/(?P<module_uuid>[0-9A-Fa-f-]+)/(?P<mbox_uuid>[0-9A-Fa-f-]+)', ModuleEventHandler)
-        ],
-                           _core=self.app_mock)
+        return Application(
+            [(r'/modules/(?P<module_uuid>[0-9A-Fa-f-]+)/(?P<mbox_uuid>[0-9A-Fa-f-]+)', ModuleEventHandler)],
+            _core=self.app_mock
+        )
 
     def setUp(self):
         self.app_mock = MagicMock()
@@ -31,7 +31,14 @@ class TestModuleEventHandlerBase(AsyncHTTPTestCase):
         self.app_mock.get_datareceiver.return_value = self.datareceiver
 
         super().setUp()
-        setup_db()
+
+        self.ctxt = mock_circlecore_context()
+        self.ctxt.__enter__()
+
+    def tearDown(self):
+        self.ctxt.__exit__(None, None, None)
+
+        super().tearDown()
 
 
 class TestModuleEventHandlerViaREST(TestModuleEventHandlerBase):

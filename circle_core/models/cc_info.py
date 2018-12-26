@@ -46,7 +46,7 @@ class CcInfo(UUIDMetaDataBase):
 
     __tablename__ = 'cc_informations'
 
-    uuid = sa.Column(GUID, primary_key=True)
+    uuid = sa.Column(GUID, primary_key=True, unique=True)
     display_name = sa.Column(sa.String(255))
     myself = sa.Column(sa.Boolean, nullable=False)
     work = sa.Column(sa.Text, nullable=False)

@@ -93,9 +93,9 @@ def create_row_strings(rows) -> 'Tuple[List[str], List[int]]':
     # Create row strings.
     row_strings = []
     for row in rows:
-        row_string = ' '.join([
-            _ljust(size, string) if string is not None else '' for size, string in zip_longest(sizes, row)
-        ])
+        row_string = ' '.join(
+            [_ljust(size, string) if string is not None else '' for size, string in zip_longest(sizes, row)]
+        )
         row_strings.append(row_string)
 
     return row_strings, sizes
