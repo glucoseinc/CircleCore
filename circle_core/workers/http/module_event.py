@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """モジュールへのイベント受け口
 """
-import base64
 import json
 import logging
 from email.parser import BytesFeedParser
@@ -45,13 +44,6 @@ class ModuleEventHandler(WebSocketHandler):
         if content_type == 'application/json':
             payload = json.loads(self.request.body.decode('utf-8'))
         elif content_type == 'multipart/mixed':
-            # import email
-            # print(self.request.body[:200])
-            # msg = email.message_from_bytes(self.request.body)
-            # print(msg.is_multipart())
-            # print(msg.get_content_type())
-            # # print(msg.get_payload())
-
             parser = BytesFeedParser()
             for k, v in self.request.headers.items():
                 parser.feed('{}: {}\n'.format(k, v).encode('utf-8'))
@@ -87,21 +79,21 @@ class ModuleEventHandler(WebSocketHandler):
             return
 
         # blob プロパティあったらゴニョゴニョする
+        blobstore = self.get_core().get_blobstore()
         for prop in self.mbox.schema.properties:
             if prop.type_val != CRDataType.BLOB:
                 continue
-
             data = payload.get(prop.name, NotFound)
+
             if data is NotFound:
                 # Insufficient data
                 self.send_error(400)
                 return
             if data.startswith('data:'):
-                pass
+                payload[prop.name] = blobstore.store_blob_url(self.mbox.uuid, data)
             elif data.startswith('file:///'):
                 content_type, data = attachments[data[8:]]
-                payload[prop.name] = ('data:{};base64,'.format(content_type).encode('utf-8') +
-                                      base64.b64encode(data)).decode('utf-8')
+                payload[prop.name] = blobstore.store_blob(self.mbox.uuid, content_type, data)
             else:
                 # Unsupported data type
                 self.send_error(400)

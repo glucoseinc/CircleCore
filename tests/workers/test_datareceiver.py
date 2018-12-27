@@ -4,6 +4,7 @@ import pytest
 
 from circle_core.database import Database
 from circle_core.models import MessageBox, MetaDataSession, Module, Schema, generate_uuid
+from circle_core.workers.blobstore import StoredBlob
 from circle_core.workers.datareceiver import DataReceiverWorker
 
 
@@ -17,7 +18,6 @@ async def test_datareceiver_store_blob(mock_circlecore, mysql, monkeypatch):
     make_writer_mock = Mock(name='make_writer', return_value=writer_mock)
 
     async def dummy_store(*args, **kwargs):
-        print('YEAH!!!!', repr((args, kwargs)))
         return DEFAULT
 
     writer_mock.store.side_effect = dummy_store
@@ -45,6 +45,15 @@ async def test_datareceiver_store_blob(mock_circlecore, mysql, monkeypatch):
         cycle_count=10,
     )
 
-    await worker.receive_new_message(mbox.uuid, {'x': 1, 'y': 2.0, 'data': 'data:text/plain;base64,aG9nZWhvZ2UK'})
+    datahash = (
+        '2b7e36b16f8a849ef312f9ef5ff9b3f4281a8681d0657150899f1113a0eecfdb'
+        'b4491da763159055b55e122e85281415b11897d268e124f9ef2b40457a63a465'
+    )
+    blobobj = StoredBlob(None, 'text/plain', datahash)
+    await worker.receive_new_message(mbox.uuid, {'x': 1, 'y': 2.0, 'data': blobobj})
 
-    assert 0
+    publish_mock = core_mock.hub.publish
+    publish_mock.assert_called_once()
+    message = publish_mock.call_args[0][1]
+    assert message.payload['data'].content_type == 'text/plain'
+    assert message.payload['data'].datahash == datahash

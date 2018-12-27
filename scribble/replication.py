@@ -22,6 +22,9 @@ def main(master_dir, slave_dir):
     # slave_dir = os.path.abspath('tmp/slave')
     ipc_prefix = 'ipc://{}/'.format(tempfile.gettempdir())
 
+    master_log = open('master.log', 'wt')
+    slave_log = open('slave.log', 'wt')
+
     # prepare database
     engine = create_engine('mysql+pymysql://root@localhost')
     engine.execute('DROP DATABASE IF EXISTS crcr_test_master')
@@ -93,7 +96,11 @@ skip_build = on
                           re.MULTILINE).group(1)
 
     # run master & counter
-    running_master = subprocess.Popen(['crcr', '--debug', 'run'])
+    running_master = subprocess.Popen(
+        ['crcr', '--debug', 'run'],
+        stdout=master_log,
+        stderr=subprocess.STDOUT,
+    )
     sleep(1)
 
     bot = subprocess.Popen(
@@ -135,7 +142,7 @@ prefix = {slave_dir}
 metadata_file_path = ${{prefix}}/metadata.sqlite
 log_file_path = ${{prefix}}/core.log
 hub_socket = {ipc_prefix}/test_crcr_hub_slave.ipc
-request_socket = {ipc_prefix}/test_crcr_hub_slave.ipc
+request_socket = {ipc_prefix}/test_crcr_req_slave.ipc
 db = {db_url}
 log_dir = ${{prefix}}
 time_db_dir = ${{prefix}}
@@ -157,7 +164,11 @@ skip_build = on
         check=True
     )
 
-    running_slave = subprocess.Popen(['crcr', '--debug', 'run'])
+    running_slave = subprocess.Popen(
+        ['crcr', '--debug', 'run'],
+        stdout=slave_log,
+        stderr=subprocess.STDOUT,
+    )
 
     try:
         bot.wait(timeout=10)

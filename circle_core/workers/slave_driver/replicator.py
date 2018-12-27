@@ -19,9 +19,11 @@ from circle_core.message import ModuleMessage, ModuleMessagePrimaryKey
 from circle_core.models import CcInfo, MessageBox, MetaDataSession, Module, NoResultFound, Schema
 
 if typing.TYPE_CHECKING:
-    from typing import Dict, Optional
+    from typing import Dict, Optional, Tuple
 
     from circle_core.writer import QueuedDBWriter
+    from . import SlaveDriverWorker
+    from ..models import ReplicationMaster
 
 logger = logging.getLogger(__name__)
 
@@ -51,10 +53,12 @@ class Replicator(object):
     :param bool closed:
     :param str endpoint_url:
     """
+    driver: 'SlaveDriverWorker'
+    master: 'ReplicationMaster'
     target_boxes: 'Optional[Dict[uuid.UUID, MessageBox]]'
     writer: 'Optional[QueuedDBWriter]'
 
-    def __init__(self, driver, master, request_options=None):
+    def __init__(self, driver: 'SlaveDriverWorker', master: 'ReplicationMaster', request_options=None):
         self.driver = driver
         self.master = master
         self.ws = None
@@ -104,20 +108,18 @@ class Replicator(object):
                     # エラーコードなし。おそらくMasterが終了した
                     logger.info('Replication connection was closed abnormally by peer. will retry after 5secs...')
 
-            except ConnectionRefusedError as exc:
+            except ConnectionRefusedError:
                 # 恐らく接続に失敗している > まだ立ち上がってない、のでWaitしてRetry
-                logger.error('Replication connection was refused. %r', exc)
+                logger.exception('Replication connection was refused. %r')
 
-            except WebSocketError as exc:
+            except WebSocketError:
                 # WebSocket上のエラーの場合は、エラーを記録して終了する。復活するには再起動させること
-                logger.error('Replication connection was closed abnormally. %r', exc)
+                logger.exception('Replication connection was closed abnormally.')
                 return
 
-            except Exception as exc:
+            except Exception:
                 # その他のエラーは、エラーを記録、TraceBackを表示して終了する。復活するには再起動させること
-                logger.error('Replication connection was closed abnormally. %r', exc)
-                import traceback
-                traceback.print_exc()
+                logger.exception('Replication connection was closed abnormally.')
                 return
             finally:
                 self.clear()
@@ -151,7 +153,7 @@ class Replicator(object):
         # HANDSHAKING
         self.send_hello_command()
         assert self.state == ReplicationState.MIGRATING
-        await self.wait_command(MasterCommand.MIGRATE)
+        await self.wait_command((MasterCommand.MIGRATE,))
 
         # MIGRATING
         self.send_migrated_command()
@@ -160,12 +162,17 @@ class Replicator(object):
         logger.info('Replication connection to %s: migrated, start syncing', self.endpoint_url)
 
         while not self.closed:
-            await self.wait_command([MasterCommand.SYNC_MESSAGE, MasterCommand.NEW_MESSAGE])
+            await self.wait_command((MasterCommand.SYNC_MESSAGE, MasterCommand.NEW_MESSAGE))
 
-    def _send_command(self, command, **payload):
+    def _send_command(self, command: MasterCommand, **payload):
+        if self.ws is None:
+            ReplicationError('Websocket is not connected')
+        else:
+            ws = self.ws
+
         msg = {'command': command.value}
         msg.update(payload)
-        self.ws.write_message(json.dumps(msg))
+        ws.write_message(json.dumps(msg))
 
     def send_hello_command(self):
         """挨拶がてら自分の情報を送る。 対象CircleCoreじゃなければ接続が閉じられる"""
@@ -198,13 +205,19 @@ class Replicator(object):
             heads=heads,
         )
 
-    async def wait_command(self, commands):
-        if not isinstance(commands, (list, tuple)):
-            commands = (commands,)
+    async def wait_command(self, commands: 'Tuple[ReplicationState, ...]') -> None:
+        """commandsで指定したコマンドが来るまで待つ
 
-        raw = await self.ws.read_message()
+        違うコマンドが来たらReplicationError例外を起こす
+        """
+        if self.ws is None:
+            ReplicationError('Websocket is not connected')
+        else:
+            ws = self.ws
+
+        raw = await ws.read_message()
         if raw is None:
-            raise ConnectionClosed(self.ws.close_code, self.ws.close_reason)
+            raise ConnectionClosed(ws.close_code, ws.close_reason)
 
         message = json.loads(raw)
 
@@ -282,7 +295,9 @@ class Replicator(object):
         await self._store_message(message['message'])
 
     async def _store_message(self, data):
+        logger.info('!?data', repr(data))
         message = ModuleMessage.from_json(data)
+        logger.info('!?message', repr(message))
         if message.box_id not in self.target_boxes:
             raise DataConfilictedError('invalid box id')
 

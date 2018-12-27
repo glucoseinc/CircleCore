@@ -71,7 +71,7 @@ class JournalDBWriter(DBWriter, JournalReaderDelegate):
 
     # override
     async def store(self, message_box, message) -> bool:
-        self.journal_writer.write(message.to_json(with_boxid=True))
+        self.journal_writer.write(message.to_json())
         self.store_event.set()
 
         return True

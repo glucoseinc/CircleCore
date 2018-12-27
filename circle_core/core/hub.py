@@ -12,10 +12,14 @@ from tornado.ioloop import IOLoop
 # project module
 from .base import logger
 from ..helpers.nanomsg import Replier, Sender
+from ..serialize import serialize
 
 # type annotation
 if typing.TYPE_CHECKING:
     from typing import Any, Awaitable, Callable, Dict, Optional, Union
+
+    from ..types import Topic
+    from ..message import ModuleMessage
 
     Request = Dict[str, Any]
     Response = Dict[str, Any]
@@ -78,13 +82,14 @@ class CoreHub(object):
         logger.info('register message handler: %s', name)
         self.message_handlers[name] = handler
 
-    def publish(self, topic, message):
+    def publish(self, topic: 'Topic', message: 'ModuleMessage') -> None:
         """(topic, message)をPub/Subに送信する.
 
         :param str topic: topic名
         :param Dict message: Message
         """
-        self.sender.send(topic, message)
+        payload = topic.ljust(48) + serialize(message)
+        self.sender.send(payload.encode('latin1'))
 
     # private
     async def handle_replier(self, request: 'Request', exception: 'Optional[Any]') -> None:

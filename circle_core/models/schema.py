@@ -14,6 +14,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 # project module
 from .base import GUID, UUIDMetaDataBase, generate_uuid
 from ..constants import CRDataType
+from ..types import BlobMetadata
 
 # type annotation
 if TYPE_CHECKING:
@@ -274,7 +275,7 @@ class Schema(UUIDMetaDataBase):
         if 'properties' in jsonobj:
             self.properties = SchemaProperties(jsonobj['properties'])
 
-    def check_match(self, data):
+    def check_match(self, data) -> 'Tuple[bool, Optional[str]]':
         """nanomsg経由で受け取ったメッセージをデシリアライズしたものがこのSchemaに適合しているか.
 
         :param Dict data:
@@ -283,7 +284,7 @@ class Schema(UUIDMetaDataBase):
         """
         # TODO: Schema専用のJSONDecoderを作ってそこで例外を投げる
         if not len(data) == len(self.properties):
-            return False
+            return False, 'size mismatch'
 
         # TODO: 各Typeをクラス化する
         # TODO: もう少し厳密にvalidate
@@ -314,6 +315,9 @@ class Schema(UUIDMetaDataBase):
         def validate_timestamp(value):
             return isinstance(value, str)
 
+        def validate_blob(value):
+            return isinstance(value, BlobMetadata)
+
         validator = {
             CRDataType.INT: validate_int,
             CRDataType.FLOAT: validate_float,
@@ -324,6 +328,7 @@ class Schema(UUIDMetaDataBase):
             CRDataType.DATETIME: validate_datetime,
             CRDataType.TIME: validate_time,
             CRDataType.TIMESTAMP: validate_timestamp,
+            CRDataType.BLOB: validate_blob,
         }
 
         for msg_key, msg_value in data.items():
@@ -331,6 +336,6 @@ class Schema(UUIDMetaDataBase):
                 if msg_key == prop.name and validator[prop.type_val](msg_value):
                     break
             else:
-                return False
+                return False, '`{}` validation failed'.format(msg_key)
 
-        return True
+        return True, None

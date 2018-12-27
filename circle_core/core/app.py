@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
     from sqlalchemy.engine import Engine
     from ..database import Database
-    from ..workers import CircleWorker, WorkerKey, WorkerType
+    from ..workers import BlobStoreWorker, CircleWorker, WorkerKey, WorkerType
 
 DEFAULT_CONFIG_FILE_NAME = 'circle_core.ini'
 
@@ -260,6 +260,11 @@ class CircleCore(object):
         """
         return cast('Database', self.get_datareceiver().db)
 
+    def get_blobstore(self) -> 'BlobStoreWorker':
+        from circle_core.workers import WORKER_BLOBSTORE
+
+        return cast('BlobStoreWorker', self.find_worker(WORKER_BLOBSTORE))
+
     def make_hub_receiver(self, topic=None):
         """Message Hubのレシーバを作成する.
 
@@ -344,7 +349,6 @@ class CircleCore(object):
         with MetaDataSession.begin():
             try:
                 my_cc_info = CcInfo.query.filter_by(myself=True).one()
-                logger.info('My CCInfo found.')
             except NoResultFound:
                 logger.info('My CCInfo not found. Create new one')
                 my_cc_info = CcInfo(display_name='My CircleCore', myself=True, work='')

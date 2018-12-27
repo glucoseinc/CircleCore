@@ -68,8 +68,8 @@ async def test_journal_db_writer(tmpdir, dummy_mbox, caplog):
         'timestamp': '123456.7890000000',
         'counter': 0,
         'payload': {
-            'x': '1',
-            'y': '2'
+            'x': 1,
+            'y': 2
         }
     }
     child_writer_mock.store.assert_called_once()
@@ -94,8 +94,8 @@ async def test_journal_db_writer(tmpdir, dummy_mbox, caplog):
             'timestamp': '123456.7890000000',
             'counter': 0,
             'payload': {
-                'x': '1',
-                'y': '2'
+                'x': 1,
+                'y': 2
             }
         }
 
@@ -105,8 +105,8 @@ async def test_journal_db_writer(tmpdir, dummy_mbox, caplog):
             'timestamp': '123500.7890000000',
             'counter': 1,
             'payload': {
-                'x': '3',
-                'y': '4'
+                'x': 3,
+                'y': 4
             }
         }
 

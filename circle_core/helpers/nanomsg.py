@@ -128,14 +128,13 @@ class Sender(object):
         """
         self._socket.close()
 
-    def send(self, topic, payload):
+    def send(self, payload: bytes) -> None:
         """送信.
 
         :param str topic: topic名
         :param Dict payload: payload
         """
-        data = topic.ljust(48) + json.dumps(payload)
-        return self._socket.send(data.encode('utf-8'))
+        self._socket.send(payload)
 
 
 class Replier(object):

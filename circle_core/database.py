@@ -6,7 +6,7 @@ from __future__ import absolute_import
 # system module
 import threading
 import uuid
-from typing import Any, Mapping, Optional
+from typing import Any, Dict, Mapping, Optional, TYPE_CHECKING
 
 # community module
 from base58 import b58encode
@@ -21,7 +21,11 @@ from .exceptions import DatabaseWriteFailed
 from .logger import logger
 from .message import ModuleMessage, ModuleMessagePrimaryKey
 from .models import MessageBox
+from .serialize import serialize
 from .types import Path
+
+if TYPE_CHECKING:
+    from .workers.blobstore import StoredBlob
 
 TABLE_OPTIONS = {
     'mysql_engine': 'InnoDB',
@@ -61,6 +65,52 @@ class Database(object):
         # 現在把握している最新のメッセージキーを保存する(つまり、未コミットのものも含む)
         self._message_heads = self._get_current_message_heads()
 
+    # public
+    def store_message(self, message_box: 'MessageBox', message: 'ModuleMessage', *, connection=None) -> None:
+        """Databaseにmessageを保存する.
+
+        :param MessageBox message_box: MessageBox
+        :param ModuleMessage message: message
+        :param Optional[Connection] connection: Connection
+        """
+        assert connection, 'TODO: create new connection if not present it'
+        self._check_thread()
+
+        previous_head = self._message_heads.get(message_box.uuid)
+        if previous_head and previous_head >= message.primary_key:
+            raise ValueError('message is older than latest head')
+
+        table = self.find_table_for_message_box(message_box)
+        query = table.insert().values(
+            _created_at=message.timestamp, _counter=message.counter, **self.convert_payload(message_box, message)
+        )
+
+        try:
+            connection.execute(query)
+        except sqlalchemy.exc.DatabaseError as exc:
+            # 接続エラーとかの場合 OperationalErrorがくる
+            logger.exception('Failed to write message, %r', exc)
+            raise DatabaseWriteFailed
+        else:
+            # update head
+            self._message_heads[message_box.uuid] = message.primary_key
+
+    def drop_message_box(self, message_box, connection=None):
+        """MessageBox Tableを削除する.
+
+        :param MessageBox message_box: MessageBox
+        :param Optional[Connection] connection: Connection
+        """
+        if not connection:
+            connection = self._engine.connect()
+
+        table = self.find_table_for_message_box(message_box, create_if_not_exists=False)
+        if table is not None:
+            table.drop(self._engine)
+            self._metadata.remove(table)
+            del self._message_heads[message_box.uuid]
+
+    # private?
     def _get_current_message_heads(self):
         connection = self._engine.connect()
         d = {}
@@ -158,48 +208,6 @@ class Database(object):
                 table = self.make_table_for_message_box(message_box)
 
         return table
-
-    def store_message(self, message_box, message, connection=None):
-        """Databaseにmessageを保存する.
-
-        :param MessageBox message_box: MessageBox
-        :param ModuleMessage message: message
-        :param Optional[Connection] connection: Connection
-        """
-        assert connection, 'TODO: create new connection if not present it'
-        self._check_thread()
-
-        previous_head = self._message_heads.get(message_box.uuid)
-        if previous_head and previous_head >= message.primary_key:
-            raise ValueError('message is older than latest head')
-
-        table = self.find_table_for_message_box(message_box)
-        query = table.insert().values(_created_at=message.timestamp, _counter=message.counter, **message.payload)
-
-        try:
-            connection.execute(query)
-        except sqlalchemy.exc.DatabaseError as exc:
-            # 接続エラーとかの場合 OperationalErrorがくる
-            logger.exception('Failed to write message, %r', exc)
-            raise DatabaseWriteFailed
-        else:
-            # update head
-            self._message_heads[message_box.uuid] = message.primary_key
-
-    def drop_message_box(self, message_box, connection=None):
-        """MessageBox Tableを削除する.
-
-        :param MessageBox message_box: MessageBox
-        :param Optional[Connection] connection: Connection
-        """
-        if not connection:
-            connection = self._engine.connect()
-
-        table = self.find_table_for_message_box(message_box, create_if_not_exists=False)
-        if table is not None:
-            table.drop(self._engine)
-            self._metadata.remove(table)
-            del self._message_heads[message_box.uuid]
 
     def _check_thread(self):
         """Threadの整合性をチェックする."""
@@ -314,6 +322,15 @@ class Database(object):
 
         return jounal_writer
 
+    # private
+    def convert_payload(self, message_box: MessageBox, message: ModuleMessage) -> 'Dict[str, Any]':
+        rv = {}
+        for prop in message_box.schema.properties:
+            if prop.type_val is None:
+                raise ValueError('bad property')
+            rv[prop.name] = convert_to_mysql_value(prop.type_val, message.payload[prop.name])
+        return rv
+
 
 def make_sqlcolumn_from_datatype(name, datatype):
     """schemaの型に応じて、SQLAlchemyのColumnを返す.
@@ -335,7 +352,32 @@ def make_sqlcolumn_from_datatype(name, datatype):
         CRDataType.DATETIME: sa.DATETIME,
         CRDataType.TIME: sa.TIME,
         CRDataType.TIMESTAMP: sa.TIMESTAMP,
+        CRDataType.BLOB: sa.TEXT,
     }
     coltype = coltypes[CRDataType(datatype.upper())]()
 
     return sa.Column(name, coltype)
+
+
+# to mysql value
+def blob_to_mysql(value: 'StoredBlob') -> Any:
+    return serialize(value)
+
+
+TO_MYSQLVALUE_MAP = {
+    CRDataType.BLOB: blob_to_mysql,
+}
+
+
+def convert_to_mysql_value(datatype, value):
+    """schemaの型に応じて、SQLAlchemyのColumnを返す.
+
+    :param str name: カラム名
+    :param CRDataType datatype: データ型
+    :return sa.Column: カラム
+    """
+
+    converter = TO_MYSQLVALUE_MAP.get(datatype, None)
+    if not converter:
+        return value
+    return converter(value)

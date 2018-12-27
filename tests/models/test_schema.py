@@ -81,4 +81,5 @@ class TestSchema(object):
             MetaDataSession.add(schema)
 
         schema = Schema.query.get(schema.uuid)
-        assert schema.check_match(data) is expected
+        ok, msg = schema.check_match(data)
+        assert ok is expected

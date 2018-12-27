@@ -190,7 +190,8 @@ class QueuedDBWriter(DBWriter):
         self.write_count = 0
 
     @run_on_executor
-    def store_message(self, message_box, message):
+    def store_message(self, message_box: 'MessageBox', message: 'ModuleMessage') -> None:
+        assert message_box.uuid == message.box_id
         connection = getattr(self.tls_connection, 'connection', None)
         if not connection:
             try:

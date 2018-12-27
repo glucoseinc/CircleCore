@@ -3,8 +3,11 @@
 # from threading import Thread
 # from time import sleep, time
 # from uuid import UUID
+from unittest.mock import DEFAULT, MagicMock, Mock
 
-# import pytest
+import pytest
+
+from sqlalchemy.sql.expression import select
 
 # from sqlalchemy import Table, create_engine
 # from sqlalchemy.engine.reflection import Inspector
@@ -28,6 +31,11 @@
 # # from circle_core.server.ws import ModuleHandler, ReplicationMaster
 # # from circle_core.workers import replication_slave
 # # from circle_core.workers.replication_slave import ReplicationSlave
+from circle_core.constants import MasterCommand, ReplicationState
+from circle_core.database import Database
+from circle_core.models import CcInfo, MessageBox, MetaDataSession, Module, ReplicationMaster, Schema, generate_uuid
+from circle_core.workers.slave_driver import SlaveDriverWorker
+from circle_core.writer import QueuedDBWriter
 
 # # class DummyMetadata(object):
 # #     schemas = [Schema('95eef02e-36e5-446e-9fea-aedd10321f6f', 'json', [{'name': 'hoge', 'type': 'int'}])]
@@ -190,3 +198,91 @@
 #             assert ModuleMessage.is_equal_timestamp(rows[0]._created_at, now)
 #             assert rows[0]._counter == 0
 #             assert rows[0].hoge == 123
+
+
+@pytest.mark.usefixtures('mock_circlecore')
+@pytest.mark.usefixtures('mysql')
+@pytest.mark.asyncio
+async def test_replicate_blob(mysql, mock_circlecore):
+    """BLOBをReplicateできるかテスト
+
+    このテストは見ている範囲が広すぎるにしてはみたいところがみれてないのでは"""
+    mock_cc = MagicMock()
+    envdir = mock_circlecore[1]
+
+    database = Database(mysql.url, time_db_dir=envdir, log_dir=envdir)
+
+    with MetaDataSession.begin():
+        master_uuid = generate_uuid(model=CcInfo)
+
+        # ccinfo = CcInfo.query.filter_by(myself=True).one()
+        master_cc_info = CcInfo(uuid=master_uuid, display_name='test master', myself=False, work='')
+        replication_master = ReplicationMaster(endpoint_url='', info=master_cc_info)
+        module = Module(uuid=generate_uuid(model=Module), cc_info=master_cc_info)
+        schema = Schema.create(cc_uuid=master_cc_info.uuid, display_name='Schema', properties='x:int,y:float,data:blob')
+        box = MessageBox(uuid=generate_uuid(model=MessageBox), schema=schema, module=module, display_name='Box')
+
+        MetaDataSession.add(master_cc_info)
+        MetaDataSession.add(replication_master)
+        MetaDataSession.add(module)
+        MetaDataSession.add(schema)
+        MetaDataSession.add(box)
+
+    async def dummy_store(*args):
+        return DEFAULT
+
+    slave_dirver = SlaveDriverWorker(mock_cc, '', False)
+    slave_dirver.initialize()
+    assert len(slave_dirver.replicators) == 1
+    assert replication_master.id in slave_dirver.replicators
+
+    replicator = slave_dirver.replicators[replication_master.id]
+    replicator.state = ReplicationState.SYNCING
+    replicator.target_boxes = {
+        box.uuid: box
+    }
+    replicator.ws = MagicMock()
+
+    writer = QueuedDBWriter(database, envdir)
+    replicator.writer = writer
+
+    datahash = (
+        'bf3408132f944568dd02827441f8c69b1f3e5a36bd7693a7aeeffd490037b56d'
+        '9ad9406892ecd70cb9c0d31a746e7e790e731ae491dc0176a49369a2a4044581'
+    )
+    replicator.ws.read_message = Mock(side_effect=make_dummy_read_message('''\
+{{
+    "command": "new_message",
+    "message": {{
+        "boxId": "{box_id}",
+        "timestamp": "1546006083.213117",
+        "counter": 0,
+        "payload": {{
+            "x": 32768,
+            "y": 3.14,
+            "data": {{"$data": "{datahash}", "$source": "{source}", "$type": "text/plain"}}
+        }}
+    }}
+}}
+'''.format(box_id=str(box.uuid), datahash=datahash, source=master_cc_info.uuid)))
+    await replicator.wait_command((MasterCommand.NEW_MESSAGE,))
+
+    replicator.ws.read_message.assert_called_once()
+
+    with database._engine.begin() as connection:
+        table = database.find_table_for_message_box(box)
+        rows = connection.execute(select([table.c.data])).fetchall()
+
+        assert len(rows) == 1
+        expected = '{{"$data": "{datahash}", "$source": "{source}", "$type": "text/plain"}}' \
+            .format(
+                datahash=datahash,
+                source=str(master_cc_info.uuid)
+            )
+        assert rows[0][0] == expected
+
+
+def make_dummy_read_message(message):
+    async def dummy():
+        return message
+    return dummy
