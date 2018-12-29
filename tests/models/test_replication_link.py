@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from circle_core.models import generate_uuid, MessageBox, MetaDataSession, Module, ReplicationLink, Schema
-from circle_core.testing import setup_db
+from circle_core.models import MessageBox, MetaDataSession, Module, ReplicationLink, Schema, generate_uuid
 
 
 class TestReplicationLink(object):
 
-    @classmethod
-    def setup_class(cls):
-        setup_db()
-
-    @pytest.mark.parametrize(('_input', 'expected'), [
-        (dict(display_name='Link', memo='memo'), dict(display_name='Link', memo='memo')),
-    ])
-    def test_replication_link(self, _input, expected):
+    @pytest.mark.parametrize(
+        ('_input', 'expected'),
+        [
+            (dict(display_name='Link', memo='memo'), dict(display_name='Link', memo='memo')),
+        ]
+    )
+    @pytest.mark.usefixtures('mock_circlecore')
+    def test_replication_link(self, _input, expected, mock_circlecore):
         schema = Schema.create(display_name='Schema', properties='x:int,y:float')
         module = Module.create(display_name='Module')
 

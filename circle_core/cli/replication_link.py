@@ -53,11 +53,13 @@ def _format_for_columns(replication_links: 'List[ReplicationLink]') -> 'Tuple[Ta
     header = ['UUID', 'DISPLAY_NAME', 'TARGET_CORES']
     data: 'TableData' = []
     for replication_link in replication_links:
-        data.append((
-            str(replication_link.uuid),
-            replication_link.display_name,
-            ','.join(str(x) for x in replication_link.target_cores),
-        ))
+        data.append(
+            (
+                str(replication_link.uuid),
+                replication_link.display_name,
+                ','.join(str(x) for x in replication_link.target_cores),
+            )
+        )
     return data, header
 
 

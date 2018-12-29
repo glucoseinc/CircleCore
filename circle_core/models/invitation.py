@@ -58,6 +58,7 @@ class Invitation(UUIDMetaDataBase):
         sa.DateTime, nullable=False, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow
     )
 
+    # TODO: この書き方はDeprecatedらしい
     __mapper_args__ = {
         'order_by': updated_at.desc(),  # type: ignore
     }

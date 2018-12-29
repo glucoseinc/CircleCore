@@ -95,7 +95,7 @@ def oauth_login():
     try:
         user = _find_user_by_password(request.form['account'], request.form['password'])
     except AuthorizationError:
-        logger.info('Login failed %s(%s)', user.account, user.uuid)
+        logger.info('Login failed %s', request.form['account'])
         return render_template('oauth/login.html', redirect_to=redirect_to, is_failed=True)
 
     # ログイン処理

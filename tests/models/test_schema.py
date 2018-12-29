@@ -1,16 +1,11 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from circle_core.models import generate_uuid, MessageBox, MetaDataSession, Module, Schema, SchemaProperties
+from circle_core.models import MessageBox, MetaDataSession, Module, Schema, SchemaProperties, generate_uuid
 from circle_core.models.schema import SchemaProperty
-from circle_core.testing import setup_db
 
 
 class TestSchema(object):
-
-    @classmethod
-    def setup_class(cls):
-        setup_db()
 
     @pytest.mark.parametrize(('_input', 'expected'), [
         (
@@ -18,7 +13,8 @@ class TestSchema(object):
             dict(displayName='Schema', memo='memo', properties=[('x', 'int'), ('y', 'float')])
         ),
     ])
-    def test_schema(self, _input, expected):
+    @pytest.mark.usefixtures('mock_circlecore')
+    def test_schema(self, _input, expected, mock_circlecore):
         schema = Schema.create()
         schema.update_from_json(_input)
 
@@ -58,7 +54,7 @@ class TestSchema(object):
         assert len(jsonobj['modules']) == 1
         assert module.display_name == jsonobj['modules'][0]['displayName']
 
-    @pytest.mark.parametrize(('_input', 'data', 'expected'), [
+    @pytest.mark.parametrize(('_input', 'data', 'expected'), [  # noqa: F811
         (
             'a:int,b:float,c:bool,d:string,e:bytes,f:date,g:datetime,h:time,i:timestamp',
             dict(
@@ -76,7 +72,7 @@ class TestSchema(object):
         ('a:int,b:float', dict(a=1), False),
         ('a:int', dict(x=1), False),
     ])
-    def test_check_match(self, _input, data, expected):
+    def test_check_match(self, _input, data, expected, mock_circlecore):
         jsonobj = dict(displayName='Schema', memo='memo', properties=_input)
         schema = Schema.create()
         schema.update_from_json(jsonobj)
@@ -85,4 +81,5 @@ class TestSchema(object):
             MetaDataSession.add(schema)
 
         schema = Schema.query.get(schema.uuid)
-        assert schema.check_match(data) is expected
+        ok, msg = schema.check_match(data)
+        assert ok is expected

@@ -5,13 +5,11 @@ import os
 
 # community module
 import pytest
+
 import sqlalchemy as sa
 from sqlalchemy.engine.url import make_url
-import tcptest.redis
 
-# project module
-from circle_core.models import MetaDataBase, MetaDataSession
-from tests import crcr_uuid
+from circle_core.testing import mock_circlecore_context
 
 
 @pytest.fixture()
@@ -88,3 +86,9 @@ def class_wide_mysql(request):
 
     with engine.begin() as conn:
         conn.execute('DROP DATABASE IF EXISTS `{db}`'.format(db=db))
+
+
+@pytest.fixture()
+def mock_circlecore():
+    with mock_circlecore_context() as rv:
+        yield rv

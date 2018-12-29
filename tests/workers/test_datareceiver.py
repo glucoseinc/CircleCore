@@ -1,90 +1,59 @@
-from multiprocessing import Process
-from time import sleep
+from unittest.mock import DEFAULT, MagicMock, Mock
 
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
-from circle_core import database
 from circle_core.database import Database
-from circle_core.helpers.nanomsg import Sender
-# from circle_core.helpers.topics import ModuleMessageTopic
-# from circle_core.models import message
-from circle_core.models import MessageBox, Module, Schema
-
-# from circle_core.models.message import ModuleMessageFactory
-# from circle_core.models.metadata.base import MetadataReader
-
-# class DummyMetadata(MetadataReader):
-#     schemas = [Schema('95eef02e-36e5-446e-9fea-aedd10321f6f', 'json', [{'name': 'hoge', 'type': 'int'}])]
-#     message_boxes = [
-#         MessageBox(
-#             '402a7a37-691d-40ed-b0fe-4aeed9d0bba1', '95eef02e-36e5-446e-9fea-aedd10321f6f',
-#             '314a578a-6543-4331-90f7-ed80c81d29bf', 'DummyMessageBox1'),
-#         MessageBox(
-#             'dba1c788-69b4-4ca2-a7bd-8582eda96064', '95eef02e-36e5-446e-9fea-aedd10321f6f',
-#             None, 'DummyMessageBox2')
-#     ]
-#     modules = [
-#         Module('314a578a-6543-4331-90f7-ed80c81d29bf', 'DummyModule', 'foo,bar'),
-#     ]
-#     users = []
-#     invitations = []
-#     parse_url_scheme = None
+from circle_core.models import MessageBox, MetaDataSession, Module, Schema, generate_uuid
+from circle_core.workers.blobstore import StoredBlob
+from circle_core.workers.datareceiver import DataReceiverWorker
 
 
-def setup_module(module):
-    message.metadata = DummyMetadata
-    database.metadata = DummyMetadata
+@pytest.mark.asyncio
+@pytest.mark.usefixtures('mock_circlecore')
+@pytest.mark.usefixtures('mysql')
+async def test_datareceiver_store_blob(mock_circlecore, mysql, monkeypatch):
+    metadata_db_engine, tmp_dir = mock_circlecore
 
+    writer_mock = MagicMock()
+    make_writer_mock = Mock(name='make_writer', return_value=writer_mock)
 
-@pytest.mark.skip(reason='rewriting...')
-@pytest.mark.timeout(3)
-def test_specific_box(mysql):
-    """メッセージが指定したメッセージボックスに格納されるか."""
-    DummyMetadata.database_url = mysql.url
-    db = Database(mysql.url)
-    db.register_message_boxes(DummyMetadata.message_boxes, DummyMetadata.schemas)
-    db.migrate()
+    async def dummy_store(*args, **kwargs):
+        return DEFAULT
 
-    from circle_core.workers import datareceiver
-    global worker
-    worker = Process(target=lambda: datareceiver.run(DummyMetadata()))
-    worker.daemon = True
-    worker.start()
+    writer_mock.store.side_effect = dummy_store
 
-    topic = ModuleMessageTopic()
-    sender = Sender(topic)
-    messages = [
-        ModuleMessageFactory.new(
-            '314a578a-6543-4331-90f7-ed80c81d29bf', {
-                'hoge': 3,
-                '_message_box': '402a7a37-691d-40ed-b0fe-4aeed9d0bba1'
-            }
-        ) for _ in range(10)
-    ]
-    for msg in messages:
-        sender.send([msg.encode()])
-    sleep(2)
+    monkeypatch.setattr(Database, 'make_writer', make_writer_mock)
 
-    table = db.find_table_for_message_box(msg.message_box)
-    session = db._session()
-    with session.begin():
-        # 指定したメッセージボックスのテーブルに正しく書き込めているか
-        rows = session.query(table).all()
-        assert len(rows) == 10
+    # make test schema/mbox
+    with MetaDataSession.begin():
+        schema = Schema.create(display_name='Schema', properties='x:int,y:float,data:blob')
+        module = Module.create(display_name='Module')
+        mbox = MessageBox(uuid=generate_uuid(model=MessageBox), schema_uuid=schema.uuid, module_uuid=module.uuid)
 
-        for row, msg in zip(rows, messages):
-            assert row._created_at == msg.timestamp
-            assert row._counter == msg.count
-            assert row.hoge == 3
+        MetaDataSession.add(schema)
+        MetaDataSession.add(module)
+        MetaDataSession.add(mbox)
 
-        # 指定していないメッセージボックスのテーブルに書き込んでいないか
-        table = db.find_table_for_message_box(DummyMetadata.message_boxes[1])
-        rows = session.query(table).all()
-        assert len(rows) == 0
+    core_mock = MagicMock()
+    worker = DataReceiverWorker(
+        core_mock,
+        'worker_key',
+        db_url=mysql.url,
+        time_db_dir=tmp_dir,
+        log_dir=tmp_dir,
+        cycle_time=10,
+        cycle_count=10,
+    )
 
+    datahash = (
+        '2b7e36b16f8a849ef312f9ef5ff9b3f4281a8681d0657150899f1113a0eecfdb'
+        'b4491da763159055b55e122e85281415b11897d268e124f9ef2b40457a63a465'
+    )
+    blobobj = StoredBlob(None, 'text/plain', datahash)
+    await worker.receive_new_message(mbox.uuid, {'x': 1, 'y': 2.0, 'data': blobobj})
 
-def teardown_module(module):
-    global worker
-    worker.terminate()
+    publish_mock = core_mock.hub.publish
+    publish_mock.assert_called_once()
+    message = publish_mock.call_args[0][1]
+    assert message.payload['data'].content_type == 'text/plain'
+    assert message.payload['data'].datahash == datahash

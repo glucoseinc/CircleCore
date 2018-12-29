@@ -6,30 +6,30 @@ import os
 import uuid
 from unittest.mock import MagicMock
 
+import pytest
+
 from circle_core.message import ModuleMessage
 from circle_core.models import MessageBox, MetaDataSession, Module, Schema
-from circle_core.testing import setup_db
-from circle_core.writer.journal_writer import JournalDBWriter, JournalReader, JournalWriter
-
-import pytest
+from circle_core.testing import mock_circlecore_context
+from circle_core.writer.journal_writer import JournalDBWriter, JournalReader
 
 
 @pytest.fixture()
 def dummy_mbox():
     print("            setup before function")
 
-    setup_db()
+    with mock_circlecore_context():
 
-    mbox_id = uuid.uuid4()
-    with MetaDataSession.begin():
-        schema = Schema.create(display_name='Schema', properties='x:int,y:float')
-        module = Module.create(display_name='Module')
-        mbox = MessageBox(uuid=mbox_id, schema_uuid=schema.uuid, module_uuid=module.uuid)
-        MetaDataSession.add(schema)
-        MetaDataSession.add(module)
-        MetaDataSession.add(mbox)
+        mbox_id = uuid.uuid4()
+        with MetaDataSession.begin():
+            schema = Schema.create(display_name='Schema', properties='x:int,y:float')
+            module = Module.create(display_name='Module')
+            mbox = MessageBox(uuid=mbox_id, schema_uuid=schema.uuid, module_uuid=module.uuid)
+            MetaDataSession.add(schema)
+            MetaDataSession.add(module)
+            MetaDataSession.add(mbox)
 
-    yield (schema, module, mbox)
+        yield (schema, module, mbox)
 
 
 @pytest.mark.asyncio
@@ -68,8 +68,8 @@ async def test_journal_db_writer(tmpdir, dummy_mbox, caplog):
         'timestamp': '123456.7890000000',
         'counter': 0,
         'payload': {
-            'x': '1',
-            'y': '2'
+            'x': 1,
+            'y': 2
         }
     }
     child_writer_mock.store.assert_called_once()
@@ -94,8 +94,8 @@ async def test_journal_db_writer(tmpdir, dummy_mbox, caplog):
             'timestamp': '123456.7890000000',
             'counter': 0,
             'payload': {
-                'x': '1',
-                'y': '2'
+                'x': 1,
+                'y': 2
             }
         }
 
@@ -105,8 +105,8 @@ async def test_journal_db_writer(tmpdir, dummy_mbox, caplog):
             'timestamp': '123500.7890000000',
             'counter': 1,
             'payload': {
-                'x': '3',
-                'y': '4'
+                'x': 3,
+                'y': 4
             }
         }
 

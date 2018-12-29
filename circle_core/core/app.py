@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
     from sqlalchemy.engine import Engine
     from ..database import Database
-    from ..workers import CircleWorker, WorkerKey, WorkerType
+    from ..workers import BlobStoreWorker, CircleWorker, WorkerKey, WorkerType
 
 DEFAULT_CONFIG_FILE_NAME = 'circle_core.ini'
 
@@ -79,11 +79,13 @@ class CircleCore(object):
         :rtype: CircleCore
         """
         config = cls._make_config_parser()
-        okfiles = config.read([
-            './{}'.format(DEFAULT_CONFIG_FILE_NAME),
-            os.path.expanduser('~/{}'.format(DEFAULT_CONFIG_FILE_NAME)),
-            '/etc/circle_core/{}'.format(DEFAULT_CONFIG_FILE_NAME),
-        ])
+        okfiles = config.read(
+            [
+                './{}'.format(DEFAULT_CONFIG_FILE_NAME),
+                os.path.expanduser('~/{}'.format(DEFAULT_CONFIG_FILE_NAME)),
+                '/etc/circle_core/{}'.format(DEFAULT_CONFIG_FILE_NAME),
+            ]
+        )
         if not okfiles:
             raise ConfigError('no config file found')
 
@@ -163,6 +165,11 @@ class CircleCore(object):
                 config_uuid = uuid.UUID(config_uuid)
             except ValueError:
                 raise ConfigError('invalid uuid `{}`'.format(config_uuid))
+
+        if not check_nnurl(hub_socket):
+            raise ValueError('Bad hub socket url : {}'.format(hub_socket))
+        if not check_nnurl(request_socket):
+            raise ValueError('Bad request socket url : {}'.format(request_socket))
 
         self.debug = debug
         self.prefix = prefix
@@ -253,6 +260,11 @@ class CircleCore(object):
         """
         return cast('Database', self.get_datareceiver().db)
 
+    def get_blobstore(self) -> 'BlobStoreWorker':
+        from circle_core.workers import WORKER_BLOBSTORE
+
+        return cast('BlobStoreWorker', self.find_worker(WORKER_BLOBSTORE))
+
     def make_hub_receiver(self, topic=None):
         """Message Hubのレシーバを作成する.
 
@@ -337,7 +349,6 @@ class CircleCore(object):
         with MetaDataSession.begin():
             try:
                 my_cc_info = CcInfo.query.filter_by(myself=True).one()
-                logger.info('My CCInfo found.')
             except NoResultFound:
                 logger.info('My CCInfo not found. Create new one')
                 my_cc_info = CcInfo(display_name='My CircleCore', myself=True, work='')
@@ -353,3 +364,16 @@ class CircleCore(object):
     def start_metadata_event_logger(self):
         """metadataイベントのロガーを設定する."""
         self.metadata_event_logger = MetaDataEventLogger(self, self.log_file_path)
+
+
+def check_nnurl(sockurl):
+    """nanomsgのURLを事前にチェックする"""
+    # いまのところipc:/だけ
+    if sockurl.startswith('ipc:///'):
+        path = sockurl[6:]
+        # unix socketのpathはmax 90文字程度らしい
+        # http://pubs.opengroup.org/onlinepubs/007904975/basedefs/sys/un.h.html
+        if len(path) > 90:
+            return False
+
+    return True

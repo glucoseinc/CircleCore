@@ -35,11 +35,10 @@ def save_cwd():
         os.chdir(saved)
 
 
-def test_reproduce_missing_message(tmpdir_factory, save_cwd):
+def test_reproduce_missing_message(tmpdir_factory, save_cwd, caplog):
     master_dir = str(tmpdir_factory.mktemp('master'))
     slave_dir = str(tmpdir_factory.mktemp('slave'))
-    # master_dir = os.path.abspath('tmp/master')
-    # slave_dir = os.path.abspath('tmp/slave')
+    ipc_prefix = 'ipc:///tmp/'
 
     # prepare database
     engine = create_engine('mysql+pymysql://root@localhost')
@@ -68,8 +67,8 @@ uuid = auto
 prefix = {master_dir}
 metadata_file_path = ${{prefix}}/metadata.sqlite
 log_file_path = ${{prefix}}/core.log
-hub_socket = ipc://${{prefix}}/crcr_hub_master.ipc
-request_socket = ipc://${{prefix}}/crcr_request_master.ipc
+hub_socket = {ipc_prefix}test_crcr_hub_master.ipc
+request_socket = {ipc_prefix}test_crcr_req_master.ipc
 db = {db_url}
 log_dir = ${{prefix}}
 time_db_dir = ${{prefix}}
@@ -80,34 +79,34 @@ cycle_count=20
 listen = 127.0.0.1
 port = 5001
 websocket = on
-admin = on
+admin = off
 admin_base_url = http://${{listen}}:${{port}}
 skip_build = on
-""".format(db_url=master_db_url, master_dir=master_dir)
+""".format(db_url=master_db_url, master_dir=master_dir, ipc_prefix=ipc_prefix)
         )
-    request_socket_url = 'ipc://{master_dir}/crcr_request_master.ipc'.format(master_dir=master_dir)
-    print(request_socket_url)
 
     result = subprocess.run(['crcr', 'module', 'add', '--name', 'counterbot'], check=True, stdout=subprocess.PIPE)
     module_uuid = re.search(r'^Module "([0-9A-Fa-f-]+)" is added\.$', result.stdout.decode(), re.MULTILINE).group(1)
 
-    result = subprocess.run(['crcr', 'schema', 'add', '--name', 'counterbot', 'count:int', 'body:string'],
-                            check=True,
-                            stdout=subprocess.PIPE)
+    result = subprocess.run(
+        ['crcr', 'schema', 'add', '--name', 'counterbot', 'count:int', 'body:string'],
+        check=True,
+        stdout=subprocess.PIPE
+    )
     schema_uuid = re.search(r'^Schema "([0-9A-Fa-f-]+)" is added\.$', result.stdout.decode(), re.MULTILINE).group(1)
 
     # run master
-    result = subprocess.run([
-        'crcr', 'box', 'add', '--name', 'counterbot', '--schema', schema_uuid, '--module', module_uuid
-    ],
-                            check=True,
-                            stdout=subprocess.PIPE)
+    result = subprocess.run(
+        ['crcr', 'box', 'add', '--name', 'counterbot', '--schema', schema_uuid, '--module', module_uuid],
+        check=True,
+        stdout=subprocess.PIPE
+    )
     box_uuid = re.search(r'^MessageBox "([0-9A-Fa-f-]+)" is added\.$', result.stdout.decode(), re.MULTILINE).group(1)
     table_name = 'message_box_{}'.format(b58encode(UUID(box_uuid).bytes).decode('latin1'))
 
-    result = subprocess.run(['crcr', 'replication_link', 'add', '--name', 'slave1', '--all-boxes'],
-                            check=True,
-                            stdout=subprocess.PIPE)
+    result = subprocess.run(
+        ['crcr', 'replication_link', 'add', '--name', 'slave1', '--all-boxes'], check=True, stdout=subprocess.PIPE
+    )
     link_uuid = re.search(r'^Replication Link "([0-9A-Fa-f-]+)" is added\.$', result.stdout.decode(),
                           re.MULTILINE).group(1)
 
@@ -115,17 +114,19 @@ skip_build = on
     running_master = subprocess.Popen(['crcr', '--debug', 'run'])
     sleep(1)
 
-    bot = subprocess.Popen([
-        sys.executable,
-        counter_py,
-        '--box-id',
-        box_uuid,
-        '--to',
-        request_socket_url,
-        '--interval',
-        '0.1',
-        '--silent',
-    ],)
+    bot = subprocess.Popen(
+        [
+            sys.executable,
+            counter_py,
+            '--box-id',
+            box_uuid,
+            '--to',
+            '{ipc_prefix}/test_crcr_req_master.ipc'.format(ipc_prefix=ipc_prefix),
+            '--interval',
+            '0.1',
+            '--silent',
+        ],
+    )
 
     # masterにデータを注入
     # masterのメッセージボックスが空の状態でレプリケーションを始めると以降受信したメッセージがslaveに転送されない
@@ -135,10 +136,12 @@ skip_build = on
         pass
 
     # データが投入されているかチェック
+    # yapf: disable
     assert (
-        create_engine(master_db_url).connect().execute('SELECT _created_at, _counter FROM {}'.format(table_name)
-                                                      ).fetchall()
+        create_engine(master_db_url).connect().
+        execute('SELECT _created_at, _counter FROM {}'.format(table_name)).fetchall()
     )
+    # yapf: enable
 
     # slave
     os.chdir(slave_dir)
@@ -151,8 +154,8 @@ uuid = auto
 prefix = {slave_dir}
 metadata_file_path = ${{prefix}}/metadata.sqlite
 log_file_path = ${{prefix}}/core.log
-hub_socket = ipc://${{prefix}}/crcr_hub_slave.ipc
-request_socket = ipc://${{prefix}}/crcr_request_slave.ipc
+hub_socket = {ipc_prefix}/test_crcr_hub_slave.ipc
+request_socket = {ipc_prefix}/test_crcr_req_slave.ipc
 db = {db_url}
 log_dir = ${{prefix}}
 time_db_dir = ${{prefix}}
@@ -163,16 +166,16 @@ cycle_count=20
 listen = 127.0.0.1
 port = 5002
 websocket = on
-admin = on
+admin = off
 admin_base_url = http://${{listen}}:${{port}}
 skip_build = on
-""".format(db_url=slave_db_url, slave_dir=slave_dir)
+""".format(db_url=slave_db_url, slave_dir=slave_dir, ipc_prefix=ipc_prefix)
         )
 
-    subprocess.run([
-        'crcr', 'replication_master', 'add', '--endpoint', 'ws://localhost:5001/replication/{}'.format(link_uuid)
-    ],
-                   check=True)
+    subprocess.run(
+        ['crcr', 'replication_master', 'add', '--endpoint', 'ws://localhost:5001/replication/{}'.format(link_uuid)],
+        check=True
+    )
 
     running_slave = subprocess.Popen(['crcr', '--debug', 'run'])
 

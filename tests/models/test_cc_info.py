@@ -2,14 +2,9 @@
 import pytest
 
 from circle_core.models import CcInfo, MetaDataSession
-from circle_core.testing import setup_db
 
 
 class TestCcInfo(object):
-
-    @classmethod
-    def setup_class(cls):
-        setup_db()
 
     @pytest.mark.parametrize(('_input', 'expected'), [
         (
@@ -21,7 +16,8 @@ class TestCcInfo(object):
             )
         ),
     ])
-    def test_cc_info(self, _input, expected):
+    @pytest.mark.usefixtures('mock_circlecore')
+    def test_cc_info(self, _input, expected, mock_circlecore):
         other_cc_info = CcInfo(**_input)
         with MetaDataSession.begin():
             MetaDataSession.add(other_cc_info)

@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from circle_core.models import generate_uuid, Invitation, MetaDataSession
-from circle_core.testing import setup_db
+from circle_core.models import Invitation, MetaDataSession, generate_uuid
 
 
 class TestInvitation(object):
 
-    @classmethod
-    def setup_class(cls):
-        setup_db()
-
-    @pytest.mark.parametrize(('_input', 'expected'), [
-        (dict(max_invites=10), dict(max_invites=10, current_invites=0)),
-    ])
-    def test_invitation(self, _input, expected):
+    @pytest.mark.parametrize(
+        ('_input', 'expected'),
+        [
+            (dict(max_invites=10), dict(max_invites=10, current_invites=0)),
+        ]
+    )
+    @pytest.mark.usefixtures('mock_circlecore')
+    def test_invitation(self, _input, expected, mock_circlecore):
         invitation = Invitation(uuid=generate_uuid(model=Invitation), **_input)
 
         with MetaDataSession.begin():

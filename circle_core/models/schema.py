@@ -14,6 +14,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 # project module
 from .base import GUID, UUIDMetaDataBase, generate_uuid
 from ..constants import CRDataType
+from ..types import BlobMetadata
 
 # type annotation
 if TYPE_CHECKING:
@@ -37,10 +38,10 @@ if TYPE_CHECKING:
     from .message_box import MessageBox
 
 
-class SchemaProperty(collections.namedtuple('SchemaProperty', ['name', 'type'])):
+class SchemaProperty(collections.namedtuple('SchemaProperty', ['name', 'raw_type'])):
     """SchemaProperty."""
     name: str
-    type: str
+    raw_type: str
 
     def __new__(cls, name: 'Union[SchemaPropertyJson, str]', type: Optional[str] = None):
         """new.
@@ -64,7 +65,7 @@ class SchemaProperty(collections.namedtuple('SchemaProperty', ['name', 'type']))
         :return: 文字列表現
         :rtype: str
         """
-        return '{}:{}'.format(self.name, self.type)
+        return '{}:{}'.format(self.name, self.raw_type)
 
     def to_json(self) -> 'SchemaPropertyJson':
         """このモデルのJSON表現を返す.
@@ -72,7 +73,16 @@ class SchemaProperty(collections.namedtuple('SchemaProperty', ['name', 'type']))
         :return: JSON表現のDict
         :rtype: Dict
         """
-        return {'name': self.name, 'type': self.type}
+        return {'name': self.name, 'type': self.raw_type}
+
+    @property
+    def type(self) -> Optional[str]:
+        # Deprecatedにしたい
+        return self.raw_type
+
+    @property
+    def type_val(self) -> Optional[CRDataType]:
+        return CRDataType[self.raw_type.upper()] if self.raw_type else None
 
 
 class SchemaProperties(object):
@@ -206,10 +216,12 @@ class Schema(UUIDMetaDataBase):
         :return: equality
         :rtype: bool
         """
-        return all([
-            self.uuid == other.uuid, self.display_name == other.display_name, self.properties == other.properties,
-            self.memo == other.memo
-        ])
+        return all(
+            [
+                self.uuid == other.uuid, self.display_name == other.display_name, self.properties == other.properties,
+                self.memo == other.memo
+            ]
+        )
 
     @hybrid_property
     def properties(self):
@@ -263,7 +275,7 @@ class Schema(UUIDMetaDataBase):
         if 'properties' in jsonobj:
             self.properties = SchemaProperties(jsonobj['properties'])
 
-    def check_match(self, data):
+    def check_match(self, data) -> 'Tuple[bool, Optional[str]]':
         """nanomsg経由で受け取ったメッセージをデシリアライズしたものがこのSchemaに適合しているか.
 
         :param Dict data:
@@ -272,7 +284,7 @@ class Schema(UUIDMetaDataBase):
         """
         # TODO: Schema専用のJSONDecoderを作ってそこで例外を投げる
         if not len(data) == len(self.properties):
-            return False
+            return False, 'size mismatch'
 
         # TODO: 各Typeをクラス化する
         # TODO: もう少し厳密にvalidate
@@ -303,23 +315,27 @@ class Schema(UUIDMetaDataBase):
         def validate_timestamp(value):
             return isinstance(value, str)
 
+        def validate_blob(value):
+            return isinstance(value, BlobMetadata)
+
         validator = {
-            CRDataType.INT.value: validate_int,
-            CRDataType.FLOAT.value: validate_float,
-            CRDataType.BOOL.value: validate_bool,
-            CRDataType.STRING.value: validate_string,
-            CRDataType.BYTES.value: validate_bytes,
-            CRDataType.DATE.value: validate_date,
-            CRDataType.DATETIME.value: validate_datetime,
-            CRDataType.TIME.value: validate_time,
-            CRDataType.TIMESTAMP.value: validate_timestamp,
+            CRDataType.INT: validate_int,
+            CRDataType.FLOAT: validate_float,
+            CRDataType.BOOL: validate_bool,
+            CRDataType.STRING: validate_string,
+            CRDataType.BYTES: validate_bytes,
+            CRDataType.DATE: validate_date,
+            CRDataType.DATETIME: validate_datetime,
+            CRDataType.TIME: validate_time,
+            CRDataType.TIMESTAMP: validate_timestamp,
+            CRDataType.BLOB: validate_blob,
         }
 
         for msg_key, msg_value in data.items():
             for prop in self.properties:
-                if msg_key == prop.name and validator[prop.type.upper()](msg_value):
+                if msg_key == prop.name and validator[prop.type_val](msg_value):
                     break
             else:
-                return False
+                return False, '`{}` validation failed'.format(msg_key)
 
-        return True
+        return True, None

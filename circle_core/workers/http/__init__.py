@@ -121,10 +121,10 @@ class HTTPWorker(CircleWorker):
             server.listen(self.ws_port, self.listen)
         else:
             if self.ws_on:
-                ws_application = Application([ws_handlers], _core=self.core)
+                ws_application = Application(ws_handlers, _core=self.core)
                 ws_server = HTTPServer(ws_application, ssl_options=ssl_ctx)
                 ws_server.listen(self.ws_port, self.listen)
             if self.admin_on:
-                admin_application = Application([admin_handlers])
+                admin_application = Application(admin_handlers)
                 admin_server = HTTPServer(admin_application, ssl_options=ssl_ctx)
                 admin_server.listen(self.admin_port, self.listen)

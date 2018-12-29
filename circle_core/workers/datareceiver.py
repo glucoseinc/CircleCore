@@ -7,6 +7,7 @@ import logging
 import threading
 import typing
 from collections import defaultdict
+from typing import TYPE_CHECKING, cast
 
 # project module
 from circle_core.constants import RequestType
@@ -18,6 +19,11 @@ from ..database import Database
 from ..exceptions import MessageBoxNotFoundError
 from ..helpers.topics import make_message_topic
 from ..models import MessageBox, NoResultFound
+
+if TYPE_CHECKING:
+    import uuid
+    from typing import DefaultDict
+    from ..types import Payload
 
 logger = logging.getLogger(__name__)
 WORKER_DATARECEIVER = typing.cast(WorkerType, 'datareceiver')
@@ -47,6 +53,7 @@ class DataReceiverWorker(CircleWorker):
     また、同時にhubにも流す。
     """
     worker_type = WORKER_DATARECEIVER
+    counters: 'DefaultDict[uuid.UUID, int]'
 
     def __init__(self, core, key, db_url, time_db_dir, log_dir, cycle_time=1.0, cycle_count=10):
         super(DataReceiverWorker, self).__init__(core, key)
@@ -66,47 +73,47 @@ class DataReceiverWorker(CircleWorker):
 
         # messageに関するイベントを監視する
         self.core.hub.register_handler(RequestType.NEW_MESSAGE.value, self.on_new_message)
+        self.counters = defaultdict(int)
 
     def initialize(self):
         """override"""
         # start
-        self.counters = defaultdict(int)
+        self.counters.clear()
 
     def finalize(self):
         """override"""
         asyncio.get_event_loop().run_until_complete(self.writer.flush(flush_all=True))
 
     async def on_new_message(self, request):
-        """新しいメッセージを受けとった"""
+        """nanomsgから新しいメッセージを受けとった"""
         box_id = request['box_id']
         payload = request['payload']
 
         await self.receive_new_message(box_id, payload)
 
-    async def receive_new_message(self, box_id, payload):
+    async def receive_new_message(self, box_id: 'uuid.UUID', payload: 'Payload') -> bool:
         try:
             message_box = self.find_message_box(box_id)
         except MessageBoxNotFoundError:
-            return {'response': 'failed', 'message': 'message box not found'}
+            return False
 
-        if not message_box.schema.check_match(payload):
+        ok, msg = message_box.schema.check_match(payload)
+        if not ok:
             logger.warning(
-                'box {box_id} : message not matching schema was received. '
-                'expected {expected}, received {received}'.format(
-                    box_id=box_id, expected=message_box.schema.properties, received=payload
+                'box {box_id} : received message does not match box\'s schema.'
+                'expected {expected}, received {received}, {message}'.format(
+                    box_id=box_id, expected=message_box.schema.properties, received=payload, message=msg
                 )
             )
-            return {'response': 'failed', 'message': 'schema not match'}
+            return False
 
         msg = await self.store_message(message_box, payload)
-        message = msg.to_json()
-        response = {'response': 'message_accepted', 'message': message}
 
-        # pusblish
-        logger.debug('publish new message: %s', message)
-        self.core.hub.publish(make_message_topic(message_box.module.uuid, message_box.uuid), message)
+        # publish
+        logger.debug('publish new message: %s', msg)
+        self.core.hub.publish(make_message_topic(message_box.module.uuid, message_box.uuid), msg)
 
-        return response
+        return True
 
     def on_change_messagebox(self, what, target):
         """metadataのmessageboxが更新されたら呼ばれる"""
@@ -117,23 +124,23 @@ class DataReceiverWorker(CircleWorker):
             else:
                 asyncio.get_event_loop().run_until_complete(self.writer.flush)
 
-    def find_message_box(self, box_id):
+    def find_message_box(self, box_id: 'uuid.UUID') -> MessageBox:
         # DBに直接触っちゃう
         try:
-            box = MessageBox.query.filter_by(uuid=box_id).one()
+            box = cast(MessageBox, MessageBox.query.filter_by(uuid=box_id).one())
         except NoResultFound:
             raise MessageBoxNotFoundError(box_id)
 
         return box
 
-    async def store_message(self, message_box, payload):
+    async def store_message(self, message_box: MessageBox, payload: 'Payload') -> ModuleMessage:
         # make primary key
         msg = self.make_primary_key(message_box, payload)
         await self.writer.store(message_box, msg)
 
         return msg
 
-    def make_primary_key(self, message_box, payload):
+    def make_primary_key(self, message_box: MessageBox, payload: 'Payload') -> ModuleMessage:
         timestamp = ModuleMessage.make_timestamp()
         with self.counter_lock:
             counter = self.counters[message_box.uuid]

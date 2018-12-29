@@ -33,7 +33,7 @@
   ],
   "homepage": "https://github.com/glucoseinc/CircleCore#readme",
   "dependencies": {
-    "@shnjp/react-title-component": "./react-title-component",
+    "@shnjp/react-title-component": "file:./react-title-component",
     "immutable": "^4.0.0-rc.12",
     "material-ui": "^0.20.2",
     "moment": "^2.17.1",

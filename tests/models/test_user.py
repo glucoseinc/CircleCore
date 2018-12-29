@@ -2,14 +2,9 @@
 import pytest
 
 from circle_core.models import MetaDataSession, User
-from circle_core.testing import setup_db
 
 
 class TestUser(object):
-
-    @classmethod
-    def setup_class(cls):
-        setup_db()
 
     @pytest.mark.parametrize(('_input', 'expected'), [
         (
@@ -32,7 +27,8 @@ class TestUser(object):
             )
         ),
     ])
-    def test_user(self, _input, expected):
+    @pytest.mark.usefixtures('mock_circlecore')
+    def test_user(self, _input, expected, mock_circlecore):
         user = User.create(**_input)
 
         with MetaDataSession.begin():
@@ -64,7 +60,7 @@ class TestUser(object):
             assert permission == exp_permission
         assert user.encrypted_password == jsonobj['encryptedPassword']
 
-    @pytest.mark.parametrize(('old', 'new', 'expected'), [
+    @pytest.mark.parametrize(('old', 'new', 'expected'), [  # noqa: F811
         (
             dict(
                 account='oldAccount',
@@ -89,7 +85,7 @@ class TestUser(object):
             )
         ),
     ])
-    def test_update_from_json(self, old, new, expected):
+    def test_update_from_json(self, old, new, expected, mock_circlecore):
         user = User.create(**old)
         with MetaDataSession.begin():
             MetaDataSession.add(user)
