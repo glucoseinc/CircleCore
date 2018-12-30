@@ -42,7 +42,7 @@ RUN apk --update add gettext libffi libxml2 libstdc++ && \
   apk del --purge .build-deps
 
 # copy sources
-COPY docker/entrypoint.sh ./
+COPY docker/entrypoint.sh docker/wait_host.sh ./
 COPY docker/circle_core.ini.template ./
 COPY --from=builder /build/circle_core/web/static/ ./circle_core/web/static/
 COPY . /app

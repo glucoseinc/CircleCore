@@ -11,11 +11,11 @@ time_db_dir = ${prefix}
 log_dir = ${prefix}
 
 [circle_core:http]
-listen = 127.0.0.1
+listen = 0.0.0.0
 port = ${HTTP_PORT}
 websocket = on
 admin = on
-admin_base_url = http://${listen}:${port}
+admin_base_url = http://127.0.0.1:${HTTP_PORT}/
 skip_build = on
 #tls_key_path = ./tests/tls.key
 #tls_crt_path = ./tests/tls.crt

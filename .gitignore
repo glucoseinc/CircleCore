@@ -196,3 +196,4 @@ circle_core.ini
 
 .mypy_cache/
 coverage_html/
+test/

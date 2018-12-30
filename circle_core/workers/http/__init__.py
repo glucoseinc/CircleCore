@@ -35,7 +35,7 @@ def create_http_worker(core, type, key, config):
         ws_port=config.getint('websocket_port', fallback=config.getint('port')),
         admin_on=_config_get_bool('admin'),
         admin_port=config.getint('admin_port', fallback=config.getint('port')),
-        admin_base_url=config.get('admin_base_url', fallback='http://${listen}:${port}'),
+        admin_base_url=config.get('admin_base_url'),
         skip_build=_config_get_bool('skip_build'),
         tls_key_path=config.get('tls_key_path'),
         tls_crt_path=config.get('tls_crt_path')

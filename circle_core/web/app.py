@@ -42,9 +42,11 @@ class CCWebApp(Flask):
     ):
         """init.
 
-        :param CircleCore core: CircleCore Core
-        :param str base_url: ベースURL
-        :param int ws_port: Websocket Port Number
+        Args:
+            core: CircleCore Core
+            base_url: ベースURL
+            ws_port: Websocket Port Number
+            is_https: httpsだったらbool
         """
         super(CCWebApp, self).__init__(__name__)
 
