@@ -1,0 +1,21 @@
+# circle_core.ini for Docker
+[circle_core]
+uuid = auto
+prefix = ./data
+metadata_file_path = ${prefix}/metadata.sqlite
+log_file_path = ${prefix}/core.log
+hub_socket = ipc:///tmp/crcr_hub.ipc
+request_socket = ipc:///tmp/crcr_request.ipc
+db = ${DB_URL}
+time_db_dir = ${prefix}
+log_dir = ${prefix}
+
+[circle_core:http]
+listen = 127.0.0.1
+port = ${HTTP_PORT}
+websocket = on
+admin = on
+admin_base_url = http://${listen}:${port}
+skip_build = on
+#tls_key_path = ./tests/tls.key
+#tls_crt_path = ./tests/tls.crt

@@ -1,0 +1,12 @@
+.venv/
+cc_dev/
+coverage_html
+doc/
+node_modules/
+sample/
+scribble/
+tests/
+tmp/
+.git
+.coverage
+circle_core.ini

@@ -13,7 +13,7 @@ hub_socket = ipc:///tmp/crcr_hub.ipc
 # nanomsgへのリクエストを受け付けるSoket
 request_socket = ipc:///tmp/crcr_request.ipc
 # messageを保存する先のURL
-db = mysql+mysqlconnector://crcr_dev:crcr@localhost/crcr_dev
+db = mysql+pymysql://crcr_dev:crcr@localhost/crcr_dev
 # グラフ用DBを保存するディレクトリ
 time_db_dir = ${prefix}
 
