@@ -51,6 +51,7 @@ EXPOSE 8080
 VOLUME /app/data
 
 ENV DB_URL mysql+pymysql://root@localhost/crcr_dev
+ENV BASE_URL http://127.0.0.1:8080/
 ENV HTTP_PORT 8080
 
 ENTRYPOINT ["./entrypoint.sh"]
