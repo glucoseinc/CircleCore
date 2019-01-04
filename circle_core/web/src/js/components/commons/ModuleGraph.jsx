@@ -207,7 +207,6 @@ class ModuleGraph extends React.Component {
 
     this.setState({graphData}, () => {
       this.updateGraph()
-
       this.setUpdateTimer(this.props.autoUpdate)
     })
   }
@@ -316,7 +315,12 @@ class ModuleGraph extends React.Component {
    * @param {int} delay 間隔を秒で
    */
   setUpdateTimer(delay) {
-    require('assert')(this.updateTimer == null)
+    // require('assert')(this.updateTimer == null, 'this.updateTimer must be null')
+    if (this.updateTimer) {
+      console.warn('clearUpdateTimer@setUpdateTimer')
+      this.clearUpdateTimer()
+    }
+
     if (!delay) {
       return
     }
