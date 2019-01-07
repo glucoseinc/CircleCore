@@ -11,3 +11,4 @@ tmp/
 .git
 .coverage
 circle_core.ini
+Makefile
