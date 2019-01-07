@@ -12,6 +12,7 @@ import Replica from './Replica'
 import Replicas from './Replicas'
 import ReplicasNew from './ReplicasNew'
 import ReplicationMasters from './ReplicationMasters'
+import ReplicationMastersNew from './ReplicationMastersNew'
 import Schemas from './Schemas'
 import SchemasNew from './SchemasNew'
 import Schema from './Schema'
@@ -42,19 +43,21 @@ const masterRoute = {
     ChangeProfile,
     Invitations,
     Logout,
+    Module,
     Modules,
     ModulesNew,
-    Module,
+    Replica,
     Replicas,
     ReplicasNew,
-    Replica,
+    ReplicationMasters,
+    ReplicationMastersNew,
+    Schema,
     Schemas,
     SchemasNew,
-    Schema,
     Setting,
-    Users,
     User,
-  ].concat(ReplicationMasters),
+    Users,
+  ],
   onEnter: handleEnter,
   onChange: (prevState, nextState) => handleLocationChange(nextState),
 }
