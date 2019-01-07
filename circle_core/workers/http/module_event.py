@@ -133,7 +133,7 @@ class ModuleEventHandler(WebSocketHandler):
         logger.debug('message received: `%s`' % plain_msg)
         payload = json.loads(plain_msg)
 
-        rv = await self.datareceiver.receive_new_message(str(mbox.uuid), payload)
+        await self.datareceiver.receive_new_message(str(mbox.uuid), payload)
         # TODO: 書き込めていなかったらエラーを返す
 
     def on_close(self):
