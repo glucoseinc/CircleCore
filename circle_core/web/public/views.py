@@ -58,3 +58,7 @@ def invitation_endpoint(link_uuid: 'uuid.UUID'):
     return render_template(
         'invitation.html', error=error, user=user.to_json() if user else None, is_completed=is_completed
     )
+
+
+# MessageBoxのREST EndPoint
+public.add_url_rule('/modules/<uuid:module_uuid>/<uuid:box_uuid>', 'messagebox_endpoint')
