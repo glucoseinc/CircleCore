@@ -1,6 +1,8 @@
 /* eslint-disable require-jsdoc */
 const path = require('path')
 const DefinePlugin = require('webpack/lib/DefinePlugin')
+const CleanObsoleteChunks = require('webpack-clean-obsolete-chunks')
+const ManifestPlugin = require('webpack-manifest-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 const _resolve = (...args) => path.resolve(__dirname, ...args)
@@ -31,8 +33,7 @@ module.exports = {
   },
   output: {
     path: DEST_DIR,
-    filename: '[name].bundle.js',
-    chunkFilename: '[id].[chunkhash].chunked.js',
+    filename: '[name].[chunkhash].js'
   },
   module: {
     rules: [
@@ -73,6 +74,8 @@ module.exports = {
       },
     ]),
     new LoggerPlugin(),
+    new ManifestPlugin(),
+    new CleanObsoleteChunks({verbose: true, deep: true}),
   ],
   target: 'web',
 }

@@ -3,9 +3,11 @@
 
 # system module
 import datetime
-from typing import Any, List, MutableSet, Optional, TYPE_CHECKING
+from typing import Any, List, MutableSet, Optional, TYPE_CHECKING, cast
 
 # community module
+from flask import url_for
+
 import sqlalchemy as sa
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -142,6 +144,7 @@ class MessageBox(UUIDMetaDataBase):
             'memo': self.memo,
             'moduleUuid': str(self.module_uuid),
             'schemaUuid': str(self.schema_uuid),
+            'url': self.url,
         }
 
         if with_schema:
@@ -170,3 +173,38 @@ class MessageBox(UUIDMetaDataBase):
             assert self.schema_uuid == prepare_uuid(jsonobj['schema'])
         elif 'schemaUuid' in jsonobj:
             assert self.schema_uuid == prepare_uuid(jsonobj['schemaUuid'])
+
+    @property
+    def url(self) -> Optional[str]:
+        """このCircleCoreでのMessageBoxのREST EndpointのURLを返す.
+
+        :return: URL
+        :rtype: str
+        """
+
+        def build_url() -> str:
+            return cast(str, url_for(
+                'public.messagebox_endpoint',
+                module_uuid=self.module_uuid,
+                box_uuid=self.uuid, _external=True))
+
+        try:
+            return build_url()
+        except RuntimeError:
+            import click
+
+            flask_app = None
+            try:
+                ctx = click.get_current_context()
+                if ctx:
+                    http_worker = ctx.obj.core.find_worker('http')
+                    if http_worker:
+                        flask_app = http_worker.flask_app
+
+                if flask_app:
+                    with flask_app.app_context():
+                        return build_url()
+            except Exception:
+                pass
+
+        return None

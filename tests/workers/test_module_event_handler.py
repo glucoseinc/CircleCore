@@ -16,6 +16,10 @@ from circle_core.testing import mock_circlecore_context
 from circle_core.workers.http import ModuleEventHandler
 
 
+async def _receive_new_message_side_effect(*args, **kwargs):
+    return True
+
+
 class TestModuleEventHandlerBase(AsyncHTTPTestCase):
 
     def get_app(self):
@@ -27,7 +31,8 @@ class TestModuleEventHandlerBase(AsyncHTTPTestCase):
     def setUp(self):
         self.app_mock = MagicMock()
         self.datareceiver = MagicMock()
-        self.datareceiver.receive_new_message.return_value = None
+        self.datareceiver.receive_new_message.return_value = True
+        self.datareceiver.receive_new_message.side_effect = _receive_new_message_side_effect
         self.app_mock.get_datareceiver.return_value = self.datareceiver
 
         super().setUp()
@@ -39,6 +44,10 @@ class TestModuleEventHandlerBase(AsyncHTTPTestCase):
         self.ctxt.__exit__(None, None, None)
 
         super().tearDown()
+
+    def reset_mock(self):
+        self.datareceiver.reset_mock()
+        self.datareceiver.receive_new_message.side_effect = _receive_new_message_side_effect
 
 
 class TestModuleEventHandlerViaREST(TestModuleEventHandlerBase):
@@ -94,6 +103,10 @@ class TestModuleEventHandlerViaREST(TestModuleEventHandlerBase):
             MetaDataSession.add(module)
             MetaDataSession.add(mbox)
 
+        async def _async_side_effect():
+            print('_async_side_effect')
+            return True
+
         # data encodingはOK
         response = self.fetch(
             self.get_url('/modules/{}/{}'.format(module.uuid, mbox.uuid)),
@@ -113,7 +126,8 @@ class TestModuleEventHandlerViaREST(TestModuleEventHandlerBase):
         assert args[1]['y'] == 20.5
         assert args[1]['data'].startswith('data:image/jpeg;')
 
-        self.datareceiver.receive_new_message.reset_mock()
+        self.reset_mock()
+
         # そうじゃないのはNG
         response = self.fetch(
             self.get_url('/modules/{}/{}'.format(module.uuid, mbox.uuid)),
@@ -128,7 +142,8 @@ class TestModuleEventHandlerViaREST(TestModuleEventHandlerBase):
         self.assertEqual(response.code, 400)
         self.datareceiver.receive_new_message.assert_not_called()
 
-        self.datareceiver.receive_new_message.reset_mock()
+        self.reset_mock()
+
         # multipartもOK
         response = self.fetch(
             self.get_url('/modules/{}/{}'.format(module.uuid, mbox.uuid)),

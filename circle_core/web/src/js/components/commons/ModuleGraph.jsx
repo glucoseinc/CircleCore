@@ -206,7 +206,11 @@ class ModuleGraph extends React.Component {
     const {graphData} = await request
 
     this.setState({graphData}, () => {
-      this.updateGraph()
+      try {
+        this.updateGraph()
+      } catch (e) {
+        console.error('Rickshaw failed -> ', e)
+      }
 
       this.setUpdateTimer(this.props.autoUpdate)
     })
@@ -316,7 +320,11 @@ class ModuleGraph extends React.Component {
    * @param {int} delay 間隔を秒で
    */
   setUpdateTimer(delay) {
-    require('assert')(this.updateTimer == null)
+    if (this.updateTimer) {
+      console.warn('clearUpdateTimer@setUpdateTimer')
+      this.clearUpdateTimer()
+    }
+
     if (!delay) {
       return
     }

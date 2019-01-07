@@ -21,7 +21,7 @@ var CRCR_INVITATION_USER = {{ user|tojson }}
 var CRCR_INVITATION_ERROR = {{ error|tojson }}
   </script>
 
-  <script type="text/javascript" src="{{ url_for('static', filename='public.bundle.js') }}?_={{ UPTIME }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename=MANIFEST['public.js']) }}"></script>
 
 </body>
 </html>

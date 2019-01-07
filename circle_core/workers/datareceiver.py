@@ -92,6 +92,8 @@ class DataReceiverWorker(CircleWorker):
         await self.receive_new_message(box_id, payload)
 
     async def receive_new_message(self, box_id: 'uuid.UUID', payload: 'Payload') -> bool:
+        logger.debug('receive new message for %s : %r', box_id, payload)
+
         try:
             message_box = self.find_message_box(box_id)
         except MessageBoxNotFoundError:

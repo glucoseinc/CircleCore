@@ -27,7 +27,7 @@ var CRCR_AUTH_FORM_VALUES = {{ {
   'nonce': nonce,
 }|tojson }}
   </script>
-  <script type="text/javascript" src="{{ url_for('static', filename='public.bundle.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename=MANIFEST['public.js']) }}"></script>
 
 </body>
 </html>

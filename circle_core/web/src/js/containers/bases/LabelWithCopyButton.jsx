@@ -11,11 +11,30 @@ import {CopyIcon} from 'src/components/bases/icons'
 
 
 /**
- * Clopboard copy用のテキストエリア
+ * Clipboard copy用のテキストエリア
  */
 class HiddenTextArea extends React.Component {
   static propTypes = {
     text: PropTypes.string.isRequired,
+  }
+
+  constructor(props) {
+    super(props)
+    this.textareaRef = React.createRef()
+  }
+
+  copy() {
+    if (!this.textareaRef.current) {
+      console.error('TEXTAREA not refrenced')
+      return
+    }
+
+    const node = this.textareaRef.current
+
+    node.focus()
+    node.select()
+    document.execCommand('copy')
+    node.blur()
   }
 
   /**
@@ -30,7 +49,7 @@ class HiddenTextArea extends React.Component {
       left: -10000,
     }
     return (
-      <textarea readOnly={true} style={style} value={this.props.text} />
+      <textarea readOnly={true} style={style} value={this.props.text} ref={this.textareaRef} />
     )
   }
 }
@@ -40,6 +59,7 @@ class HiddenTextArea extends React.Component {
  */
 class LabelWithCopyButton extends React.Component {
   static propTypes = {
+    style: PropTypes.object,
     label: PropTypes.string.isRequired,
     labelStyle: PropTypes.object,
     messageWhenCopying: PropTypes.string.isRequired,
@@ -61,13 +81,15 @@ class LabelWithCopyButton extends React.Component {
       messageWhenCopying,
       onClick,
     } = this.props
-    console.error(this.hiddenTextAreaRef.current)
-    const textAreaNode = this.hiddenTextAreaRef.current
-    textAreaNode.focus()
-    textAreaNode.select()
-    document.execCommand('copy')
-    textAreaNode.blur()
-    onClick(messageWhenCopying)
+
+    if (!this.hiddenTextAreaRef.current) {
+      console.error('HiddenTextArea not refrenced')
+      return
+    }
+
+    this.hiddenTextAreaRef.current.copy()
+
+    onClick && onClick(messageWhenCopying)
   }
 
   /**
@@ -75,12 +97,13 @@ class LabelWithCopyButton extends React.Component {
    */
   render() {
     const {
+      style,
       label,
       labelStyle = {},
       copyButtonOnly = false,
     } = this.props
 
-    const style = {
+    const styles = {
       root: {
         display: 'flex',
         flexFlow: 'row nowrap',
@@ -106,7 +129,7 @@ class LabelWithCopyButton extends React.Component {
     }
 
     const mergedLabelStyle = {
-      ...style.label,
+      ...styles.label,
       ...labelStyle,
     }
 
@@ -117,12 +140,12 @@ class LabelWithCopyButton extends React.Component {
     )
 
     return (
-      <div style={style.root}>
-        <HiddenTextArea text={label} ref={this.hiddenTextArea} />
+      <div style={{...styles.root, ...(style || {})}}>
+        <HiddenTextArea text={label} ref={this.hiddenTextAreaRef} />
         {labelArea}
         <IconButton
-          style={style.iconButton}
-          iconStyle={style.icon}
+          style={styles.iconButton}
+          iconStyle={styles.icon}
           onClick={() => this.onClick()}
         >
           <CopyIcon color={grey500} />

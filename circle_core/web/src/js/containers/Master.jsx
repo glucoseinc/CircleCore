@@ -13,8 +13,6 @@ import actions from 'src/actions'
 import ErrorDialog from 'src/components/ErrorDialog'
 import NavDrawer from 'src/components/NavDrawer'
 
-import DevTools from 'src/containers/DevTools'
-
 
 /**
  * メインコンテンツ
@@ -86,7 +84,6 @@ class Master extends React.Component {
     const {
       muiTheme,
     } = this.context
-    const showDevTool = process.env.NODE_ENV === 'development'
 
     const navDrawerAlwaysOpen = (width === LARGE)
     const appBarShowMenuIconButton = navDrawerAlwaysOpen ? false : true
@@ -133,8 +130,6 @@ class Master extends React.Component {
           messages={errorDialogMessages}
           onCloseRequest={onErrorDialogCloseRequest}
         />
-
-        {showDevTool && <DevTools />}
 
       </div>
     )

@@ -3,7 +3,11 @@ import createSagaMiddleware from 'redux-saga'
 import {routerMiddleware} from 'react-router-redux'
 
 import rootReducer from 'src/reducers'
-import DevTools from 'src/containers/DevTools'
+
+const composeEnhancers =
+  typeof window === 'object' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+    ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({})
+    : compose
 
 
 /**
@@ -18,9 +22,8 @@ export default function configureStore(history, initialState) {
   const store = createStore(
     rootReducer,
     initialState,
-    compose(
+    composeEnhancers(
       applyMiddleware(routerMiddleware(history), sagaMiddleware),
-      DevTools.instrument()
     )
   )
   store.runSaga = sagaMiddleware.run
