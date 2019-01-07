@@ -9,6 +9,7 @@ const MessageBoxRecord = Record({
   displayName: '',
   memo: '',
   module: '',
+  url: '',
 })
 
 /**
@@ -36,6 +37,7 @@ export class MessageBox extends MessageBoxRecord {
       displayName: rawMessageBox.displayName || '',
       module: rawMessageBox.module || null,
       memo: rawMessageBox.memo || '',
+      url: rawMessageBox.url || '',
     })
   }
 

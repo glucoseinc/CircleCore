@@ -18,6 +18,7 @@ import ModuleGraph, {RANGES} from 'src/components/commons/ModuleGraph'
 import ModuleGraphTimeRange from 'src/components/commons/ModuleGraphTimeRange'
 import ReplicationMasterComponent from 'src/components/commons/ReplicationMasterComponent'
 import ReplicationSlavesComponent from 'src/components/commons/ReplicationSlavesComponent'
+import LabelWithCopyButton from 'src/containers/bases/LabelWithCopyButton'
 
 import MessageBoxDataInfo from './MessageBoxDataInfo'
 
@@ -92,6 +93,7 @@ class MessageBoxEditablePaper extends React.Component {
       displayName: {
         fontSize: 14,
         fontWeight: 'bold',
+        marginBottom: '1ex',
       },
 
       schemaSection: {
@@ -136,6 +138,17 @@ class MessageBoxEditablePaper extends React.Component {
         display: 'flex',
         justifyContent: 'center',
       },
+
+      restEndpointUrlSection: {
+      },
+      restEndpointUrlLabel: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        marginRight: '1em',
+      },
+      restEndpointUrl: {
+        display: 'inline-block',
+      },
     }
 
     const messageBox = module.messageBoxes.get(messageBoxIndex)
@@ -179,6 +192,14 @@ class MessageBoxEditablePaper extends React.Component {
           <IdLabel
             obj={messageBox}
           />
+          <div style={style.restEndpointUrlSection}>
+            <span style={style.restEndpointUrlLabel}>REST Endpoint URL</span>
+            <LabelWithCopyButton
+              style={style.restEndpointUrl}
+              labelStyle={{display: 'inline-block'}}
+              label={messageBox.url} messageWhenCopying={'REST Endpoint URLをコピーしました。'}
+            />
+          </div>
         </div>
 
         <div style={style.graphSection}>

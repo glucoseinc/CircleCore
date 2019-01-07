@@ -59,6 +59,7 @@ class HiddenTextArea extends React.Component {
  */
 class LabelWithCopyButton extends React.Component {
   static propTypes = {
+    style: PropTypes.object,
     label: PropTypes.string.isRequired,
     labelStyle: PropTypes.object,
     messageWhenCopying: PropTypes.string.isRequired,
@@ -96,12 +97,13 @@ class LabelWithCopyButton extends React.Component {
    */
   render() {
     const {
+      style,
       label,
       labelStyle = {},
       copyButtonOnly = false,
     } = this.props
 
-    const style = {
+    const styles = {
       root: {
         display: 'flex',
         flexFlow: 'row nowrap',
@@ -127,7 +129,7 @@ class LabelWithCopyButton extends React.Component {
     }
 
     const mergedLabelStyle = {
-      ...style.label,
+      ...styles.label,
       ...labelStyle,
     }
 
@@ -138,12 +140,12 @@ class LabelWithCopyButton extends React.Component {
     )
 
     return (
-      <div style={style.root}>
+      <div style={{...styles.root, ...(style || {})}}>
         <HiddenTextArea text={label} ref={this.hiddenTextAreaRef} />
         {labelArea}
         <IconButton
-          style={style.iconButton}
-          iconStyle={style.icon}
+          style={styles.iconButton}
+          iconStyle={styles.icon}
           onClick={() => this.onClick()}
         >
           <CopyIcon color={grey500} />
