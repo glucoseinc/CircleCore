@@ -194,13 +194,17 @@ class MessageBox(UUIDMetaDataBase):
             import click
 
             flask_app = None
-            ctx = click.get_current_context()
-            if ctx:
-                http_worker = ctx.obj.core.find_worker('http')
-                if http_worker:
-                    flask_app = http_worker.flask_app
+            try:
+                ctx = click.get_current_context()
+                if ctx:
+                    http_worker = ctx.obj.core.find_worker('http')
+                    if http_worker:
+                        flask_app = http_worker.flask_app
 
-            if flask_app:
-                with flask_app.app_context():
-                    return build_url()
+                if flask_app:
+                    with flask_app.app_context():
+                        return build_url()
+            except Exception:
+                pass
+
         return None
