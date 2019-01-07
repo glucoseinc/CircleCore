@@ -2,6 +2,7 @@
 """WebUI."""
 
 # system module
+import json
 import os
 import time
 import urllib.parse
@@ -103,7 +104,11 @@ class CCWebApp(Flask):
 
         @self.context_processor
         def global_variables():
-            return dict(UPTIME=self.uptime)
+            manifest_path = os.path.join(os.path.dirname(__file__), 'static', 'manifest.json')
+            with open(manifest_path) as fp:
+                manifest = json.load(fp)
+
+            return dict(MANIFEST=manifest, UPTIME=self.uptime)
 
         from .authorize.core import initialize_oauth
 

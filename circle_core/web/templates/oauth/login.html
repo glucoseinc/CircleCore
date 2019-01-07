@@ -20,7 +20,7 @@
 var CRCR_LOGIN_REDIRECT_TO = {{ redirect_to|tojson }}
 var CRCR_LOGIN_IS_FAILED = {{ is_failed|d(False)|tojson }}
   </script>
-  <script type="text/javascript" src="{{ url_for('static', filename='public.bundle.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename=MANIFEST['public.js']) }}"></script>
 
 </body>
 </html>

@@ -1,5 +1,6 @@
 .venv/
 cc_dev/
+circle_core/web/static/
 coverage_html
 doc/
 node_modules/
