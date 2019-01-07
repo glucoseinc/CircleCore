@@ -19,6 +19,7 @@ import {fork} from 'redux-saga/effects'
 import {colorError} from 'src/colors'
 import muiTheme from 'src/muiTheme'
 import PublicFrame from 'src/public/frame'
+import UserInvitation from 'src/public/invitation'
 
 
 /**
@@ -197,7 +198,7 @@ render(
           <Route path="authorize" component={OAuthAuthorize} />
         </Route>
         <Route path="/invitation/" component={PublicFrame}>
-          <Route path=":linkUuid" component={require('src/public/invitation').default} />
+          <Route path=":linkUuid" component={UserInvitation} />
         </Route>
       </Router>
     </MuiThemeProvider>
