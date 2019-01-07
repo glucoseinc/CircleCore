@@ -8,9 +8,11 @@ import Root from './Root'
 const createURLs = (route, parentPath = '') => {
   let urls = {}
 
+  const fullPath = path.join(parentPath, route.path || '')
+
   if (route.key !== undefined) {
     urls[route.key] = {
-      fullPath: path.join(parentPath, route.path || ''),
+      fullPath,
       query: route.query,
       label: route.label,
       icon: route.icon,
@@ -19,7 +21,7 @@ const createURLs = (route, parentPath = '') => {
   if (route.childRoutes !== undefined) {
     urls = route.childRoutes.reduce((_urls, childRoute) => ({
       ..._urls,
-      ...createURLs(childRoute, path.join(parentPath, route.path || '')),
+      ...createURLs(childRoute, fullPath),
     }), urls)
   }
 
