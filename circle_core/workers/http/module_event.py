@@ -27,7 +27,7 @@ class ModuleEventHandler(WebSocketHandler):
     mbox: 'Optional[MessageBox]'
 
     # override
-    def post(self, module_uuid, mbox_uuid):
+    async def post(self, module_uuid, mbox_uuid):
         logger.debug('Post to module %s/%s', module_uuid, mbox_uuid)
         try:
             self.setup(module_uuid, mbox_uuid)
@@ -100,7 +100,9 @@ class ModuleEventHandler(WebSocketHandler):
                 return
 
         datareceiver = self.get_core().get_datareceiver()
-        datareceiver.receive_new_message(str(self.mbox.uuid), payload)
+        rv = await datareceiver.receive_new_message(str(self.mbox.uuid), payload)
+
+        self.write(json.dumps({'ok': rv}))
 
     def open(self, module_uuid, mbox_uuid):
         """他のCircleCoreから接続された際に呼ばれる."""
@@ -131,7 +133,8 @@ class ModuleEventHandler(WebSocketHandler):
         logger.debug('message received: `%s`' % plain_msg)
         payload = json.loads(plain_msg)
 
-        self.datareceiver.receive_new_message(str(mbox.uuid), payload)
+        rv = await self.datareceiver.receive_new_message(str(mbox.uuid), payload)
+        # TODO: 書き込めていなかったらエラーを返す
 
     def on_close(self):
         """センサーとの接続が切れた際に呼ばれる."""
