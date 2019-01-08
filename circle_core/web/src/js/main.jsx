@@ -8,19 +8,21 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 
 import configureStore from './store/configureStore'
 import rootSaga from './sagas'
-import rootRoute from './routes'
+import Routes from './routes'
 import muiTheme from './muiTheme'
 
 const history = createBrowserHistory()
 const initialState = {}
-export const store = configureStore(history, initialState)
+const store = configureStore(history, initialState)
 store.runSaga(rootSaga)
 
 
 render(
   <Provider store={store}>
     <MuiThemeProvider muiTheme={muiTheme}>
-      <Router history={history} routes={rootRoute} />
+      <Router history={history}>
+        <Routes />
+      </Router>
     </MuiThemeProvider>
   </Provider>,
   document.getElementById('app')

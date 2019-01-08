@@ -3,6 +3,7 @@ import React from 'react'
 import {connect} from 'react-redux'
 
 import actions from 'src/actions'
+import {searchStringToQuery} from 'src/routes'
 
 import LoadingIndicator from 'src/components/bases/LoadingIndicator'
 
@@ -35,7 +36,8 @@ class SchemasNew extends React.Component {
       onCreateClick,
     } = this.props
 
-    const schemaId = location.query.schema_id
+    const query = searchStringToQuery(location.search)
+    const schemaId = query.schema_id
     let schema
     if (schemaId !== undefined) {
       if (isSchemaFetching) {

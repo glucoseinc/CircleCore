@@ -5,6 +5,7 @@ import {connect} from 'react-redux'
 import actions from 'src/actions'
 import LoadingIndicator from 'src/components/bases/LoadingIndicator'
 import ReplicationLinkNewPaper from 'src/components/ReplicationLinkNewPaper'
+import {searchStringToQuery} from 'src/routes'
 
 
 /**
@@ -31,7 +32,8 @@ class ReplicasNew extends React.Component {
       onCreateClick,
     } = this.props
 
-    const moduleId = location.query.module_id
+    const query = searchStringToQuery(location.search)
+    const moduleId = query.module_id
     if (moduleId === undefined) {
       return (
         <div>
