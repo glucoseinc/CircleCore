@@ -1,7 +1,7 @@
+import {routerActions} from 'connected-react-router'
 import PropTypes from 'prop-types'
 import React from 'react'
 import {connect} from 'react-redux'
-import {routerActions} from 'react-router-redux'
 
 import actions from 'src/actions'
 import {urls, createPathName, createQuery} from 'src/routes'

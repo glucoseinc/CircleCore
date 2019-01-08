@@ -43,7 +43,7 @@ class UserOnlyFrame extends React.Component {
     if (!props.tokenIsValid) {
       // /oauth/authorization はReact化ではないため、location.hrefを動かさないといけない
       // location.href = OAUTH_AUTHORIZATION_URL
-      router.replace(OAUTH_AUTHORIZATION_URL)
+      router.history.replace(OAUTH_AUTHORIZATION_URL)
     }
   }
 
@@ -106,7 +106,7 @@ class GuestOnlyFrame extends React.Component {
    */
   userWillTransfer(props, router) {
     if (props.tokenIsValid) {
-      router.replace('/')
+      router.history.replace('/')
     }
   }
 

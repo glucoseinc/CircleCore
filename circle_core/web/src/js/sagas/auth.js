@@ -1,4 +1,4 @@
-import {LOCATION_CHANGE} from 'react-router-redux'
+import {LOCATION_CHANGE} from 'connected-react-router'
 import {call, fork, put, select, takeLatest} from 'redux-saga/effects'
 
 import actions from 'src/actions'

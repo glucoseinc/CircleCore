@@ -1,6 +1,6 @@
 import path from 'path'
 
-import {formatPattern} from 'react-router'
+import pathToRegexp from 'path-to-regexp'
 
 import rootRoute from './Root'
 
@@ -31,7 +31,7 @@ const createURLs = (route, parentPath = '') => {
 export const urls = createURLs(rootRoute)
 
 export const createPathName = (url, params) => {
-  return formatPattern(url.fullPath, params)
+  return pathToRegexp.compile(url.fullPath)(params)
 }
 
 export const createQuery = (url, params) => {
@@ -43,7 +43,7 @@ export const createQuery = (url, params) => {
     try {
       return {
         ...query,
-        [key]: formatPattern(value, params),
+        [key]: pathToRegexp.compile(value)(params),
       }
     } catch (e) {
       return query
