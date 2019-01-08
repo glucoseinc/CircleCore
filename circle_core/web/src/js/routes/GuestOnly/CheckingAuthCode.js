@@ -4,7 +4,7 @@ const CheckingAuthCode = () => <div>Checking AuthCode...</div>
 
 const checkingAuthCodeRoute = {
   key: 'checkingAuthCode',
-  path: '/oauth/callback',
+  path: 'callback',
   component: CheckingAuthCode,
 }
 

@@ -5,6 +5,7 @@ import CheckingAuthCode from './CheckingAuthCode'
 
 const guestOnlyRoute = {
   key: 'guestOnly',
+  path: 'oauth',
   component: GuestOnly,
   childRoutes: [
     OAuthAuthorize,
