@@ -20,7 +20,7 @@ class User extends React.Component {
     users: PropTypes.object.isRequired,
     errors: PropTypes.object,
     token: PropTypes.object.isRequired,
-    params: PropTypes.object.isRequired,
+    match: PropTypes.object.isRequired,
     onUpdateClick: PropTypes.func,
   }
 
@@ -34,7 +34,9 @@ class User extends React.Component {
       users,
       errors = {},
       token,
-      params,
+      match: {
+        params,
+      },
       onUpdateClick,
     } = this.props
 

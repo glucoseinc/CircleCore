@@ -1,5 +1,5 @@
 import React from 'react'
-import {Route, IndexRedirect} from 'react-router'
+import {Route, Redirect} from 'react-router-dom'
 
 import rootRoute from './Root'
 import modulesRoute from './UserOnly/Master/Modules'
@@ -8,7 +8,7 @@ const defaultPage = modulesRoute.path
 
 const routes = (
   <Route {...rootRoute}>
-    <IndexRedirect to={defaultPage} />
+    <Redirect from="/" to={defaultPage} />
   </Route>
 )
 

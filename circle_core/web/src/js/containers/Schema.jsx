@@ -22,7 +22,7 @@ class Schema extends React.Component {
     isCcInfoFetching: PropTypes.bool.isRequired,
     schemas: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
-    params: PropTypes.object.isRequired,
+    match: PropTypes.object.isRequired,
     setTitle: PropTypes.func,
     onBackButtonClick: PropTypes.func,
     onDeleteOkButtonClick: PropTypes.func,
@@ -36,7 +36,7 @@ class Schema extends React.Component {
    * @override
    */
   componentWillReceiveProps(nextProps) {
-    const schema = nextProps.schemas.get(nextProps.params.schemaId)
+    const schema = nextProps.schemas.get(nextProps.match.params.schemaId)
     const title = schema !== undefined ? schema.label : ''
     this.props.setTitle(title)
   }
@@ -76,7 +76,9 @@ class Schema extends React.Component {
       isCcInfoFetching,
       schemas,
       ccInfos,
-      params,
+      match: {
+        params,
+      },
       onBackButtonClick,
     } = this.props
 
