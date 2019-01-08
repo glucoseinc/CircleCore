@@ -37,7 +37,7 @@ const handleEnter = (state) => {
 }
 
 const masterRoute = {
-  key: 'root',
+  key: 'master',
   component: Master,
   childRoutes: [
     ChangeProfile,
