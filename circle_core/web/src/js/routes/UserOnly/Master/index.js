@@ -1,5 +1,3 @@
-import actions from 'src/actions'
-import {store} from 'src/main'
 import Master from 'src/containers/Master'
 
 import ChangeProfile from './ChangeProfile'
@@ -20,21 +18,6 @@ import Setting from './Setting'
 import Users from './Users'
 import User from './User'
 
-
-const handleLocationChange = (state) => {
-  const params = state.params
-  const route = [...state.routes].pop()
-  store.dispatch(actions.page.setTitle(route.label))
-  route.onEnterActions && route.onEnterActions.map((action) => {
-    store.dispatch(action(params))
-  })
-}
-
-const handleEnter = (state) => {
-  store.dispatch(actions.ccInfo.fetchMyselfRequest())
-  store.dispatch(actions.user.fetchMyselfRequest())
-  handleLocationChange(state)
-}
 
 const masterRoute = {
   key: 'master',
@@ -58,8 +41,6 @@ const masterRoute = {
     User,
     Users,
   ],
-  onEnter: handleEnter,
-  onChange: (prevState, nextState) => handleLocationChange(nextState),
 }
 
 export default masterRoute
