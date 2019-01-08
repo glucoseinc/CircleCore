@@ -2,9 +2,9 @@ import React from 'react'
 import {Route, IndexRedirect} from 'react-router'
 
 import rootRoute from './Root'
-import Modules from './UserOnly/Master/Modules'
+import modulesRoute from './UserOnly/Master/Modules'
 
-const defaultPage = Modules.path
+const defaultPage = modulesRoute.path
 
 const routes = (
   <Route {...rootRoute}>

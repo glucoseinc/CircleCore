@@ -2,7 +2,7 @@ import path from 'path'
 
 import {formatPattern} from 'react-router'
 
-import Root from './Root'
+import rootRoute from './Root'
 
 
 const createURLs = (route, parentPath = '') => {
@@ -28,7 +28,7 @@ const createURLs = (route, parentPath = '') => {
   return urls
 }
 
-export const urls = createURLs(Root)
+export const urls = createURLs(rootRoute)
 
 export const createPathName = (url, params) => {
   return formatPattern(url.fullPath, params)
