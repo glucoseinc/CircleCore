@@ -1,4 +1,4 @@
-import {LOCATION_CHANGE} from 'react-router-redux'
+import {LOCATION_CHANGE} from 'connected-react-router'
 import {call, fork, put, select, takeLatest} from 'redux-saga/effects'
 
 import actions from 'src/actions'
@@ -9,7 +9,14 @@ import {checkHasAuthCodeReceived, fetchTokenByAuthorizationCode} from 'src/Autho
  * [checkAuthorizationHash description]
  * @param  {[type]}    action [description]
  */
-function* checkAuthorizationHash({payload: {hash}}) {
+function* checkAuthorizationHash(action) {
+  const {
+    payload: {
+      location: {
+        hash,
+      },
+    },
+  } = action
   const authCode = checkHasAuthCodeReceived(hash)
 
   if (!authCode) {

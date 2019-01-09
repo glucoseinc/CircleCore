@@ -1,7 +1,7 @@
+import {routerActions} from 'connected-react-router'
 import PropTypes from 'prop-types'
 import React from 'react'
 import {connect} from 'react-redux'
-import {routerActions} from 'react-router-redux'
 
 import withWidth from 'material-ui/utils/withWidth'
 

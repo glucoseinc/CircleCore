@@ -3,7 +3,8 @@ import React from 'react'
 const CheckingAuthCode = () => <div>Checking AuthCode...</div>
 
 const checkingAuthCodeRoute = {
-  path: '/oauth/callback',
+  key: 'checkingAuthCode',
+  path: 'callback',
   component: CheckingAuthCode,
 }
 

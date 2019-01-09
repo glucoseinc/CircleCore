@@ -1,7 +1,8 @@
 import OAuthAuthorize from 'src/containers/OAuthAuthorize'
 
 const oAuthAuthorizeRoute = {
-  path: '/oauth/authorize',
+  key: 'oAuthAuthorize',
+  path: 'authorize',
   component: OAuthAuthorize,
 }
 

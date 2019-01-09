@@ -1,7 +1,7 @@
+import {routerActions} from 'connected-react-router'
 import PropTypes from 'prop-types'
 import React from 'react'
 import {connect} from 'react-redux'
-import {routerActions} from 'react-router-redux'
 
 import AppBar from 'material-ui/AppBar'
 import Snackbar from 'material-ui/Snackbar'
@@ -30,6 +30,13 @@ class Master extends React.Component {
     onLocationChange: PropTypes.func,
     onSnackBarCloseRequest: PropTypes.func,
     onErrorDialogCloseRequest: PropTypes.func,
+    history: PropTypes.object.isRequired,
+    match: PropTypes.object.isRequired,
+    onActionRequest: PropTypes.func,
+    onCcInfoFetchMyselfRequest: PropTypes.func,
+    onSetTitleRequest: PropTypes.func,
+    onUserFetchMyselfRequest: PropTypes.func,
+    route: PropTypes.object.isRequired,
   }
 
   static contextTypes = {
@@ -38,6 +45,53 @@ class Master extends React.Component {
 
   state = {
     navDrawerOpen: false,
+  }
+
+  /**
+   *@override
+   */
+  componentDidMount() {
+    const {
+      onCcInfoFetchMyselfRequest,
+      onUserFetchMyselfRequest,
+    } = this.props
+
+    onCcInfoFetchMyselfRequest()
+    onUserFetchMyselfRequest()
+    this.onRouteChanged()
+  }
+
+  /**
+   *@override
+   */
+  componentDidUpdate(prevProps) {
+    if (prevProps.route !== this.props.route) {
+      this.onRouteChanged()
+    }
+  }
+
+  /**
+   * props.route change時の動作
+   */
+  onRouteChanged = () => {
+    const {
+      match: {
+        params,
+      },
+      route: {
+        label,
+        onEnterActions,
+      },
+      onSetTitleRequest,
+      onActionRequest,
+    } = this.props
+
+    onSetTitleRequest(label)
+    if (onEnterActions !== undefined) {
+      onEnterActions.map((action) => {
+        onActionRequest(action, params)
+      })
+    }
   }
 
   /**
@@ -149,6 +203,10 @@ const mapDispatchToProps = (dispatch)=> ({
   onLocationChange: (pathname) => dispatch(routerActions.push(pathname)),
   onSnackBarCloseRequest: () => dispatch(actions.page.hideSnackbar()),
   onErrorDialogCloseRequest: () => dispatch(actions.page.hideErrorDialog()),
+  onActionRequest: (action, params) => dispatch(action(params)),
+  onCcInfoFetchMyselfRequest: () => dispatch(actions.ccInfo.fetchMyselfRequest()),
+  onSetTitleRequest: (title) => dispatch(actions.page.setTitle(title)),
+  onUserFetchMyselfRequest: () => dispatch(actions.user.fetchMyselfRequest()),
 })
 
 export default connect(

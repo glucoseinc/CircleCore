@@ -35,6 +35,8 @@ rules:
     - never
   no-console: off
   no-debugger: warn
+  no-invalid-this:
+    - off
   no-unused-vars:
     - warn
     - args: none

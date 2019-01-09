@@ -4,12 +4,14 @@
  *
  * main.es6は冒頭で認証チェックをしているので...
  */
+import {ConnectedRouter as Router, connectRouter, routerMiddleware} from 'connected-react-router'
+import {createBrowserHistory} from 'history'
 import React from 'react'
 import {render} from 'react-dom'
 import {Provider} from 'react-redux'
-import {Router, Route, browserHistory} from 'react-router'
+import {Route, Switch} from 'react-router-dom'
 import Title from '@shnjp/react-title-component'
-import {combineReducers, createStore, applyMiddleware} from 'redux'
+import {combineReducers, createStore, applyMiddleware, compose} from 'redux'
 import createSagaMiddleware from 'redux-saga'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import FlatButton from 'material-ui/FlatButton'
@@ -19,6 +21,7 @@ import {fork} from 'redux-saga/effects'
 import {colorError} from 'src/colors'
 import muiTheme from 'src/muiTheme'
 import PublicFrame from 'src/public/frame'
+import UserInvitation from 'src/public/invitation'
 
 
 /**
@@ -155,11 +158,13 @@ class OAuthAuthorize extends React.Component {
 // init redux for public pages
 /**
  * publicページ系のためのReducerを作る
+ * @param  {[type]} history      [description]
  * @return {func}
  */
-function makeReducer() {
+function makeReducer(history) {
   return combineReducers({
     page: require('src/reducers/page').default,
+    router: connectRouter(history),
   })
 }
 
@@ -173,16 +178,19 @@ function configureStore(history, initialState) {
   const sagaMiddleware = createSagaMiddleware()
 
   const store = createStore(
-    makeReducer(),
+    makeReducer(history),
     initialState,
-    applyMiddleware(sagaMiddleware),
+    compose(
+      applyMiddleware(routerMiddleware(history), sagaMiddleware),
+    ),
   )
   store.runSaga = sagaMiddleware.run
 
   return store
 }
 
-const store = configureStore(browserHistory, {})
+const history = createBrowserHistory()
+const store = configureStore(history, {})
 store.runSaga(function* () {
   yield fork(require('src/sagas/snackbar').default)
 })
@@ -191,14 +199,18 @@ store.runSaga(function* () {
 render(
   <Provider store={store}>
     <MuiThemeProvider muiTheme={muiTheme}>
-      <Router history={browserHistory}>
-        <Route path="/oauth" component={PublicFrame}>
-          <Route path="login" component={OAuthLogin} />
-          <Route path="authorize" component={OAuthAuthorize} />
-        </Route>
-        <Route path="/invitation/" component={PublicFrame}>
-          <Route path=":linkUuid" component={require('src/public/invitation').default} />
-        </Route>
+      <Router history={history}>
+        <Route
+          render={(props) => (
+            <PublicFrame {...props}>
+              <Switch>
+                <Route exact path="/oauth/login" component={OAuthLogin} />
+                <Route exact path="/oauth/authorize" component={OAuthAuthorize} />
+                <Route exact path="/invitation/:linkUuid" component={UserInvitation} />
+              </Switch>
+            </PublicFrame>
+          )}
+        />
       </Router>
     </MuiThemeProvider>
   </Provider>,

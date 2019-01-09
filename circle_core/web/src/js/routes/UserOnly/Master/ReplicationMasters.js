@@ -1,9 +1,8 @@
 import actions from 'src/actions'
 import {CoreIcon} from 'src/components/bases/icons'
 import ReplicationMasters from 'src/containers/ReplicationMasters'
-import ReplicationMasterNew from 'src/containers/ReplicationMasterNew'
 
-export default [{
+const replicationMastersRoute = {
   key: 'replicationMasters',
   path: 'replication_masters/',
   label: '共有マスター一覧',
@@ -12,10 +11,6 @@ export default [{
   onEnterActions: [
     actions.replicationMaster.fetchAllRequest,
   ],
-}, {
-  key: 'replicationMasterNew',
-  path: 'replication_masters/new',
-  label: '共有マスター追加',
-  icon: CoreIcon,
-  component: ReplicationMasterNew,
-}]
+}
+
+export default replicationMastersRoute

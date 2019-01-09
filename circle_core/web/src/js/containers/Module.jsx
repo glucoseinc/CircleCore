@@ -28,7 +28,7 @@ class Module extends React.Component {
     modules: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
     token: PropTypes.object.isRequired,
-    params: PropTypes.object.isRequired,
+    match: PropTypes.object.isRequired,
     setTitle: PropTypes.func,
     onUpdateClick: PropTypes.func,
     onDeleteOkButtonClick: PropTypes.func,
@@ -44,7 +44,7 @@ class Module extends React.Component {
    * @override
    */
   componentWillReceiveProps(nextProps) {
-    const module = nextProps.modules.get(nextProps.params.moduleId)
+    const module = nextProps.modules.get(nextProps.match.params.moduleId)
     const title = module !== undefined ? module.label : ''
     this.props.setTitle(title)
   }
@@ -131,7 +131,9 @@ class Module extends React.Component {
       schemas,
       modules,
       ccInfos,
-      params,
+      match: {
+        params,
+      },
     } = this.props
 
     if (isModuleFetching || isModuleUpdating) {

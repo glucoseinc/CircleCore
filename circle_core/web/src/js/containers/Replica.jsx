@@ -20,7 +20,7 @@ class Replica extends React.Component {
     replicationLinks: PropTypes.object.isRequired,
     modules: PropTypes.object.isRequired,
     ccInfos: PropTypes.object.isRequired,
-    params: PropTypes.object.isRequired,
+    match: PropTypes.object.isRequired,
     setTitle: PropTypes.func,
     onDeleteOkButtonClick: PropTypes.func,
   }
@@ -33,7 +33,7 @@ class Replica extends React.Component {
    * @override
    */
   componentWillReceiveProps(nextProps) {
-    const replicationLink = nextProps.replicationLinks.get(nextProps.params.replicationLinkId)
+    const replicationLink = nextProps.replicationLinks.get(nextProps.match.params.replicationLinkId)
     const title = replicationLink !== undefined ? replicationLink.label : ''
     this.props.setTitle(title)
   }
@@ -73,7 +73,9 @@ class Replica extends React.Component {
       replicationLinks,
       modules,
       ccInfos,
-      params,
+      match: {
+        params,
+      },
     } = this.props
 
     if (isFetching) {

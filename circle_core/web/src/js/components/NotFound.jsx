@@ -1,5 +1,5 @@
 import React from 'react'
-import {Link} from 'react-router'
+import {Link} from 'react-router-dom'
 import Title from '@shnjp/react-title-component'
 
 import AppBar from 'material-ui/AppBar'

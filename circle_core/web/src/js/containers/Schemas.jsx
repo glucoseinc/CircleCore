@@ -1,10 +1,10 @@
+import {routerActions} from 'connected-react-router'
 import PropTypes from 'prop-types'
 import React from 'react'
 import {connect} from 'react-redux'
-import {routerActions} from 'react-router-redux'
 
 import actions from 'src/actions'
-import {urls, createPathName, createQuery} from 'src/routes'
+import {urls, createPathName, createSearchString} from 'src/routes'
 
 import LoadingIndicator from 'src/components/bases/LoadingIndicator'
 import {SchemaIcon} from 'src/components/bases/icons'
@@ -144,7 +144,7 @@ const mapDispatchToProps = (dispatch) => ({
   onModuleButtonClick: (moduleId) => dispatch(routerActions.push(createPathName(urls.module, {moduleId}))),
   onTemplateClick: (schemaId) => dispatch(routerActions.push({
     pathname: createPathName(urls.schemasNew),
-    query: createQuery(urls.schemasNew, {schemaId}),
+    search: createSearchString(urls.schemasNew, {schemaId}),
   })),
   onDeleteOkButtonClick: (schema) => dispatch(actions.schema.deleteRequest(schema.uuid)),
 })

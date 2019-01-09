@@ -1,4 +1,4 @@
-import {routerActions} from 'react-router-redux'
+import {routerActions} from 'connected-react-router'
 import {fork, put, takeEvery} from 'redux-saga/effects'
 
 import {actionTypes} from 'src/actions'

@@ -1,16 +1,19 @@
 import path from 'path'
 
-import {formatPattern} from 'react-router'
+import pathToRegexp from 'path-to-regexp'
+import {matchPath} from 'react-router'
 
-import Root from './Root'
+import rootRoute from './Root'
 
 
 const createURLs = (route, parentPath = '') => {
   let urls = {}
 
+  const fullPath = path.join(parentPath, route.path || '')
+
   if (route.key !== undefined) {
     urls[route.key] = {
-      fullPath: path.join(parentPath, route.path || ''),
+      fullPath,
       query: route.query,
       label: route.label,
       icon: route.icon,
@@ -19,17 +22,17 @@ const createURLs = (route, parentPath = '') => {
   if (route.childRoutes !== undefined) {
     urls = route.childRoutes.reduce((_urls, childRoute) => ({
       ..._urls,
-      ...createURLs(childRoute, path.join(parentPath, route.path || '')),
+      ...createURLs(childRoute, fullPath),
     }), urls)
   }
 
   return urls
 }
 
-export const urls = createURLs(Root)
+export const urls = createURLs(rootRoute)
 
 export const createPathName = (url, params) => {
-  return formatPattern(url.fullPath, params)
+  return pathToRegexp.compile(url.fullPath)(params)
 }
 
 export const createQuery = (url, params) => {
@@ -41,10 +44,89 @@ export const createQuery = (url, params) => {
     try {
       return {
         ...query,
-        [key]: formatPattern(value, params),
+        [key]: pathToRegexp.compile(value)(params),
       }
     } catch (e) {
       return query
     }
   }, {})
+}
+
+export const createSearchString = (url, params) => {
+  const query = createQuery(url, params)
+  return `?${Object.entries(query).map(([key, value]) => `${key}=${value}`).join('&')}`
+}
+
+export const searchStringToQuery = (searchString) => {
+  return (
+    searchString
+      .replace(/^\?/, '')
+      .split('&')
+      .map((kv) => kv.split('='))
+      .reduce(
+        (prev, [key, value]) => ({
+          ...prev,
+          [key]: value,
+        }),
+        {},
+      )
+  )
+}
+
+const createFlatRoutes = (route, parentPath = '') => {
+  const {
+    childRoutes,
+    path: routePath,
+    ...other
+  } = route
+
+  let routes = []
+
+  const fullPath = path.join(parentPath, routePath || '')
+
+  if (route.key !== undefined) {
+    routes.push({
+      fullPath,
+      ...other,
+    })
+  }
+  if (childRoutes !== undefined) {
+    routes = childRoutes.reduce((_routes, childRoute) => ([
+      ..._routes,
+      ...createFlatRoutes(childRoute, fullPath),
+    ]), routes)
+  }
+
+  return routes
+}
+
+const flatRoutes = createFlatRoutes(rootRoute)
+
+export const findRoute = (fullPath) => (
+  flatRoutes.find((route) => (
+    matchPath(
+      fullPath,
+      {
+        path: route.fullPath,
+        exact: true,
+      },
+    )
+  ))
+)
+
+export const listUrls = (route, parentPath = '') => {
+  let urls = []
+
+  const fullPath = path.join(parentPath, route.path || '')
+
+  if (route.childRoutes === undefined) {
+    urls.push(fullPath)
+  } else {
+    urls = route.childRoutes.reduce((_urls, childRoute) => ([
+      ..._urls,
+      ...listUrls(childRoute, fullPath),
+    ]), urls)
+  }
+
+  return urls
 }
