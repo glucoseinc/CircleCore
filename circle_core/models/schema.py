@@ -332,6 +332,8 @@ class Schema(UUIDMetaDataBase):
         }
 
         for msg_key, msg_value in data.items():
+            if msg_value is None:
+                continue
             for prop in self.properties:
                 if msg_key == prop.name and validator[prop.type_val](msg_value):
                     break
