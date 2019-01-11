@@ -327,6 +327,16 @@ class CCAPI extends APICaller {
   }
 
   /**
+   * Userのトークンを得る
+   * @param {string} userId
+   * @return {object} Result
+   */
+  async fetchUserToken(userId) {
+    const res = await this._get(`/users/${userId}/token`)
+    return res.body
+  }
+
+  /**
    * Userのリストを得る
    * @return {object} Result
    */
@@ -351,6 +361,16 @@ class CCAPI extends APICaller {
    */
   async updateUser(rawUser) {
     const res = await this._put(`/users/${rawUser.uuid}`, rawUser)
+    return res.body
+  }
+
+  /**
+   * Userのトークンを生成する
+   * @param {string} userId
+   * @return {object} Result
+   */
+  async generateUserToken(userId) {
+    const res = await this._put(`/users/${userId}/token`)
     return res.body
   }
 
