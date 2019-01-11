@@ -9,7 +9,6 @@ oauthToken.load()
 
 const initialState = {
   token: oauthToken,
-  tokenLoaded: false,
   tokenIsValid: oauthToken.isValid(),
 }
 const entities = handleActions({
