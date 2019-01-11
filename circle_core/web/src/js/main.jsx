@@ -13,7 +13,7 @@ import muiTheme from './muiTheme'
 
 const history = createBrowserHistory()
 const initialState = {}
-const store = configureStore(history, initialState)
+export const store = configureStore(history, initialState)
 store.runSaga(rootSaga)
 
 
