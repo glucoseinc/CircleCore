@@ -94,6 +94,7 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(actions.user.updateRequest({...user.toJS(), newPassword}))
   },
   onGenerateTokenClick: () => {
+    dispatch(actions.user.generateTokenRequest())
   },
 })
 

@@ -9,6 +9,7 @@ const userRoute = {
   component: User,
   onEnterActions: [
     actions.user.fetchRequest,
+    actions.user.fetchTokenRequest,
   ],
 }
 
