@@ -3,10 +3,10 @@
 
 # system module
 import datetime
+from hashlib import sha512
 import random
 import string
-from hashlib import sha512
-from typing import Any, Dict, List, Optional, TYPE_CHECKING, cast
+from typing import Any, cast, Dict, List, Optional, TYPE_CHECKING
 
 # community module
 import sqlalchemy as sa
