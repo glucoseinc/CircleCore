@@ -5,6 +5,7 @@
 import datetime
 from hashlib import sha512
 import random
+from secrets import token_hex
 import string
 from typing import Any, cast, Dict, List, Optional, TYPE_CHECKING
 
@@ -72,6 +73,7 @@ class User(UUIDMetaDataBase):
         sa.DateTime, nullable=False, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow
     )
     last_access_at = sa.Column(sa.DateTime, nullable=True)
+    token = sa.Column(sa.CHAR(128), unique=True)
 
     @classmethod
     def create(cls, **kwargs: Dict[str, Any]):
@@ -160,6 +162,11 @@ class User(UUIDMetaDataBase):
         self.check_password(new_password)
         self.encrypted_password = encrypt_password(new_password)
 
+    def generate_token(self):
+        """tokenを生成/再生成する.
+        """
+        self.token = token_hex(64)
+
     def to_json(self, full: bool = False) -> 'UserJson':
         """このモデルのJSON表現を返す.
 
@@ -179,6 +186,7 @@ class User(UUIDMetaDataBase):
             'lastAccessAt': format_date(self.last_access_at),
         }
         if full:
+            d['token'] = self.token
             d['encryptedPassword'] = self.encrypted_password
 
         return d

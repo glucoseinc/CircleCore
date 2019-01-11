@@ -147,3 +147,43 @@ def _delete_user(user):
         MetaDataSession.delete(user)
 
     return respond_success(user={'uuid': user.uuid})
+
+
+@api.route('/users/<uuid:user_uuid>/token', methods=['GET', 'PUT'])
+def api_user_token(user_uuid):
+    """単一のUserのトークンのCRUD."""
+    user = User.query.get(user_uuid)
+    if user is None:
+        return respond_failure('User not found.', _status=404)
+
+    if request.method == 'GET':
+        return _get_user_token(user)
+    elif request.method == 'PUT':
+        return _put_user_token(user)
+    abort(405)
+
+
+@oauth_require_write_users_scope  # FIXME: get 時の権限
+def _get_user_token(user):
+    """Userのトークンを取得する.
+
+    :param User user: トークンを取得するUser
+    :return: Userのトークン
+    :rtype: Response
+    """
+    return respond_success(user={'uuid': user.uuid, 'token': user.token})
+
+
+@oauth_require_write_users_scope
+def _put_user_token(user):
+    """Userのトークンを生成する.
+
+    :param User user: トークンを生成するUser
+    :return: Userのトークン
+    :rtype: Response
+    """
+    # update
+    with MetaDataSession.begin():
+        user.generate_token()
+
+    return respond_success(user={'uuid': user.uuid, 'token': user.token})
