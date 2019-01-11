@@ -8,6 +8,7 @@ import ComponentWithHeader from 'src/components/bases/ComponentWithHeader'
 import PasswordChangeComponent from 'src/components/commons/PasswordChangeComponent'
 import SaveButton from 'src/components/commons/SaveButton'
 import UserInfoEditComponent from './UserInfoEditComponent'
+import TokenComponent from './TokenComponent'
 
 
 /**
@@ -22,11 +23,14 @@ class UserEditPaper extends React.Component {
     saveButtonLabel: PropTypes.string, // パスワードの入力が必須かどうか?
     isPasswordRequired: PropTypes.bool,
     canChangePermission: PropTypes.bool,
+    withToken: PropTypes.bool,
+    onGenerateTokenClick: PropTypes.func,
   }
 
   static defaultProps = {
     isPasswordRequired: false,
     canChangePermission: true,
+    withToken: false,
   }
 
   /**
@@ -69,6 +73,8 @@ class UserEditPaper extends React.Component {
       needCurrentPassword = false,
       errors = {},
       onSaveClick,
+      onGenerateTokenClick,
+      withToken,
     } = this.props
 
     const style = {
@@ -79,6 +85,10 @@ class UserEditPaper extends React.Component {
       },
 
       userInfoArea: {
+      },
+
+      tokenArea: {
+        paddingTop: 32,
       },
 
       changePasswordArea: {
@@ -119,6 +129,17 @@ class UserEditPaper extends React.Component {
               />
             </ComponentWithHeader>
           </div>
+
+          {withToken && (
+            <div style={style.tokenArea}>
+              <ComponentWithHeader headerLabel="トークン">
+                <TokenComponent
+                  onGenerate={onGenerateTokenClick}
+                  token={editingUser.token}
+                />
+              </ComponentWithHeader>
+            </div>
+          )}
 
           <div style={style.changePasswordArea}>
             <ComponentWithHeader headerLabel="パスワード">
