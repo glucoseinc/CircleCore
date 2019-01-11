@@ -47,8 +47,14 @@ const userActionsHandler = {
   // Fetch myself
   [actionTypes.user.fetchMyselfSucceeded]: mergeUsers,
 
+  // Fetch token
+  [actionTypes.user.fetchTokenSucceeded]: mergeUsers,
+
   // Update
   [actionTypes.user.updateSucceeded]: mergeUsers,
+
+  // Generate token
+  [actionTypes.user.generateTokenSucceeded]: mergeUsers,
 
   // Delete
   [actionTypes.user.deleteSucceeded]: deleteUsers,

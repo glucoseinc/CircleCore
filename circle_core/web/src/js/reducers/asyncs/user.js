@@ -24,10 +24,20 @@ const userActionsHandler = {
   [actionTypes.user.fetchMyselfSucceeded]: changeFlagAction('isUserFetching', false),
   [actionTypes.user.fetchMyselfFailed]: changeFlagAction('isUserFetching', false),
 
+  // Fetch token
+  [actionTypes.user.fetchTokenRequest]: changeFlagAction('isUserFetching', true),
+  [actionTypes.user.fetchTokenSucceeded]: changeFlagAction('isUserFetching', false),
+  [actionTypes.user.fetchTokenFailed]: changeFlagAction('isUserFetching', false),
+
   // Update
   [actionTypes.user.updateRequest]: changeFlagAction('isUserUpdating', true),
   [actionTypes.user.updateSucceeded]: changeFlagAction('isUserUpdating', false),
   [actionTypes.user.updateFailed]: changeFlagAction('isUserUpdating', false),
+
+  // Generate token
+  [actionTypes.user.generateTokenRequest]: changeFlagAction('isUserUpdating', true),
+  [actionTypes.user.generateTokenSucceeded]: changeFlagAction('isUserUpdating', false),
+  [actionTypes.user.generateTokenFailed]: changeFlagAction('isUserUpdating', false),
 
   // Delete
   [actionTypes.user.deleteRequest]: changeFlagAction('isUserDeleting', true),

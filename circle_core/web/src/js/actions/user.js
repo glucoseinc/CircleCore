@@ -22,10 +22,20 @@ const payloadCreators = {
   fetchMyselfSucceeded: (response) => response,
   fetchMyselfFailed: (message) => message,
 
+  // Fetch token
+  fetchTokenRequest: (params) => params.userId,
+  fetchTokenSucceeded: (response) => response,
+  fetchTokenFailed: (message) => message,
+
   // Update
   updateRequest: (rawUser) => rawUser,
   updateSucceeded: (response) => response,
   updateFailed: (message) => message,
+
+  // Generate token
+  generateTokenRequest: (userId) => userId,
+  generateTokenSucceeded: (response) => response,
+  generateTokenFailed: (message) => message,
 
   // Delete
   deleteRequest: (userId) => userId,

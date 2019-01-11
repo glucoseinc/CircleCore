@@ -36,12 +36,28 @@ const myselfUserFetchParam = createAsyncSagaParam(
   actions.user.fetchMyselfFailed
 )
 
+// Fetch token
+const userFetchTokenParam = createAsyncSagaParam(
+  ::CCAPI.fetchUserToken,
+  (payload) => payload,
+  actions.user.fetchTokenSucceeded,
+  actions.user.fetchTokenFailed
+)
+
 // Update
 const userUpdateParam = createAsyncSagaParam(
   ::CCAPI.updateUser,
   (payload) => payload,
   actions.user.updateSucceeded,
   actions.user.updateFailed,
+)
+
+// Generate token
+const userGenerateTokenParam = createAsyncSagaParam(
+  ::CCAPI.generateUserToken,
+  (payload) => payload,
+  actions.user.generateTokenSucceeded,
+  actions.user.generateTokenFailed,
 )
 
 // Delete
@@ -66,8 +82,14 @@ const asyncSagaParams = {
   // Fetch myself
   [actionTypes.user.fetchMyselfRequest]: myselfUserFetchParam,
 
+  // Fetch token
+  [actionTypes.user.fetchTokenRequest]: userFetchTokenParam,
+
   // Update
   [actionTypes.user.updateRequest]: userUpdateParam,
+
+  // Generate token
+  [actionTypes.user.generateTokenRequest]: userGenerateTokenParam,
 
   // Delete
   [actionTypes.user.deleteRequest]: userDeleteParam,
