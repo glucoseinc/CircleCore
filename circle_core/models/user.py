@@ -11,12 +11,13 @@ from typing import Any, Dict, List, Optional, TYPE_CHECKING, cast
 
 # community module
 import sqlalchemy as sa
+import sqlalchemy.orm.query
 from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
 from circle_core.utils import format_date
 
-from .base import GUID, UUIDMetaDataBase, generate_uuid
+from .base import GUID, MetaDataSession, UUIDMetaDataBase, generate_uuid
 
 # type annotation
 if TYPE_CHECKING:
@@ -37,6 +38,11 @@ if TYPE_CHECKING:
         token: Optional[str]
 
 TOKEN_BYTES = 128
+
+
+class UserQuery(sqlalchemy.orm.query.Query):
+    def filter_by_encoded_token(self, encoded_token):
+        return self.filter_by(token=base64.b64decode(encoded_token))
 
 
 class User(UUIDMetaDataBase):
@@ -61,6 +67,7 @@ class User(UUIDMetaDataBase):
     _permissions: str
 
     __tablename__ = 'users'
+    query = MetaDataSession.query_property(UserQuery)
 
     uuid = sa.Column(GUID, primary_key=True)
     account = sa.Column(sa.String(255), nullable=False, unique=True)
@@ -163,6 +170,10 @@ class User(UUIDMetaDataBase):
         self.check_password(new_password)
         self.encrypted_password = encrypt_password(new_password)
 
+    @property
+    def encoded_token(self):
+        return base64.b64encode(self.token).decode('latin1') if self.token else None
+
     def renew_token(self) -> None:
         """tokenを(再)生成する。
         tokenは128バイトのバイナリ
@@ -189,7 +200,7 @@ class User(UUIDMetaDataBase):
             'token': None,
         }
         if full:
-            d['token'] = base64.b64encode(self.token).decode('latin1') if self.token else None
+            d['token'] = self.encoded_token
 
         return d
 
