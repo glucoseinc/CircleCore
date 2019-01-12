@@ -17,8 +17,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-NotFound = object()
-
 
 class ModuleEventHandler(WebSocketHandler):
     """モジュールへのイベントを受け取る
@@ -83,13 +81,11 @@ class ModuleEventHandler(WebSocketHandler):
         for prop in self.mbox.schema.properties:
             if prop.type_val != CRDataType.BLOB:
                 continue
-            data = payload.get(prop.name, NotFound)
+            data = payload.get(prop.name)
 
-            if data is NotFound:
-                # Insufficient data
-                self.send_error(400)
-                return
-            if data.startswith('data:'):
+            if data is None:
+                pass
+            elif data.startswith('data:'):
                 payload[prop.name] = blobstore.store_blob_url(self.mbox.uuid, data)
             elif data.startswith('file:///'):
                 content_type, data = attachments[data[8:]]
