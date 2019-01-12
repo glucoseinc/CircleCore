@@ -67,6 +67,7 @@ class User(UUIDMetaDataBase):
     mail_address = sa.Column(sa.Text, nullable=False, default='')
     telephone = sa.Column(sa.Text, nullable=False, default='')
     encrypted_password = sa.Column(sa.String(255), nullable=False)
+    token = sa.Column(sa.Binary(128))
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
     updated_at = sa.Column(
         sa.DateTime, nullable=False, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow
