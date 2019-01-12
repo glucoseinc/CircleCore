@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import base64
+
 import pytest
 
 from circle_core.models import MetaDataSession, User
@@ -58,7 +60,6 @@ class TestUser(object):
         assert len(user.permissions) == len(jsonobj['permissions'])
         for permission, exp_permission in zip(user.permissions, jsonobj['permissions']):
             assert permission == exp_permission
-        assert user.encrypted_password == jsonobj['encryptedPassword']
 
     @pytest.mark.parametrize(('old', 'new', 'expected'), [  # noqa: F811
         (
@@ -107,3 +108,31 @@ class TestUser(object):
         assert user.work == expected['work']
         assert user.mail_address == expected['mail_address']
         assert user.telephone == expected['telephone']
+
+    @pytest.mark.usefixtures('mock_circlecore')
+    def test_user_token(self, mock_circlecore):
+        user = User.create(
+            account='testuser',
+            password='password'
+        )
+
+        with MetaDataSession.begin():
+            MetaDataSession.add(user)
+
+        user = User.query.get(user.uuid)
+
+        # 初期状態ではuser tokenはNone
+        assert user.token is None
+        assert user.to_json(True)['token'] is None
+
+        # tokenを生成する
+        with MetaDataSession.begin():
+            user.renew_token()
+            MetaDataSession.add(user)
+
+        user = User.query.get(user.uuid)
+
+        assert user.token is not None
+        assert len(user.token) == 128
+        assert isinstance(user.to_json(True)['token'], str)
+        assert base64.b64decode(user.to_json(True)['token']) == user.token

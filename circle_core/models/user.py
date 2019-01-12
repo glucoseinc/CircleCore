@@ -2,6 +2,7 @@
 """User Model."""
 
 # system module
+import base64
 import datetime
 import random
 import string
@@ -33,8 +34,9 @@ if TYPE_CHECKING:
         createdAt: str
         updatedAt: str
         lastAccessAt: Optional[str]
-        #
-        encryptedPassword: str
+        token: Optional[str]
+
+TOKEN_BYTES = 128
 
 
 class User(UUIDMetaDataBase):
@@ -145,7 +147,7 @@ class User(UUIDMetaDataBase):
         return 'admin' in self.permissions
 
     @classmethod
-    def check_password(cls, password):
+    def check_password(cls, password: str):
         """パスワードのvalidateを行う.
 
         :param password:
@@ -153,13 +155,19 @@ class User(UUIDMetaDataBase):
         if len(password) < 6:
             raise ValueError('パスワードは6文字以上にしてください')
 
-    def set_password(self, new_password):
+    def set_password(self, new_password: str):
         """パスワードを更新する.
 
         :param new_password: パスワード
         """
         self.check_password(new_password)
         self.encrypted_password = encrypt_password(new_password)
+
+    def renew_token(self) -> None:
+        """tokenを(再)生成する。
+        tokenは128バイトのバイナリ
+        """
+        self.token = bytes(bytearray(random.getrandbits(8) for _ in range(TOKEN_BYTES)))
 
     def to_json(self, full: bool = False) -> 'UserJson':
         """このモデルのJSON表現を返す.
@@ -178,9 +186,10 @@ class User(UUIDMetaDataBase):
             'createdAt': cast(str, format_date(self.created_at)),
             'updatedAt': cast(str, format_date(self.updated_at)),
             'lastAccessAt': format_date(self.last_access_at),
+            'token': None,
         }
         if full:
-            d['encryptedPassword'] = self.encrypted_password
+            d['token'] = base64.b64encode(self.token).decode('latin1') if self.token else None
 
         return d
 
