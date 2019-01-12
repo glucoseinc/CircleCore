@@ -1,4 +1,5 @@
 [![CircleCI](https://circleci.com/gh/glucoseinc/CircleCore.svg?style=svg&circle-token=13e263f3101ee208b64500d73c5f3741a8c8aa97)](https://circleci.com/gh/glucoseinc/CircleCore)
+[![codecov](https://codecov.io/gh/glucoseinc/CircleCore/branch/master/graph/badge.svg)](https://codecov.io/gh/glucoseinc/CircleCore)
 
 # CircleCore
 ## Requirements
