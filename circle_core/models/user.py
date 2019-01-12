@@ -2,6 +2,7 @@
 """User Model."""
 
 # system module
+import base64
 import datetime
 import random
 import string
@@ -10,12 +11,13 @@ from typing import Any, Dict, List, Optional, TYPE_CHECKING, cast
 
 # community module
 import sqlalchemy as sa
+import sqlalchemy.orm.query
 from sqlalchemy.ext.hybrid import hybrid_property
 
 # project module
 from circle_core.utils import format_date
 
-from .base import GUID, UUIDMetaDataBase, generate_uuid
+from .base import GUID, MetaDataSession, UUIDMetaDataBase, generate_uuid
 
 # type annotation
 if TYPE_CHECKING:
@@ -33,8 +35,14 @@ if TYPE_CHECKING:
         createdAt: str
         updatedAt: str
         lastAccessAt: Optional[str]
-        #
-        encryptedPassword: str
+        token: Optional[str]
+
+TOKEN_BYTES = 128
+
+
+class UserQuery(sqlalchemy.orm.query.Query):
+    def filter_by_encoded_token(self, encoded_token):
+        return self.filter_by(token=base64.b64decode(encoded_token))
 
 
 class User(UUIDMetaDataBase):
@@ -59,6 +67,7 @@ class User(UUIDMetaDataBase):
     _permissions: str
 
     __tablename__ = 'users'
+    query = MetaDataSession.query_property(UserQuery)
 
     uuid = sa.Column(GUID, primary_key=True)
     account = sa.Column(sa.String(255), nullable=False, unique=True)
@@ -67,6 +76,7 @@ class User(UUIDMetaDataBase):
     mail_address = sa.Column(sa.Text, nullable=False, default='')
     telephone = sa.Column(sa.Text, nullable=False, default='')
     encrypted_password = sa.Column(sa.String(255), nullable=False)
+    token = sa.Column(sa.Binary(128))
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
     updated_at = sa.Column(
         sa.DateTime, nullable=False, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow
@@ -144,7 +154,7 @@ class User(UUIDMetaDataBase):
         return 'admin' in self.permissions
 
     @classmethod
-    def check_password(cls, password):
+    def check_password(cls, password: str):
         """パスワードのvalidateを行う.
 
         :param password:
@@ -152,13 +162,23 @@ class User(UUIDMetaDataBase):
         if len(password) < 6:
             raise ValueError('パスワードは6文字以上にしてください')
 
-    def set_password(self, new_password):
+    def set_password(self, new_password: str):
         """パスワードを更新する.
 
         :param new_password: パスワード
         """
         self.check_password(new_password)
         self.encrypted_password = encrypt_password(new_password)
+
+    @property
+    def encoded_token(self):
+        return base64.b64encode(self.token).decode('latin1') if self.token else None
+
+    def renew_token(self) -> None:
+        """tokenを(再)生成する。
+        tokenは128バイトのバイナリ
+        """
+        self.token = bytes(bytearray(random.getrandbits(8) for _ in range(TOKEN_BYTES)))
 
     def to_json(self, full: bool = False) -> 'UserJson':
         """このモデルのJSON表現を返す.
@@ -177,9 +197,10 @@ class User(UUIDMetaDataBase):
             'createdAt': cast(str, format_date(self.created_at)),
             'updatedAt': cast(str, format_date(self.updated_at)),
             'lastAccessAt': format_date(self.last_access_at),
+            'token': None,
         }
         if full:
-            d['encryptedPassword'] = self.encrypted_password
+            d['token'] = self.encoded_token
 
         return d
 

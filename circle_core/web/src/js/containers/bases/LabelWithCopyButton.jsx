@@ -108,12 +108,16 @@ class LabelWithCopyButton extends React.Component {
         display: 'flex',
         flexFlow: 'row nowrap',
         alignItems: 'center',
+        overflow: 'hidden',
       },
 
       label: {
         fontSize: 12,
         lineHeight: 1,
         color: grey500,
+        textOverflow: 'ellipsis',
+        overflow: 'hidden',
+        whiteSpace: 'nowrap',
       },
 
       iconButton: {
@@ -128,15 +132,10 @@ class LabelWithCopyButton extends React.Component {
       },
     }
 
-    const mergedLabelStyle = {
-      ...styles.label,
-      ...labelStyle,
-    }
-
     const labelArea = copyButtonOnly ? (
       null
     ) : (
-      <div style={mergedLabelStyle}>{label}</div>
+      <div style={{...styles.label, ...labelStyle}}>{label}</div>
     )
 
     return (

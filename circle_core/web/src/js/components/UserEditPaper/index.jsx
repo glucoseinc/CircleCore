@@ -19,6 +19,7 @@ class UserEditPaper extends React.Component {
     errors: PropTypes.object,
     needCurrentPassword: PropTypes.bool,
     onSaveClick: PropTypes.func,
+    onRenewTokenRequested: PropTypes.func,
     saveButtonLabel: PropTypes.string, // パスワードの入力が必須かどうか?
     isPasswordRequired: PropTypes.bool,
     canChangePermission: PropTypes.bool,
@@ -66,9 +67,11 @@ class UserEditPaper extends React.Component {
       newPassword,
     } = this.state
     const {
+      user,
       needCurrentPassword = false,
       errors = {},
       onSaveClick,
+      onRenewTokenRequested,
     } = this.props
 
     const style = {
@@ -112,10 +115,12 @@ class UserEditPaper extends React.Component {
           <div style={style.userInfoArea}>
             <ComponentWithHeader headerLabel="ユーザー情報">
               <UserInfoEditComponent
-                user={editingUser}
+                source={user}
+                current={editingUser}
                 errors={errors}
                 canChangePermission={this.props.canChangePermission}
                 onUpdate={(user) => this.setState({editingUser: user})}
+                onRenewTokenRequested={() => onRenewTokenRequested(editingUser)}
               />
             </ComponentWithHeader>
           </div>

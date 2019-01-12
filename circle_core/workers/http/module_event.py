@@ -10,14 +10,12 @@ from tornado.websocket import WebSocketHandler
 
 from circle_core.constants import CRDataType, WebsocketStatusCode
 from circle_core.exceptions import InconsitencyError
-from circle_core.models import MessageBox, NoResultFound
+from circle_core.models import MessageBox, NoResultFound, User
 
 if TYPE_CHECKING:
     from typing import Optional
 
 logger = logging.getLogger(__name__)
-
-NotFound = object()
 
 
 class ModuleEventHandler(WebSocketHandler):
@@ -27,7 +25,18 @@ class ModuleEventHandler(WebSocketHandler):
     mbox: 'Optional[MessageBox]'
 
     # override
+    async def get(self, *args, **kwargs):
+        if not self.check_authorize():
+            return
+
+        return super().get(*args, **kwargs)
+
     async def post(self, module_uuid, mbox_uuid):
+        if not self.check_authorize():
+            return
+
+        self.set_header('Content-Type', 'application/json; charset=UTF-8')
+
         logger.debug('Post to module %s/%s', module_uuid, mbox_uuid)
         try:
             self.setup(module_uuid, mbox_uuid)
@@ -83,13 +92,11 @@ class ModuleEventHandler(WebSocketHandler):
         for prop in self.mbox.schema.properties:
             if prop.type_val != CRDataType.BLOB:
                 continue
-            data = payload.get(prop.name, NotFound)
+            data = payload.get(prop.name)
 
-            if data is NotFound:
-                # Insufficient data
-                self.send_error(400)
-                return
-            if data.startswith('data:'):
+            if data is None:
+                pass
+            elif data.startswith('data:'):
                 payload[prop.name] = blobstore.store_blob_url(self.mbox.uuid, data)
             elif data.startswith('file:///'):
                 content_type, data = attachments[data[8:]]
@@ -152,3 +159,33 @@ class ModuleEventHandler(WebSocketHandler):
     def setup(self, module_uuid, mbox_uuid):
         """mboxの存在チェック"""
         self.mbox = MessageBox.query.filter_by(uuid=mbox_uuid, module_uuid=module_uuid).one()
+
+    def check_authorize(self) -> bool:
+        """GET, POST時にAuthorizationをチェックする"""
+        auth_payload = self.request.headers.get('Authorization')
+        if not auth_payload:
+            self.set_status(401)
+            self.set_header('Content-Type', 'application/json; charset=UTF-8')
+            self.set_header('WWW-Authenticate', 'Bearer realm=""')
+            self.write(json.dumps({'ok': 'False', 'message': 'Authorization required'}))
+            return False
+
+        status, error = 400, 'xxx'
+        auth_scheme, token = auth_payload.strip().split(' ', 1)
+        if auth_scheme != 'Bearer':
+            status, error = 400, 'invalid_request'
+        else:
+            user = User.query.filter_by_encoded_token(token)
+            if not user:
+                status, error = 401, 'invalid_token'
+
+            # TODO(shn) メッセージ書き込みもScopeほしいよね
+            status, error = 200, ''
+
+        if status != 200:
+            self.set_status(status)
+            self.set_header('Content-Type', 'application/json; charset=UTF-8')
+            self.set_header('WWW-Authenticate', 'Bearer realm="",error="{error}"'.format(error=error))
+            self.write(json.dumps({'ok': 'False', 'message': error}))
+
+        return status == 200

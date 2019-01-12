@@ -31,7 +31,9 @@ def _get_users():
     :return: 全てのUserの情報
     :rtype: Response
     """
-    return respond_success(users=[user.to_json() for user in User.query])
+    return respond_success(users=[user.to_json(
+        request.oauth.user.is_admin() or user.uuid == request.oauth.user.uuid
+    ) for user in User.query])
 
 
 @api.route('/users/me', methods=['GET'])
@@ -53,7 +55,7 @@ def _get_user_me():
     user = User.query.get(user_uuid)
     if user is None:
         return respond_failure('User not found.', _status=404)
-    return respond_success(user=user.to_json())
+    return respond_success(user=user.to_json(True))
 
 
 @api.route('/users/<uuid:user_uuid>', methods=['GET', 'PUT', 'DELETE'])
@@ -72,6 +74,28 @@ def api_user(user_uuid):
     abort(405)
 
 
+@api.route('/users/<uuid:user_uuid>/renewToken', methods=['POST'])
+@oauth_require_read_users_scope
+def api_user_renew_token(user_uuid):
+    """UserのTokenを再生する
+
+    admin ... 全員
+    user ... 自分だけ
+    """
+    user = User.query.get(user_uuid)
+    if user is None:
+        return respond_failure('User not found.', _status=404)
+
+    if not request.oauth.user.is_admin():
+        if user.uuid != request.oauth.user.uuid:
+            return respond_failure('Permission denied.')
+
+    with MetaDataSession.begin():
+        user.renew_token()
+
+    return respond_success(user=user.to_json(True))
+
+
 @oauth_require_read_users_scope
 def _get_user(user):
     """Userの情報を取得する.
@@ -80,7 +104,8 @@ def _get_user(user):
     :return: Userの情報
     :rtype: Response
     """
-    return respond_success(user=user.to_json())
+    respond_full = request.oauth.user.is_admin() or user.uuid == request.oauth.user.uuid
+    return respond_success(user=user.to_json(respond_full))
 
 
 @oauth_require_read_users_scope
@@ -128,7 +153,8 @@ def _put_user(user):
     with MetaDataSession.begin():
         user.update_from_json(request.json)
 
-    return respond_success(user=user.to_json())
+    respond_full = request.oauth.user.is_admin() or user.uuid == request.oauth.user.uuid
+    return respond_success(user=user.to_json(respond_full))
 
 
 @oauth_require_write_users_scope

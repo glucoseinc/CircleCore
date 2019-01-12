@@ -31,6 +31,11 @@ const payloadCreators = {
   deleteRequest: (userId) => userId,
   deleteSucceeded: (response) => response,
   deleteFailed: (message) => message,
+
+  // Update
+  renewTokenRequest: (userId) => userId,
+  renewTokenSucceeded: (response) => response,
+  renewTokenFailed: (message) => message,
 }
 
 const ccActions = createCcActions('user', payloadCreators)

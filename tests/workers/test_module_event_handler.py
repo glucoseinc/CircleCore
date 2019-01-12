@@ -6,12 +6,13 @@ import os
 from email.message import EmailMessage
 from unittest.mock import MagicMock
 
+from tornado import httpclient
 from tornado.gen import sleep
 from tornado.testing import AsyncHTTPTestCase, gen_test
 from tornado.web import Application
 from tornado.websocket import websocket_connect
 
-from circle_core.models import MessageBox, MetaDataSession, Module, Schema
+from circle_core.models import MessageBox, MetaDataSession, Module, Schema, User
 from circle_core.testing import mock_circlecore_context
 from circle_core.workers.http import ModuleEventHandler
 
@@ -54,6 +55,12 @@ class TestModuleEventHandlerViaREST(TestModuleEventHandlerBase):
 
     def test_rest_not_found(self):
         """登録されていないModuleからのPOSTは404"""
+        with MetaDataSession.begin():
+            user = User.create(account='tester', password='tester')
+            user.renew_token()
+
+            MetaDataSession.add(user)
+
         response = self.fetch(
             self.get_url('/modules/4ffab839-cf56-478a-8614-6003a5980855/00000000-0000-0000-0000-000000000000'),
             method='POST',
@@ -61,7 +68,10 @@ class TestModuleEventHandlerViaREST(TestModuleEventHandlerBase):
                 'x': 1,
                 'y': 2
             }),
-            headers={'Content-Type': 'application/json'}
+            headers={
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer {token}'.format(token=user.encoded_token),
+            }
         )
         self.assertEqual(response.code, 404)
 
@@ -69,11 +79,14 @@ class TestModuleEventHandlerViaREST(TestModuleEventHandlerBase):
         """登録されているModuleからのPOSTは404"""
         # make dummy environ
         with MetaDataSession.begin():
+            user = User.create(account='tester', password='tester')
+            user.renew_token()
             schema = Schema.create(display_name='Schema', properties='x:int,y:float')
             module = Module.create(display_name='Module')
             mbox = MessageBox(
                 uuid='4ffab839-cf56-478a-8614-6003a5980856', schema_uuid=schema.uuid, module_uuid=module.uuid
             )
+            MetaDataSession.add(user)
             MetaDataSession.add(schema)
             MetaDataSession.add(module)
             MetaDataSession.add(mbox)
@@ -85,7 +98,10 @@ class TestModuleEventHandlerViaREST(TestModuleEventHandlerBase):
                 'x': 1,
                 'y': 2.5
             }),
-            headers={'Content-Type': 'application/json'}
+            headers={
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer {token}'.format(token=user.encoded_token),
+            }
         )
         self.assertEqual(response.code, 200)
         self.datareceiver.receive_new_message.assert_called_once_with(str(mbox.uuid), {'x': 1, 'y': 2.5})
@@ -94,11 +110,14 @@ class TestModuleEventHandlerViaREST(TestModuleEventHandlerBase):
         """登録されているModuleからのPOSTは404"""
         # make dummy environ
         with MetaDataSession.begin():
+            user = User.create(account='tester', password='tester')
+            user.renew_token()
             schema = Schema.create(display_name='Schema', properties='x:int,y:float,data:blob')
             module = Module.create(display_name='Module')
             mbox = MessageBox(
                 uuid='4ffab839-cf56-478a-8614-6003a5980857', schema_uuid=schema.uuid, module_uuid=module.uuid
             )
+            MetaDataSession.add(user)
             MetaDataSession.add(schema)
             MetaDataSession.add(module)
             MetaDataSession.add(mbox)
@@ -116,7 +135,10 @@ class TestModuleEventHandlerViaREST(TestModuleEventHandlerBase):
                 'y': 20.5,
                 'data': encode_to_data(*load_file('test.jpg'))
             }),
-            headers={'Content-Type': 'application/json'}
+            headers={
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer {token}'.format(token=user.encoded_token),
+            }
         )
         self.assertEqual(response.code, 200)
         self.datareceiver.receive_new_message.assert_called_once()
@@ -137,7 +159,10 @@ class TestModuleEventHandlerViaREST(TestModuleEventHandlerBase):
                 'y': 20.5,
                 'data': 'hogehoge'
             }),
-            headers={'Content-Type': 'application/json'}
+            headers={
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer {token}'.format(token=user.encoded_token),
+            }
         )
         self.assertEqual(response.code, 400)
         self.datareceiver.receive_new_message.assert_not_called()
@@ -145,16 +170,19 @@ class TestModuleEventHandlerViaREST(TestModuleEventHandlerBase):
         self.reset_mock()
 
         # multipartもOK
+        body, headers = make_multipart_request(
+            'application/json', json.dumps({
+                'x': 10.,
+                'y': 20.5,
+                'data': 'file:///test.jpg'
+            }), 'test.jpg'
+        )
+        headers['Authorization'] = 'Bearer {token}'.format(token=user.encoded_token)
         response = self.fetch(
             self.get_url('/modules/{}/{}'.format(module.uuid, mbox.uuid)),
             method='POST',
-            **make_multipart_request(
-                'application/json', json.dumps({
-                    'x': 10.,
-                    'y': 20.5,
-                    'data': 'file:///test.jpg'
-                }), 'test.jpg'
-            )
+            headers=headers,
+            body=body,
         )
         self.assertEqual(response.code, 200)
         args, kwargs = self.datareceiver.receive_new_message.call_args
@@ -199,10 +227,7 @@ def make_multipart_request(content_type, mainbody, append_filename):
         k, v = ln.split(':', 1)
         headers[k] = v.lstrip()
 
-    return {
-        'body': body,
-        'headers': headers,
-    }
+    return body, headers
 
 
 class TestModuleEventHandlerViaWebsocket(TestModuleEventHandlerBase):
@@ -211,10 +236,39 @@ class TestModuleEventHandlerViaWebsocket(TestModuleEventHandlerBase):
         return 'ws'
 
     @gen_test(timeout=2)
+    def test_websocket_auth_failed(self):
+        """Websocketにも認証がいる"""
+        # make dummy environ
+        with MetaDataSession.begin():
+            schema = Schema.create(display_name='Schema', properties='x:int,y:float')
+            module = Module.create(display_name='Module')
+            mbox = MessageBox(
+                uuid='4ffab839-cf56-478a-8614-6003a5980855', schema_uuid=schema.uuid, module_uuid=module.uuid)
+
+            MetaDataSession.add(schema)
+            MetaDataSession.add(module)
+            MetaDataSession.add(mbox)
+
+        with self.assertRaises(httpclient.HTTPClientError):
+            dummy_module = yield websocket_connect(self.get_url('/modules/{}/{}'.format(module.uuid, mbox.uuid)))
+            dummy_module.write_message(json.dumps({'x': 1, 'y': 2}))
+            yield sleep(1)
+            self.datareceiver.receive_new_message.assert_not_called()
+
+    @gen_test(timeout=2)
     def test_websocket_not_found(self):
         """登録されていないModuleから接続された際は切断."""
+        with MetaDataSession.begin():
+            user = User.create(account='tester', password='tester')
+            user.renew_token()
+
         unknown_box = yield websocket_connect(
-            self.get_url('/modules/4ffab839-cf56-478a-8614-6003a5980855/00000000-0000-0000-0000-000000000000')
+            httpclient.HTTPRequest(
+                self.get_url('/modules/4ffab839-cf56-478a-8614-6003a5980855/00000000-0000-0000-0000-000000000000'),
+                headers={
+                    'Authorization': 'Bearer {token}'.format(token=user.encoded_token),
+                }
+            )
         )
         res = yield unknown_box.read_message()
         assert res is None
@@ -224,16 +278,27 @@ class TestModuleEventHandlerViaWebsocket(TestModuleEventHandlerBase):
         """WebSocketで受け取ったModuleからのMessageに適切なtimestamp/countを付与してnanomsgに流せているかどうか."""
 
         # make dummy environ
-        schema = Schema.create(display_name='Schema', properties='x:int,y:float')
-        module = Module.create(display_name='Module')
-        mbox = MessageBox(uuid='4ffab839-cf56-478a-8614-6003a5980855', schema_uuid=schema.uuid, module_uuid=module.uuid)
-
         with MetaDataSession.begin():
+            user = User.create(account='tester', password='tester')
+            user.renew_token()
+            schema = Schema.create(display_name='Schema', properties='x:int,y:float')
+            module = Module.create(display_name='Module')
+            mbox = MessageBox(
+                uuid='4ffab839-cf56-478a-8614-6003a5980855', schema_uuid=schema.uuid, module_uuid=module.uuid)
+
+            MetaDataSession.add(user)
             MetaDataSession.add(schema)
             MetaDataSession.add(module)
             MetaDataSession.add(mbox)
 
-        dummy_module = yield websocket_connect(self.get_url('/modules/{}/{}'.format(module.uuid, mbox.uuid)))
+        dummy_module = yield websocket_connect(
+            httpclient.HTTPRequest(
+                self.get_url('/modules/{}/{}'.format(module.uuid, mbox.uuid)),
+                headers={
+                    'Authorization': 'Bearer {token}'.format(token=user.encoded_token),
+                }
+            )
+        )
         dummy_module.write_message(json.dumps({'x': 1, 'y': 2}))
 
         # 素直にrecvするとIOLoopがブロックされてModuleHandlerが何も返せなくなるのでModuleHandlerをまず動かす

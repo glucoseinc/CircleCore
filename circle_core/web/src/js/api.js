@@ -364,6 +364,16 @@ class CCAPI extends APICaller {
     return res.body
   }
 
+  /**
+   * UserのTokenを再生成する
+   * @param {string} userId
+   * @return {object} Result
+   */
+  async renewUserToken(userId) {
+    const res = await this._post(`/users/${userId}/renewToken`)
+    return res.body
+  }
+
 
   // Module
   /**

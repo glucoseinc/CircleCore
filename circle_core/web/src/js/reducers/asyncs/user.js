@@ -33,6 +33,11 @@ const userActionsHandler = {
   [actionTypes.user.deleteRequest]: changeFlagAction('isUserDeleting', true),
   [actionTypes.user.deleteSucceeded]: changeFlagAction('isUserDeleting', false),
   [actionTypes.user.deleteFailed]: changeFlagAction('isUserDeleting', false),
+
+  // Delete
+  [actionTypes.user.renewTokenRequest]: changeFlagAction('isUserTokenRenewing', true),
+  [actionTypes.user.renewTokenSucceeded]: changeFlagAction('isUserTokenRenewing', false),
+  [actionTypes.user.renewTokenFailed]: changeFlagAction('isUserTokenRenewing', false),
 }
 
 export default userActionsHandler

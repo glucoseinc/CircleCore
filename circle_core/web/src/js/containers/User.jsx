@@ -22,6 +22,7 @@ class User extends React.Component {
     token: PropTypes.object.isRequired,
     match: PropTypes.object.isRequired,
     onUpdateClick: PropTypes.func,
+    onRenewTokenRequested: PropTypes.func,
   }
 
   /**
@@ -38,6 +39,7 @@ class User extends React.Component {
         params,
       },
       onUpdateClick,
+      onRenewTokenRequested,
     } = this.props
 
     if (isUserFetching || isUserUpdating) {
@@ -61,6 +63,7 @@ class User extends React.Component {
         user={user}
         errors={errors}
         onSaveClick={onUpdateClick}
+        onRenewTokenRequested={onRenewTokenRequested}
       />
     ) : (
       <UserDetail
@@ -88,6 +91,9 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
   onUpdateClick: (user, currentPassword, newPassword) => {
     dispatch(actions.user.updateRequest({...user.toJS(), newPassword}))
+  },
+  onRenewTokenRequested: (user) => {
+    dispatch(actions.user.renewTokenRequest(user.uuid))
   },
 })
 

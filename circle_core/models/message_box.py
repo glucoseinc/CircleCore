@@ -36,6 +36,7 @@ if TYPE_CHECKING:
         schema: Optional[SchemaJson]
         module: Optional[ModuleJson]
         slaveCcInfos: Optional[List[CcInfoJson]]
+        url: Optional[str]
 
 
 class MessageBox(UUIDMetaDataBase):
