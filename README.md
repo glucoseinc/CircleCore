@@ -3,7 +3,7 @@
 
 # CircleCore
 ## Requirements
-- Python3.5
+- Python3.6
 - nanomsg
     - https://github.com/nanomsg/nanomsg
 - MySQL
