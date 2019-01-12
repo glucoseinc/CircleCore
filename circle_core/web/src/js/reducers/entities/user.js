@@ -7,6 +7,7 @@ const mergeUsers = (state, action) => {
   const {
     users,
   } = getNewEntities(action.payload)
+
   return {
     ...state,
     myID: action.type === actionTypes.user.fetchMyselfSucceeded ? users.keySeq().first() : state.myID,
@@ -52,6 +53,9 @@ const userActionsHandler = {
 
   // Delete
   [actionTypes.user.deleteSucceeded]: deleteUsers,
+
+  // RenewToken
+  [actionTypes.user.renewTokenSucceeded]: mergeUsers,
 }
 
 export default userActionsHandler

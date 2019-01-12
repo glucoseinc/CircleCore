@@ -52,6 +52,14 @@ const userDeleteParam = createAsyncSagaParam(
   actions.user.deleteFailed,
 )
 
+// RenwToken
+const renewTokenParam = createAsyncSagaParam(
+  ::CCAPI.renewUserToken,
+  (payload) => payload,
+  actions.user.renewTokenSucceeded,
+  actions.user.renewTokenFailed,
+)
+
 
 const asyncSagaParams = {
   // Create
@@ -71,6 +79,9 @@ const asyncSagaParams = {
 
   // Delete
   [actionTypes.user.deleteRequest]: userDeleteParam,
+
+  // RenewUserToken
+  [actionTypes.user.renewTokenRequest]: renewTokenParam,
 }
 
 export default asyncSagaParams
