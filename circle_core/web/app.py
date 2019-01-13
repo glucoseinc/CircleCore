@@ -164,9 +164,7 @@ class UUIDConverter(BaseConverter):
 
 def check_login():
     """ログイン確認."""
-    t, oauth_requets = oauth.verify_request([])
-    user = oauth_requets.user
-
+    user = get_user_from_request()
     if not user:
         raise abort(403)
 
@@ -176,3 +174,27 @@ def check_login():
     with MetaDataSession.begin():
         user.last_access_at = datetime.utcnow()
         MetaDataSession.add(user)
+
+
+def get_user_from_request():
+    # OAuth
+    t, oauth_requets = oauth.verify_request([])
+    user = oauth_requets.user
+    if user:
+        return user
+
+    # Authorization とりあえずべた書き
+    try:
+        typ, token = request.headers.get('Authorization', '').strip().split(' ', 1)
+    except ValueError:
+        return None
+
+    if typ != 'Bearer':
+        return None
+
+    from circle_core.models import User, NoResultFound
+
+    try:
+        return User.query.filter_by_encoded_token(token).one()
+    except NoResultFound:
+        return None
