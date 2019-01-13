@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import path from 'path'
 
 import React from 'react'

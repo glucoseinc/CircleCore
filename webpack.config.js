@@ -2,8 +2,9 @@
 const path = require('path')
 const DefinePlugin = require('webpack/lib/DefinePlugin')
 const CleanObsoleteChunks = require('webpack-clean-obsolete-chunks')
-const ManifestPlugin = require('webpack-manifest-plugin');
+const ManifestPlugin = require('webpack-manifest-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+const TerserPlugin = require('terser-webpack-plugin')
 
 const _resolve = (...args) => path.resolve(__dirname, ...args)
 
@@ -25,7 +26,7 @@ class LoggerPlugin {
 const SOURCE_DIR = _resolve('./circle_core/web/src')
 const DEST_DIR = _resolve('./circle_core/web/static')
 
-module.exports = {
+module.exports = (env, argv) => ({
   context: _resolve(SOURCE_DIR, 'js'),
   entry: {
     main: ['@babel/polyfill', `${SOURCE_DIR}/js/main.jsx`],
@@ -37,12 +38,6 @@ module.exports = {
   },
   module: {
     rules: [
-      {
-        enforce: 'pre',
-        test: /\.jsx?$/,
-        exclude: /node_modules/,
-        loader: 'eslint-loader',
-      },
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
@@ -57,14 +52,12 @@ module.exports = {
       }
     ],
   },
-  devtool: 'source-map',
+  devtool: (argv && argv.mode == 'production') ? false : 'cheap-module-eval-source-map',
   resolve: {
     alias: {
       'src': _resolve(SOURCE_DIR, 'js')
     },
-    modules: [
-      'node_modules',
-    ],
+    modules: ['node_modules'],
     extensions: ['.jsx', '.js'],
   },
   plugins: [
@@ -78,4 +71,22 @@ module.exports = {
     new CleanObsoleteChunks({verbose: true, deep: true}),
   ],
   target: 'web',
-}
+  ...((argv && argv.mode != 'production') ? {} : {
+    optimization: {
+      // `$super`をmangleしないように
+      // https://github.com/shutterstock/rickshaw#minification
+      minimizer: [
+        new TerserPlugin({
+          cache: true,
+          parallel: true,
+          sourceMap: false,
+          terserOptions: {
+            mangle: {
+              reserved: ['$super'],
+            }
+          }
+        })
+      ]
+    }
+  })
+})

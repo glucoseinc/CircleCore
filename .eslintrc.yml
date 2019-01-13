@@ -77,11 +77,5 @@ rules:
 
 settings:
   react:
-    version: "15.0"
-#   import/respolver:
-#     alias: [
-#       ['src', 'circle_core/web/src'],
-#     ]
-#   # import/internal-module-folders:
-#   #   - src
+    version: "16.0"
   import/resolver: 'webpack'
