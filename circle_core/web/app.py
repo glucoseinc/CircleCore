@@ -2,6 +2,7 @@
 """WebUI."""
 
 # system module
+import binascii
 import json
 import os
 import time
@@ -196,5 +197,5 @@ def get_user_from_request():
 
     try:
         return User.query.filter_by_encoded_token(token).one()
-    except NoResultFound:
+    except (NoResultFound, binascii.Error):
         return None
