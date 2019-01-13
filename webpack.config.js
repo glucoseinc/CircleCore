@@ -2,9 +2,8 @@
 const path = require('path')
 const DefinePlugin = require('webpack/lib/DefinePlugin')
 const CleanObsoleteChunks = require('webpack-clean-obsolete-chunks')
-const ManifestPlugin = require('webpack-manifest-plugin')
+const ManifestPlugin = require('webpack-manifest-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const TerserPlugin = require('terser-webpack-plugin')
 
 const _resolve = (...args) => path.resolve(__dirname, ...args)
 
@@ -26,73 +25,57 @@ class LoggerPlugin {
 const SOURCE_DIR = _resolve('./circle_core/web/src')
 const DEST_DIR = _resolve('./circle_core/web/static')
 
-module.exports = (env, argv) => {
-  const config = {
-    context: _resolve(SOURCE_DIR, 'js'),
-    entry: {
-      main: ['@babel/polyfill', `${SOURCE_DIR}/js/main.jsx`],
-      public: ['@babel/polyfill', `${SOURCE_DIR}/js/public.jsx`],
-    },
-    output: {
-      path: DEST_DIR,
-      filename: '[name].[chunkhash].js'
-    },
-    module: {
-      rules: [
-        {
-          test: /\.jsx?$/,
-          exclude: /node_modules/,
-          loader: 'babel-loader',
-          query: {
-            cacheDirectory: true,
-          },
-        },
-        {
-          test: /\.css$/,
-          loader: 'ignore-loader'
-        }
-      ],
-    },
-    devtool: 'source-map',
-    resolve: {
-      alias: {
-        'src': _resolve(SOURCE_DIR, 'js')
+module.exports = {
+  context: _resolve(SOURCE_DIR, 'js'),
+  entry: {
+    main: ['@babel/polyfill', `${SOURCE_DIR}/js/main.jsx`],
+    public: ['@babel/polyfill', `${SOURCE_DIR}/js/public.jsx`],
+  },
+  output: {
+    path: DEST_DIR,
+    filename: '[name].[chunkhash].js'
+  },
+  module: {
+    rules: [
+      {
+        enforce: 'pre',
+        test: /\.jsx?$/,
+        exclude: /node_modules/,
+        loader: 'eslint-loader',
       },
-      modules: [
-        'node_modules',
-      ],
-      extensions: ['.jsx', '.js'],
-    },
-    plugins: [
-      new CopyWebpackPlugin([
-        {
-          from: _resolve(SOURCE_DIR, 'images'),
+      {
+        test: /\.jsx?$/,
+        exclude: /node_modules/,
+        loader: 'babel-loader',
+        query: {
+          cacheDirectory: true,
         },
-      ]),
-      new LoggerPlugin(),
-      new ManifestPlugin(),
-      new CleanObsoleteChunks({verbose: true, deep: true}),
+      },
+      {
+        test: /\.css$/,
+        loader: 'ignore-loader'
+      }
     ],
-    target: 'web',
-  }
-
-  if(argv.mode == 'production') {
-    // `$super`をmangleしないように
-    // https://github.com/shutterstock/rickshaw#minification
-    config['optimization'] = {
-      minimizer: [
-        new TerserPlugin({
-          cache: true,
-          parallel: true,
-          sourceMap: false,
-          terserOptions: {
-            mangle: {
-              reserved: ['$super'],
-            }
-          }
-        })
-      ],
-    }
-  }
-  return config
+  },
+  devtool: 'source-map',
+  resolve: {
+    alias: {
+      'src': _resolve(SOURCE_DIR, 'js')
+    },
+    modules: [
+      'node_modules',
+    ],
+    extensions: ['.jsx', '.js'],
+  },
+  plugins: [
+    new CopyWebpackPlugin([
+      {
+        from: _resolve(SOURCE_DIR, 'images'),
+      },
+    ]),
+    new LoggerPlugin(),
+    new ManifestPlugin(),
+    new CleanObsoleteChunks({verbose: true, deep: true}),
+  ],
+  target: 'web',
 }

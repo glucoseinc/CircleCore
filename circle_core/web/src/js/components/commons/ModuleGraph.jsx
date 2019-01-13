@@ -206,7 +206,12 @@ class ModuleGraph extends React.Component {
     const {graphData} = await request
 
     this.setState({graphData}, () => {
-      this.updateGraph()
+      try {
+        this.updateGraph()
+      } catch (e) {
+        console.error('Rickshaw failed -> ', e)
+      }
+
       this.setUpdateTimer(this.props.autoUpdate)
     })
   }
