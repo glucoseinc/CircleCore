@@ -21,6 +21,7 @@ class User extends React.Component {
     errors: PropTypes.object,
     token: PropTypes.object.isRequired,
     match: PropTypes.object.isRequired,
+    myID: PropTypes.string,
     onUpdateClick: PropTypes.func,
     onRenewTokenRequested: PropTypes.func,
   }
@@ -38,6 +39,7 @@ class User extends React.Component {
       match: {
         params,
       },
+      myID,
       onUpdateClick,
       onRenewTokenRequested,
     } = this.props
@@ -58,6 +60,7 @@ class User extends React.Component {
       )
     }
 
+    const isMe = (myID === user.uuid)
     const userDetail = token.hasScope('user+rw') ? (
       <UserEditPaper
         user={user}
@@ -68,6 +71,8 @@ class User extends React.Component {
     ) : (
       <UserDetail
         user={user}
+        isMe={isMe}
+        onRenewTokenRequested={isMe && onRenewTokenRequested}
       />
     )
 
@@ -86,6 +91,7 @@ const mapStateToProps = (state) => ({
   users: state.entities.users,
   errors: state.error.userEdit,
   token: state.auth.token,
+  myID: state.entities.myID,
 })
 
 const mapDispatchToProps = (dispatch) => ({

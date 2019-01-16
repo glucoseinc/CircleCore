@@ -13,6 +13,8 @@ import UserInfoPaper from './UserInfoPaper'
 class UserDetail extends React.Component {
   static propTypes = {
     user: PropTypes.object.isRequired,
+    isMe: PropTypes.bool.isRequired,
+    onRenewTokenRequested: PropTypes.func,
   }
 
   /**
@@ -20,7 +22,9 @@ class UserDetail extends React.Component {
    */
   render() {
     const {
+      isMe,
       user,
+      onRenewTokenRequested,
     } = this.props
 
     const style = {
@@ -49,7 +53,7 @@ class UserDetail extends React.Component {
 
         <div style={style.infoArea}>
           <ComponentWithTitle title="ユーザー情報">
-            <UserInfoPaper user={user} />
+            <UserInfoPaper isMe={isMe} user={user} onRenewTokenRequested={onRenewTokenRequested} />
           </ComponentWithTitle>
         </div>
       </div>
