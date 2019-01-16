@@ -109,9 +109,11 @@ class Invitations extends React.Component {
           </div>
         )}
 
-        <AddFloatingActionButton
-          onClick={onCreateClick}
-        />
+        {!isReadOnly &&
+          <AddFloatingActionButton
+            onClick={onCreateClick}
+          />
+        }
 
         <InvitationCreatedDialog
           open={isInvitationCreatedDialogOpen}

@@ -23,11 +23,15 @@ class UserEditPaper extends React.Component {
     saveButtonLabel: PropTypes.string, // パスワードの入力が必須かどうか?
     isPasswordRequired: PropTypes.bool,
     canChangePermission: PropTypes.bool,
+    hideAdminCheck: PropTypes.bool,
+    hideToken: PropTypes.bool,
   }
 
   static defaultProps = {
     isPasswordRequired: false,
     canChangePermission: true,
+    hideAdminCheck: false,
+    hideToken: false,
   }
 
   /**
@@ -70,6 +74,8 @@ class UserEditPaper extends React.Component {
       user,
       needCurrentPassword = false,
       errors = {},
+      hideAdminCheck,
+      hideToken,
       onSaveClick,
       onRenewTokenRequested,
     } = this.props
@@ -118,6 +124,8 @@ class UserEditPaper extends React.Component {
                 source={user}
                 current={editingUser}
                 errors={errors}
+                hideAdminCheck={hideAdminCheck}
+                hideToken={hideToken}
                 canChangePermission={this.props.canChangePermission}
                 onUpdate={(user) => this.setState({editingUser: user})}
                 onRenewTokenRequested={() => onRenewTokenRequested(editingUser)}
