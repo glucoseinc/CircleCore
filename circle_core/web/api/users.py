@@ -31,9 +31,11 @@ def _get_users():
     :return: 全てのUserの情報
     :rtype: Response
     """
-    return respond_success(users=[user.to_json(
-        request.oauth.user.is_admin() or user.uuid == request.oauth.user.uuid
-    ) for user in User.query])
+    return respond_success(
+        users=[
+            user.to_json(request.oauth.user.is_admin() or user.uuid == request.oauth.user.uuid) for user in User.query
+        ]
+    )
 
 
 @api.route('/users/me', methods=['GET'])

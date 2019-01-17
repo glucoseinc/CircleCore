@@ -238,9 +238,7 @@ async def test_replicate_blob(mysql, mock_circlecore):
 
     replicator = slave_dirver.replicators[replication_master.id]
     replicator.state = ReplicationState.SYNCING
-    replicator.target_boxes = {
-        box.uuid: box
-    }
+    replicator.target_boxes = {box.uuid: box}
     replicator.ws = MagicMock()
 
     writer = QueuedDBWriter(database, envdir)
@@ -250,7 +248,9 @@ async def test_replicate_blob(mysql, mock_circlecore):
         'bf3408132f944568dd02827441f8c69b1f3e5a36bd7693a7aeeffd490037b56d'
         '9ad9406892ecd70cb9c0d31a746e7e790e731ae491dc0176a49369a2a4044581'
     )
-    replicator.ws.read_message = Mock(side_effect=make_dummy_read_message('''\
+    replicator.ws.read_message = Mock(
+        side_effect=make_dummy_read_message(
+            '''\
 {{
     "command": "new_message",
     "message": {{
@@ -264,7 +264,9 @@ async def test_replicate_blob(mysql, mock_circlecore):
         }}
     }}
 }}
-'''.format(box_id=str(box.uuid), datahash=datahash, source=master_cc_info.uuid)))
+'''.format(box_id=str(box.uuid), datahash=datahash, source=master_cc_info.uuid)
+        )
+    )
     await replicator.wait_command((MasterCommand.NEW_MESSAGE,))
 
     replicator.ws.read_message.assert_called_once()
@@ -283,6 +285,8 @@ async def test_replicate_blob(mysql, mock_circlecore):
 
 
 def make_dummy_read_message(message):
+
     async def dummy():
         return message
+
     return dummy

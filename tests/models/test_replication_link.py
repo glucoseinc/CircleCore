@@ -7,8 +7,7 @@ from circle_core.models import MessageBox, MetaDataSession, Module, ReplicationL
 class TestReplicationLink(object):
 
     @pytest.mark.parametrize(
-        ('_input', 'expected'),
-        [
+        ('_input', 'expected'), [
             (dict(display_name='Link', memo='memo'), dict(display_name='Link', memo='memo')),
         ]
     )

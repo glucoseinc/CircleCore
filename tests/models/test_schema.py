@@ -7,12 +7,14 @@ from circle_core.models.schema import SchemaProperty
 
 class TestSchema(object):
 
-    @pytest.mark.parametrize(('_input', 'expected'), [
-        (
-            dict(displayName='Schema', memo='memo', properties='x:int,y:float'),
-            dict(displayName='Schema', memo='memo', properties=[('x', 'int'), ('y', 'float')])
-        ),
-    ])
+    @pytest.mark.parametrize(
+        ('_input', 'expected'), [
+            (
+                dict(displayName='Schema', memo='memo', properties='x:int,y:float'),
+                dict(displayName='Schema', memo='memo', properties=[('x', 'int'), ('y', 'float')])
+            ),
+        ]
+    )
     @pytest.mark.usefixtures('mock_circlecore')
     def test_schema(self, _input, expected, mock_circlecore):
         schema = Schema.create()

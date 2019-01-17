@@ -184,10 +184,10 @@ class MessageBox(UUIDMetaDataBase):
         """
 
         def build_url() -> str:
-            return cast(str, url_for(
-                'public.messagebox_endpoint',
-                module_uuid=self.module_uuid,
-                box_uuid=self.uuid, _external=True))
+            return cast(
+                str,
+                url_for('public.messagebox_endpoint', module_uuid=self.module_uuid, box_uuid=self.uuid, _external=True)
+            )
 
         try:
             return build_url()

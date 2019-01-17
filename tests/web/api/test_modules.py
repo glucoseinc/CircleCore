@@ -13,10 +13,7 @@ class AdminWebBase(AsyncHTTPTestCase):
 
     def get_app(self):
         self.flask_app = create_app(self.app_mock, self.get_url('/'))
-        return Application(
-            [(r'.*', FallbackHandler, {'fallback': WSGIContainer(self.flask_app)})],
-            _core=self.app_mock
-        )
+        return Application([(r'.*', FallbackHandler, {'fallback': WSGIContainer(self.flask_app)})], _core=self.app_mock)
 
     def setUp(self):
         self.app_mock = MagicMock()
@@ -33,6 +30,7 @@ class AdminWebBase(AsyncHTTPTestCase):
 
 
 class NiceTestSuite(AdminWebBase):
+
     def test_moge(self):
         """API認証"""
         with MetaDataSession.begin():
@@ -55,7 +53,5 @@ class NiceTestSuite(AdminWebBase):
         assert response.code == 403
 
         # 認証がいるよ
-        response = self.fetch(data_api_endpoint, headers={
-            'Authorization': 'Bearer {}'.format(user.encoded_token)
-        })
+        response = self.fetch(data_api_endpoint, headers={'Authorization': 'Bearer {}'.format(user.encoded_token)})
         assert response.code == 200

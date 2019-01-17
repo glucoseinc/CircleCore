@@ -7,17 +7,19 @@ from circle_core.models.module import ModuleAttribute, ModuleAttributes
 
 class TestModule(object):
 
-    @pytest.mark.parametrize(('_input', 'expected'), [
-        (
-            dict(displayName='Module', tags='tag1,tag2,tag3', attributes='attr1:val1,attr2:val2', memo='memo'),
-            dict(
-                displayName='Module',
-                tags=['tag1', 'tag2', 'tag3'],
-                attributes=[('attr1', 'val1'), ('attr2', 'val2')],
-                memo='memo'
-            )
-        ),
-    ])
+    @pytest.mark.parametrize(
+        ('_input', 'expected'), [
+            (
+                dict(displayName='Module', tags='tag1,tag2,tag3', attributes='attr1:val1,attr2:val2', memo='memo'),
+                dict(
+                    displayName='Module',
+                    tags=['tag1', 'tag2', 'tag3'],
+                    attributes=[('attr1', 'val1'), ('attr2', 'val2')],
+                    memo='memo'
+                )
+            ),
+        ]
+    )
     @pytest.mark.usefixtures('mock_circlecore')
     def test_module(self, _input, expected, mock_circlecore):
         module = Module.create()

@@ -6,16 +6,24 @@ from circle_core.models import CcInfo, MetaDataSession
 
 class TestCcInfo(object):
 
-    @pytest.mark.parametrize(('_input', 'expected'), [
-        (
-            dict(
-                display_name='OtherCircleCore', uuid='EEEEEEEE-EEEE-4EEE-EEEE-EEEEEEEEEEEE', myself=False, work='Other'
+    @pytest.mark.parametrize(
+        ('_input', 'expected'), [
+            (
+                dict(
+                    display_name='OtherCircleCore',
+                    uuid='EEEEEEEE-EEEE-4EEE-EEEE-EEEEEEEEEEEE',
+                    myself=False,
+                    work='Other'
+                ),
+                dict(
+                    display_name='OtherCircleCore',
+                    uuid='EEEEEEEE-EEEE-4EEE-EEEE-EEEEEEEEEEEE',
+                    myself=False,
+                    work='Other'
+                )
             ),
-            dict(
-                display_name='OtherCircleCore', uuid='EEEEEEEE-EEEE-4EEE-EEEE-EEEEEEEEEEEE', myself=False, work='Other'
-            )
-        ),
-    ])
+        ]
+    )
     @pytest.mark.usefixtures('mock_circlecore')
     def test_cc_info(self, _input, expected, mock_circlecore):
         other_cc_info = CcInfo(**_input)

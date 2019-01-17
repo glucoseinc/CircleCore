@@ -8,27 +8,29 @@ from circle_core.models import MetaDataSession, User
 
 class TestUser(object):
 
-    @pytest.mark.parametrize(('_input', 'expected'), [
-        (
-            dict(
-                account='admin',
-                password='password_admin',
-                _permissions='admin',
-                work='work_admin',
-                mail_address='admin@test.test',
-                telephone='1234567890'
+    @pytest.mark.parametrize(
+        ('_input', 'expected'), [
+            (
+                dict(
+                    account='admin',
+                    password='password_admin',
+                    _permissions='admin',
+                    work='work_admin',
+                    mail_address='admin@test.test',
+                    telephone='1234567890'
+                ),
+                dict(
+                    account='admin',
+                    password='password_admin',
+                    password_no_match='password_no_match',
+                    permissions=['admin'],
+                    work='work_admin',
+                    mail_address='admin@test.test',
+                    telephone='1234567890'
+                )
             ),
-            dict(
-                account='admin',
-                password='password_admin',
-                password_no_match='password_no_match',
-                permissions=['admin'],
-                work='work_admin',
-                mail_address='admin@test.test',
-                telephone='1234567890'
-            )
-        ),
-    ])
+        ]
+    )
     @pytest.mark.usefixtures('mock_circlecore')
     def test_user(self, _input, expected, mock_circlecore):
         user = User.create(**_input)
@@ -111,10 +113,7 @@ class TestUser(object):
 
     @pytest.mark.usefixtures('mock_circlecore')
     def test_user_token(self, mock_circlecore):
-        user = User.create(
-            account='testuser',
-            password='password'
-        )
+        user = User.create(account='testuser', password='password')
 
         with MetaDataSession.begin():
             MetaDataSession.add(user)
