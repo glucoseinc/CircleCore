@@ -28,6 +28,7 @@ def many_types_bot(send_to, box_id, send_null_value):
     :param str send_to:
     :param UUID box_id:
     """
+
     def null_or_value(value):
         if send_null_value:
             return random.choice([value, None])

@@ -243,7 +243,8 @@ class TestModuleEventHandlerViaWebsocket(TestModuleEventHandlerBase):
             schema = Schema.create(display_name='Schema', properties='x:int,y:float')
             module = Module.create(display_name='Module')
             mbox = MessageBox(
-                uuid='4ffab839-cf56-478a-8614-6003a5980855', schema_uuid=schema.uuid, module_uuid=module.uuid)
+                uuid='4ffab839-cf56-478a-8614-6003a5980855', schema_uuid=schema.uuid, module_uuid=module.uuid
+            )
 
             MetaDataSession.add(schema)
             MetaDataSession.add(module)
@@ -284,7 +285,8 @@ class TestModuleEventHandlerViaWebsocket(TestModuleEventHandlerBase):
             schema = Schema.create(display_name='Schema', properties='x:int,y:float')
             module = Module.create(display_name='Module')
             mbox = MessageBox(
-                uuid='4ffab839-cf56-478a-8614-6003a5980855', schema_uuid=schema.uuid, module_uuid=module.uuid)
+                uuid='4ffab839-cf56-478a-8614-6003a5980855', schema_uuid=schema.uuid, module_uuid=module.uuid
+            )
 
             MetaDataSession.add(user)
             MetaDataSession.add(schema)

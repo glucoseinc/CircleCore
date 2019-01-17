@@ -108,6 +108,8 @@ export default class UserInvitation extends React.Component {
           isPasswordRequired={true}
           user={this.state.user}
           saveButtonLabel="登録する"
+          hideAdminCheck={true}
+          hideToken={true}
           onSaveClick={::this.onSaveClick}
         />
 

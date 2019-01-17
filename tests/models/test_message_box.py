@@ -9,8 +9,7 @@ from circle_core.models import MessageBox, MetaDataSession, Module, Schema, gene
 class TestMessageBox(object):
 
     @pytest.mark.parametrize(
-        ('_input', 'expected'),
-        [
+        ('_input', 'expected'), [
             (dict(display_name='MessageBox', memo='memo'), dict(display_name='MessageBox', memo='memo')),
         ]
     )

@@ -85,6 +85,12 @@ class Replicator(object):
         asyncio.get_event_loop().run_until_complete(asyncio.wait_for(self.runner, None))
         self.clear()
 
+    async def close_async(self):
+        assert self.runner
+        self.closed = True
+        await asyncio.wait_for(self.runner, None)
+        self.clear()
+
     # private
     async def run_async(self):
         if not (self.endpoint_url.startswith('ws://') or self.endpoint_url.startswith('wss://')):

@@ -7,8 +7,7 @@ from circle_core.models import Invitation, MetaDataSession, generate_uuid
 class TestInvitation(object):
 
     @pytest.mark.parametrize(
-        ('_input', 'expected'),
-        [
+        ('_input', 'expected'), [
             (dict(max_invites=10), dict(max_invites=10, current_invites=0)),
         ]
     )

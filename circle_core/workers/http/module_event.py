@@ -171,9 +171,14 @@ class ModuleEventHandler(WebSocketHandler):
             return False
 
         status, error = 400, 'xxx'
-        auth_scheme, token = auth_payload.strip().split(' ', 1)
-        if auth_scheme != 'Bearer':
+        try:
+            auth_scheme, token = auth_payload.strip().split(' ', 1)
+        except ValueError:
             status, error = 400, 'invalid_request'
+            auth_scheme = token = ''
+
+        if auth_scheme != 'Bearer':
+            status, error = 400, 'bad_scheme'
         else:
             user = User.query.filter_by_encoded_token(token)
             if not user:

@@ -37,10 +37,12 @@ if TYPE_CHECKING:
         lastAccessAt: Optional[str]
         token: Optional[str]
 
+
 TOKEN_BYTES = 128
 
 
 class UserQuery(sqlalchemy.orm.query.Query):
+
     def filter_by_encoded_token(self, encoded_token):
         return self.filter_by(token=base64.b64decode(encoded_token))
 

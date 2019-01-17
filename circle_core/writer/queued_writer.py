@@ -1,6 +1,7 @@
 import datetime
 import math
 import threading
+import time
 from concurrent.futures import ThreadPoolExecutor
 from typing import List, Optional, TYPE_CHECKING, Tuple
 
@@ -26,6 +27,8 @@ if TYPE_CHECKING:
 
 # 接続不良時の再接続への間隔
 RETRY_TIMEOUT = datetime.timedelta(seconds=2)
+# 現在時刻からFLUSH_THREASHOLD以上すぎたmsgは書き込んでしまう
+FLUSH_THREASHOLD = 10
 
 
 class QueuedDBWriterDelegate(Protocol):
@@ -78,7 +81,6 @@ class QueuedDBWriter(DBWriter):
             raise ValueError
 
         self.loop = tornado.ioloop.IOLoop.current()
-        # self.updates_lock = Lock()
 
         # RDB
         self.database = database
@@ -174,19 +176,19 @@ class QueuedDBWriter(DBWriter):
             self.time_db_bundle.update(self.updates)
             self.updates = []
         elif self.updates:
-            # lastのtimestamp秒以外を反映
-            last_timestamp = math.floor(self.updates[-1][1])
+            # threshold移行のtimestampのものはkeepする
+            threashold = math.floor(max(self.updates[-1][1], time.time() - FLUSH_THREASHOLD))
             for idx, (box_id, timestamp) in enumerate(self.updates):
-                if timestamp >= last_timestamp:
+                if timestamp >= threashold:
+                    write, keep = self.updates[:idx], self.updates[idx:]
                     break
-            if idx:
-                updates, self.updates = self.updates[:idx], self.updates[idx:]
-                self.time_db_bundle.update(updates)
+            else:
+                write, keep = self.updates, []
 
-        # remove timeout and reset
-        if self.timeout:
-            self.loop.remove_timeout(self.timeout)
-            self.timeout = None
+            if write:
+                self.time_db_bundle.update(write)
+            self.updates = keep
+
         self.write_count = 0
 
     @run_on_executor
@@ -227,6 +229,11 @@ class QueuedDBWriter(DBWriter):
         """タイムアウト."""
         self.timeout = None
         await self.flush_timed_db()
+
+        assert self.timeout is None
+        if self.updates:
+            # まだ残りがあったらtimeoutを仕込む
+            self.timeout = self.loop.add_timeout(self.cycle_time, self.on_timeout)
 
     async def reconncet(self):
         self.retry_connect_timeout = None
