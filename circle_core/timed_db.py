@@ -36,7 +36,6 @@ class TimedDBBundle(object):
         """
         whisperをまとめて更新する
         """
-
         # updatesをbox_id別に管理する
         sorted_updates = defaultdict(lambda: defaultdict(int))
 
@@ -52,7 +51,7 @@ class TimedDBBundle(object):
             db_path = os.path.join(self.dir_prefix, TimedDB.make_db_name(box_id))
 
             if not os.path.exists(db_path):
-                logger.debug('create whsiper db for box %s at path %s', box_id, db_path)
+                logger.info('create whsiper db for box %s at path %s', box_id, db_path)
                 whisper.create(
                     db_path,
                     WHISPER_ARCHIVES,
@@ -62,7 +61,6 @@ class TimedDBBundle(object):
                     useFallocate=True
                 )
 
-            logger.debug('update timed db (%s): %r', box_id, timestamps)
             with get_lock(db_path):
                 whisper.update_many(db_path, timestamps)
 
