@@ -5,9 +5,8 @@ import Paper from 'material-ui/Paper'
 import TextField from 'material-ui/TextField'
 
 import actions from 'src/actions'
-import ReplicationMaster from 'src/models/ReplicationMaster'
+import ReplicationMaster, {VALID_URL_REX} from 'src/models/ReplicationMaster'
 import CreateButton from 'src/components/commons/CreateButton'
-
 
 /**
  * Module作成
@@ -41,6 +40,14 @@ class ReplicationMasterNew extends React.Component {
       },
     }
 
+    // check url
+    let errorText = ''
+
+    if (replicationMaster.endpointUrl && !replicationMaster.endpointUrl.match(VALID_URL_REX)) {
+      errorText = 'URLが間違っています'
+    }
+
+
     return (
       <div className="page">
         <Paper style={style.root}>
@@ -48,6 +55,7 @@ class ReplicationMasterNew extends React.Component {
           <TextField
             floatingLabelText="共有リンクURL"
             fullWidth={true}
+            errorText={errorText}
             onChange={(event, newValue) => {
               this.setState({replicationMaster: replicationMaster.updateEndpointUrl(newValue)})
             }}

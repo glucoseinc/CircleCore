@@ -1,6 +1,8 @@
 /* eslint-disable new-cap */
 import {Record} from 'immutable'
 
+export const VALID_URL_REX = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/gm
+
 
 const ReplicationMasterRecord = Record({
   id: 0,
@@ -42,7 +44,7 @@ export default class ReplicationMaster extends ReplicationMasterRecord {
    * @return {bool}
    */
   isReadyToCreate() {
-    if (!this.endpointUrl) {
+    if (!this.endpointUrl || !this.endpointUrl.match(VALID_URL_REX)) {
       return false
     }
     return true
