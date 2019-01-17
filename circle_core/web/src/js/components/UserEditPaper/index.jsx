@@ -147,7 +147,7 @@ class UserEditPaper extends React.Component {
             <SaveButton
               label={this.props.saveButtonLabel}
               disabled={this.isReadyToSave() ? false : true}
-              onClick={() => onSaveClick(editingUser, currentPassword, newPassword)}
+              onClick={() => onSaveClick(user, currentPassword, newPassword)}
             />
           </div>
         </div>
