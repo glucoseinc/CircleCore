@@ -194,6 +194,9 @@ def fetch_rickshaw_graph_data(boxes, graph_range, timed_db_bundle, end_time):
             if graph_steps != (start, end, step):
                 raise ValueError('graph range mismatch')
 
+        for idx, value in enumerate(values):
+            values[idx] = value or 0
+
         graph_data.append(
             {
                 'messageBox': dict(uuid=str(box_uuid)) if isinstance(box, UUID) else box.to_json(),
