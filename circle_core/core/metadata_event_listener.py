@@ -2,6 +2,7 @@
 """Metadata操作ログ."""
 
 # system module
+import asyncio
 import functools
 from typing import Any, Callable, List, TYPE_CHECKING, Tuple, Union, cast
 
@@ -81,4 +82,6 @@ class MetaDataEventListener(object):
         :param Connection connection: connection
         :param Any target: target
         """
-        handler(what, target)
+        rv = handler(what, target)
+        if asyncio.iscoroutine(rv):
+            asyncio.ensure_future(rv)

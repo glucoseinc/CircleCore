@@ -60,18 +60,18 @@ class SlaveDriverWorker(CircleWorker):
         self.replicators[master.id] = replicator
         replicator.run()
 
-    def stop_replicator(self, master):
-        replicator, future = self.replicators.pop(master.id)
+    async def stop_replicator(self, master):
+        replicator = self.replicators.pop(master.id)
         if replicator:
             logger.info('close replicator %r for %s', replicator, master.endpoint_url)
-            replicator.close()
+            await replicator.close_async()
 
-    def on_change_replication_master(self, what, target):
+    async def on_change_replication_master(self, what, target):
         assert isinstance(target, ReplicationMaster)
 
         if what == 'after_delete':
             # 削除されたので、Replicatorを閉じる
-            self.stop_replicator(target)
+            await self.stop_replicator(target)
         elif what == 'after_insert':
             # 追加されたので、Replicatorを開く
             self.start_replicator(target)
