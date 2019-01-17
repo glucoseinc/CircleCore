@@ -147,7 +147,6 @@ class MessageBoxEditablePaper extends React.Component {
         marginRight: '1em',
       },
       restEndpointUrl: {
-        display: 'inline-block',
       },
     }
 

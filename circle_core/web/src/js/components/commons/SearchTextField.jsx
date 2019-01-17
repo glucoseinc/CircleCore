@@ -52,10 +52,10 @@ class SearchTextField extends React.Component {
       },
       input: {
         marginLeft: 32,
+        width: 'calc(100% - 32px)',
       },
       underline: {
         bottom: 0,
-        width: 'calc(100% + 48px + 20px)',
       },
       clearIconButton: {
         display: inputText.length !== 0 ? 'inherit' : 'none',
