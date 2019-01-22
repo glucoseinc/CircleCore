@@ -5,6 +5,7 @@ import glob
 import json
 import os
 import typing
+import uuid
 from typing import Optional, Tuple, cast
 
 from asyncio_extras import async_contextmanager
@@ -149,7 +150,7 @@ class JournalDBWriter(DBWriter, JournalReaderDelegate):
         logger.debug('run finished')
 
     async def store_message_to_child(self, data: str) -> bool:
-        parsed = json.loads(data)
+        parsed = json_decoder.decode(data)
         message_box = self.find_message_box(parsed['boxId'])
         message = ModuleMessage.from_json(parsed)
 
@@ -247,7 +248,7 @@ class JournalWriter:
 
     def write(self, message):
         # TODO: この部分をasyncにする???
-        self.log_file.write(json.dumps(message, sort_keys=True))
+        self.log_file.write(json_encoder.encode(message))
         self.log_file.write('\n')
         self.log_file.flush()
 
@@ -395,3 +396,29 @@ class JournalReader:
         self.pos_file.write('{}\n{}'.format(*self.position))
         self.pos_file.flush()
         logger.debug('write pos %r', self.position)
+
+
+# json
+def json_object_hook(o):
+    from circle_core.workers.blobstore import StoredBlob
+
+    if isinstance(o, dict) and '$blob' in o:
+        return StoredBlob(uuid.UUID(o['$source']) if o['$source'] else None, o['$content_type'], o['$blob'])
+    return o
+
+
+class CCJSONEncoder(json.JSONEncoder):
+    def __init__(self):
+        super().__init__(sort_keys=True)
+
+    def default(self, o):
+        from circle_core.workers.blobstore import StoredBlob
+
+        if isinstance(o, StoredBlob):
+            return {
+                '$blob': o.datahash, '$content_type': o.content_type, '$source': str(o.source) if o.source else None}
+        return super().default(o)
+
+
+json_encoder = CCJSONEncoder()
+json_decoder = json.JSONDecoder(object_hook=json_object_hook)

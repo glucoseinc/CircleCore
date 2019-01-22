@@ -34,7 +34,6 @@ class StoredBlob(BlobMetadata):
 
     # public
     def __init__(self, source: UUID, content_type: str, datahash: str):
-        print(source, content_type, datahash)
         super().__init__(source, content_type, datahash)
         self.saving = None
 
@@ -69,7 +68,8 @@ class StoredBlob(BlobMetadata):
 @register_worker_factory(WORKER_BLOBSTORE)
 def create_blobstore_worker(core, type, key, config):
     assert type == WORKER_BLOBSTORE
-    defaults = {'blob_dir': '${prefix}/blob'}
+    # defaults = {'blob_dir': '${prefix}/blob'}
+    defaults = {}
     return BlobStoreWorker(
         core,
         key,

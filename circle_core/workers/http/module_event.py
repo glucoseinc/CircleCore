@@ -49,38 +49,13 @@ class ModuleEventHandler(WebSocketHandler):
         if ';' in content_type:
             content_type = content_type.split(';')[0].strip()
 
-        attachments = {}
         if content_type == 'application/json':
             payload = json.loads(self.request.body.decode('utf-8'))
+            attachments = {}
         elif content_type == 'multipart/mixed':
-            parser = BytesFeedParser()
-            for k, v in self.request.headers.items():
-                parser.feed('{}: {}\n'.format(k, v).encode('utf-8'))
-            parser.feed(b'\n')
-            parser.feed(self.request.body)
-            msg = parser.close()
-
-            if not msg.is_multipart():
-                logger.error('Bad multipart request')
-                self.send_error(400)
-                return
-
-            main_part = msg.get_payload(0)
-            if main_part.get_content_type() != 'application/json':
-                logger.error('Mainpart is not JSON')
-                self.send_error(400)
-                return
-
-            payload = json.loads(main_part.get_payload(decode=True))
-
-            for idx in range(1, len(msg.get_payload())):
-                part = msg.get_payload(idx)
-                if part.is_multipart():
-                    logger.error('Nesting multipart is not supported')
-                    self.send_error(400)
-                    return
-
-                attachments[part.get_filename()] = part.get_content_type(), part.get_payload(decode=True)
+            payload, attachments = self._read_multipart_mixed()
+        elif content_type == 'multipart/form-data':
+            payload, attachments = self._read_multipart_formdata()
         else:
             # Unsupported mimetype
             logger.error('Unsupported content type %s', content_type)
@@ -97,10 +72,10 @@ class ModuleEventHandler(WebSocketHandler):
             if data is None:
                 pass
             elif data.startswith('data:'):
-                payload[prop.name] = blobstore.store_blob_url(self.mbox.uuid, data)
+                payload[prop.name] = blobstore.store_blob_url(self.mbox, data)
             elif data.startswith('file:///'):
                 content_type, data = attachments[data[8:]]
-                payload[prop.name] = blobstore.store_blob(self.mbox.uuid, content_type, data)
+                payload[prop.name] = blobstore.store_blob(self.mbox, content_type, data)
             else:
                 # Unsupported data type
                 self.send_error(400)
@@ -194,3 +169,50 @@ class ModuleEventHandler(WebSocketHandler):
             self.write(json.dumps({'ok': 'False', 'message': error}))
 
         return status == 200
+
+    def _read_multipart_mixed(self):
+        parser = BytesFeedParser()
+        for k, v in self.request.headers.items():
+            parser.feed('{}: {}\n'.format(k, v).encode('utf-8'))
+        parser.feed(b'\n')
+        parser.feed(self.request.body)
+        msg = parser.close()
+
+        if not msg.is_multipart():
+            logger.error('Bad multipart request')
+            self.send_error(400)
+            return
+
+        main_part = msg.get_payload(0)
+        if main_part.get_content_type() != 'application/json':
+            logger.error('Mainpart is not JSON')
+            self.send_error(400)
+            return
+
+        payload = json.loads(main_part.get_payload(decode=True))
+        attachments = {}
+
+        for idx in range(1, len(msg.get_payload())):
+            part = msg.get_payload(idx)
+            if part.is_multipart():
+                logger.error('Nesting multipart is not supported')
+                self.send_error(400)
+                return
+
+            attachments[part.get_filename()] = part.get_content_type(), part.get_payload(decode=True)
+
+        return payload, attachments
+
+    def _read_multipart_formdata(self):
+        """multipart/form-dataだとtornadoがParseしてくれているのでそれを使う"""
+        payload = {}
+        for key, values in self.request.body_arguments.items():
+            payload[key] = values[0].decode('utf-8')
+
+        attachments = {}
+        for key, fileinfos in self.request.files.items():
+            fileinfo = fileinfos[0]
+            payload[key] = 'file:///' + key
+            attachments[key] = fileinfo['content_type'], fileinfo['body']
+
+        return payload, attachments
