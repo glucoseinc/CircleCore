@@ -3,6 +3,7 @@ import os
 import uuid
 from typing import Any, Dict, NewType, Union
 
+UUIDLike = Union[str, uuid.UUID]
 Path = Union[str, os.PathLike]
 JSON = Dict[str, Any]
 Payload = Dict[str, Any]

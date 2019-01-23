@@ -47,11 +47,12 @@ class DataConfilictedError(Exception):
 class Replicator(object):
     """Replicator.
 
-    :param SlaveDriverWorker driver:
-    :param ReplicationMaster master:
-    :param Optional[WebSocketClientConnection] ws:
-    :param bool closed:
-    :param str endpoint_url:
+    Attributes:
+        driver (SlaveDriverWorker):
+        master (circle_core.models.ReplicationMaster):
+        ws (Optional[WebSocketClientConnection]):
+        closed (bool):
+        endpoint_url (str):
     """
     driver: 'SlaveDriverWorker'
     master: 'ReplicationMaster'

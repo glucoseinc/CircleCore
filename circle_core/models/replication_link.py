@@ -77,12 +77,13 @@ class ReplicationLink(UUIDMetaDataBase):
     """ReplicationLinkオブジェクト.
     Slaveに公開するリンクを表現
 
-    :param UUID uuid: ReplicationLink UUID
-    :param str display_name: 表示名
-    :param str memo: メモ
-    :param datetime.datetime created_at: 作成日時
-    :param datetime.datetime updated_at: 更新日時
-    :param List[MessageBox] message_boxes: MessageBoxリスト
+    Attributes:
+        uuid (UUID): ReplicationLink UUID
+        display_name (str): 表示名
+        memo (str): メモ
+        created_at (datetime.datetime): 作成日時
+        updated_at (datetime.datetime): 更新日時
+        message_boxes (List[circle_core.models.MessageBox]): MessageBoxリスト
     """
 
     __tablename__ = 'replication_links'
@@ -100,14 +101,16 @@ class ReplicationLink(UUIDMetaDataBase):
     ALL_MESSAGE_BOXES = object()
 
     @classmethod
-    def create(cls, display_name, memo, message_box_uuids):
+    def create(cls, display_name, memo, message_box_uuids) -> 'ReplicationLink':
         """このモデルを作成する.
 
-        :param str display_name: 表示名
-        :param Optional[str] memo: メモ
-        :param Union[ALL_MESSAGE_BOXES, List[Union[str, UUID]]] message_box_uuids: MessageBoxのUUIDリスト
-        :return: ReplicationLinkオブジェクト
-        :rtype: ReplicationLink
+        Args:
+            display_name (str): 表示名
+            memo (Optional[str]): メモ
+            message_box_uuids (Union[ALL_MESSAGE_BOXES, List[Union[str, UUID]]]): MessageBoxのUUIDリスト
+
+        Returns:
+            circle_core.models.ReplicationLink: ReplicationLinkオブジェクト
         """
         from . import generate_uuid, MessageBox
 
@@ -135,7 +138,7 @@ class ReplicationLink(UUIDMetaDataBase):
     def __eq__(self, other):
         """eq.
 
-        :param ReplicationLink other: other ReplicationLink
+            other (ReplicationLink): other ReplicationLink
         :return: equality
         :rtype: bool
         """
@@ -180,10 +183,10 @@ class ReplicationLink(UUIDMetaDataBase):
     ) -> 'ReplicationLinkJson':
         """このモデルのJSON表現を返す.
 
-        :param bool with_slaves: 返り値にReplicationSlavesの情報を含めるか
-        :param bool with_boxes: 返り値にMessageBoxの情報を含めるか
-        :param bool with_module: 返り値にModuleの情報を含めるか
-        :param bool with_schema: 返り値にSchemaの情報を含めるか
+            with_slaves (bool): 返り値にReplicationSlavesの情報を含めるか
+            with_boxes (bool): 返り値にMessageBoxの情報を含めるか
+            with_module (bool): 返り値にModuleの情報を含めるか
+            with_schema (bool): 返り値にSchemaの情報を含めるか
 
         Return:
             JSON表現のDict

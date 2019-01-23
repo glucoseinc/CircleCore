@@ -55,13 +55,13 @@ class User(UUIDMetaDataBase):
         permissions: 権限
         uuid: User UUID
         _permissions: 権限
-    :param str account: アカウント名
-    :param str work: 所属
-    :param str mail_address: メールアドレス
-    :param str telephone: 電話番号
-    :param str encrypted_password: 暗号化パスワード
-    :param datetime.datetime created_at: 作成日時
-    :param datetime.datetime updated_at: 更新日時
+        account (str): アカウント名
+        work (str): 所属
+        mail_address (str): メールアドレス
+        telephone (str): 電話番号
+        encrypted_password (str): 暗号化パスワード
+        created_at (datetime.datetime): 作成日時
+        updated_at (datetime.datetime): 更新日時
     """
     last_access_at: Optional[datetime.datetime]
     uuid: 'UUID'
@@ -89,16 +89,19 @@ class User(UUIDMetaDataBase):
     def create(cls, **kwargs: Dict[str, Any]):
         """このモデルを作成する.
 
-        :param Dict kwargs: キーワード引数
-        :return: Userオブジェクト
-        :rtype: User
+        Args:
+            kwargs (Dict): キーワード引数
+
+        Returns:
+            circle_core.models.User: Userオブジェクト
         """
         return cls(uuid=generate_uuid(model=cls), **kwargs)
 
     def __init__(self, **kwargs):
         """init.
 
-        :param Dict kwargs: キーワード引数
+        Args:
+            kwargs (Dict): キーワード引数
         """
 
         if 'password' in kwargs:
@@ -113,8 +116,8 @@ class User(UUIDMetaDataBase):
     def __repr__(self):
         """repr.
 
-        :return: 文字列表現
-        :rtype: str
+        Args:
+            str: 文字列表現
         """
         return '<{module}.User {uuid} ({account})>'.format(
             module=__name__,
@@ -126,8 +129,8 @@ class User(UUIDMetaDataBase):
     def permissions(self):
         """権限リストを返す.
 
-        :return: 権限リスト
-        :rtype: List[str]
+        Returns:
+            List[str]: 権限リスト
         """
         return self._permissions.split(',') if self._permissions else []
 
@@ -135,23 +138,27 @@ class User(UUIDMetaDataBase):
     def permissions(self, permissions):
         """権限リストを更新する.
 
-        :param List[str] permissions: 権限リスト
+        Args:
+            permissions (List[str]): 権限リスト
         """
         self._permissions = ','.join(permissions)
 
     def is_password_matched(self, password):
         """指定のパスワードがマッチしているか.
 
-        :param str password:パスワード
-        :return: マッチしているか
-        :rtype: bool
+        Args;
+            password (str):パスワード
+
+        Returns:
+            bool: マッチしているか
         """
         return is_password_matched(password, self.encrypted_password)
 
     def is_admin(self):
         """ユーザがadmin権限をもっているかどうか.
-        :return: adminであればTrue
-        :rtype: bool
+
+        Returns:
+            bool: adminであればTrue
         """
         return 'admin' in self.permissions
 
@@ -159,7 +166,8 @@ class User(UUIDMetaDataBase):
     def check_password(cls, password: str):
         """パスワードのvalidateを行う.
 
-        :param password:
+        Args:
+            password (str): 確認したいパスワード
         """
         if len(password) < 6:
             raise ValueError('パスワードは6文字以上にしてください')
@@ -167,7 +175,8 @@ class User(UUIDMetaDataBase):
     def set_password(self, new_password: str):
         """パスワードを更新する.
 
-        :param new_password: パスワード
+        Args:
+            new_password (str): パスワード
         """
         self.check_password(new_password)
         self.encrypted_password = encrypt_password(new_password)
@@ -185,9 +194,11 @@ class User(UUIDMetaDataBase):
     def to_json(self, full: bool = False) -> 'UserJson':
         """このモデルのJSON表現を返す.
 
-        :param bool full: 全ての情報を含めるか
-        :return: JSON表現のDict
-        :rtype: Dict
+        Args:
+            full (bool): 全ての情報を含めるか
+
+        Returns:
+            UserJson: JSON表現のDict
         """
         d: 'UserJson' = {
             'uuid': str(self.uuid),
@@ -226,10 +237,12 @@ class User(UUIDMetaDataBase):
 def encrypt_password(password: str, salt: Optional[str] = None) -> str:
     """パスワードを暗号化する.
 
-    :param str password:パスワード
-    :param str salt:SALT
-    :return: 暗号化パスワード
-    :rtype: str
+    Args:
+        password (str):パスワード
+        salt (str):SALT
+
+    Returns
+        str: 暗号化パスワード
     """
     if not salt:
         # generate salt
@@ -243,10 +256,12 @@ def encrypt_password(password: str, salt: Optional[str] = None) -> str:
 def is_password_matched(test: str, encrypted: str) -> bool:
     """平文パスワードが暗号化パスワードにマッチしているか.
 
-    :param str test:平文パスワード
-    :param str encrypted: 暗号化パスワード
-    :return: マッチしているか
-    :rtype: bool
+    Args:
+        test (str):平文パスワード
+        encrypted (str): 暗号化パスワード
+
+    Returns:
+        bool: マッチしているか
     """
     try:
         _, six, salt, hashed = encrypted.split('$')

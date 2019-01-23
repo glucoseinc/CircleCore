@@ -42,14 +42,15 @@ if TYPE_CHECKING:
 class MessageBox(UUIDMetaDataBase):
     """MessageBoxオブジェクト.
 
-    :param UUID uuid: MessageBox UUID
-    :param UUID schema_uuid: Schema UUID
-    :param UUID schema_uuid: Schema UUID
-    :param Module module: Module
-    :param str display_name: 表示名
-    :param str memo: メモ
-    :param datetime.datetime created_at: 作成日時
-    :param datetime.datetime updated_at: 更新日時
+    Attributes:
+        uuid (UUID): MessageBox UUID
+        schema_uuid (UUID): Schema UUID
+        schema_uuid (UUID): Schema UUID
+        module (circle_core.models.Module): Module
+        display_name (str): 表示名
+        memo (str): メモ
+        created_at (datetime.datetime): 作成日時
+        updated_at (datetime.datetime): 更新日時
     """
     uuid: 'UUID'
     schema_uuid: 'UUID'
