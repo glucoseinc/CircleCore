@@ -7,10 +7,12 @@
 -------------------------------------
 
 :doc:`implementation/server`
-  Python 3.5
+  Python 3.6
+  	- SQLALchemy_
     - Tornado_
     - Flask_
 
+.. _SQLAlchemy: https://www.sqlalchemy.org
 .. _Tornado: http://www.tornadoweb.org/
 .. _Flask: http://flask.pocoo.org/
 
