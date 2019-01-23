@@ -88,16 +88,16 @@ class SchemaProperty(collections.namedtuple('SchemaProperty', ['name', 'raw_type
 class SchemaProperties(object):
     """SchemaProperties.
 
-    Args:
+    Attributes:
         _properties: SchemaPropertyリスト
+
+    Args:
+        props: プロパティ名とプロパティタイプ
     """
     _properties: List[SchemaProperty]
 
     def __init__(self, props: Union[str, Tuple[str, ...], List[str]]):
         """init.
-
-        Args:
-            props: プロパティ名とプロパティタイプ
         """
         self._properties = []
 
@@ -115,46 +115,48 @@ class SchemaProperties(object):
         """
         return iter(self._properties)
 
-    def __len__(self):
+    def __len__(self) -> int:
         """len.
 
-        :return: 長さ
-        :rtype: int
+        Returns:
+            int: 長さ
         """
         return len(self._properties)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """str.
 
-        :return: 文字列表現
-        :rtype: str
+        Returns:
+            str: 文字列表現
         """
         return ','.join(str(p) for p in self)
 
-    def append(self, p):
+    def append(self, p: 'Union[SchemaProperty]') -> None:
         """SchemaPropertyを追加する.
 
-        :param Union[SchemaProperty] p: SchemaProperty
-        :return: None
-        :rtype: None
+        Args:
+            p (Union[SchemaProperty]): SchemaProperty
         """
         if not isinstance(p, SchemaProperty):
             p = SchemaProperty(p)
-        return self._properties.append(p)
+        self._properties.append(p)
 
 
 class Schema(UUIDMetaDataBase):
     """Schemaオブジェクト.
 
-    Args:
-        message_boxes: MessageBox
+    Attributes:
+        message_boxes List[circle_core.models.MessageBox]: MessageBox
         uuid: Schema UUID
-    :param str display_name: 表示名
-    :param str _properties: プロパティ
-    :param List[SchemaProperty] properties: プロパティ
-    :param str memo: メモ
-    :param datetime.datetime created_at: 作成日時
-    :param datetime.datetime updated_at: 更新日時
+        display_name (str): 表示名
+        _properties (str): プロパティ
+        properties (List[circle_core.models.SchemaProperties]): プロパティ
+        memo (str): メモ
+        created_at (datetime.datetime): 作成日時
+        updated_at (datetime.datetime): 更新日時
+
+    Args:
+        kwargs (Dict): キーワード引数
     """
     message_boxes: 'List[MessageBox]'
     uuid: 'UUID'
@@ -174,12 +176,14 @@ class Schema(UUIDMetaDataBase):
     message_boxes = orm.relationship('MessageBox', backref='schema')
 
     @classmethod
-    def create(cls, **kwargs):
+    def create(cls, **kwargs) -> 'Schema':
         """このモデルを作成する.
 
-        :param Dict kwargs: キーワード引数
-        :return: Schemaオブジェクト
-        :rtype: Schema
+        Args:
+            kwargs (Dict): キーワード引数
+
+        Returns:
+            circle_core.models.Schema: Schemaオブジェクト
         """
         if 'cc_uuid' not in kwargs:
             from .cc_info import CcInfo
@@ -190,8 +194,6 @@ class Schema(UUIDMetaDataBase):
 
     def __init__(self, **kwargs):
         """init.
-
-        :param Dict kwargs: キーワード引数
         """
 
         if 'properties' in kwargs:
@@ -204,17 +206,19 @@ class Schema(UUIDMetaDataBase):
     def __hash__(self):
         """hash.
 
-        :return: ハッシュ値
-        :rtype: int
+        Returns:
+            int: ハッシュ値
         """
         return hash('{}:{!r}'.format(self.__class__.__name__, hash(self.uuid)))
 
     def __eq__(self, other):
         """eq.
 
-        :param Schema other: other Schema
-        :return: equality
-        :rtype: bool
+        Args:
+            other (Schema): other Schema
+
+        Returns:
+            bool: equality
         """
         return all(
             [
@@ -227,8 +231,8 @@ class Schema(UUIDMetaDataBase):
     def properties(self):
         """プロパティリストを返す.
 
-        :return: プロパティリスト
-        :rtype: SchemaProperties
+        Returns:
+            circle_core.models.SchemaProperties: プロパティリスト
         """
         return SchemaProperties(self._properties)
 
@@ -236,7 +240,8 @@ class Schema(UUIDMetaDataBase):
     def properties(self, properties):
         """プロパティリストを更新する.
 
-        :param Union[SchemaProperties, str, Tuple, List] properties: プロパティリスト
+        Args:
+            properties (Union[circle_core.models.SchemaProperties, str, Tuple, List]): プロパティリスト
         """
         if not isinstance(properties, SchemaProperties):
             properties = SchemaProperties(properties)
@@ -245,9 +250,11 @@ class Schema(UUIDMetaDataBase):
     def to_json(self, with_modules=False) -> 'SchemaJson':
         """このモデルのJSON表現を返す.
 
-        :param bool with_modules: 返り値にModuleの情報を含めるか
-        :return: JSON表現のDict
-        :rtype: Dict
+        Args:
+            with_modules (bool): 返り値にModuleの情報を含めるか
+
+        Returns:
+            SchemaJson: JSON表現のDict
         """
         d: 'SchemaJson' = {
             'uuid': str(self.uuid),
@@ -268,7 +275,7 @@ class Schema(UUIDMetaDataBase):
     def update_from_json(self, jsonobj):
         """JSON表現からモデルを更新する.
 
-        :param Dict jsonobj: JSON表現のDict
+            jsonobj (Dict): JSON表現のDict
         """
         self.display_name = jsonobj.get('displayName', self.display_name)
         self.memo = jsonobj.get('memo', self.memo)
@@ -278,9 +285,11 @@ class Schema(UUIDMetaDataBase):
     def check_match(self, data) -> 'Tuple[bool, Optional[str]]':
         """nanomsg経由で受け取ったメッセージをデシリアライズしたものがこのSchemaに適合しているか.
 
-        :param Dict data:
-        :return: 適合可否
-        :rtype: bool
+        Args:
+            data (Dict):
+
+        Returns:
+            bool: 適合可否
         """
         # TODO: Schema専用のJSONDecoderを作ってそこで例外を投げる
         if not len(data) == len(self.properties):

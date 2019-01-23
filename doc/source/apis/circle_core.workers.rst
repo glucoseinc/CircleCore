@@ -1,5 +1,5 @@
-circle_core.workers package
-===========================
+circle\_core.workers package
+============================
 
 Subpackages
 -----------
@@ -12,16 +12,24 @@ Subpackages
 Submodules
 ----------
 
-circle_core.workers.base module
--------------------------------
+circle\_core.workers.base module
+--------------------------------
 
 .. automodule:: circle_core.workers.base
     :members:
     :undoc-members:
     :show-inheritance:
 
-circle_core.workers.datareceiver module
----------------------------------------
+circle\_core.workers.blobstore module
+-------------------------------------
+
+.. automodule:: circle_core.workers.blobstore
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+circle\_core.workers.datareceiver module
+----------------------------------------
 
 .. automodule:: circle_core.workers.datareceiver
     :members:

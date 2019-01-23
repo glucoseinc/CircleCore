@@ -6,8 +6,18 @@
 CircleCore v.0.1 documentation
 ==============================
 
+
+使い方
+------
+
+:doc:`how_to_use/setup`
+
+
+
 仕様
 ----
+
+:doc:`specs/concept`
 
 :doc:`specs/replication`
 

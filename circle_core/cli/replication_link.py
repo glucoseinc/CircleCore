@@ -47,8 +47,9 @@ def _format_for_columns(replication_links: 'List[ReplicationLink]') -> 'Tuple[Ta
 
     Args:
         replication_links: モジュールリスト
-    :return: data: 加工後のリスト, header: 見出し
-    :rtype:
+
+    Returns:
+        Tuple[TableData, TableHeader]: data: 加工後のリスト, header: 見出し
     """
     header = ['UUID', 'DISPLAY_NAME', 'TARGET_CORES']
     data: 'TableData' = []
@@ -71,7 +72,7 @@ def show_replication_link_detail(ctx: 'Context', link_uuid: UUID):
 
     Args:
         ctx: Context
-    :param UUID link_uuid: 共有リンクUUID
+        link_uuid (UUID): 共有リンクUUID
     """
     replication_link = ReplicationLink.query.get(link_uuid)
     if not replication_link:

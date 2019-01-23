@@ -31,8 +31,15 @@ if TYPE_CHECKING:
 class CCWebApp(Flask):
     """Web管理インタフェース用のFlask Application.
 
-    :param float uptime: 起動時刻
-    :param int ws_port: Websocket Port Number
+    Attributes:
+        uptime (float): 起動時刻
+        ws_port (int): Websocket Port Number
+
+    Args:
+        core (circle_core.core.CircleCore): CircleCore Core
+        base_url: ベースURL
+        ws_port: Websocket Port Number
+        is_https: httpsだったらbool
     """
 
     def __init__(
@@ -42,14 +49,6 @@ class CCWebApp(Flask):
         ws_port: 'Optional[int]' = None,
         is_https: bool = False
     ):
-        """init.
-
-        Args:
-            core: CircleCore Core
-            base_url: ベースURL
-            ws_port: Websocket Port Number
-            is_https: httpsだったらbool
-        """
         super(CCWebApp, self).__init__(__name__)
 
         self.uptime = time.time()
@@ -121,8 +120,8 @@ class CCWebApp(Flask):
     def core(self):
         """CircleCore Coreを取得する.
 
-        :return: CircleCore Core
-        :rtype: CircleCore
+        Returns:
+            circle_core.core.CircleCore: CircleCore Core
         """
         return self.config['CORE']
 

@@ -27,13 +27,14 @@ class OAuthClient(MetaDataBase):
     """OAuthのClient.
     Response Typeについては http://oauth.jp/blog/2015/01/06/oauth2-multiple-response-type/ を参照
 
-    :param str client_id: A random string
-    :param str client_secret: A random string
-    :param str redirect_uris: A list of redirect uris
-    :param str default_redirect_uri: One of the redirect uris
-    :param str default_scopes: Default scopes of the client
-    :param str allowed_grant_types: A list of grant types
-    :param str allowed_response_types: A list of response types
+    Attributes:
+        client_id (str): A random string
+        client_secret (str): A random string
+        redirect_uris (str): A list of redirect uris
+        default_redirect_uri (str): One of the redirect uris
+        default_scopes (str): Default scopes of the client
+        allowed_grant_types (str): A list of grant types
+        allowed_response_types (str): A list of response types
     """
 
     __tablename__ = 'oauth_clients'
@@ -49,9 +50,11 @@ class OAuthClient(MetaDataBase):
     def validate_scopes(self, scopes):
         """A function to validate scopes.
 
-        :param str scopes: scopes
-        :return: result
-        :rtype: bool
+        Args:
+            scopes (str): scopes
+
+        Returns:
+            bool: scopeの値が間違ってなければ
         """
         # TODO:ちゃんと実装する
         logger.debug('validate_scopes %r', scopes)
@@ -61,13 +64,14 @@ class OAuthClient(MetaDataBase):
 class OAuthGrant(MetaDataBase):
     """OAuthのToken手前のGrant.
 
-    :param str client_id:
-    :param str code:
-    :param str redirect_uri:
-    :param str scopes:
-    :param str user_id:
-    :param datetime.datetime expires_at:
-    :param User user:
+    Attributes:
+        client_id (str):
+        code (str):
+        redirect_uri (str):
+        scopes (str):
+        user_id (str):
+        expires_at (datetime.datetime):
+        user (circle_core.models.User):
     """
 
     __tablename__ = 'oauth_grants'
@@ -81,11 +85,11 @@ class OAuthGrant(MetaDataBase):
 
     user = orm.relationship('User', backref=orm.backref('grants', cascade='all, delete-orphan'))
 
-    def to_json(self):
+    def to_json(self) -> str:
         """このモデルのJSON表現を返す.
 
-        :return: JSON表現
-        :rtype: str
+        Returns:
+            str: JSON表現
         """
         return json.dumps(
             {
@@ -98,12 +102,14 @@ class OAuthGrant(MetaDataBase):
         )
 
     @classmethod
-    def from_json(cls, data):
+    def from_json(cls, data: str) -> 'OAuthGrant':
         """JSON表現からモデルを生成する.
 
-        :param str data: JSON表現
-        :return: OAuthGrantオブジェクト
-        :rtype: OAuthGrant
+        Args:
+            data (str): JSON表現
+
+        Returns:
+            circle_core.models.OAuthGrant: OAuthGrantオブジェクト
         """
         d = json.loads(data)
         return cls(
@@ -114,7 +120,7 @@ class OAuthGrant(MetaDataBase):
             d['user'],
         )
 
-    def delete(self):
+    def delete(self) -> None:
         """Grantを削除する."""
         with MetaDataSession.begin():
             MetaDataSession.delete(self)
@@ -123,13 +129,14 @@ class OAuthGrant(MetaDataBase):
 class OAuthToken(MetaDataBase):
     """OAuthのToken.
 
-    :param str access_token: A string token
-    :param str refresh_token: A string token
-    :param str client_id: ID of the client
-    :param str scopes: A list of scopes
-    :param datetime.datetime expires_at: A datetime.datetime object
-    :param str user_id: The user object
-    :param User user:
+    Attributes:
+        access_token (str): A string token
+        refresh_token (str): A string token
+        client_id (str): ID of the client
+        scopes (str): A list of scopes
+        expires_at (datetime.datetime): A datetime.datetime object
+        user_id (str): The user object
+        user (circle_core.models.User):
     """
     user: 'User'
 
@@ -148,8 +155,8 @@ class OAuthToken(MetaDataBase):
     def expires(self):
         """expires_atのalias.
 
-        :return: expires
-        :rtype: datetime.datetime
+        Returns:
+            datetime.datetime: expires
         """
         return self.expires_at
 
@@ -163,8 +170,8 @@ class OAuthToken(MetaDataBase):
     def to_json(self):
         """このモデルのJSON表現を返す.
 
-        :return: JSON表現
-        :rtype: str
+        Returns:
+            str: JSON表現
         """
         return json.dumps(
             {
@@ -181,9 +188,11 @@ class OAuthToken(MetaDataBase):
     def from_json(cls, data):
         """JSON表現からモデルを生成する.
 
-        :param str data: JSON表現
-        :return: OAuthGrantオブジェクト
-        :rtype: OAuthGrant
+        Attributes:
+            data (str): JSON表現
+
+        Args:
+            OAuthGrant: OAuthGrantオブジェクト
         """
         d = json.loads(data)
         return cls(

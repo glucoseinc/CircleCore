@@ -32,14 +32,14 @@ class CcInfo(UUIDMetaDataBase):
     """CircleCoreInfoオブジェクト.
 
     Attributes:
-        uuid: CcInfo UUID
-    :param str display_name: 表示名
-    :param bool myself: 自分自身か
-    :param str work: 所属
-    :param datetime.datetime created_at: 作成日時
-    :param datetime.datetime updated_at: 更新日時
-    :param int replication_master_id: ReplicationMasterオブジェクトのID
-    :param List[Module] modules: Moduleリスト
+        uuid (UUID): CcInfo UUID
+        display_name (str): 表示名
+        myself (bool): 自分自身か
+        work (str): 所属
+        created_at (datetime.datetime): 作成日時
+        updated_at (datetime.datetime): 更新日時
+        replication_master_id (int): ReplicationMasterオブジェクトのID
+        modules (List[circle_core.models.Module]): Moduleリスト
     """
     uuid: 'UUID'
     modules: 'List[Module]'

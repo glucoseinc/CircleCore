@@ -36,20 +36,22 @@ TABLE_OPTIONS = {
 class Database(object):
     """CircleCoreでのセンサデータ書き込み先DBを管理するクラス.
 
-    :param Engine _engine: SQLAlchemy Engine
-    :param sessionmaker _session: SQLAlchemy sessionmaker
-    :param sa.MetaData _metadata: SQLAlchemy MetaData
-    :param str _time_db_dir: 時系列DBのPath
-    :param Optional[int] _thread_id: Thread ID
+    Args:
+            database_url (str): DBのURL(RFC-1738準拠)
+            time_db_dir (str): 時系列DBのPath
+
+    Attributes:
+        _engine (Engine): SQLAlchemy Engine
+        _session (sessionmaker): SQLAlchemy sessionmaker
+        _metadata (sa.MetaData): SQLAlchemy MetaData
+        _time_db_dir (str): 時系列DBのPath
+        _thread_id (Optional[int]): Thread ID
     """
 
     def __init__(
         self, database_url: str, time_db_dir: Path, log_dir: Path, *, connect_args: Optional[Mapping[str, Any]] = None
     ):
         """init.
-
-        :param str database_url: DBのURL(RFC-1738準拠)
-        :param str time_db_dir: 時系列DBのPath
         """
         if not log_dir:
             raise ValueError('log_dir required')
@@ -69,9 +71,10 @@ class Database(object):
     def store_message(self, message_box: 'MessageBox', message: 'ModuleMessage', *, connection=None) -> None:
         """Databaseにmessageを保存する.
 
-        :param MessageBox message_box: MessageBox
-        :param ModuleMessage message: message
-        :param Optional[Connection] connection: Connection
+        Args:
+            message_box (circle_core.models.MessageBox): MessageBox
+            message (ModuleMessage): message
+            connection (Optional[Connection]): Connection
         """
         assert connection, 'TODO: create new connection if not present it'
         self._check_thread()
@@ -98,8 +101,9 @@ class Database(object):
     def drop_message_box(self, message_box, connection=None):
         """MessageBox Tableを削除する.
 
-        :param MessageBox message_box: MessageBox
-        :param Optional[Connection] connection: Connection
+        Args:
+            message_box (circle_core.models.MessageBox): MessageBox
+            connection (Optional[Connection]): Connection
         """
         if not connection:
             connection = self._engine.connect()
@@ -149,9 +153,10 @@ class Database(object):
     def make_table_for_message_box(self, message_box):
         """MessageBox Tableを生成する.
 
-        :param MessageBox message_box: MessageBox
-        :return: MessageBox Table
-        :rtype: sa.Table
+        Args:
+            message_box (circle_core.models.MessageBox): MessageBox
+        Returns:
+            sa.Table: MessageBox Table
         """
         # define table
         table_name = self.make_table_name_for_message_box(message_box)
@@ -177,8 +182,11 @@ class Database(object):
     def make_table_name_for_message_box(self, box_or_uuid):
         """MessageBox Table名を生成する.
 
-        :param Union[MessageBox, uuid.UUID] box_or_uuid:
-        :return str:
+        Args:
+            box_or_uuid (Union[circle_core.models.MessageBox, uuid.UUID]):
+
+        Returns:
+            str:
         """
         if not isinstance(box_or_uuid, uuid.UUID):
             box_or_uuid = box_or_uuid.uuid
@@ -192,10 +200,12 @@ class Database(object):
     def find_table_for_message_box(self, message_box, create_if_not_exists=True):
         """MessageBox Tableを取得する.
 
-        :param MessageBox message_box: 取得するMessageBox
-        :param bool create_if_not_exists: Tableが存在しなければ作成する
-        :return: MessageBox Table
-        :rtype: Optional[sa.Table]
+        Args:
+            message_box (circle_core.models.MessageBox): 取得するMessageBox
+            create_if_not_exists (bool): Tableが存在しなければ作成する
+
+        Returns:
+            Optional[sa.Table]: MessageBox Table
         """
         table_name = self.make_table_name_for_message_box(message_box)
         table = None
@@ -220,10 +230,9 @@ class Database(object):
         """get latest primary key.
         TODO: fill blank
 
-        :param MessageBox message_box: MessageBox
-        :param Optional[Connection] connection: Connection
-        :return:
-        :rtype:
+        Args:
+            message_box (circle_core.models.MessageBox): MessageBox
+            connection (Optional[Connection]): Connection
         """
         pkey = self._message_heads.get(message_box.uuid)
         return pkey if pkey is not None else ModuleMessagePrimaryKey.origin()
@@ -231,12 +240,14 @@ class Database(object):
     def count_messages(self, message_box, head=None, limit=None, connection=None):
         """メッセージ数を返す.
 
-        :param MessageBox message_box: MessageBox
-        :param Optional[ModuleMessagePrimaryKey] head: HEAD
-        :param Optional[int] limit: 取得数の上限
-        :param Optional[Connection] connection: Connection
-        :return: メッセージ数
-        :rtype: int
+        Args:
+            message_box (circle_core.models.MessageBox): MessageBox
+            head (Optional[ModuleMessagePrimaryKey]): HEAD
+            limit (Optional[int]): 取得数の上限
+            connection (Optional[Connection]): Connection
+
+        Returns:
+            int: メッセージ数
         """
         if not connection:
             connection = self._engine.connect()
@@ -250,15 +261,16 @@ class Database(object):
     def enum_messages(self, message_box, start=None, end=None, head=None, limit=None, order='asc', connection=None):
         """head以降のメッセージを返す.
 
-        :param MessageBox message_box: MessageBox
-        :param Optional[float] start: 開始日
-        :param Optional[float] end: 終了日
-        :param Optional[ModuleMessagePrimaryKey] head: HEAD
-        :param Optional[int] limit: 取得数の上限
-        :param str order: asc -> 古い順, desc -> 新しい順
-        :param Optional[Connection] connection: Connection
-        :return: メッセージジェネレータ
-        :rtype: Generator[ModuleMessage, ModuleMessage, ModuleMessage]
+        Args:
+            message_box (circle_core.models.MessageBox): MessageBox
+            start (Optional[float]): 開始日
+            end (Optional[float]): 終了日
+            head (Optional[ModuleMessagePrimaryKey]): HEAD
+            limit (Optional[int]): 取得数の上限
+            order (str): asc -> 古い順, desc -> 新しい順
+            connection (Optional[Connection]): Connection
+        Returns:
+            Generator[ModuleMessage, ModuleMessage, ModuleMessage] メッセージジェネレータ
         """
         assert order in ('desc', 'asc')
         if not connection:
@@ -302,10 +314,11 @@ class Database(object):
         """make_writer.
         TODO: fill blank
 
-        :param float cycle_time:
-        :param int cycle_count:
-        :return:
-        :rtype: QueuedWriter
+        Args:
+            cycle_time (float):
+            cycle_count (int):
+        Returns:
+            QueuedWriter: QueuedWriter
         """
         from .writer import JournalDBWriter, QueuedDBWriter, QueuedDBWriterDelegate
 
@@ -335,9 +348,11 @@ class Database(object):
 def make_sqlcolumn_from_datatype(name, datatype):
     """schemaの型に応じて、SQLAlchemyのColumnを返す.
 
-    :param str name: カラム名
-    :param CRDataType datatype: データ型
-    :return sa.Column: カラム
+    Args:
+        name (str): カラム名
+        datatype (CRDataType): データ型
+    Returns:
+        sa.Column: カラム
     """
 
     assert not name.startswith('_')
@@ -372,9 +387,11 @@ TO_MYSQLVALUE_MAP = {
 def convert_to_mysql_value(datatype, value):
     """schemaの型に応じて、SQLAlchemyのColumnを返す.
 
-    :param str name: カラム名
-    :param CRDataType datatype: データ型
-    :return sa.Column: カラム
+    Args:
+        name (str): カラム名
+        datatype (CRDataType): データ型
+    Returns:
+        sa.Column: カラム
     """
 
     converter = TO_MYSQLVALUE_MAP.get(datatype, None)

@@ -5,12 +5,12 @@
 class CLIContextObject(object):
     """CLI Contextオブジェクト.
 
-    :param CircleCore core: CircleCore
+    Attributes:
+        core (circle_core.core.CircleCore): CircleCore
+
+    Args:
+        core (circle_core.core.CircleCore): CircleCore
     """
 
     def __init__(self, core):
-        """init.
-
-        :param CircleCore core: CircleCore
-        """
         self.core = core

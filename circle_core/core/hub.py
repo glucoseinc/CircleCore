@@ -43,10 +43,10 @@ class CoreHub(object):
 
     request_socketでリクエストを待ち受けて、hub_socketのPub/Subに流す
 
-    :param Dict[str, Callable] message_handlers: メッセージハンドラ
-    :param str hub_socket: nanomsgのメッセージが流通するHubのSocket
-    :param str request_socket: nanomsgへのリクエストを受け付けるSocket
     Attributes:
+        message_handlers (Dict[str, Callable]): メッセージハンドラ
+        hub_socket: nanomsgのメッセージが流通するHubのSocket
+        request_socket (str): nanomsgへのリクエストを受け付けるSocket
         replier: リプライア
         sender: パブリッシャ
     """

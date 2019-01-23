@@ -1,11 +1,19 @@
-circle_core.workers.http package
-================================
+circle\_core.workers.http package
+=================================
 
 Submodules
 ----------
 
-circle_core.workers.http.replication_master module
---------------------------------------------------
+circle\_core.workers.http.module\_event module
+----------------------------------------------
+
+.. automodule:: circle_core.workers.http.module_event
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+circle\_core.workers.http.replication\_master module
+----------------------------------------------------
 
 .. automodule:: circle_core.workers.http.replication_master
     :members:

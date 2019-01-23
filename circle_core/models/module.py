@@ -48,9 +48,9 @@ if TYPE_CHECKING:
 class ModuleAttribute(object):
     """ModuleAttribute.
 
-    Args:
-        name: 属性名
-        value: 属性値
+    Attributes:
+        name (str): 属性名
+        value (str): 属性値
     """
     name: str
     value: str
@@ -80,7 +80,7 @@ class ModuleAttribute(object):
     def to_json(self) -> 'ModuleAttributeJson':
         """このモデルのJSON表現を返す.
 
-        Return:
+        Returns:
             JSON表現のDict
         """
         return {'name': self.name, 'value': self.value}
@@ -89,7 +89,8 @@ class ModuleAttribute(object):
 class ModuleAttributes(object):
     """ModuleAttributes.
 
-    :param List[ModuleAttribute] _attributes: ModuleAttributeリスト
+    Attributes:
+        _attributes (List[ModuleAttribute]): ModuleAttributeリスト
     """
     _attributes: List[ModuleAttribute]
 
@@ -142,13 +143,13 @@ class Module(UUIDMetaDataBase):
         replication_master_id: ReplicationMaster ID
         tags: タグ
         uuid: Module UUID
-    :param str display_name: 表示名
-    :param str _attributes: 属性
-    :param List[ModuleAttributes] attributes: 属性
-    :param str memo: メモ
-    :param datetime.datetime created_at: 作成日時
-    :param datetime.datetime updated_at: 更新日時
-    :param List[MessageBox] message_boxes: MessageBox
+        display_name (str): 表示名
+        _attributes (str): 属性
+        attributes (List[ModuleAttributes]): 属性
+        memo (str): メモ
+        created_at (datetime.datetime): 作成日時
+        updated_at (datetime.datetime): 更新日時
+        message_boxes (List[circle_core.models.MessageBox]): MessageBox
     """
     _tags: str
     cc_uuid: 'UUID'

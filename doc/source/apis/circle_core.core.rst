@@ -1,43 +1,43 @@
-circle_core.core package
-========================
+circle\_core.core package
+=========================
 
 Submodules
 ----------
 
-circle_core.core.app module
----------------------------
+circle\_core.core.app module
+----------------------------
 
 .. automodule:: circle_core.core.app
     :members:
     :undoc-members:
     :show-inheritance:
 
-circle_core.core.base module
-----------------------------
+circle\_core.core.base module
+-----------------------------
 
 .. automodule:: circle_core.core.base
     :members:
     :undoc-members:
     :show-inheritance:
 
-circle_core.core.hub module
----------------------------
+circle\_core.core.hub module
+----------------------------
 
 .. automodule:: circle_core.core.hub
     :members:
     :undoc-members:
     :show-inheritance:
 
-circle_core.core.metadata_event_listener module
------------------------------------------------
+circle\_core.core.metadata\_event\_listener module
+--------------------------------------------------
 
 .. automodule:: circle_core.core.metadata_event_listener
     :members:
     :undoc-members:
     :show-inheritance:
 
-circle_core.core.metadata_event_logger module
----------------------------------------------
+circle\_core.core.metadata\_event\_logger module
+------------------------------------------------
 
 .. automodule:: circle_core.core.metadata_event_logger
     :members:

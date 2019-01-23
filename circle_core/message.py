@@ -49,12 +49,13 @@ class ModuleMessagePrimaryKey(NamedTuple):
 class ModuleMessage(object):
     """CircleModuleからのメッセージ.
 
-    :param UUID module_uuid:
-    :param MessageBox message_box:
-    :param Schema schema:
-    :param decimal.Decimal timestamp:
-    :param int counter:
-    :param dict payload:
+    Attributes:
+        module_uuid (UUID):
+        message_box (circle_core.models.MessageBox):
+        schema (circle_core.models.Schema):
+        timestamp (decimal.Decimal):
+        counter (int):
+        payload (dict):
     """
 
     def __init__(self, box_id: uuid.UUID, timestamp: TimestampLike, counter: int, payload: 'Payload'):
@@ -101,7 +102,8 @@ class ModuleMessage(object):
         """slaveのCircleCoreに送られる際に使われる.
         # TODO: Deprecated
 
-        :return str:
+        Returns:
+            dict: JSON用のdict
         """
         d = {
             'timestamp': str(self.timestamp),

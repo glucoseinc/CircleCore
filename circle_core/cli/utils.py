@@ -42,7 +42,8 @@ def output_listing_columns(data: 'TableData', header: 'TableHeader'):
 def output_properties(data: 'List[Tuple[str, str]]'):
     """プロパティリストを整形し表示する.
 
-    :param List[Tuple[str, str]] data: プロパティリスト
+    Args:
+        data (List[Tuple[str, str]]): プロパティリスト
     """
     row_strings, _ = create_row_strings([[l, ':', r] for l, r in data])
 
@@ -54,9 +55,11 @@ def output_properties(data: 'List[Tuple[str, str]]'):
 def create_row_strings(rows) -> 'Tuple[List[str], List[int]]':
     """テーブルデータを表示用に整形する.
 
-    :param List[List[str]] rows: テーブルデータ
-    :return: row_strings: 表示用に整形したテーブルデータ, sizes: 各カラムの文字列長
-    :rtype: Tuple[List[str], List[int]]
+    Args:
+        rows (List[List[str]]): テーブルデータ
+
+    Returns
+        Tuple[List[str], List[int]]: row_strings: 表示用に整形したテーブルデータ, sizes: 各カラムの文字列長
     """
 
     def _len(string: str) -> int:
@@ -64,19 +67,23 @@ def create_row_strings(rows) -> 'Tuple[List[str], List[int]]':
 
         ワイド文字と判断できる文字は2カウントする.
 
-        :param str string: 対象文字列
-        :return: 文字列長
-        :rtype: int
+        Args:
+            string (str): 対象文字列
+
+        Returns:
+            int: 文字列長
         """
         return sum([1 if 'NaH'.count(east_asian_width(char)) > 0 else 2 for char in string])
 
     def _ljust(size: int, string: str) -> str:
         """文字列の右にパディングを付与する.
 
-        :param int size: パディング付与後の文字列長
-        :param str string: 対象文字列
-        :return: パディング付与後の文字列
-        :rtype: str
+        Args:
+            size (int): パディング付与後の文字列長
+            string (str): 対象文字列
+
+        Returns:
+            str: パディング付与後の文字列
         """
         return string + ' ' * (size - _len(string))
 
