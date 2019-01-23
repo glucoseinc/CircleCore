@@ -19,6 +19,7 @@ class ChangeProfile extends React.Component {
     users: PropTypes.object.isRequired,
     errors: PropTypes.object,
     myID: PropTypes.string,
+    onRenewTokenRequested: PropTypes.func,
     onUpdateClick: PropTypes.func,
   }
 
@@ -32,6 +33,7 @@ class ChangeProfile extends React.Component {
       users,
       errors = {},
       myID,
+      onRenewTokenRequested,
       onUpdateClick,
     } = this.props
 
@@ -59,6 +61,7 @@ class ChangeProfile extends React.Component {
           canChangePermission={false}
           needCurrentPassword={true}
           onSaveClick={onUpdateClick}
+          onRenewTokenRequested={onRenewTokenRequested}
         />
       </div>
     )
@@ -75,6 +78,9 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
+  onRenewTokenRequested: (user) => {
+    dispatch(actions.user.renewTokenRequest(user.uuid))
+  },
   onUpdateClick: (user, currentPassword, newPassword) => {
     const rawUser = {
       ...user.toJS(),
