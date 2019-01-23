@@ -2,7 +2,7 @@ import PropTypes from 'prop-types'
 import React from 'react'
 import {Link} from 'react-router-dom'
 
-import {createPathName, createQuery} from 'src/routes'
+import {createPathName, createQuery, createSearchString} from 'src/routes'
 
 
 /**
@@ -34,7 +34,7 @@ class CCLink extends React.Component {
 
     const to = {
       pathname: createPathName(url, params),
-      query: createQuery(url, params),
+      search: createSearchString(url, params),
     }
 
     return (
