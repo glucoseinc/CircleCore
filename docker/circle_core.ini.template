@@ -19,3 +19,6 @@ admin_base_url = ${BASE_URL}
 skip_build = on
 #tls_key_path = ./tests/tls.key
 #tls_crt_path = ./tests/tls.crt
+
+[circle_core:blobstore]
+blob_dir = ./data/blob/
