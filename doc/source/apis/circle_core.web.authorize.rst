@@ -1,19 +1,19 @@
-circle_core.web.authorize package
-=================================
+circle\_core.web.authorize package
+==================================
 
 Submodules
 ----------
 
-circle_core.web.authorize.core module
--------------------------------------
+circle\_core.web.authorize.core module
+--------------------------------------
 
 .. automodule:: circle_core.web.authorize.core
     :members:
     :undoc-members:
     :show-inheritance:
 
-circle_core.web.authorize.views module
---------------------------------------
+circle\_core.web.authorize.views module
+---------------------------------------
 
 .. automodule:: circle_core.web.authorize.views
     :members:

@@ -1,11 +1,11 @@
-circle_core.workers.slave_driver package
-========================================
+circle\_core.workers.slave\_driver package
+==========================================
 
 Submodules
 ----------
 
-circle_core.workers.slave_driver.replicator module
---------------------------------------------------
+circle\_core.workers.slave\_driver.replicator module
+----------------------------------------------------
 
 .. automodule:: circle_core.workers.slave_driver.replicator
     :members:

@@ -1,5 +1,5 @@
-circle_core.web package
-=======================
+circle\_core.web package
+========================
 
 Subpackages
 -----------
@@ -14,16 +14,16 @@ Subpackages
 Submodules
 ----------
 
-circle_core.web.app module
---------------------------
+circle\_core.web.app module
+---------------------------
 
 .. automodule:: circle_core.web.app
     :members:
     :undoc-members:
     :show-inheritance:
 
-circle_core.web.utils module
-----------------------------
+circle\_core.web.utils module
+-----------------------------
 
 .. automodule:: circle_core.web.utils
     :members:

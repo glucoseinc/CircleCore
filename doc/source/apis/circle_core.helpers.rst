@@ -1,19 +1,19 @@
-circle_core.helpers package
-===========================
+circle\_core.helpers package
+============================
 
 Submodules
 ----------
 
-circle_core.helpers.nanomsg module
-----------------------------------
+circle\_core.helpers.nanomsg module
+-----------------------------------
 
 .. automodule:: circle_core.helpers.nanomsg
     :members:
     :undoc-members:
     :show-inheritance:
 
-circle_core.helpers.topics module
----------------------------------
+circle\_core.helpers.topics module
+----------------------------------
 
 .. automodule:: circle_core.helpers.topics
     :members:

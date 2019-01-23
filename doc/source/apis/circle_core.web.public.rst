@@ -1,11 +1,11 @@
-circle_core.web.public package
-==============================
+circle\_core.web.public package
+===============================
 
 Submodules
 ----------
 
-circle_core.web.public.views module
------------------------------------
+circle\_core.web.public.views module
+------------------------------------
 
 .. automodule:: circle_core.web.public.views
     :members:

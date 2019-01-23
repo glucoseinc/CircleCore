@@ -1,5 +1,5 @@
-circle_core.models.oauth package
-================================
+circle\_core.models.oauth package
+=================================
 
 Module contents
 ---------------
