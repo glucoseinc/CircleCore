@@ -53,7 +53,9 @@ export const createQuery = (url, params) => {
 }
 
 export const createSearchString = (url, params) => {
-  const query = createQuery(url, params)
+  const query = createQuery(url, params || {})
+  if(!query)
+    return ''
   return `?${Object.entries(query).map(([key, value]) => `${key}=${value}`).join('&')}`
 }
 
