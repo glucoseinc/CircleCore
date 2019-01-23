@@ -63,7 +63,7 @@ class ModuleAttributeEditComponent extends React.Component {
         <AutoComplete
           floatingLabelText="属性値"
           dataSource={valueSuggestions}
-          value={attribute.value}
+          searchText={attribute.value}
           style={style.attributeType}
           onUpdateInput={(newValue) => onUpdate(attribute.updateValue(newValue))}
         />
