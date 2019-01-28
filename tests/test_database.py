@@ -148,3 +148,17 @@ async def test_store_blob(mysql, mock_circlecore):
                 source=str(ccinfo.uuid)
             )
         assert rows[0][0] == expected
+
+
+@pytest.mark.usefixtures('mysql')
+@pytest.mark.usefixtures('mock_circlecore')
+@pytest.mark.asyncio
+async def test_reconnect(mysql, mock_circlecore):
+    envdir = mock_circlecore[1]
+    database = Database(mysql.url, time_db_dir=envdir, log_dir=envdir)
+
+    journal_writer = database.make_writer()
+    queued_writer = journal_writer.child_writer
+
+    # test reconnect
+    await queued_writer.reconnect()

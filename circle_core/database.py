@@ -326,7 +326,7 @@ class Database(object):
         class Delegate(QueuedDBWriterDelegate):
 
             async def on_reconnect(self) -> None:
-                await jounal_writer.touch()  # type: ignore
+                jounal_writer.touch()  # type: ignore
 
         queued_writer = QueuedDBWriter(
             self, self._time_db_dir, cycle_time=cycle_time, cycle_count=cycle_count, delegate=Delegate()
