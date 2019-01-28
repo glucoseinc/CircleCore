@@ -81,15 +81,15 @@ class Replicator(object):
         self.runner = asyncio.ensure_future(self.run_async())
 
     def close(self):
-        assert self.runner
         self.closed = True
-        asyncio.get_event_loop().run_until_complete(asyncio.wait_for(self.runner, None))
+        if self.runner:
+            asyncio.get_event_loop().run_until_complete(asyncio.wait_for(self.runner, None))
         self.clear()
 
     async def close_async(self):
-        assert self.runner
         self.closed = True
-        await asyncio.wait_for(self.runner, None)
+        if self.runner:
+            await asyncio.wait_for(self.runner, None)
         self.clear()
 
     # private

@@ -13,7 +13,7 @@ from tornado.concurrent import run_on_executor
 from typing_extensions import Protocol
 
 from .base import DBWriter
-from ..exceptions import BadDBQuery, DatabaseConnectionLost, DatabaseWriteFailed
+from ..exceptions import BadMessage, DatabaseConnectionLost, DatabaseWriteFailed
 from ..logger import logger
 from ..message import ModuleMessage
 from ..timed_db import TimedDBBundle
@@ -114,10 +114,11 @@ class QueuedDBWriter(DBWriter):
             # if not self.connection:
             #     await self.connect_to_database()
             await self.store_message(message_box, message)
-        except BadDBQuery:
+        except BadMessage:
             # DBへの書き込みに失敗した。クエリ側の問題
             # skipする
-            return False
+            logger.info('Failed to write message to %s %r', message_box.uuid, message)
+            raise BadMessage
 
         except (DatabaseConnectionLost, DatabaseWriteFailed):
             # DBへの接続が失われた

@@ -17,7 +17,7 @@ from tornado.locks import Event
 from typing_extensions import Protocol
 
 from .base import DBWriter
-from ..exceptions import JournalCorrupted, MessageBoxNotFoundError
+from ..exceptions import BadMessage, JournalCorrupted, MessageBoxNotFoundError
 from ..logger import logger
 from ..message import ModuleMessage
 from ..models import MessageBox, NoResultFound
@@ -122,10 +122,14 @@ class JournalDBWriter(DBWriter, JournalReaderDelegate):
                     logger.debug('Read message from log : %r', data)
                     if data:
                         logger.debug('Try storing to child writer')
-                        store_result = await self.store_message_to_child(data)
-                        logger.debug('Store to child writer: %r', store_result)
-                        if not store_result:
-                            raise ChildWriteFailed()
+                        try:
+                            store_result = await self.store_message_to_child(data)
+                        except BadMessage:
+                            logger.info('Skip bad message: %r', data)
+                        else:
+                            logger.debug('Store to child writer: %r', store_result)
+                            if not store_result:
+                                raise ChildWriteFailed()
             except ChildWriteFailed:
                 # 書き込み失敗した場合、例外でwithから抜ける。
                 # そうするとJournalReaderはposを更新しない
