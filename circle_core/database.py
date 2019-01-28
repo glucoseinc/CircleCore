@@ -19,7 +19,7 @@ from sqlalchemy.orm import sessionmaker
 
 # project module
 from .constants import CRDataType
-from .exceptions import BadDBQuery, DatabaseConnectionLost, DatabaseWriteFailed
+from .exceptions import BadMessage, DatabaseConnectionLost, DatabaseWriteFailed
 from .logger import logger
 from .message import ModuleMessage, ModuleMessagePrimaryKey
 from .models import MessageBox
@@ -85,7 +85,7 @@ class Database(object):
 
         previous_head = self._message_heads.get(message_box.uuid)
         if previous_head and previous_head >= message.primary_key:
-            raise ValueError('message is older than latest head')
+            raise BadMessage('message is older than latest head')
 
         table = self.find_table_for_message_box(message_box)
 
@@ -95,7 +95,7 @@ class Database(object):
             )
         except ValueError as exc:
             logger.exception('Bad message %r', exc)
-            raise BadDBQuery
+            raise BadMessage
 
         try:
             connection.execute(query)
@@ -108,7 +108,7 @@ class Database(object):
 
                 if isinstance(exc.orig, pymysql.err.InternalError) and exc.orig.args[0] == 1292:
                     # pymysql.err.InternalError: (1292, "Incorrect datetime value: '2017-09-01T24:00:00Z' for ...
-                    raise BadDBQuery
+                    raise BadMessage
 
             if self._engine.closed:
                 # 接続が切れた

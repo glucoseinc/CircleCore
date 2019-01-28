@@ -72,5 +72,5 @@ class DatabaseConnectionLost(DatabaseWriteFailed):
     pass
 
 
-class BadDBQuery(DatabaseWriteFailed):
+class BadMessage(CircleCoreException):
     pass
