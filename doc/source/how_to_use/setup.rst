@@ -21,7 +21,7 @@ Dockerコマンドよりビルドと実行を行う。::
 
 以下のコマンドで、CLIツールが使える。::
 
-	% docker exec -it [CONTAINER ID] crcr 
+	% docker exec -it [CONTAINER ID] crcr
 
 
 マシン上で直接立ち上げる
@@ -48,3 +48,10 @@ Web管理画面に接続する
 
 CircleCoreの起動ログにWeb管理画面のURLが記載されているので、そこに接続する。
 管理者のアカウントでログインする。
+
+
+:doc:`invite`
+
+:doc:`scheme`
+
+:doc:`module`
