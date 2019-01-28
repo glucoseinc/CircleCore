@@ -66,3 +66,11 @@ class JournalCorrupted(CircleCoreException):
 
 class DatabaseWriteFailed(CircleCoreException):
     pass
+
+
+class DatabaseConnectionLost(DatabaseWriteFailed):
+    pass
+
+
+class BadDBQuery(DatabaseWriteFailed):
+    pass

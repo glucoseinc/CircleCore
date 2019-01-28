@@ -4,6 +4,8 @@
 from __future__ import absolute_import
 
 # system module
+import datetime
+import re
 import threading
 import uuid
 from typing import Any, Dict, Mapping, Optional, TYPE_CHECKING
@@ -17,12 +19,13 @@ from sqlalchemy.orm import sessionmaker
 
 # project module
 from .constants import CRDataType
-from .exceptions import DatabaseWriteFailed
+from .exceptions import BadDBQuery, DatabaseConnectionLost, DatabaseWriteFailed
 from .logger import logger
 from .message import ModuleMessage, ModuleMessagePrimaryKey
 from .models import MessageBox
 from .serialize import serialize
 from .types import Path
+from .utils import prepare_date
 
 if TYPE_CHECKING:
     from .workers.blobstore import StoredBlob
@@ -31,6 +34,7 @@ TABLE_OPTIONS = {
     'mysql_engine': 'InnoDB',
     'mysql_charset': 'utf8mb4',
 }
+DATE_REX = re.compile(r'(\d{4})-(\d{1,2})-(\d{1,2})')
 
 
 class Database(object):
@@ -84,16 +88,34 @@ class Database(object):
             raise ValueError('message is older than latest head')
 
         table = self.find_table_for_message_box(message_box)
-        query = table.insert().values(
-            _created_at=message.timestamp, _counter=message.counter, **self.convert_payload(message_box, message)
-        )
+
+        try:
+            query = table.insert().values(
+                _created_at=message.timestamp, _counter=message.counter, **self.convert_payload(message_box, message)
+            )
+        except ValueError as exc:
+            logger.exception('Bad message %r', exc)
+            raise BadDBQuery
 
         try:
             connection.execute(query)
         except sqlalchemy.exc.DatabaseError as exc:
             # 接続エラーとかの場合 OperationalErrorがくる
             logger.exception('Failed to write message, %r', exc)
-            raise DatabaseWriteFailed
+
+            if isinstance(exc, sqlalchemy.exc.InternalError):
+                import pymysql.err
+
+                if isinstance(exc.orig, pymysql.err.InternalError) and exc.orig.args[0] == 1292:
+                    # pymysql.err.InternalError: (1292, "Incorrect datetime value: '2017-09-01T24:00:00Z' for ...
+                    raise BadDBQuery
+
+            if self._engine.closed:
+                # 接続が切れた
+                raise DatabaseConnectionLost
+            else:
+                # わからんけど失敗した
+                raise DatabaseWriteFailed
         else:
             # update head
             self._message_heads[message_box.uuid] = message.primary_key
@@ -326,7 +348,7 @@ class Database(object):
         class Delegate(QueuedDBWriterDelegate):
 
             async def on_reconnect(self) -> None:
-                await jounal_writer.touch()  # type: ignore
+                jounal_writer.touch()  # type: ignore
 
         queued_writer = QueuedDBWriter(
             self, self._time_db_dir, cycle_time=cycle_time, cycle_count=cycle_count, delegate=Delegate()
@@ -379,8 +401,27 @@ def blob_to_mysql(value: 'StoredBlob') -> Any:
     return serialize(value)
 
 
+def date_to_mysql(value: str) -> Any:
+    if isinstance(value, str):
+        if 'T' in value:
+            value = value.split('T')[0]
+            mo = DATE_REX.match(value)
+            if mo:
+                return datetime.date(int(mo.group(1), 10), int(mo.group(2), 10), int(mo.group(3), 10))
+
+    dt = prepare_date(value)
+    return dt.date()
+
+
+def datetime_to_mysql(value: str) -> Any:
+    dt = prepare_date(value)
+    return dt
+
+
 TO_MYSQLVALUE_MAP = {
     CRDataType.BLOB: blob_to_mysql,
+    CRDataType.DATE: date_to_mysql,
+    CRDataType.DATETIME: datetime_to_mysql,
 }
 
 
@@ -395,6 +436,7 @@ def convert_to_mysql_value(datatype, value):
     """
 
     converter = TO_MYSQLVALUE_MAP.get(datatype, None)
-    if not converter:
-        return value
-    return converter(value)
+    if converter:
+        value = converter(value)
+
+    return value

@@ -13,7 +13,7 @@ from tornado.concurrent import run_on_executor
 from typing_extensions import Protocol
 
 from .base import DBWriter
-from ..exceptions import DatabaseWriteFailed
+from ..exceptions import BadDBQuery, DatabaseConnectionLost, DatabaseWriteFailed
 from ..logger import logger
 from ..message import ModuleMessage
 from ..timed_db import TimedDBBundle
@@ -114,13 +114,19 @@ class QueuedDBWriter(DBWriter):
             # if not self.connection:
             #     await self.connect_to_database()
             await self.store_message(message_box, message)
-        except DatabaseWriteFailed:
+        except BadDBQuery:
+            # DBへの書き込みに失敗した。クエリ側の問題
+            # skipする
+            return False
+
+        except (DatabaseConnectionLost, DatabaseWriteFailed):
+            # DBへの接続が失われた
             # logger.exception('store failed. while connection')
             logger.error('store failed. while connection')
 
             # 失敗したので
             if not self.retry_connect_timeout:
-                self.retry_connect_timeout = self.loop.add_timeout(RETRY_TIMEOUT, self.reconncet)
+                self.retry_connect_timeout = self.loop.add_timeout(RETRY_TIMEOUT, self.reconnect)
 
             # 失敗したので後始末
             await self.cleanup_database()
@@ -235,14 +241,14 @@ class QueuedDBWriter(DBWriter):
             # まだ残りがあったらtimeoutを仕込む
             self.timeout = self.loop.add_timeout(self.cycle_time, self.on_timeout)
 
-    async def reconncet(self):
+    async def reconnect(self):
         self.retry_connect_timeout = None
 
         try:
             await self.connect_to_database()
         except (DatabaseWriteFailed, sqlalchemy.exc.DatabaseError):
             logger.info('Reconnect failed, retry after %r secs', RETRY_TIMEOUT)
-            self.retry_connect_timeout = self.loop.add_timeout(RETRY_TIMEOUT, self.reconncet)
+            self.retry_connect_timeout = self.loop.add_timeout(RETRY_TIMEOUT, self.reconnect)
             return
         except:  # noqa
             logger.exception('Uncatched error while reconnect')

@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
+import asyncio
+import datetime
+import uuid
+
 import pytest
 
 from sqlalchemy.sql.expression import select
 
 from circle_core.database import Database
-# from circle_core.exceptions import MigrationError
 from circle_core.message import ModuleMessage
 from circle_core.models import CcInfo, MessageBox, MetaDataSession, Module, Schema, generate_uuid
 from circle_core.types import BlobMetadata
@@ -148,3 +151,56 @@ async def test_store_blob(mysql, mock_circlecore):
                 source=str(ccinfo.uuid)
             )
         assert rows[0][0] == expected
+
+
+@pytest.mark.usefixtures('mysql')
+@pytest.mark.usefixtures('mock_circlecore')
+@pytest.mark.asyncio
+async def test_reconnect(mysql, mock_circlecore):
+    envdir = mock_circlecore[1]
+    database = Database(mysql.url, time_db_dir=envdir, log_dir=envdir)
+
+    journal_writer = database.make_writer()
+    queued_writer = journal_writer.child_writer
+
+    run_loop = asyncio.ensure_future(journal_writer.run())
+
+    # test reconnect
+    await queued_writer.reconnect()
+
+    # close database
+    await journal_writer.close()
+    await run_loop
+
+
+@pytest.mark.asyncio
+async def test_post_date(mysql, mock_circlecore):
+    mbox_id = uuid.uuid4()
+    with MetaDataSession.begin():
+        schema = Schema.create(display_name='Schema', properties='date:date,id1:float')
+        module = Module.create(display_name='Module')
+        mbox = MessageBox(uuid=mbox_id, schema_uuid=schema.uuid, module_uuid=module.uuid)
+        MetaDataSession.add(schema)
+        MetaDataSession.add(module)
+        MetaDataSession.add(mbox)
+
+    envdir = mock_circlecore[1]
+    database = Database(mysql.url, time_db_dir=envdir, log_dir=envdir)
+    journal_writer = database.make_writer()
+    run_loop = asyncio.ensure_future(journal_writer.run())
+
+    # post
+    message = ModuleMessage(mbox.uuid, 123456.789, 0, {'date': '2017-09-01T00:00:00Z', 'id1': 3.14})
+    await journal_writer.store(mbox, message)
+    await journal_writer.flush()
+
+    # close database
+    await journal_writer.close()
+    await run_loop
+
+    with database._engine.begin() as connection:
+        table = database.find_table_for_message_box(mbox)
+        rows = connection.execute(select([table])).fetchall()
+        assert len(rows) == 1
+        assert rows[0][2] == datetime.date(2017, 9, 1)
+        assert rows[0][3] == 3.14
