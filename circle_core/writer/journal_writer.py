@@ -409,6 +409,7 @@ def json_object_hook(o):
 
 
 class CCJSONEncoder(json.JSONEncoder):
+
     def __init__(self):
         super().__init__(sort_keys=True)
 
@@ -417,7 +418,10 @@ class CCJSONEncoder(json.JSONEncoder):
 
         if isinstance(o, StoredBlob):
             return {
-                '$blob': o.datahash, '$content_type': o.content_type, '$source': str(o.source) if o.source else None}
+                '$blob': o.datahash,
+                '$content_type': o.content_type,
+                '$source': str(o.source) if o.source else None
+            }
         return super().default(o)
 
 
