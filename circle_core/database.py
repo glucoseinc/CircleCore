@@ -4,6 +4,8 @@
 from __future__ import absolute_import
 
 # system module
+import datetime
+import re
 import threading
 import uuid
 from typing import Any, Dict, Mapping, Optional, TYPE_CHECKING
@@ -23,6 +25,7 @@ from .message import ModuleMessage, ModuleMessagePrimaryKey
 from .models import MessageBox
 from .serialize import serialize
 from .types import Path
+from .utils import prepare_date
 
 if TYPE_CHECKING:
     from .workers.blobstore import StoredBlob
@@ -31,6 +34,7 @@ TABLE_OPTIONS = {
     'mysql_engine': 'InnoDB',
     'mysql_charset': 'utf8mb4',
 }
+DATE_REX = re.compile(r'(\d{4})-(\d{1,2})-(\d{1,2})')
 
 
 class Database(object):
@@ -379,7 +383,30 @@ def blob_to_mysql(value: 'StoredBlob') -> Any:
     return serialize(value)
 
 
+def date_to_mysql(value: str) -> Any:
+    if isinstance(value, str):
+        if 'T' in value:
+            value = value.split('T')[0]
+            mo = DATE_REX.match(value)
+            if mo:
+                return datetime.date(
+                    int(mo.group(1), 10),
+                    int(mo.group(2), 10),
+                    int(mo.group(3), 10)
+                )
+
+    dt = prepare_date(value)
+    return dt.date()
+
+
+def datetime_to_mysql(value: str) -> Any:
+    dt = prepare_date(value)
+    return dt
+
+
 TO_MYSQLVALUE_MAP = {
+    CRDataType.DATE: date_to_mysql,
+    CRDataType.DATETIME: datetime_to_mysql,
     CRDataType.BLOB: blob_to_mysql,
 }
 
@@ -395,6 +422,7 @@ def convert_to_mysql_value(datatype, value):
     """
 
     converter = TO_MYSQLVALUE_MAP.get(datatype, None)
-    if not converter:
-        return value
-    return converter(value)
+    if converter:
+        value = converter(value)
+
+    return value
