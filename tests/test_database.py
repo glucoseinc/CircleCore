@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import asyncio
+
 import pytest
 
 from sqlalchemy.sql.expression import select
@@ -160,5 +162,11 @@ async def test_reconnect(mysql, mock_circlecore):
     journal_writer = database.make_writer()
     queued_writer = journal_writer.child_writer
 
+    run_loop = asyncio.ensure_future(journal_writer.run())
+
     # test reconnect
     await queued_writer.reconnect()
+
+    # close database
+    await journal_writer.close()
+    await run_loop

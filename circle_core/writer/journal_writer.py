@@ -64,8 +64,22 @@ class JournalDBWriter(DBWriter, JournalReaderDelegate):
 
     def __del__(self):
         if not self.closed:
-            # asyncio.get_event_loop().run_until_complete(self.close())
-            tornado.ioloop.current().run_sync(self.close)
+            loop = tornado.ioloop.IOLoop.current(instance=False)
+            assert loop, 'ioloop is closed before journal_writer shutting down'
+            loop.run_sync(self.close)
+
+    async def close(self):
+        if self.closed:
+            logger.warning('Journal is already closed')
+            return
+
+        logger.info('close JournalDBWriter')
+        self.closed = True
+        self.store_event.set()
+        await self.writer_loop
+
+        self.journal_reader.close()
+        self.journal_writer.close()
 
     def touch(self):
         self.store_event.set()
@@ -95,19 +109,6 @@ class JournalDBWriter(DBWriter, JournalReaderDelegate):
                     logger.exception('Failed to remove old log file %s', filepath)
 
     # private
-    async def close(self):
-        if self.closed:
-            logger.warning('Journal is already closed')
-            return
-
-        logger.info('close JournalDBWriter')
-        self.closed = True
-        self.store_event.set()
-        await self.writer_loop
-
-        self.journal_reader.close()
-        self.journal_writer.close()
-
     async def run(self):
         """logファイルに新しいデータが書き込まれたら、child_writerに書込、posを進める"""
         assert not self.closed
